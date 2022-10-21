@@ -1,18 +1,33 @@
 import cz.coffee.jsonHandler.GsonHandler;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Test {
-    public static void main(String[] args)  {
+    public static void main(String[] args) throws IOException {
 
-        File f = new File("Tests/gson");
+        String filename = "Tests/SkriptGson/Test.json";
+        String testString = "{\"Hello\": true}";
 
-        String test = "tests/json.json";
-        GsonHandler json = new GsonHandler(new File(test));
-        json.makeJsonFile();
+        File f = new File("filename");
 
-        json.writeJsonFile("{\"Hello\": true}");
+        boolean c = false;
+        if ( !f.exists() ) {
+            if (f.createNewFile()) {
+                c = true;
+            }
+        } else {
+            c = true;
+        }
 
-        json.removeJsonFile();
+        if (c) {
+            GsonHandler json = new GsonHandler(new File(filename));
+            json.makeJsonFile();
+
+            json.writeJsonFile(testString);
+
+            json.removeJsonFile();
+        }
+
     }
 }
