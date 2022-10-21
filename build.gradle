@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
     implementation 'com.github.SkriptLang:Skript:2.6.3'
     implementation 'com.google.code.gson:gson:2.9.0'

@@ -74,7 +74,7 @@ public class GsonHandler extends Util {
                 System.out.println(prettyGson().toJson(objectFromFile));
 
 
-                // Write
+                // Append a new Object
                 f = new FileWriter(this.file);
                 System.out.println(prettyGson().toJson(je));
 

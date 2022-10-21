@@ -24,9 +24,10 @@ public class Test {
             GsonHandler json = new GsonHandler(new File(filename));
             json.makeJsonFile();
 
-            //json.writeJsonFile(testString);
+            json.writeJsonFile(testString);
 
-            json.removeJsonFile();
+            //json.removeJsonFile();
+
         }
 
     }
