@@ -44,7 +44,7 @@ public class pre_GsonDataApi {
                                 {"Dict": false}
                             ],
                             "AAA": {
-                                "cz.coffee.Util.Data": false,
+                                "Data": false,
                                 "BBB": [1,2,3,111.22]
                             }
                         }"""
