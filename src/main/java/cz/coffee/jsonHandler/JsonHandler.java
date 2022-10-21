@@ -58,6 +58,8 @@ public class JsonHandler extends Util {
         }
         return false;
     }
+    
+    #
 
     private boolean writeFile( String str) {
         if (this.file.exists()) {
