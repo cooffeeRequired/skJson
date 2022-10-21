@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 
 @SuppressWarnings({"unused", "deprecation"})
 
-public class Util
+public class util
 {
     public static JsonElement gsonParser(String str) { return new JsonParser().parse(str); }
     public static Gson newGson() {return new Gson();}

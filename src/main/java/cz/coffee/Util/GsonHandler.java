@@ -10,7 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @SuppressWarnings({"unused","UnusedReturnValue"})
-public class GsonHandler extends Util {
+public class GsonHandler extends util {
 
     final private File file;
     private boolean exist;
