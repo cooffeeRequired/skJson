@@ -6,7 +6,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import cz.coffee.SkriptGson;
+import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 

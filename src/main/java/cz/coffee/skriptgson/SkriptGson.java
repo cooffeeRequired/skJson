@@ -1,4 +1,4 @@
-package cz.coffee;
+package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
