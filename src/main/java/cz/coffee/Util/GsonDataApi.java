@@ -21,7 +21,7 @@ public class GsonDataApi {
 
     public static void main(String[] args) throws Exception
     {
-        Gson gson = Util.prettyGson();
+        Gson gson = util.prettyGson();
         Type DataType = new TypeToken<List<Data>>(){}.getType();
         FileReader fr = new FileReader("Tests/test.json");
         List<Data> dts = gson.fromJson(fr,DataType);
@@ -31,7 +31,7 @@ public class GsonDataApi {
         }
 
         // parsing new data
-        JsonElement je = Util.parsedString(
+        JsonElement je = util.parsedString(
                 """
                         {
                             "data": [
