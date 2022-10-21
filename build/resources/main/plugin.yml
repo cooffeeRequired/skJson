@@ -1,0 +1,10 @@
+name: skript-gson
+version: '1.0-Beta'
+main: cz.coffee.SkriptJson
+api-version: 1.19
+prefix: skript-gson
+load: POSTWORLD
+depend: [ Skript ]
+authors: [ coffee ]
+description: Skript Addon for using Json (SkriptGson) in Skript
+website: https://github.com/cooffeeRequired/skript-gson/

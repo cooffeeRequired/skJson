@@ -1,0 +1,10 @@
+name: skript-json
+version: '1.0-Beta'
+main: cz.coffee.skriptjson.SkriptJson
+api-version: 1.19
+prefix: skript-json
+load: POSTWORLD
+depend: [ Skript ]
+authors: [ coffee ]
+description: Skript Addon for using Json (SkriptJson) in Skript
+website: https://github.com/cooffeeRequired/skript-json/
