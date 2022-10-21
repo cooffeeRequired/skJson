@@ -6,13 +6,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 
 @SuppressWarnings("unused")
 
 public class SkriptGson extends JavaPlugin {
 
-    final public static String docSince = "2.6.3";
+    private static Logger logger;
+
+    public static final String docSince = "2.6.3";
     public static SkriptGson instance;
     SkriptAddon addon;
 
@@ -38,4 +41,17 @@ public class SkriptGson extends JavaPlugin {
     public void onDisable() {
         System.out.println(ChatColor.translateAlternateColorCodes('&', "&cDisabled"));
     }
+
+    public void info(String string) {
+        logger.info(string);
+    }
+
+    public void warning(String string) {
+        logger.warning(string);
+    }
+
+    public void severe(String string) {
+        logger.severe(string);
+    }
+
 }
