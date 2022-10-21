@@ -1,4 +1,4 @@
-package cz.coffee.jsonHandler;
+package cz.coffee.Util;
 
 
 import com.google.gson.JsonElement;
