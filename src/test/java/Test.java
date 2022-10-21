@@ -7,7 +7,13 @@ public class Test {
     public static void main(String[] args) throws IOException {
 
         String filename = "Tests/SkriptGson/Test.json";
-        String testString = "{\"Hello\": true}";
+        String testString =
+                """
+                {
+                    "Hello":
+                    true
+                }
+                """;
 
         File f = new File("filename");
 
