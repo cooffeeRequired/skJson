@@ -15,7 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @SuppressWarnings("unused")
 
-public class pre_GsonDataApi {
+// Class is not finished yet.
+
+public class GsonDataApi {
 
     public static void main(String[] args) throws Exception
     {
