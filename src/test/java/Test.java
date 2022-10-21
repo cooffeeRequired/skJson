@@ -1,40 +1,14 @@
-import cz.coffee.skriptgson.Util.GsonHandler;
+import cz.coffee.skriptgson.Util.GsonDataApi;
 
 import java.io.File;
-import java.io.IOException;
 
 public class Test {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
 
-        String filename = "Tests/SkriptGson/Test.json";
-        String testString =
-                """
-                {
-                    "Hello":
-                    true
-                }
-                """;
+        GsonDataApi api = new GsonDataApi("Tests/json.json");
+        api.createFile();
+        File file = api.gsonAppend("");
 
-        File f = new File("filename");
-
-        boolean c = false;
-        if ( !f.exists() ) {
-            if (f.createNewFile()) {
-                c = true;
-            }
-        } else {
-            c = true;
-        }
-
-        if (c) {
-            GsonHandler json = new GsonHandler(new File(filename));
-            json.makeJsonFile();
-
-            json.writeJsonFile(testString);
-
-            //json.removeJsonFile();
-
-        }
-
+        System.out.println(file != null);
     }
 }

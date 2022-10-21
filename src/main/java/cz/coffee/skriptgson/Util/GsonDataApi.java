@@ -1,63 +1,92 @@
 package cz.coffee.skriptgson.Util;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import lombok.AllArgsConstructor;
 
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@AllArgsConstructor
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused","uncheked"})
+public class GsonDataApi extends GsonUtils
+{
+    final private File file;
+    private boolean exist;
 
-// Class is not finished yet.
+    public GsonDataApi(String path) {
+        super();
+        this.file = new File(path);
 
-public class GsonDataApi {
+    }
+    Type DataType = new TypeToken<List<Data>>() {}.getType();
 
-    public static void main(String[] args) throws Exception
-    {
-        Gson gson = GsonUtils.prettyGson();
-        Type DataType = new TypeToken<List<Data>>(){}.getType();
-        FileReader fr = new FileReader("Tests/test.json");
-        List<Data> dts = gson.fromJson(fr,DataType);
-        fr.close();
-        if (dts == null) {
-            dts = new ArrayList<>();
+    public File createFile() {
+
+        FileWriter fw = null;
+        List<Data> dts = null;
+
+        if (this.file.exists()){
+            if (this.file.length() != 0) {
+                System.out.println("This file '" + this.file + "' already exist");
+                return null;
+            }
         }
+        try {
+            fw = new FileWriter(this.file);
+            JsonElement je = GsonUtils.parsedString("{}");
+            dts = new ArrayList<>();
+            dts.add(new Data(je, new Date()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            prettyGson().toJson(dts, fw);
+            assert fw != null;
+            try {
+                fw.flush();
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return this.file;
+    }
 
-        // parsing new data
-        JsonElement je = GsonUtils.parsedString(
-                """
-                        {
-                            "data": [
-                                true,
-                                false,
-                                null,
-                                "A",
-                                11,
-                                12,
-                                22.4,
-                                "AAASS",
-                                {"Dict": false}
-                            ],
-                            "AAA": {
-                                "Data": false,
-                                "BBB": [1,2,3,111.22]
-                            }
-                        }"""
-        );
+    public File gsonAppend(String insertedData) {
+        FileWriter fw;
+        FileReader fr;
+        List<Data> dts = null;
+        try {
+            fr = new FileReader(this.file);
+            dts = newGson().fromJson(fr, DataType);
+            try {
+                fr.close();
+                if ( dts == null ) {
+                    dts = new ArrayList<>();
+                }
+                fw = new FileWriter(this.file);
+                JsonElement je = parsedString(insertedData);
+                dts.add(new Data(je, new Date()));
+                try {
+                    prettyGson().toJson(dts,fw);
+                    fw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println(prettyGson().toJson(dts));
+        }
+        return this.file;
+    }
 
-        // adding
-        dts.add(new Data(je, new Date()));
-        System.out.println(gson.toJson(dts));
-
-        FileWriter fw = new FileWriter("Tests/test.json");
-        gson.toJson(dts, fw);
-        fw.close();
+    @Override
+    public String toString() {
+        return "";
     }
 }
