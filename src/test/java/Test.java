@@ -1,4 +1,4 @@
-import cz.coffee.jsonHandler.JsonHandler;
+import cz.coffee.jsonHandler.GsonHandler;
 
 import java.io.File;
 
@@ -8,7 +8,7 @@ public class Test {
         File f = new File("Tests/gson");
 
         String test = "tests/json.json";
-        JsonHandler json = new JsonHandler(new File(test));
+        GsonHandler json = new GsonHandler(new File(test));
         json.makeJsonFile();
 
         json.writeJsonFile("{\"Hello\": true}");

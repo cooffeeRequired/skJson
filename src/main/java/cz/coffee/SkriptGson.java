@@ -10,10 +10,10 @@ import java.io.IOException;
 
 @SuppressWarnings("unused")
 
-public class SkriptJson extends JavaPlugin {
+public class SkriptGson extends JavaPlugin {
 
     final public static String docSince = "2.6.3";
-    public static SkriptJson instance;
+    public static SkriptGson instance;
     SkriptAddon addon;
 
     @Override

@@ -6,13 +6,13 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import cz.coffee.SkriptJson;
+import cz.coffee.SkriptGson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-@Since(SkriptJson.docSince)
+@Since(SkriptGson.docSince)
 
 @SuppressWarnings("unused")
 public class EffMakeJsonFile extends Effect {

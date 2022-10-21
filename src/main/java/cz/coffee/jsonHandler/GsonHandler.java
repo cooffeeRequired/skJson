@@ -10,12 +10,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @SuppressWarnings({"unused","UnusedReturnValue"})
-public class JsonHandler extends Util {
+public class GsonHandler extends Util {
 
     final private File file;
     private boolean exist;
 
-    public JsonHandler(File file) {
+    public GsonHandler(File file) {
         super();
         this.file = file;
     }
@@ -58,8 +58,7 @@ public class JsonHandler extends Util {
         }
         return false;
     }
-    
-    #
+
 
     private boolean writeFile( String str) {
         if (this.file.exists()) {
