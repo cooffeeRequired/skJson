@@ -1,6 +1,6 @@
 name: skript-gson
 version: '1.0-Beta'
-main: cz.coffee.SkriptGson
+main: cz.coffee.skriptgson.SkriptGson
 api-version: 1.19
 prefix: skript-gson
 load: POSTWORLD

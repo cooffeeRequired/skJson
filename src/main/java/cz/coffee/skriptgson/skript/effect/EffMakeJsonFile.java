@@ -1,4 +1,4 @@
-package cz.coffee.skript.effect;
+package cz.coffee.skriptgson.skript.effect;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Since;

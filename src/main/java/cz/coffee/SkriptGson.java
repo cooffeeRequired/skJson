@@ -26,7 +26,7 @@ public class SkriptGson extends JavaPlugin {
         }
 
         try {
-            addon.loadClasses("cz.coffee.gson.skript");
+            addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (IOException IOe) {
             IOe.printStackTrace();
         } finally {

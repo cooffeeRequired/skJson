@@ -1,4 +1,4 @@
-import cz.coffee.Util.GsonHandler;
+import cz.coffee.skriptgson.Util.GsonHandler;
 
 import java.io.File;
 import java.io.IOException;
