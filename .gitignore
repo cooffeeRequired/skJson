@@ -15,6 +15,7 @@
 *idea
 *.gitignore
 *.gitattributes
+*Tests
 
 # Package Files #
 *.jar
