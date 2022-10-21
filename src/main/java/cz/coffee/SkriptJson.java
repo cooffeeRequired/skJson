@@ -19,7 +19,12 @@ public class SkriptJson extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        addon = Skript.registerAddon(this);
+        try {
+            addon = Skript.registerAddon(this);
+        } catch ( IllegalAccessError e) {
+            e.printStackTrace();
+        }
+
         try {
             addon.loadClasses("cz.coffee.gson.skript");
         } catch (IOException IOe) {
