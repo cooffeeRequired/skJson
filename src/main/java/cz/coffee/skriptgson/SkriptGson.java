@@ -39,7 +39,11 @@ public class SkriptGson extends JavaPlugin {
             ex.printStackTrace();
             return;
         }
-        SkriptGson.info("&aWelcome onboard!");
+        if (Classes.getExactClassInfo(JsonElement.class) != null)
+            info("DEBUG &7Registered skript type 'jsonelement'!");
+        else
+            severe("DEBUG Failed to register skript type 'jsonelement");
+        info("&aFinished loading.");
     }
 
     // Plugin pre-load checks

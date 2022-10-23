@@ -17,6 +17,12 @@
 *.gitattributes
 *Tests
 *.gradle
+**test_server*
+.run/
+*.run/
+*run
+*.ps1
+build.ps1
 
 # Package Files #
 *.jar
