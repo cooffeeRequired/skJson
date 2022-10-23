@@ -5,7 +5,6 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.registrations.Classes;
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.Util.PluginUtils;
-import cz.coffee.skriptgson.skript.GsonType;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;

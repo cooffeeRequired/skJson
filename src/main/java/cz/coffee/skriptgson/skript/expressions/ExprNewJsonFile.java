@@ -32,9 +32,8 @@ import java.nio.charset.StandardCharsets;
 public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(ExprNewJsonFile.class,Object.class, ExpressionType.COMBINED,"" +
-                "[a] [new] json file %string%",
-                "[a] [new] json file %string% with [data] %string%");
+        Skript.registerExpression(ExprNewJsonFile.class,Object.class, ExpressionType.COMBINED,
+                "[a] [new] json file %string% [(:with data %-string%)]");
 
     }
 
@@ -49,6 +48,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         if ( pattern == 1) {
             exprData = (Expression<String>) exprs[1];
         }
+
         return true;
     }
 
