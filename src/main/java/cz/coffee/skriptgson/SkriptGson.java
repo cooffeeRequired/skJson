@@ -34,7 +34,6 @@ public class SkriptGson extends JavaPlugin {
         instance = this;
         try {
             addon = Skript.registerAddon(this);
-            new GsonType();
             addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (Exception ex) {
             SkriptGson.severe("Unable to register " + getDescription().getName() + " synttaxes:\n- " + ex.getMessage());
@@ -82,17 +81,15 @@ public class SkriptGson extends JavaPlugin {
 
     // Utilities
     public static void info(String string) {
-        Bukkit.getConsoleSender().sendMessage(PluginUtils.color(PREFIX + string));
+        Bukkit.getLogger().info(PluginUtils.color(PREFIX + string));
     }
 
     public static void warning(String string) {
-        Bukkit.getConsoleSender().sendMessage(PluginUtils.color(PREFIX + "&e" + string));
-        logger.warning(string);
+        Bukkit.getLogger().warning(PluginUtils.color(PREFIX + "&e" + string));
     }
 
     public static void severe(String string) {
-        Bukkit.getConsoleSender().sendMessage(PluginUtils.color(PREFIX + "&c" + string));
-        logger.severe(string);
+        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&c" + string));
     }
 
 }

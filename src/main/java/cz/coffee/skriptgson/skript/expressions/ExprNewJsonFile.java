@@ -39,20 +39,19 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     private Expression<String> exprString;
     private Expression<String> exprData;
-    private int pattern;
+    private int pattern = 0;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];
-        pattern = matchedPattern;
-        if ( pattern == 1) {
+        if (!parseResult.tags.isEmpty()) {
             exprData = (Expression<String>) exprs[1];
         }
 
         return true;
     }
 
-    public Object[] get(@NotNull Event event) {
+    public File[] get(@NotNull Event event) {
         if (exprString == null)
             return null;
         String inputFile = exprString.getSingle(event);
@@ -64,15 +63,10 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         JsonElement parsedString;
         String inputData;
 
-        if (exprData != null) {
-            inputData = exprData.getSingle(event);
-        } else {
-            inputData = null;
-        }
+        inputData = (exprData != null ? exprData.getSingle(event) : null);
 
-        if (new File(inputFile).exists()) {
+        if (new File(inputFile).exists())
             return null;
-        }
 
         try {
             OutputStream = new FileOutputStream(inputFile);
@@ -82,7 +76,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
                     .setPrettyPrinting()
                     .create()
                     .toJson(
-                            JsonParser.parseString(pattern == 0 ? "{}" : inputData)
+                            JsonParser.parseString(inputData == null ? "{}" : inputData)
                     )
             );
             writer.flush();
@@ -90,9 +84,8 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         } catch (IOException | JsonSyntaxException e) {
             return null;
         }
-        return new Object[]{inputFile};
+        return new File[]{new File(inputFile)};
     }
-
     @Override
     public String toString(Event event,boolean debug) {return "json file " + (pattern == 0 ? "" : "with data");}
 
@@ -102,7 +95,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
     }
 
     @Override
-    public Class<?> getReturnType() {
-        return Object.class;
+    public Class<? extends File> getReturnType() {
+        return File.class;
     }
 }
