@@ -6,8 +6,9 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 public class GsonType {
 
@@ -40,21 +41,55 @@ public class GsonType {
         }
 
         @Override
+
+        /* TODO we need get key:value pair because the .remove,.add if addicted on Key. At this moment
+            I set the Property Key on "KKK" ... the result of it it's ."{"A":"B","KKK":[{"A":"teeeeeeeeest"}]}".
+            .
+            https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/JsonObject.html
+            .
+            .. also i added the JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
+            it's currently converting from Object[] to new JsonElement[]..
+
+         */
+
+
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
+            JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
             switch (mode) {
                 case ADD: {
-                    for(JsonArray object : (JsonArray[]) what) { // TODO fix this cast shit
-                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-                            object.add(jsonElement);
+                    try {
+                        for (JsonElement object : what) {
+                            for (JsonElement jsonElement : value) {
+                                object.getAsJsonObject().add("KKK",jsonElement);
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
+
+//                    for(JsonArray object : (JsonArray[]) what) { // TODO fix this cast shit
+//                        for(JsonElement jsonElement : (JsonElement[]) delta) {
+//                            object.add(jsonElement);
+//                        }
+//                    }
                 }
                 case REMOVE: {
-                    for(JsonArray object : (JsonArray[]) what) {
-                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-                            object.remove(jsonElement);
+                    try {
+                        for (JsonElement object : what) {
+                            for (JsonElement jsonElement : value) {
+                                object.getAsJsonObject().remove("KKK");
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
+                    //for(JsonArray object : (JsonArray[]) what) {
+//                        for(JsonElement jsonElement : (JsonElement[]) delta) {
+//                            object.remove(jsonElement);
+//                        }
+                    //}
                 }
             }
         }

@@ -5,6 +5,8 @@ plugins {
 group = 'cz.coffee'
 version = '1.0-Beta'
 
+compileJava.options.encoding = 'UTF-8'
+
 repositories {
     mavenCentral()
     maven {
