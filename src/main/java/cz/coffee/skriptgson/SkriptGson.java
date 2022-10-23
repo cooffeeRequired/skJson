@@ -2,11 +2,14 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.registrations.Classes;
+import com.google.gson.JsonElement;
+import cz.coffee.skriptgson.Util.PluginUtils;
+import cz.coffee.skriptgson.skript.GsonType;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import cz.coffee.skriptgson.Util.PluginUtils;
 
 import java.util.logging.Logger;
 
@@ -19,13 +22,12 @@ public class SkriptGson extends JavaPlugin {
 
     private static SkriptGson instance;
     public static final String PREFIX = "&7[&6skript-gson&7] ";
-    private PluginManager pluginManager;
     public static final String docSince = "2.6.3";
     private SkriptAddon addon;
+    private final PluginManager pluginManager = this.getServer().getPluginManager();
 
     @Override
     public void onEnable() {
-
         if (!canLoadPlugin()) {
             pluginManager.disablePlugin(this);
             return;
@@ -33,6 +35,7 @@ public class SkriptGson extends JavaPlugin {
         instance = this;
         try {
             addon = Skript.registerAddon(this);
+            new GsonType();
             addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (Exception ex) {
             SkriptGson.severe("Unable to register " + getDescription().getName() + " synttaxes:\n- " + ex.getMessage());

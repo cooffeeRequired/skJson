@@ -13,18 +13,18 @@ import java.util.List;
 public class GsonDataApi extends GsonUtils
 {
     final private File file;
+    private FileWriter fw;
+
     private boolean exist;
 
     public GsonDataApi(String path) {
         super();
         this.file = new File(path);
-
     }
     Type DataType = new TypeToken<List<Data>>() {}.getType();
-
     public File createFile() {
 
-        FileWriter fw = null;
+        this.fw = null;
         List<Data> dts = null;
 
         if (this.file.exists()){
@@ -34,18 +34,17 @@ public class GsonDataApi extends GsonUtils
             }
         }
         try {
-            fw = new FileWriter(this.file);
+            this.fw = new FileWriter(this.file);
             JsonElement je = GsonUtils.parsedString("{}");
             dts = new ArrayList<>();
             dts.add(new Data(je, new Date()));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            prettyGson().toJson(dts, fw);
-            assert fw != null;
+            prettyGson().toJson(dts, this.fw);
+            assert this.fw != null;
             try {
-                fw.flush();
-                fw.close();
+                this.fw.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -54,7 +53,7 @@ public class GsonDataApi extends GsonUtils
     }
 
     public File gsonAppend(String insertedData) {
-        FileWriter fw;
+        this.fw = null;
         FileReader fr;
         List<Data> dts = null;
         try {
@@ -65,12 +64,12 @@ public class GsonDataApi extends GsonUtils
                 if ( dts == null ) {
                     dts = new ArrayList<>();
                 }
-                fw = new FileWriter(this.file);
+                this.fw = new FileWriter(this.file);
                 JsonElement je = parsedString(insertedData);
                 dts.add(new Data(je, new Date()));
                 try {
-                    prettyGson().toJson(dts,fw);
-                    fw.close();
+                    prettyGson().toJson(dts, this.fw);
+                    this.fw.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
