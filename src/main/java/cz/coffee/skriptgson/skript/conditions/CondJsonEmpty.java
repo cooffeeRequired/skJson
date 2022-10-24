@@ -22,10 +22,10 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.0")
 
 @SuppressWarnings({"unchecked","unused"})
-public class CondEmpty extends Condition {
+public class CondJsonEmpty extends Condition {
 
     static {
-        Skript.registerCondition(CondEmpty.class,
+        Skript.registerCondition(CondJsonEmpty.class,
                 "json %jsonelement% is empty ",
                 "json %jsonelement% is(n't| not) empty"
         );
@@ -49,7 +49,7 @@ public class CondEmpty extends Condition {
         if (check.getSingle(e).isJsonObject())
             return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
         if (check.getSingle(e).isJsonNull())
-            return true;
+            return (pattern == 0);
         if (check.getSingle(e).isJsonPrimitive())
             return check.getSingle(e).getAsJsonPrimitive() == null;
 
