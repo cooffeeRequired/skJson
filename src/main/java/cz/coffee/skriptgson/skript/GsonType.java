@@ -6,8 +6,8 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 public class GsonType {
 
@@ -57,17 +57,32 @@ public class GsonType {
 
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
-                case ADD: {
-                    for(JsonArray object : (JsonArray[]) what) { // TODO fix this cast shit
-                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-                            object.add(jsonElement);
+                case ADD:
+                    JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
+                    for(JsonElement object : what) {
+                        for ( JsonElement jsonElement : value) {
+                            if ( object.isJsonArray()) {
+                                object.getAsJsonArray().add(jsonElement);
+                            } else {
+                                String i = object.getAsJsonObject().entrySet().isEmpty() ? String.valueOf(0) : String.valueOf(object.getAsJsonObject().entrySet().toArray().length);
+                                object.getAsJsonObject().add(i,jsonElement);
+                            }
                         }
                     }
-                }
+                    break;
                 case REMOVE: {
-                    for(JsonArray object : (JsonArray[]) what) {
-                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-                            object.remove(jsonElement);
+                    Integer[] parsedDelta = new Integer[]{Integer.parseInt(String.valueOf(delta[0]))};
+                    for (JsonElement object : what) {
+                        for (Integer n : parsedDelta)  {
+                            if ( object.isJsonObject()) {
+                                object.getAsJsonObject().remove(String.valueOf(n));
+                            } else {
+                                try {
+                                    object.getAsJsonArray().remove(n);
+                                } catch (IndexOutOfBoundsException e) {
+                                    return;
+                                }
+                            }
                         }
                     }
                 }

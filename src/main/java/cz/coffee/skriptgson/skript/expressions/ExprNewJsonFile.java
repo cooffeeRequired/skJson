@@ -47,7 +47,6 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         if (!parseResult.tags.isEmpty()) {
             exprData = (Expression<String>) exprs[1];
         }
-
         return true;
     }
 
