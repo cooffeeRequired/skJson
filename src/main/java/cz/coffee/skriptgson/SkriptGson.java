@@ -81,15 +81,15 @@ public class SkriptGson extends JavaPlugin {
 
     // Utilities
     public static void info(String string) {
-        Bukkit.getLogger().info(PluginUtils.color(PREFIX + string));
+        Bukkit.getLogger().info(PluginUtils.color(PREFIX + PluginUtils.color(string)));
     }
 
     public static void warning(String string) {
-        Bukkit.getLogger().warning(PluginUtils.color(PREFIX + "&e" + string));
+        Bukkit.getLogger().warning(PluginUtils.color(PREFIX + "&e" + PluginUtils.color(string)));
     }
 
     public static void severe(String string) {
-        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&c" + string));
+        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&c" + PluginUtils.color(string)));
     }
 
 }
