@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
         "json {-e} is empty: ",
         "\tbroacast \"is empty\"",
 })
+@Since("1.0")
 
 @SuppressWarnings({"unchecked","unused"})
 public class CondEmpty extends Condition {
@@ -42,7 +44,16 @@ public class CondEmpty extends Condition {
 
     @Override
     public boolean check(Event e) {
-        return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
+        if (check.getSingle(e).isJsonArray())
+            return (pattern == 0) == check.getSingle(e).getAsJsonArray().isEmpty();
+        if (check.getSingle(e).isJsonObject())
+            return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
+        if (check.getSingle(e).isJsonNull())
+            return true;
+        if (check.getSingle(e).isJsonPrimitive())
+            return check.getSingle(e).getAsJsonPrimitive() == null;
+
+        return false;
     }
 
     @Override
