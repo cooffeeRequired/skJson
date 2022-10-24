@@ -6,9 +6,8 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
-import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 public class GsonType {
 
@@ -50,46 +49,27 @@ public class GsonType {
             .. also i added the JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
             it's currently converting from Object[] to new JsonElement[]..
 
+            JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
+
          */
 
 
+
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
-            JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
             switch (mode) {
                 case ADD: {
-                    try {
-                        for (JsonElement object : what) {
-                            for (JsonElement jsonElement : value) {
-                                object.getAsJsonObject().add("KKK",jsonElement);
-                            }
+                    for(JsonArray object : (JsonArray[]) what) { // TODO fix this cast shit
+                        for(JsonElement jsonElement : (JsonElement[]) delta) {
+                            object.add(jsonElement);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-
-
-//                    for(JsonArray object : (JsonArray[]) what) { // TODO fix this cast shit
-//                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-//                            object.add(jsonElement);
-//                        }
-//                    }
                 }
                 case REMOVE: {
-                    try {
-                        for (JsonElement object : what) {
-                            for (JsonElement jsonElement : value) {
-                                object.getAsJsonObject().remove("KKK");
-                            }
+                    for(JsonArray object : (JsonArray[]) what) {
+                        for(JsonElement jsonElement : (JsonElement[]) delta) {
+                            object.remove(jsonElement);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-
-                    //for(JsonArray object : (JsonArray[]) what) {
-//                        for(JsonElement jsonElement : (JsonElement[]) delta) {
-//                            object.remove(jsonElement);
-//                        }
-                    //}
                 }
             }
         }
