@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
+
+@SuppressWarnings({"unchecked","unused"})
 public class EffNewJsonFile extends Effect {
     static {
         Skript.registerEffect(EffNewJsonFile.class,
@@ -27,8 +29,6 @@ public class EffNewJsonFile extends Effect {
     }
     private Expression<String> exprString;
     private Expression<String> exprData;
-    private int pattern;
-
 
     @Override
     protected void execute(Event event) {
