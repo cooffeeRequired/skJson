@@ -28,7 +28,7 @@ public class CondJsonEmpty extends Condition {
 
     static {
         Skript.registerCondition(CondJsonEmpty.class,
-                "json %jsonelement% is empty ",
+                "json %jsonelement% is empty",
                 "json %jsonelement% is(n't| not) empty"
         );
     }

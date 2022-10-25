@@ -27,7 +27,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string/integer%",
                 "[a] [new] json from file [path] %string%",
-                ".{%string/integer%}" // NOTE only for test..
+                "•%string/integer%" // NOTE only for test..
         );
     }
 

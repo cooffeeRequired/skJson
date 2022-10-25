@@ -35,14 +35,13 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
         return new String[]{color(new GsonBuilder().setPrettyPrinting().create().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
-                .replaceAll("(null)", "§7$0§r")
                 .replaceAll("(\\{|})", "§7$0§r")
                 .replaceAll("(\\[|])", "§6$0§r")
                 .replaceAll("((?<![\\\\])['\\\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1", "§7$0§r")
                 .replaceAll("(?<=\\s|^)\\d+(?=)", "§3$0§r"))};
     }
 
-    public String toString(Event event, boolean debug) {
+    public @NotNull String toString(Event event, boolean debug) {
         return "";
     }
 
@@ -51,7 +50,7 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
         return true;
     }
 
-    public Class<String> getReturnType() {
+    public @NotNull Class<String> getReturnType() {
         return String.class;
     }
 
