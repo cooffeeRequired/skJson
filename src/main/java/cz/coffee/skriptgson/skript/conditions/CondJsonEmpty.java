@@ -13,6 +13,8 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Name("is Json empty")
 @Description("Checks if a cached Json is empty.")
 @Examples({
@@ -44,15 +46,18 @@ public class CondJsonEmpty extends Condition {
 
     @Override
     public boolean check(Event e) {
-        if (check.getSingle(e).isJsonArray())
-            return (pattern == 0) == check.getSingle(e).getAsJsonArray().isEmpty();
-        if (check.getSingle(e).isJsonObject())
-            return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
-        if (check.getSingle(e).isJsonNull())
-            return (pattern == 0);
-        if (check.getSingle(e).isJsonPrimitive())
-            return check.getSingle(e).getAsJsonPrimitive() == null;
-
+        try {
+            if (Objects.requireNonNull(check.getSingle(e)).isJsonArray())
+                return (pattern == 0) == check.getSingle(e).getAsJsonArray().isEmpty();
+            if (check.getSingle(e).isJsonObject())
+                return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
+            if (check.getSingle(e).isJsonNull())
+                return (pattern == 0);
+            if (check.getSingle(e).isJsonPrimitive())
+                return check.getSingle(e).getAsJsonPrimitive() == null;
+        } catch (NullPointerException er) {
+            return false;
+        }
         return false;
     }
 
