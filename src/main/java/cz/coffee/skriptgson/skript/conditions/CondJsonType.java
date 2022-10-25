@@ -15,7 +15,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 @Name("is %jsonelement% %json-type%")
 @Description("Check what json type is passed %jsonelement%")
@@ -31,7 +30,7 @@ import java.util.Objects;
 @Since("1.0")
 
 
-@SuppressWarnings({"unchecked", "unused"})
+@SuppressWarnings({"unchecked", "unused","NullableProblems"})
 public class CondJsonType extends Condition {
 
     static {
@@ -45,8 +44,6 @@ public class CondJsonType extends Condition {
     private int pattern;
     private List<String> tag;
 
-
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         check = (Expression<JsonElement>) exprs[0];
@@ -56,7 +53,6 @@ public class CondJsonType extends Condition {
         return true;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean check(Event e) {
         if (tag.contains("array")) {
@@ -71,7 +67,6 @@ public class CondJsonType extends Condition {
         }
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         if (tag.contains("array")) {
