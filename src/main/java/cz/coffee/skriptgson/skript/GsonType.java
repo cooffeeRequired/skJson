@@ -13,19 +13,16 @@ import com.google.gson.JsonParser;
 public class GsonType {
 
     private static final Parser<JsonElement> parser = new Parser<>() {
-        @SuppressWarnings("NullableProblems")
         @Override
         public boolean canParse(final ParseContext context) {
             return false;
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
         public String toString(JsonElement json, int flags) {
             return json.toString();
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
         public String toVariableNameString(JsonElement json) {
             return json.toString();
@@ -33,7 +30,6 @@ public class GsonType {
     };
 
     private static final Changer<JsonElement> changer = new Changer<>() {
-        @SuppressWarnings("NullableProblems")
         @Override
         public Class<?>[] acceptChange(ChangeMode mode) {
             //noinspection EnhancedSwitchMigration
@@ -45,7 +41,6 @@ public class GsonType {
             return null;
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
 
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
