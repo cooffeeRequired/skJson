@@ -35,8 +35,8 @@ public class CondJsonType extends Condition {
 
     static {
         Skript.registerCondition(CondJsonType.class,
-                "json %jsonelement% (is|are) [a] (:array|:object|:primitive|<.+>)",
-                "json %jsonelement% (is|are)(n't| not) [a] (:array|:object|:primitive|<.+>)"
+                "json %jsonelement% (is|are) [a] (:array|:object|:primitive)",
+                "json %jsonelement% (is|are)(n't| not) [a] (:array|:object|:primitive)"
                 );
     }
 
@@ -55,12 +55,16 @@ public class CondJsonType extends Condition {
 
     @Override
     public boolean check(Event e) {
+        JsonElement checkSingle = check.getSingle(e);
+        if (checkSingle == null) {
+            return false;
+        }
         if (tag.contains("array")) {
-            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonArray();
+            return (pattern == 0) == checkSingle.isJsonArray();
         } else if (tag.contains("object")) {
-            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonObject();
+            return (pattern == 0) == checkSingle.isJsonObject();
         } else if (tag.contains("primitive")){
-            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonPrimitive();
+            return (pattern == 0) == checkSingle.isJsonPrimitive();
         } else {
             SkriptGson.warning("&r&7You can compare &l&e%jsonelement%&7 only with array,object,primitive");
             return false;

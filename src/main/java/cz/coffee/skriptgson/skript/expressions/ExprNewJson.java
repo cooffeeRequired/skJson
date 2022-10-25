@@ -48,13 +48,13 @@ public class ExprNewJson extends SimpleExpression<Object> {
     }
 
     @Override
-    public JsonElement[] get(Event event) {
+    public JsonElement[] get(Event e) {
         if (exprString == null)
             return null;
-        String inputString = Objects.requireNonNull(exprString.getSingle(event)).toString();
+        Object exprSingle = exprString;
+        String inputString = String.valueOf(exprSingle);
         if (inputString == null)
             return null;
-
         JsonElement json;
         if (pattern == 0 || pattern == 2) {
             try {
@@ -71,6 +71,8 @@ public class ExprNewJson extends SimpleExpression<Object> {
                 return null;
             }
         }
+        if (json.isJsonNull())
+            return null;
         return new JsonElement[]{json};
     }
 
