@@ -16,18 +16,20 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileReader;
+import java.util.Objects;
 
 @Name("JSON from Text/File")
 @Description("Creates a new JSON object from text or file.")
 @Since("1.0")
 
+@SuppressWarnings({"unused"})
 public class ExprNewJson extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string/integer%",
                 "[a] [new] json from file [path] %string%",
-                "•%string/integer%" // NOTE only for test..
+                "•%string/integer%" // NOTE only for test.
         );
     }
 
@@ -35,7 +37,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
     private Expression<?> exprString;
     private int pattern;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprString = exprs[0];
@@ -43,11 +45,12 @@ public class ExprNewJson extends SimpleExpression<Object> {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public JsonElement[] get(Event event) {
         if (exprString == null)
             return null;
-        String inputString = exprString.getSingle(event).toString();
+        String inputString = Objects.requireNonNull(exprString.getSingle(event)).toString();
         if (inputString == null)
             return null;
 
@@ -70,6 +73,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         return new JsonElement[]{json};
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(Event event, boolean debug) {
         return "json from " + (pattern == 0 ? "text" : "file");
@@ -80,6 +84,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Class<? extends JsonElement> getReturnType() {
         return JsonElement.class;

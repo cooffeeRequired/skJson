@@ -15,17 +15,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
-@Name("is %jsonelement% %jsontype%")
+@Name("is %jsonelement% %json-type%")
 @Description("Check what json type is passed %jsonelement%")
 @Examples({
         "set {-e} to json from string \"['A': 'B']\"",
         "json {-e} is array: ",
-        "\tbroacast \"true\"",
+        "\tbroadcast \"true\"",
 
         "set {-e} to json from string \"{'A': 'B'}\"",
         "json {-e} is object: ",
-        "\tbroacast \"true\"",
+        "\tbroadcast \"true\"",
 })
 @Since("1.0")
 
@@ -45,6 +46,7 @@ public class CondJsonType extends Condition {
     private List<String> tag;
 
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         check = (Expression<JsonElement>) exprs[0];
@@ -54,20 +56,22 @@ public class CondJsonType extends Condition {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean check(Event e) {
         if (tag.contains("array")) {
-            return (pattern == 0) == check.getSingle(e).isJsonArray();
+            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonArray();
         } else if (tag.contains("object")) {
-            return (pattern == 0) == check.getSingle(e).isJsonObject();
+            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonObject();
         } else if (tag.contains("primitive")){
-            return (pattern == 0) == check.getSingle(e).isJsonPrimitive();
+            return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).isJsonPrimitive();
         } else {
             SkriptGson.warning("&r&7You can compare &l&e%jsonelement%&7 only with array,object,primitive");
             return false;
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         if (tag.contains("array")) {

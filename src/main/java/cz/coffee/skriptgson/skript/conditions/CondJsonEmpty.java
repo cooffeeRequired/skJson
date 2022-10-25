@@ -19,7 +19,7 @@ import java.util.Objects;
 @Description("Checks if a cached Json is empty.")
 @Examples({
         "json {-e} is empty: ",
-        "\tbroacast \"is empty\"",
+        "\tbroadcast \"is empty\"",
 })
 @Since("1.0")
 
@@ -36,6 +36,7 @@ public class CondJsonEmpty extends Condition {
     private Expression<JsonElement> check;
     private int pattern;
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         check = (Expression<JsonElement>) exprs[0];
@@ -44,23 +45,25 @@ public class CondJsonEmpty extends Condition {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean check(Event e) {
         try {
             if (Objects.requireNonNull(check.getSingle(e)).isJsonArray())
-                return (pattern == 0) == check.getSingle(e).getAsJsonArray().isEmpty();
-            if (check.getSingle(e).isJsonObject())
-                return (pattern == 0) == check.getSingle(e).getAsJsonObject().entrySet().isEmpty();
-            if (check.getSingle(e).isJsonNull())
+                return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).getAsJsonArray().isEmpty();
+            if (Objects.requireNonNull(check.getSingle(e)).isJsonObject())
+                return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).getAsJsonObject().entrySet().isEmpty();
+            if (Objects.requireNonNull(check.getSingle(e)).isJsonNull())
                 return (pattern == 0);
-            if (check.getSingle(e).isJsonPrimitive())
-                return check.getSingle(e).getAsJsonPrimitive() == null;
+            if (Objects.requireNonNull(check.getSingle(e)).isJsonPrimitive())
+                return Objects.requireNonNull(check.getSingle(e)).getAsJsonPrimitive() == null;
         } catch (NullPointerException er) {
             return false;
         }
         return false;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return "json " + check.toString(e,debug) + (isNegated() ? " is empty" : "isn't empty");

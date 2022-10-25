@@ -9,28 +9,34 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+@SuppressWarnings({"unused", "NullableProblems"})
 public class GsonType {
 
-    private static final Parser<JsonElement> parser = new Parser<JsonElement>() {
+    private static final Parser<JsonElement> parser = new Parser<>() {
+        @SuppressWarnings("NullableProblems")
         @Override
         public boolean canParse(final ParseContext context) {
             return false;
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public String toString(JsonElement json, int flags) {
             return json.toString();
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public String toVariableNameString(JsonElement json) {
             return json.toString();
         }
     };
 
-    private static final Changer<JsonElement> changer = new Changer<JsonElement>() {
+    private static final Changer<JsonElement> changer = new Changer<>() {
+        @SuppressWarnings("NullableProblems")
         @Override
         public Class<?>[] acceptChange(ChangeMode mode) {
+            //noinspection EnhancedSwitchMigration
             switch (mode) {
                 case ADD:
                 case REMOVE:
@@ -39,42 +45,28 @@ public class GsonType {
             return null;
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
-
-        /* TODO we need get key:value pair because the .remove,.add if addicted on Key. At this moment
-            I set the Property Key on "KKK" ... the result of it it's ."{"A":"B","KKK":[{"A":"teeeeeeeeest"}]}".
-            .
-            https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/JsonObject.html
-            .
-            .. also i added the JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
-            it's currently converting from Object[] to new JsonElement[]..
-
-            JsonElement[] value = new JsonElement[]{JsonParser.parseString(new Gson().toJson(delta))};
-
-         */
-
-
 
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
                 case ADD:
                     JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
-                    for(JsonElement object : what) {
-                        for ( JsonElement jsonElement : value) {
-                            if ( object.isJsonArray()) {
+                    for (JsonElement object : what) {
+                        for (JsonElement jsonElement : value) {
+                            if (object.isJsonArray()) {
                                 object.getAsJsonArray().add(jsonElement);
                             } else {
                                 String i = object.getAsJsonObject().entrySet().isEmpty() ? String.valueOf(0) : String.valueOf(object.getAsJsonObject().entrySet().toArray().length);
-                                object.getAsJsonObject().add(i,jsonElement);
+                                object.getAsJsonObject().add(i, jsonElement);
                             }
                         }
                     }
-                    break;
                 case REMOVE: {
                     Integer[] parsedDelta = new Integer[]{Integer.parseInt(String.valueOf(delta[0]))};
                     for (JsonElement object : what) {
-                        for (Integer n : parsedDelta)  {
-                            if ( object.isJsonObject()) {
+                        for (Integer n : parsedDelta) {
+                            if (object.isJsonObject()) {
                                 object.getAsJsonObject().remove(String.valueOf(n));
                             } else {
                                 try {

@@ -41,6 +41,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
     private Expression<String> exprData;
     private int pattern;
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];
@@ -51,6 +52,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     public File[] get(@NotNull Event event) {
         if (exprString == null)
             return null;
@@ -86,6 +88,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         }
         return new File[]{new File(inputFile)};
     }
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(Event event,boolean debug) {
         return "json file " + (pattern == 0 ? "" : "with data");}
@@ -95,6 +98,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Class<? extends File> getReturnType() {
         return File.class;

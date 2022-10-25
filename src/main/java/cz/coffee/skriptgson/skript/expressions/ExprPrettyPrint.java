@@ -11,7 +11,7 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.skriptgson.Util.PluginUtils.color;
+import static cz.coffee.skriptgson.util.PluginUtils.color;
 
 @SuppressWarnings({"uncheked","unused"})
 public class ExprPrettyPrint extends SimpleExpression<Object> {
@@ -25,20 +25,21 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
 
     private Expression<JsonElement> exprPrint;
 
-    @SuppressWarnings({"unchecked","unused"})
+    @SuppressWarnings({"unchecked", "unused", "NullableProblems"})
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprPrint = (Expression<JsonElement>) exprs[0];
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     public String[] get(@NotNull Event event) {
         return new String[]{color(new GsonBuilder().setPrettyPrinting().create().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
-                .replaceAll("(\\{|})", "§7$0§r")
-                .replaceAll("(\\[|])", "§6$0§r")
-                .replaceAll("((?<![\\\\])['\\\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1", "§7$0§r")
-                .replaceAll("(?<=\\s|^)\\d+(?=)", "§3$0§r"))};
+                .replaceAll("([{}])", "§7$0§r")
+                .replaceAll("([\\[\\]])", "§6$0§r")
+                .replaceAll("((?<!\\\\)['\"])((?:.(?!(?<!\\\\)\\1))*.?)\\1", "§7$0§r")
+                .replaceAll("(?<=\\s|^)\\d+", "§3$0§r"))};
     }
 
     public @NotNull String toString(Event event, boolean debug) {

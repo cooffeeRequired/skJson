@@ -11,6 +11,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
 
+
+@SuppressWarnings("unused")
 public class EffTest extends Effect {
     
     static {
@@ -19,19 +21,22 @@ public class EffTest extends Effect {
 
     private Expression<JsonElement> input;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "NullableProblems"})
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         input = (Expression<JsonElement>) exprs[0];
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     protected void execute(Event e) {
         Object single = input.getSingle(e);
+        assert single != null;
         SkriptGson.info("Class check " + single.getClass().toString());
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return "skript-gson test effect";

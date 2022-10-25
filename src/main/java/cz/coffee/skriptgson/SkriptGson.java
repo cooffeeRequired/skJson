@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.registrations.Classes;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.Util.PluginUtils;
+import cz.coffee.skriptgson.util.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Logger;
 
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 
 public class SkriptGson extends JavaPlugin {
 
@@ -36,7 +36,7 @@ public class SkriptGson extends JavaPlugin {
             addon = Skript.registerAddon(this);
             addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (Exception ex) {
-            SkriptGson.severe("Unable to register " + getDescription().getName() + " synttaxes:\n- " + ex.getMessage());
+            SkriptGson.severe("Unable to register " + getDescription().getName() + " syntax's:\n- " + ex.getMessage());
             ex.printStackTrace();
             return;
         }
@@ -47,7 +47,7 @@ public class SkriptGson extends JavaPlugin {
         info("&aFinished loading.");
     }
 
-    // Plugin pre-load checks
+    // Plugin preload checks
     private boolean canLoadPlugin() {
         boolean canLoad = true;
         String reason = null;
