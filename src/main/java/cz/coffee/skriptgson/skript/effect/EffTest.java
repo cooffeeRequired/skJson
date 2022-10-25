@@ -12,7 +12,7 @@ import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
 
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused","unchecked", "NullableProblems"})
 public class EffTest extends Effect {
     
     static {
@@ -21,14 +21,13 @@ public class EffTest extends Effect {
 
     private Expression<JsonElement> input;
 
-    @SuppressWarnings({"unchecked", "NullableProblems"})
+
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         input = (Expression<JsonElement>) exprs[0];
         return true;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected void execute(Event e) {
         Object single = input.getSingle(e);
@@ -36,7 +35,6 @@ public class EffTest extends Effect {
         SkriptGson.info("Class check " + single.getClass().toString());
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return "skript-gson test effect";

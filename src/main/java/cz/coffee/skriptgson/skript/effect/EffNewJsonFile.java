@@ -20,7 +20,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 
-@SuppressWarnings({"unchecked","unused"})
+@SuppressWarnings({"unchecked","unused","NullableProblems"})
 public class EffNewJsonFile extends Effect {
     static {
         Skript.registerEffect(EffNewJsonFile.class,
@@ -30,7 +30,6 @@ public class EffNewJsonFile extends Effect {
     private Expression<String> exprString;
     private Expression<String> exprData;
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected void execute(Event event) {
         if (exprString == null)
@@ -65,13 +64,11 @@ public class EffNewJsonFile extends Effect {
         } catch (IOException | JsonSyntaxException ignored) {}
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return null;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];

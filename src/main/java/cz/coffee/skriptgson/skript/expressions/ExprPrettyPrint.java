@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.util.PluginUtils.color;
 
-@SuppressWarnings({"uncheked","unused"})
+@SuppressWarnings({"unchecked", "unused", "NullableProblems"})
 public class ExprPrettyPrint extends SimpleExpression<Object> {
 
     static {
@@ -25,13 +25,12 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
 
     private Expression<JsonElement> exprPrint;
 
-    @SuppressWarnings({"unchecked", "unused", "NullableProblems"})
+
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprPrint = (Expression<JsonElement>) exprs[0];
         return true;
     }
 
-    @SuppressWarnings("NullableProblems")
     public String[] get(@NotNull Event event) {
         return new String[]{color(new GsonBuilder().setPrettyPrinting().create().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")

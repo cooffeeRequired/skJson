@@ -57,6 +57,7 @@ public class GsonType {
                             }
                         }
                     }
+                    break;
                 case REMOVE: {
                     Integer[] parsedDelta = new Integer[]{Integer.parseInt(String.valueOf(delta[0]))};
                     for (JsonElement object : what) {
@@ -72,6 +73,7 @@ public class GsonType {
                             }
                         }
                     }
+                    break;
                 }
             }
         }

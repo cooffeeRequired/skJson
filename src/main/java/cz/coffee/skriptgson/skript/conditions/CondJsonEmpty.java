@@ -23,7 +23,7 @@ import java.util.Objects;
 })
 @Since("1.0")
 
-@SuppressWarnings({"unchecked","unused"})
+@SuppressWarnings({"unchecked","unused","NullableProblems"})
 public class CondJsonEmpty extends Condition {
 
     static {
@@ -36,7 +36,6 @@ public class CondJsonEmpty extends Condition {
     private Expression<JsonElement> check;
     private int pattern;
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         check = (Expression<JsonElement>) exprs[0];
@@ -45,7 +44,6 @@ public class CondJsonEmpty extends Condition {
         return true;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean check(Event e) {
         try {
@@ -63,7 +61,6 @@ public class CondJsonEmpty extends Condition {
         return false;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return "json " + check.toString(e,debug) + (isNegated() ? " is empty" : "isn't empty");
