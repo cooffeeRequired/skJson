@@ -8,6 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import cz.coffee.skriptgson.util.JsonMap;
 
 @SuppressWarnings({"unused", "NullableProblems"})
 public class GsonType {
@@ -35,6 +36,7 @@ public class GsonType {
             //noinspection EnhancedSwitchMigration
             switch (mode) {
                 case ADD:
+                case SET:
                 case REMOVE:
                     return CollectionUtils.array(JsonElement.class);
             }
@@ -42,10 +44,9 @@ public class GsonType {
         }
 
         @Override
-
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
-                case ADD:
+                case ADD: {
                     JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
                     for (JsonElement object : what) {
                         for (JsonElement jsonElement : value) {
@@ -57,6 +58,7 @@ public class GsonType {
                             }
                         }
                     }
+                }
                     break;
                 case REMOVE: {
                     Integer[] parsedDelta = new Integer[]{Integer.parseInt(String.valueOf(delta[0]))};
@@ -73,11 +75,25 @@ public class GsonType {
                             }
                         }
                     }
+                } // TODO Fix that shit.
                     break;
+                case SET: {
+                    JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
+                    int i;
+                    JsonElement object = null;
+                    for (JsonElement k : value) {
+                        for (JsonElement jsonElement : what){
+                            for (i=1; jsonElement.getAsJsonArray().get(0).getAsJsonArray().size() >= i; i ++) {
+                                JsonMap.updateValues(k.getAsJsonObject(),jsonElement.getAsJsonArray().get(i));
+                            }
+                        }
+                    }
                 }
+                break;
             }
         }
     };
+
 
     static {
         Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")

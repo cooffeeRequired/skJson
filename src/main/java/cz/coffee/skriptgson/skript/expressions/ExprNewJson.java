@@ -22,37 +22,49 @@ import java.util.regex.MatchResult;
 @Description("Creates a new JSON object from text or file.")
 @Since("1.0")
 
-@SuppressWarnings({"unused","NullableProblems"})
+@SuppressWarnings({"unused","NullableProblems","unchecked"})
 public class ExprNewJson extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string%",
-                "[a] [new] json from file [path] %-string%",
+                "[a] [new] json from file [path] %string%",
                 "json (([<.+>])|({<.+>}))"
         );
     }
 
     @Nullable
-    private String exprString;
+    private Expression<String> exprString;
+    private String regexString;
     private int pattern;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        exprString = exprs.length > 0 ? exprs[0].toString() : null;
-        for (MatchResult regex : parseResult.regexes) {
-            exprString = regex.group(0);
-        }
         pattern = matchedPattern;
+        if ( pattern == 2 ){
+            for (MatchResult regex : parseResult.regexes) {
+                regexString =  regex.group(0);
+            }
+        } else {
+            exprString = (Expression<String>) exprs[0];
+        }
         return true;
     }
 
     @Override
     public JsonElement[] get(Event e) {
-        if (exprString == null)
-            return null;
-        Object exprSingle = exprString;
-        String inputString = String.valueOf(exprSingle);
+        String inputString;
+
+        if (pattern == 2) {
+            if (regexString == null){
+                return null;
+            }
+            inputString = regexString;
+        } else {
+            if (exprString == null)
+                return null;
+            inputString = exprString.getSingle(e);
+        }
         if (inputString == null)
             return null;
         JsonElement json;

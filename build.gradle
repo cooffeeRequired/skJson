@@ -44,3 +44,7 @@ processResources {
         expand props
     }
 }
+
+task newRelease(type:Exec) {
+    commandLine 'cmd', '/c', 'Powershell ./build.ps1'
+}
