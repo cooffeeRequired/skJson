@@ -13,14 +13,12 @@ import com.google.gson.JsonElement;
 @Description("Return size of JSON elements.")
 @Since("1.0")
 
-// TODO Fix that shit
-
 @SuppressWarnings({"unused","NullableProblems"})
 public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Integer> {
 
     static {
         register(ExprSizeOfJson.class, Integer.class,
-                "json size", "jsonelement");
+                "size", "jsonelements");
     }
 
 
@@ -29,7 +27,6 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         setExpr((Expression<? extends JsonElement>) exprs[0]);
-        System.out.println("AAAAA");
         return true;
     }
 

@@ -29,7 +29,8 @@ public class ExprNewJson extends SimpleExpression<Object> {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string%",
                 "[a] [new] json from file [path] %string%",
-                "json (([<.+>])|({<.+>}))"
+                "json (([<.+>])|({<.+>}))",
+                "(<'.+'>)"
         );
     }
 
@@ -41,7 +42,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         pattern = matchedPattern;
-        if ( pattern == 2 ){
+        if ( pattern == 2 || pattern == 3 ){
             for (MatchResult regex : parseResult.regexes) {
                 regexString =  regex.group(0);
             }
@@ -55,7 +56,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
     public JsonElement[] get(Event e) {
         String inputString;
 
-        if (pattern == 2) {
+        if (pattern == 2 || pattern == 3) {
             if (regexString == null){
                 return null;
             }
@@ -68,7 +69,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         if (inputString == null)
             return null;
         JsonElement json;
-        if (pattern == 0 || pattern == 2) {
+        if (pattern == 0 || pattern == 2 || pattern == 3) {
             try {
                 json = JsonParser.parseString(inputString);
             } catch (JsonSyntaxException ex) {

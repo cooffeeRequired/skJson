@@ -32,7 +32,7 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
     }
 
     public String[] get(@NotNull Event event) {
-        return new String[]{color(new GsonBuilder().setPrettyPrinting().create().toJson(exprPrint.getSingle(event))
+        return new String[]{color(new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
                 .replaceAll("([{}])", "§7$0§r")

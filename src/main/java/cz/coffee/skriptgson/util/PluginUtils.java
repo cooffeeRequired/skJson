@@ -1,5 +1,6 @@
 package cz.coffee.skriptgson.util;
 
+import com.google.gson.GsonBuilder;
 import org.bukkit.ChatColor;
 
 @SuppressWarnings("unused")
@@ -9,6 +10,10 @@ public class PluginUtils {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
     public static String SanitizeString(Object strObj) {
-        return String.valueOf(strObj).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "");
+        return String.valueOf(strObj).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
+    }
+
+    public static String gsonText(Object StringifyElement) {
+        return new GsonBuilder().disableHtmlEscaping().create().toJson(StringifyElement);
     }
 }

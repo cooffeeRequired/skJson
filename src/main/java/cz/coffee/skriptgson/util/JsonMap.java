@@ -2,22 +2,23 @@ package cz.coffee.skriptgson.util;
 
 import com.google.gson.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class JsonMap {
-    public static void updateValues(JsonObject jElem, Object... value) {
-        JsonElement gson = JsonParser.parseString(String.valueOf(value[0]));
+    public static List<String> getValues(JsonObject jElem) {
+        List<String> counts = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : jElem.entrySet()) {
             JsonElement element = entry.getValue();
             if (element.isJsonArray()) {
                 parseJsonArray(element.getAsJsonArray());
             } else if (element.isJsonObject()) {
-                updateValues(element.getAsJsonObject());
-            } else if (element.isJsonPrimitive()) {
-                jElem.addProperty(entry.getKey(), String.valueOf(gson));
+                getValues(element.getAsJsonObject());
             }
-            System.out.println(entry.getKey());
+            counts.add(entry.getKey());
         }
+        return counts;
     }
 
     public static void parseJsonArray(JsonArray jArray) {
@@ -26,7 +27,7 @@ public class JsonMap {
             if (element.isJsonArray()) {
                 parseJsonArray(element.getAsJsonArray());
             } else if (element.isJsonObject()) {
-                updateValues(element.getAsJsonObject());
+                getValues(element.getAsJsonObject());
             }
         }
     }

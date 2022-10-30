@@ -6,9 +6,14 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.util.JsonMap;
+
+import java.util.List;
+
+import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
 
 @SuppressWarnings({"unused", "NullableProblems"})
 public class GsonType {
@@ -40,56 +45,65 @@ public class GsonType {
                 case REMOVE:
                     return CollectionUtils.array(JsonElement.class);
             }
+
             return null;
         }
 
         @Override
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
-                case ADD: {
+                case ADD -> {
+                    String[] i;
                     JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
                     for (JsonElement object : what) {
                         for (JsonElement jsonElement : value) {
                             if (object.isJsonArray()) {
                                 object.getAsJsonArray().add(jsonElement);
-                            } else {
-                                String i = object.getAsJsonObject().entrySet().isEmpty() ? String.valueOf(0) : String.valueOf(object.getAsJsonObject().entrySet().toArray().length);
-                                object.getAsJsonObject().add(i, jsonElement);
+                            } else{
+                                if (jsonElement.isJsonPrimitive()){
+                                    i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
+                                            .split(":");
+                                    jsonElement = JsonParser.parseString(SanitizeString(i[1]));
+                                } else {
+                                    i = new String[]{object.getAsJsonObject().entrySet().isEmpty() ?
+                                            String.valueOf(0) :
+                                            String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
+                                }
+                                object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
                             }
                         }
                     }
                 }
-                    break;
-                case REMOVE: {
-                    Integer[] parsedDelta = new Integer[]{Integer.parseInt(String.valueOf(delta[0]))};
-                    for (JsonElement object : what) {
-                        for (Integer n : parsedDelta) {
-                            if (object.isJsonObject()) {
-                                object.getAsJsonObject().remove(String.valueOf(n));
-                            } else {
-                                try {
-                                    object.getAsJsonArray().remove(n);
-                                } catch (IndexOutOfBoundsException e) {
-                                    return;
+                case REMOVE -> {
+                    try {
+                        String value = String.valueOf(delta[0]).replaceAll("\"", "");
+                        for ( JsonElement object : what) {
+                            List<String> values = JsonMap.getValues(object.getAsJsonObject());
+                            for (int i = 0; values.size() > i; i++) {
+                                if (value.contains(";")) {
+                                    String[] s = value.split(";");
+                                    JsonElement jsonElements = object.getAsJsonObject();
+                                    for (String st : s) {
+                                        if (jsonElements.isJsonObject()) {
+                                            jsonElements.getAsJsonObject().remove(s[s.length - 1]);
+                                            jsonElements = jsonElements.getAsJsonObject().get(st);
+                                        } else {
+                                            jsonElements.getAsJsonArray().remove(Integer.parseInt(s[s.length - 1]));
+                                        }
+                                    }
+                                } else {
+                                    if (value.equals(values.get(i))) {
+                                        if (object.isJsonObject()) {
+                                            object.getAsJsonObject().remove(value);
+                                        } else {
+                                            object.getAsJsonArray().remove(i);
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                } // TODO Fix that shit.
-                    break;
-                case SET: {
-                    JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
-                    int i;
-                    JsonElement object = null;
-                    for (JsonElement k : value) {
-                        for (JsonElement jsonElement : what){
-                            for (i=1; jsonElement.getAsJsonArray().get(0).getAsJsonArray().size() >= i; i ++) {
-                                JsonMap.updateValues(k.getAsJsonObject(),jsonElement.getAsJsonArray().get(i));
-                            }
-                        }
-                    }
+                    } catch (IndexOutOfBoundsException ignored) {}
                 }
-                break;
             }
         }
     };
@@ -97,7 +111,7 @@ public class GsonType {
 
     static {
         Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")
-                .user("json[[ ]element]")
+                .user("json-[[ ]element]")
                 .name("Json Element")
                 .description("Representing a JSON element")
                 .since("1.0")
