@@ -1,28 +1,23 @@
-# Compiled class file
-*.class
+# Compiled class File's
+**/*.class
 
-# Log file
-*.log
+# log files
+**/*.log
 
 # BlueJ files
 *.ctxt
 
-# Custom Folders
-*.yml
-*bin
-*out
-*build
-*idea
-*.gitignore
-*.gitattributes
-*Tests
-*.gradle
-**test_server*
-.run/
-*.run/
-*run
-*.ps1
-build.ps1
+# Git files
+**/.gitignore
+**/.gitattributes
+
+# Custom File/Folders
+**/.idea/
+**/out/
+**/bin/
+hs_err_pid*
+replay_pid*
+gradle*
 
 # Package Files #
 *.jar
@@ -34,9 +29,3 @@ build.ps1
 *.rar
 *.lock
 *.bin
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-gradle*
-*.vbs
