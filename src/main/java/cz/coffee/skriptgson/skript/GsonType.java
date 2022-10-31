@@ -3,14 +3,18 @@ package cz.coffee.skriptgson.skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.yggdrasil.Fields;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.util.JsonMap;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.util.List;
 
 import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
@@ -32,6 +36,50 @@ public class GsonType {
         @Override
         public String toVariableNameString(JsonElement json) {
             return json.toString();
+        }
+    };
+
+    private static final Serializer<JsonElement> serializer = new Serializer<>() {
+
+        @Override
+        public Fields serialize(JsonElement json) throws NotSerializableException {
+            Fields fields = new Fields();
+            fields.putObject("json", json.toString());
+            return fields;
+        }
+
+        @Override
+        public void deserialize(JsonElement json, Fields f) throws StreamCorruptedException, NotSerializableException {
+            assert false;
+        }
+
+        public JsonElement deserialize(Fields f) throws StreamCorruptedException, NotSerializableException {
+
+            JsonElement fromField = null;
+            if ( f.getObject("json") != null) {
+                fromField = JsonParser.parseString(f.getObject("json").toString());
+            }
+
+            if (!(fromField.isJsonNull() || fromField == null)) {
+                if (fromField.isJsonObject()) {
+                    return fromField.getAsJsonObject();
+                } else if (fromField.isJsonArray()) {
+                    return fromField.getAsJsonArray();
+                } else if ( fromField.isJsonPrimitive()) {
+                    return fromField.getAsJsonPrimitive();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public boolean mustSyncDeserialization() {
+            return true;
+        }
+
+        @Override
+        protected boolean canBeInstantiated() {
+            return false;
         }
     };
 
@@ -108,7 +156,6 @@ public class GsonType {
         }
     };
 
-
     static {
         Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")
                 .user("json[[ ]element]")
@@ -117,6 +164,7 @@ public class GsonType {
                 .since("1.0")
                 .parser(parser)
                 .changer(changer)
+                .serializer(serializer)
         );
     }
 }
