@@ -41,7 +41,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
 
     static {
         PropertyExpression.register(ExprJsonListToJsonElements.class, JsonElement.class,
-                "form",
+                "(form|structure)",
                 "objects");
     }
 

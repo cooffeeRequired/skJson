@@ -19,7 +19,6 @@ public class JsonMap {
             } else if (element.isJsonObject()) {
                 getValues(element.getAsJsonObject());
             }
-            System.out.println(entry.getValue());
             counts.add(entry.getKey());
         }
         return counts;

@@ -10,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.util.JsonMap;
 
@@ -60,7 +61,7 @@ public class GsonType {
                 fromField = JsonParser.parseString(f.getObject("json").toString());
             }
 
-            if (!(fromField.isJsonNull() || fromField == null)) {
+            if (!fromField.isJsonNull()) {
                 if (fromField.isJsonObject()) {
                     return fromField.getAsJsonObject();
                 } else if (fromField.isJsonArray()) {
@@ -69,7 +70,8 @@ public class GsonType {
                     return fromField.getAsJsonPrimitive();
                 }
             }
-            return null;
+            f.removeField("json");
+            return new JsonObject();
         }
 
         @Override
@@ -101,26 +103,28 @@ public class GsonType {
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
                 case ADD -> {
-                    String[] i;
-                    JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
-                    for (JsonElement object : what) {
-                        for (JsonElement jsonElement : value) {
-                            if (object.isJsonArray()) {
-                                object.getAsJsonArray().add(jsonElement);
-                            } else{
-                                if (jsonElement.isJsonPrimitive()){
-                                    i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
-                                            .split(":");
-                                    jsonElement = JsonParser.parseString(SanitizeString(i[1]));
-                                } else {
-                                    i = new String[]{object.getAsJsonObject().entrySet().isEmpty() ?
-                                            String.valueOf(0) :
-                                            String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
+                    try {
+                        String[] i;
+                        JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
+                        for (JsonElement object : what) {
+                            for (JsonElement jsonElement : value) {
+                                if (object.isJsonArray()) {
+                                    object.getAsJsonArray().add(jsonElement);
+                                } else{
+                                    if (jsonElement.isJsonPrimitive()){
+                                        i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
+                                                .split(";");
+                                        jsonElement = JsonParser.parseString(SanitizeString(i[1]));
+                                    } else {
+                                        i = new String[]{object.getAsJsonObject().entrySet().isEmpty() ?
+                                                String.valueOf(0) :
+                                                String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
+                                    }
+                                    object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
                                 }
-                                object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
                             }
                         }
-                    }
+                    } catch (Exception e) {return;}
                 }
                 case REMOVE -> {
                     try {
@@ -132,6 +136,9 @@ public class GsonType {
                                     String[] s = value.split(";");
                                     JsonElement jsonElements = object.getAsJsonObject();
                                     for (String st : s) {
+                                        if (jsonElements == null || jsonElements.isJsonNull()) {
+                                            return;
+                                        }
                                         if (jsonElements.isJsonObject()) {
                                             jsonElements.getAsJsonObject().remove(s[s.length - 1]);
                                             jsonElements = jsonElements.getAsJsonObject().get(st);
