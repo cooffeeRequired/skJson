@@ -11,3 +11,4 @@
 
 [![SkriptHubViewTheDocs](http://skripthub.net/static/addon/ViewTheDocsButton.png)](http://skripthub.net/docs/?addon=Skript-Gson)
 [![SkUnity](https://forums.skunity.com/styles/uix/uix/logo.png)](https://forums.skunity.com/resources/skript-gson.1508/)
+[![Spigot](https://static.spigotmc.org/img/spigot.png)](https://www.spigotmc.org/resources/skript-gson.106019/)
