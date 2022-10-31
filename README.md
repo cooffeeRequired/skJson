@@ -6,7 +6,7 @@
 > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \
 > **Requirements**
 > * Java 14 +
-> * Minecraft 1.12+
+> * Minecraft 1.16+
 > * Skript
 
 [![SkriptHubViewTheDocs](http://skripthub.net/static/addon/ViewTheDocsButton.png)](http://skripthub.net/docs/?addon=Skript-Gson)
