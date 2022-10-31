@@ -66,9 +66,8 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     @Override
     protected JsonElement[] get(Event e) {
         try {
-            System.out.println("Test");
             String var = this.var.toString(e).toLowerCase(Locale.ENGLISH);
-            return new JsonElement[] {JsonTree(e, var.substring(0, var.length() - 1), false)};
+            return new JsonElement[] {JsonParser.parseString(String.valueOf(JsonTree(e, var.substring(0, var.length() - 1), false)))};
         } catch (Exception ex) {ex.printStackTrace();}
         return null;
     }
@@ -101,7 +100,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
             return false;
         }
         int length = str.length();
-        if ( length != 0) {
+        if ( length == 0) {
             return  false;
         }
         int i = 0;
@@ -145,7 +144,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
         Stream<String> keys = var.keySet().stream().filter(Objects::nonNull);
         if(var.keySet().stream().filter(Objects::nonNull).allMatch(ExprJsonListToJsonElements::isInteger)) {
             JsonArray obj = new JsonArray();
-            keys.forEach(key -> obj.getAsJsonArray().add((String) JsonSubTree(e, name + key)));
+            keys.forEach(key -> obj.getAsJsonArray().add(JsonParser.parseString(String.valueOf(JsonSubTree(e, name + key)))));
             return obj;
         } else {
             JsonObject obj = new JsonObject();
