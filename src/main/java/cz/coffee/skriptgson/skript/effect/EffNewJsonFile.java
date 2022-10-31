@@ -1,6 +1,14 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
+
 package cz.coffee.skriptgson.skript.effect;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -21,14 +29,25 @@ import java.nio.charset.StandardCharsets;
 
 
 @SuppressWarnings({"unchecked","unused","NullableProblems"})
+
+@Since("1.0")
+@Name("New json-file with or without json data")
+@Description("Create a new json-file with/out data")
+@Examples({
+        "\n", "on load:",
+        "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
+        "\tnew json file \"plugins\\YourAwesomeAddon\\config.json\"",
+        "\t #Example 2 With data",
+        "\tnew json file \"plugins\\YourAwesomeAddon\\config.json\" with data {-e}"
+})
 public class EffNewJsonFile extends Effect {
     static {
         Skript.registerEffect(EffNewJsonFile.class,
-                "[a] [new] json file %string% [(:with data %-string%)]");
+                "[a] [new] json file %string% [(:with data %-string/jsonelement%)]");
 
     }
     private Expression<String> exprString;
-    private Expression<String> exprData;
+    private Expression<?> exprRawData;
 
     @Override
     protected void execute(Event event) {
@@ -41,9 +60,9 @@ public class EffNewJsonFile extends Effect {
         FileOutputStream OutputStream;
         JsonWriter writer;
         JsonElement parsedString;
-        String inputData;
+        Object inputData;
 
-        inputData = (exprData != null ? exprData.getSingle(event) : null);
+        inputData = (exprRawData != null ? exprRawData.getSingle(event) : null);
 
         if (new File(inputFile).exists())
             return;
@@ -55,9 +74,7 @@ public class EffNewJsonFile extends Effect {
             writer.jsonValue(new GsonBuilder()
                     .setPrettyPrinting()
                     .create()
-                    .toJson(
-                            JsonParser.parseString(inputData == null ? "{}" : inputData)
-                    )
+                    .toJson(inputData instanceof JsonElement ? inputData : JsonParser.parseString(inputData == null ? "{}" : (String) inputData))
             );
             writer.flush();
             writer.close();
@@ -73,7 +90,7 @@ public class EffNewJsonFile extends Effect {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];
         if (!parseResult.tags.isEmpty()) {
-            exprData = (Expression<String>) exprs[1];
+            exprRawData = exprs[1];
         }
         return true;
     }

@@ -2,6 +2,7 @@ package cz.coffee.skriptgson.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,6 +22,14 @@ import java.util.regex.MatchResult;
 @Name("JSON from Text/File")
 @Description("Creates a new JSON object from text or file.")
 @Since("1.0")
+@Examples({
+        "\n", "on load:",
+        "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
+        "\tset {-e} to json [1,2, {\"A\":\"B\"}]",
+        "\tset {-e} to json 2 # used for jsonPrimitive",
+        "\tset {-e} to json from string \"{'anything': [1,2,'false']}\"",
+        "\tset {-e} to json from file \"plugins\\YourAwesome\\test.json\"",
+})
 
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 public class ExprNewJson extends SimpleExpression<Object> {

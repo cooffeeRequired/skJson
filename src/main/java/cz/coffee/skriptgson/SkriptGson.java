@@ -1,3 +1,6 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
 package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;

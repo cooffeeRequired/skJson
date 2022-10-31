@@ -1,3 +1,7 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
+
 package cz.coffee.skriptgson.skript.effect;
 
 import com.google.gson.JsonElement;
@@ -18,9 +22,7 @@ public class EffTest extends Effect {
     static {
         Skript.registerEffect(EffTest.class, "skript[-]gson %jsonelement%");
     }
-
     private Expression<JsonElement> input;
-
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {

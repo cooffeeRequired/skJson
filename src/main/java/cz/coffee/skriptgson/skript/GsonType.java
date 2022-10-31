@@ -111,7 +111,7 @@ public class GsonType {
 
     static {
         Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")
-                .user("json-[[ ]element]")
+                .user("json[[ ]element]")
                 .name("Json Element")
                 .description("Representing a JSON element")
                 .since("1.0")

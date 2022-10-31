@@ -1,6 +1,10 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
 package cz.coffee.skriptgson.skript.expressions;
 
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -11,6 +15,12 @@ import com.google.gson.JsonElement;
 
 @Name("Size of JSON")
 @Description("Return size of JSON elements.")
+@Examples({
+        "on load:",
+        "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
+        "\tbroadcast {-e}'size",
+        "\tbroadcast size of {-e}"
+})
 @Since("1.0")
 
 @SuppressWarnings({"unused","NullableProblems"})
@@ -20,8 +30,6 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
         register(ExprSizeOfJson.class, Integer.class,
                 "size", "jsonelements");
     }
-
-
 
     @Override
     @SuppressWarnings("unchecked")

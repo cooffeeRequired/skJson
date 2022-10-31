@@ -1,3 +1,6 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
 package cz.coffee.skriptgson.util;
 
 import com.google.gson.*;
@@ -16,6 +19,7 @@ public class JsonMap {
             } else if (element.isJsonObject()) {
                 getValues(element.getAsJsonObject());
             }
+            System.out.println(entry.getValue());
             counts.add(entry.getKey());
         }
         return counts;

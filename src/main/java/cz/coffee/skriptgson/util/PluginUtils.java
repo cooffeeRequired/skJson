@@ -1,3 +1,6 @@
+/**
+ * Copyright CooffeeRequired, and SkriptLang team and contributors
+ */
 package cz.coffee.skriptgson.util;
 
 import com.google.gson.GsonBuilder;
@@ -12,7 +15,6 @@ public class PluginUtils {
     public static String SanitizeString(Object strObj) {
         return String.valueOf(strObj).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
     }
-
     public static String gsonText(Object StringifyElement) {
         return new GsonBuilder().disableHtmlEscaping().create().toJson(StringifyElement);
     }
