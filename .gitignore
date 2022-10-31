@@ -15,9 +15,11 @@
 **/.idea/
 **/out/
 **/bin/
+**/build/
+**/.grandle/
 hs_err_pid*
 replay_pid*
-gradle*
+*gradle*
 
 # Package Files #
 *.jar
