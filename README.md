@@ -1,3 +1,5 @@
+![Snímek obrazovky 2022-11-01 174544 (1)](https://user-images.githubusercontent.com/106232282/199303459-edca99b0-167a-4f13-bd29-af05d6c71a08.png)
+
 # skript-gson
 ## Official docs of Skript-gson
 #### This addon uses Google Json (Gson) API to work with Json in Script, allowing users to edit Json files or even directly Variables that contain json
