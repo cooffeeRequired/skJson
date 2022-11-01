@@ -12,13 +12,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.JsonMap;
 
 import java.io.StreamCorruptedException;
 import java.util.List;
 
-import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
-import static cz.coffee.skriptgson.util.PluginUtils.gsonText;
+import static cz.coffee.skriptgson.util.PluginUtils.*;
 
 @SuppressWarnings({"unused", "NullableProblems"})
 public class GsonType {
@@ -136,6 +136,11 @@ public class GsonType {
                                     }
                                     if ( AddCase ) {
                                         String Key = SanitizeString(i[0].replaceAll("\\+", ""));
+
+                                        if (object.getAsJsonObject().get(Key).isJsonArray()) {
+                                            SkriptGson.info(color("&b?&r &cWe're sorry!&cYou can't data to defined array at this moment!"));
+                                            return;
+                                        }
 
                                         String Value1 = jsonElement.getAsJsonArray()
                                                 .size() > 1 ? gsonText(jsonElement.getAsJsonArray().get(0)).replaceAll("\"", "") :
