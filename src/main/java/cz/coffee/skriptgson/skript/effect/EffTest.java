@@ -1,8 +1,6 @@
-/**
+package cz.coffee.skriptgson.skript.effect; /**
  * Copyright CooffeeRequired, and SkriptLang team and contributors
  */
-
-package cz.coffee.skriptgson.skript.effect;
 
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;

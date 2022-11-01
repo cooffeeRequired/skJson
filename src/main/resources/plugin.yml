@@ -1,5 +1,5 @@
 name: skript-gson
-version: '1.0-Beta'
+version: '1.0.1-Beta'
 main: cz.coffee.skriptgson.SkriptGson
 api-version: 1.13
 prefix: skript-gson

@@ -64,13 +64,14 @@ public class EffMapJsonToList extends Effect {
         if (json == null) {
             return;
         }
+        Object json = this.json.getSingle(e);
         JsonElement jsonEl;
         String variable = this.variable.toString(e).toLowerCase(Locale.ENGLISH);
-        if (json.getSingle(e) instanceof String) {
+        if (json instanceof String) {
             assert false;
-            jsonEl = JsonParser.parseString((String) json.getSingle(e));
+            jsonEl = JsonParser.parseString((String) json);
         } else {
-            jsonEl = (JsonElement) json.getSingle(e); }
+            jsonEl = (JsonElement) json; }
         try {
             assert jsonEl != null;
             mapE(e, variable.substring(0,variable.length()-3),jsonEl);
