@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"unused","NullableProblems","unchecked","ConstantConditions"})
+@SuppressWarnings({"unused","NullableProblems","unchecked"})
 @Since("1.0")
 @Name("Converts list")
 @Description("Converting list variable to JsonElement")

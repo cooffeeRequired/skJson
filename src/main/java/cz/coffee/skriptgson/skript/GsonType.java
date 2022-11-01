@@ -14,11 +14,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.util.JsonMap;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.List;
 
 import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
+import static cz.coffee.skriptgson.util.PluginUtils.gsonText;
 
 @SuppressWarnings({"unused", "NullableProblems"})
 public class GsonType {
@@ -43,33 +43,37 @@ public class GsonType {
     private static final Serializer<JsonElement> serializer = new Serializer<>() {
 
         @Override
-        public Fields serialize(JsonElement json) throws NotSerializableException {
+        public Fields serialize(JsonElement json) {
             Fields fields = new Fields();
             fields.putObject("json", json.toString());
             return fields;
         }
 
         @Override
-        public void deserialize(JsonElement json, Fields f) throws StreamCorruptedException, NotSerializableException {
+        public void deserialize(JsonElement json, Fields f) {
             assert false;
         }
 
-        public JsonElement deserialize(Fields f) throws StreamCorruptedException, NotSerializableException {
+        public JsonElement deserialize(Fields f) throws StreamCorruptedException{
 
             JsonElement fromField = null;
-            if ( f.getObject("json") != null) {
-                fromField = JsonParser.parseString(f.getObject("json").toString());
-            }
+            Object bField = f.getObject("json");
 
-            if (!fromField.isJsonNull()) {
-                if (fromField.isJsonObject()) {
-                    return fromField.getAsJsonObject();
-                } else if (fromField.isJsonArray()) {
-                    return fromField.getAsJsonArray();
-                } else if ( fromField.isJsonPrimitive()) {
-                    return fromField.getAsJsonPrimitive();
+            if ( bField != null ){
+                fromField = JsonParser.parseString(bField.toString());
+            }
+            if ( fromField != null ) {
+                if (!fromField.isJsonNull()) {
+                    if (fromField.isJsonObject()) {
+                        return fromField.getAsJsonObject();
+                    } else if (fromField.isJsonArray()) {
+                        return fromField.getAsJsonArray();
+                    } else if ( fromField.isJsonPrimitive()) {
+                        return fromField.getAsJsonPrimitive();
+                    }
                 }
             }
+
             f.removeField("json");
             return new JsonObject();
         }
@@ -102,9 +106,10 @@ public class GsonType {
         @Override
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
-                case ADD -> {
+                case ADD: {
                     try {
                         String[] i;
+                        boolean AddCase = false;
                         JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
                         for (JsonElement object : what) {
                             for (JsonElement jsonElement : value) {
@@ -114,19 +119,53 @@ public class GsonType {
                                     if (jsonElement.isJsonPrimitive()){
                                         i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
                                                 .split(";");
-                                        jsonElement = JsonParser.parseString(SanitizeString(i[1]));
+
+                                        AddCase = i[0].endsWith("+");
+                                        if (AddCase) {
+                                            jsonElement = JsonParser.parseString(SanitizeString(
+                                                    "["+i[1]+"]")
+                                                    .replaceAll("^(.*?):(.*)$","$1,$2")
+                                            );
+                                        } else {
+                                            jsonElement = JsonParser.parseString(SanitizeString(i[1]));
+                                        }
                                     } else {
                                         i = new String[]{object.getAsJsonObject().entrySet().isEmpty() ?
                                                 String.valueOf(0) :
                                                 String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
                                     }
-                                    object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
+                                    if ( AddCase ) {
+                                        String Key = SanitizeString(i[0].replaceAll("\\+", ""));
+
+                                        String Value1 = jsonElement.getAsJsonArray()
+                                                .size() > 1 ? gsonText(jsonElement.getAsJsonArray().get(0)).replaceAll("\"", "") :
+                                                String.valueOf(object.getAsJsonObject().get(Key).getAsJsonObject().size()-1);
+
+                                        JsonElement Value2 =JsonParser.parseString(gsonText(jsonElement.getAsJsonArray()
+                                                .get(jsonElement
+                                                        .getAsJsonArray().size() > 1 ? 1 : 0)));
+
+                                        if (jsonElement.isJsonArray()) {
+                                            object.getAsJsonObject()
+                                                    .get(Key)
+                                                    .getAsJsonObject()
+                                                    .add(Value1,Value2);
+                                        } else {
+                                            object.getAsJsonObject()
+                                                    .get(Key)
+                                                    .getAsJsonObject()
+                                                    .add(Value1,Value2);
+                                        }
+                                    } else {
+                                        object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
+                                    }
                                 }
                             }
                         }
                     } catch (Exception e) {return;}
+                    break;
                 }
-                case REMOVE -> {
+                case REMOVE: {
                     try {
                         String value = String.valueOf(delta[0]).replaceAll("\"", "");
                         for ( JsonElement object : what) {

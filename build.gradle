@@ -9,6 +9,7 @@ compileJava.options.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = 'papermc-repo'
         url = 'https://repo.papermc.io/repository/maven-public/'
@@ -30,10 +31,10 @@ dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
     compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
     implementation 'com.github.SkriptLang:Skript:2.6.3'
-    implementation 'com.google.code.gson:gson:2.10'
+    implementation('com.google.code.gson:gson:2.10')
 }
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["-source", "14", "-target", "14"]
+    options.compilerArgs += ["-source", "11", "-target", "11"]
 }
 
 processResources {
