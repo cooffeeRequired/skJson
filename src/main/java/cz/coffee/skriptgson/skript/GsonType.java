@@ -1,3 +1,7 @@
+/**
+ * Messy, will cleaned and fixed some issues in next Version
+ */
+
 package cz.coffee.skriptgson.skript;
 
 import ch.njol.skript.classes.Changer;
