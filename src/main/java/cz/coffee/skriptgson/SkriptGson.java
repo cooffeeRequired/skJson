@@ -5,8 +5,6 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.registrations.Classes;
-import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.util.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -23,8 +21,8 @@ public class SkriptGson extends JavaPlugin {
     private static Logger logger;
 
     private static SkriptGson instance;
-    public static final String PREFIX = "&7[&6skript-gson&7] ";
-    public static final String docSince = "2.6.3";
+    public static final String PREFIX = "&7[&l&bskript-gson&7] ";
+    public static final String docSince = "1.0";
     private SkriptAddon addon;
     private final PluginManager pluginManager = this.getServer().getPluginManager();
 
@@ -43,10 +41,6 @@ public class SkriptGson extends JavaPlugin {
             ex.printStackTrace();
             return;
         }
-        if (Classes.getExactClassInfo(JsonElement.class) != null)
-            info("DEBUG &7Registered skript type 'jsonelement'!");
-        else
-            severe("DEBUG Failed to register skript type 'jsonelement");
         info("&aFinished loading.");
     }
 

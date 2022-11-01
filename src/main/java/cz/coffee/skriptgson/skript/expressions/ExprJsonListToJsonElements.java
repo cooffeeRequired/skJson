@@ -51,8 +51,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         Expression<?> expr = exprs[0];
-        if (expr instanceof Variable) {
-            Variable<?> varExpr = (Variable<?>) expr;
+        if (expr instanceof Variable<?> varExpr) {
             if (varExpr.isList()) {
                 var = VariableUtil.getVarName(varExpr);
                 isLocal = varExpr.isLocal();

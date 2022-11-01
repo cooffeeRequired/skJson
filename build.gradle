@@ -34,7 +34,7 @@ dependencies {
     implementation('com.google.code.gson:gson:2.10')
 }
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["-source", "11", "-target", "11"]
+    options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
 processResources {
