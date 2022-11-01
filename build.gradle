@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.coffee'
-version = '1.0-Beta'
+version = '1.0.1-Beta'
 
 compileJava.options.encoding = 'UTF-8'
 
