@@ -13,8 +13,6 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 @Name("is Json empty")
 @Description("Checks if a cached Json is empty.")
 @Examples({
@@ -28,8 +26,8 @@ public class CondJsonEmpty extends Condition {
 
     static {
         Skript.registerCondition(CondJsonEmpty.class,
-                "json %jsonelement% is empty",
-                "json %jsonelement% is(n't| not) empty"
+                "json[(-| )element] %jsonelement% is empty",
+                "json[(-| )element] %jsonelement% is(n't| not) empty"
         );
     }
 
@@ -44,19 +42,21 @@ public class CondJsonEmpty extends Condition {
         return true;
     }
 
+    /**
+     * * Fixed problem (Repeatedly .getSingle(e)), also fixed Example..
+     * ? Commit :
+     */
     @Override
     public boolean check(Event e) {
-        try {
-            if (Objects.requireNonNull(check.getSingle(e)).isJsonArray())
-                return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).getAsJsonArray().isEmpty();
-            if (Objects.requireNonNull(check.getSingle(e)).isJsonObject())
-                return (pattern == 0) == Objects.requireNonNull(check.getSingle(e)).getAsJsonObject().entrySet().isEmpty();
-            if (Objects.requireNonNull(check.getSingle(e)).isJsonNull())
-                return (pattern == 0);
-            if (Objects.requireNonNull(check.getSingle(e)).isJsonPrimitive())
-                return Objects.requireNonNull(check.getSingle(e)).getAsJsonPrimitive() == null;
-        } catch (NullPointerException er) {
-            return false;
+        JsonElement object = check.getSingle(e);
+        if ( object != null ) {
+            if ( object.isJsonArray() ) {
+                return ( pattern == 0) == object.getAsJsonArray().isEmpty();
+            } else if ( object.isJsonObject() ) {
+                return ( pattern == 0) == object.getAsJsonObject().entrySet().isEmpty();
+            } else if ( object.isJsonPrimitive() ) {
+                return ( pattern == 0) == object.getAsJsonPrimitive().isJsonNull();
+            }
         }
         return false;
     }
