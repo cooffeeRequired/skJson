@@ -58,7 +58,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
                 return true;
             }
         }
-        SkriptGson.warning(expr +  "is not a list variable");
+        SkriptGson.warning(expr +  "is not al ist variable");
         return false;
     }
 

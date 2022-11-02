@@ -47,8 +47,7 @@ public class EffMapJsonToList extends Effect {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         json = (Expression<Object>) exprs[0];
         Expression<?> expr = exprs[1];
-        if ( expr instanceof Variable) {
-            Variable<?> varExpr = (Variable<?>) expr;
+        if (expr instanceof Variable<?> varExpr) {
             if(varExpr.isList()){
                 variable = VariableUtil.getVarName((Variable<?>) expr);
                 isLocal = varExpr.isLocal();

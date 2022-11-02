@@ -1,5 +1,5 @@
 /**
- * Messy, will cleaned and fixed some issues in next Version
+ * Messy, will clean and fixed some issues in next Version
  */
 
 package cz.coffee.skriptgson.skript;
@@ -24,7 +24,7 @@ import java.util.List;
 
 import static cz.coffee.skriptgson.util.PluginUtils.*;
 
-@SuppressWarnings({"unused", "NullableProblems"})
+@SuppressWarnings({"unused", "NullableProblems", "UnnecessaryReturnStatement"})
 public class GsonType {
 
     private static final Parser<JsonElement> parser = new Parser<>() {
@@ -110,7 +110,7 @@ public class GsonType {
         @Override
         public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
             switch (mode) {
-                case ADD: {
+                case ADD -> {
                     try {
                         String[] i;
                         boolean AddCase = false;
@@ -119,16 +119,16 @@ public class GsonType {
                             for (JsonElement jsonElement : value) {
                                 if (object.isJsonArray()) {
                                     object.getAsJsonArray().add(jsonElement);
-                                } else{
-                                    if (jsonElement.isJsonPrimitive()){
+                                } else {
+                                    if (jsonElement.isJsonPrimitive()) {
                                         i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
                                                 .split(";");
 
                                         AddCase = i[0].endsWith("+");
                                         if (AddCase) {
                                             jsonElement = JsonParser.parseString(SanitizeString(
-                                                    "["+i[1]+"]")
-                                                    .replaceAll("^(.*?):(.*)$","$1,$2")
+                                                    "[" + i[1] + "]")
+                                                    .replaceAll("^(.*?):(.*)$", "$1,$2")
                                             );
                                         } else {
                                             jsonElement = JsonParser.parseString(SanitizeString(i[1]));
@@ -138,7 +138,7 @@ public class GsonType {
                                                 String.valueOf(0) :
                                                 String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
                                     }
-                                    if ( AddCase ) {
+                                    if (AddCase) {
                                         String Key = SanitizeString(i[0].replaceAll("\\+", ""));
 
                                         if (object.getAsJsonObject().get(Key).isJsonArray()) {
@@ -148,9 +148,9 @@ public class GsonType {
 
                                         String Value1 = jsonElement.getAsJsonArray()
                                                 .size() > 1 ? gsonText(jsonElement.getAsJsonArray().get(0)).replaceAll("\"", "") :
-                                                String.valueOf(object.getAsJsonObject().get(Key).getAsJsonObject().size()-1);
+                                                String.valueOf(object.getAsJsonObject().get(Key).getAsJsonObject().size() - 1);
 
-                                        JsonElement Value2 =JsonParser.parseString(gsonText(jsonElement.getAsJsonArray()
+                                        JsonElement Value2 = JsonParser.parseString(gsonText(jsonElement.getAsJsonArray()
                                                 .get(jsonElement
                                                         .getAsJsonArray().size() > 1 ? 1 : 0)));
 
@@ -158,12 +158,12 @@ public class GsonType {
                                             object.getAsJsonObject()
                                                     .get(Key)
                                                     .getAsJsonObject()
-                                                    .add(Value1,Value2);
+                                                    .add(Value1, Value2);
                                         } else {
                                             object.getAsJsonObject()
                                                     .get(Key)
                                                     .getAsJsonObject()
-                                                    .add(Value1,Value2);
+                                                    .add(Value1, Value2);
                                         }
                                     } else {
                                         object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
@@ -171,13 +171,14 @@ public class GsonType {
                                 }
                             }
                         }
-                    } catch (Exception e) {return;}
-                    break;
+                    } catch (Exception e) {
+                        return;
+                    }
                 }
-                case REMOVE: {
+                case REMOVE -> {
                     try {
                         String value = String.valueOf(delta[0]).replaceAll("\"", "");
-                        for ( JsonElement object : what) {
+                        for (JsonElement object : what) {
                             List<String> values = JsonMap.getValues(object.getAsJsonObject());
                             for (int i = 0; values.size() > i; i++) {
                                 if (value.contains(";")) {
@@ -205,7 +206,8 @@ public class GsonType {
                                 }
                             }
                         }
-                    } catch (IndexOutOfBoundsException ignored) {}
+                    } catch (IndexOutOfBoundsException ignored) {
+                    }
                 }
             }
         }

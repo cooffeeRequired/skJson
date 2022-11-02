@@ -21,7 +21,7 @@ public class SkriptGson extends JavaPlugin {
     private static Logger logger;
 
     private static SkriptGson instance;
-    public static final String PREFIX = "&7[&l&eskript-gson&7] ";
+    public static final String PREFIX = "&7[&e&lskript-gson&7] ";
     private SkriptAddon addon;
     private final PluginManager pluginManager = this.getServer().getPluginManager();
 
