@@ -101,7 +101,6 @@ public class EffMapJsonToList extends Effect {
     private void map(Event e, String name, JsonElement obj){
         if (obj.isJsonObject()) {
             if ( obj.getAsJsonObject().has("__javaclass__") || obj.getAsJsonObject().has("__skriptclass__")) {
-                System.out.println("javaclass");
                 setVariable(e, name, new Gson().toJson(obj));
             } else {
                 setVariable(e, name, true);

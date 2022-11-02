@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
+import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,8 +66,10 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
         inputData = (exprData != null ? exprData.getSingle(event) : null);
 
-        if (new File(inputFile).exists())
-            return null;
+        if (new File(inputFile).exists()){
+            SkriptGson.warning("&r&ccan't create the file &e" + inputFile + ",&c because is already exist");
+        return null;
+        }
 
         try {
             OutputStream = new FileOutputStream(inputFile);

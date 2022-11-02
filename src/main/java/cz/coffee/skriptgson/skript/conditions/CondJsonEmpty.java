@@ -44,7 +44,7 @@ public class CondJsonEmpty extends Condition {
 
     /**
      * * Fixed problem (Repeatedly .getSingle(e)), also fixed Example..
-     * ? Commit :
+     * ? Commit : @bdf5a92
      */
     @Override
     public boolean check(Event e) {
