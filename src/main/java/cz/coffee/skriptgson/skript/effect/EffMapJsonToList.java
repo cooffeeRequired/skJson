@@ -78,6 +78,8 @@ public class EffMapJsonToList extends Effect {
     }
 
     private void mapE(Event e, String name, JsonElement obj){
+        if (obj == null)
+            return;
         if (obj.isJsonObject()) {
             JsonHandlerObject(e, name, obj.getAsJsonObject());
         } else if (obj.isJsonArray()) {
