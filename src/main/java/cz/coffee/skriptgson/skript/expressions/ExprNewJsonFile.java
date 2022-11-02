@@ -34,7 +34,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(ExprNewJsonFile.class,Object.class, ExpressionType.COMBINED,
-                "[a] [new] json file %string% [(:with data %-string%)]");
+                "[a] new json-file %string% [(:with [data] %-string%)]");
 
     }
 

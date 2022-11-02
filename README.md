@@ -7,7 +7,6 @@
 
 ## Know issues:
  - Make new file with data will raise error if you have installed Skript-reflect, collision with expression `new`. \
- Fix, changed pattern from `[a] [new] json file ...` to `[a] json-file ...` 
 
 #### This addon uses Google Json (Gson) API to work with Json in Script, allowing users to edit Json files or even directly Variables that contain json
 
