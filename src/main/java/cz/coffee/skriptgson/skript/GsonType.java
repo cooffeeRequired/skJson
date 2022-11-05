@@ -20,6 +20,7 @@ import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.JsonMap;
 
 import java.io.StreamCorruptedException;
+import java.util.Arrays;
 import java.util.List;
 
 import static cz.coffee.skriptgson.util.PluginUtils.*;
@@ -115,6 +116,7 @@ public class GsonType {
                         String[] i;
                         boolean AddCase = false;
                         JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
+                        System.out.println(Arrays.toString(value));
                         for (JsonElement object : what) {
                             for (JsonElement jsonElement : value) {
                                 if (object.isJsonArray()) {
@@ -123,6 +125,7 @@ public class GsonType {
                                     if (jsonElement.isJsonPrimitive()) {
                                         i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
                                                 .split(";");
+                                        System.out.println(i[1]);
 
                                         AddCase = i[0].endsWith("+");
                                         if (AddCase) {

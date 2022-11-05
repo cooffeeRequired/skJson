@@ -90,4 +90,8 @@ public class SkriptGson extends JavaPlugin {
         Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&c" + PluginUtils.color(string)));
     }
 
+    public static void debug(Object str) {
+        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&4&l! -> DEBUG! " + "&r" + PluginUtils.color(String.valueOf(str))));
+    }
+
 }

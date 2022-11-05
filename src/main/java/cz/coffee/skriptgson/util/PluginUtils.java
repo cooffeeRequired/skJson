@@ -15,7 +15,13 @@ public class PluginUtils {
     public static String SanitizeString(Object strObj) {
         return String.valueOf(strObj).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
     }
+    public static String SanitizeJson(Object strObj) {
+        return String.valueOf(strObj).replaceAll("^\\{", "").replaceAll("}$","");
+    }
     public static String gsonText(Object StringifyElement) {
         return new GsonBuilder().disableHtmlEscaping().create().toJson(StringifyElement);
+    }
+    public static boolean isNumeric(String str){
+        return str != null && str.matches("[0-9.]+");
     }
 }
