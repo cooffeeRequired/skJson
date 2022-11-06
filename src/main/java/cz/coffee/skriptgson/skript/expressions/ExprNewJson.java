@@ -38,8 +38,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string%",
                 "[a] [new] json from file [path] %string%",
-                "json (([<.+>])|({<.+>}))",
-                "(<'.+'>)"
+                "(json ((<\\[.*\\]>)|(<\\{.*\\}>)|((\\\"|')<.+>(\\\"|'))|(<(true|false)>)))"
         );
     }
 
@@ -58,6 +57,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         } else {
             exprString = (Expression<String>) exprs[0];
         }
+
         return true;
     }
 

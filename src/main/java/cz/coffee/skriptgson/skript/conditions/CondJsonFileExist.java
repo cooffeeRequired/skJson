@@ -9,7 +9,6 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 
 import java.io.File;
@@ -28,8 +27,8 @@ public class CondJsonFileExist extends Condition {
 
     static {
         Skript.registerCondition(CondJsonFileExist.class,
-                "json-file %object% is exist",
-                "json-file %object% is( not|n't) exist[s]"
+                "json file %object% is exist",
+                "json file %object% is( not|n't) exist[s]"
         );
     }
 
@@ -39,7 +38,6 @@ public class CondJsonFileExist extends Condition {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         check = (Expression<Object>) exprs[0];
-        SkriptGson.debug("IN");
         pattern = matchedPattern;
         setNegated(pattern == 1);
         return true;

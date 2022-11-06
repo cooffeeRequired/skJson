@@ -37,7 +37,7 @@ public class CondJsonType extends Condition {
         Skript.registerCondition(CondJsonType.class,
                 "(json|jsonelement) %jsonelement% is [a] (:array|:object|:primitive)",
                 "(json|jsonelement) %jsonelement% is(n't| not) [a] (:array|:object|:primitive)"
-                );
+        );
     }
 
     private Expression<JsonElement> check;
