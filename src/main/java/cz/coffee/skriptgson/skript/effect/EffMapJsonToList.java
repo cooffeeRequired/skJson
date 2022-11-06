@@ -114,7 +114,6 @@ public class EffMapJsonToList extends Effect {
             JsonHandlerArray(e, name, obj.getAsJsonArray());
         } else {
             Object data = null;
-            System.out.println(obj);
             if(obj.getAsJsonPrimitive().isString()){
                 data = obj.getAsJsonPrimitive().getAsString();
             } else if ( obj.getAsJsonPrimitive().isNumber()) {
