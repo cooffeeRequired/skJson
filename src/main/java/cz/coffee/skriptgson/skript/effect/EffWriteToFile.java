@@ -33,7 +33,7 @@ import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
 })
 @Examples({
         "json file:",
-        "```json",
+        "json",
         "\t{\"players\": {\"coffeeRequired\":{\"name\": \"coffee\",\"surname\": \"coffeeRequired\"}}}",
         "```\non load:",
         "\tset {_file} to loaded json file \"gson/test1.json\"\n",

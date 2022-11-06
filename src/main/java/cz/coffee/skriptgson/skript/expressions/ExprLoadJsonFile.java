@@ -31,7 +31,7 @@ public class ExprLoadJsonFile extends SimpleExpression<File> {
 
     static {
         Skript.registerExpression(ExprLoadJsonFile.class, File.class, ExpressionType.COMBINED,
-                "(load[ed]|open[ed]) json file %string%");
+                "(load|open)[ed] json file %string%");
     }
 
     private Expression<String> rawFile;

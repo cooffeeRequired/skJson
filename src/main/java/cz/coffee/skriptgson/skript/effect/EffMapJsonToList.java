@@ -27,7 +27,7 @@ import java.util.Locale;
 @Name("Map|Copy json to list variables")
 @Description("You can copy|map json to variable list, and work with the values:keys pair")
 @Examples({
-        "\n", "on load:",
+        "on load:",
         "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
         "\tcopy json from {-e} to {_json::*}"
 })
