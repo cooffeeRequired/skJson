@@ -70,6 +70,9 @@ public class EffWriteToFile extends Effect {
             SkriptGson.severe("&cBad file format " + file + "");
         }
     }
+
+    // ! todo.
+
     private JsonElement inputReader(File file) {
         JsonElement j;
         try {
