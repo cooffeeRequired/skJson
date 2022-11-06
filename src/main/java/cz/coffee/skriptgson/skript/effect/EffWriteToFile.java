@@ -1,6 +1,7 @@
 package cz.coffee.skriptgson.skript.effect;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -46,7 +47,7 @@ public class EffWriteToFile extends Effect {
     static {
         Skript.registerEffect(EffWriteToFile.class,
                 "write [new] data %jsonelement% to [json] file %object%",
-                "append(ing|) [new] data %jsonelement% to [json] file %object% [(:as) [nested] object %-jsonelement% [(:with) key %-string/integer%]]"
+                "append(ing|) [new] data %jsonelement% to [json] file %object% [(:as) [nested] object %-jsonelement% [(:with) [property] key %-string/integer%]]"
         );
     }
 
@@ -67,7 +68,6 @@ public class EffWriteToFile extends Effect {
             w.jsonValue(p);w.flush();w.close();
         } catch (IOException | JsonSyntaxException ex) {
             SkriptGson.severe("&cBad file format " + file + "");
-            return;
         }
     }
     private JsonElement inputReader(File file) {
@@ -85,23 +85,34 @@ public class EffWriteToFile extends Effect {
     @Override
     protected void execute(Event e) {
         Object nKey = null;
+        JsonElement k;
+        File file;
+        JsonElement json;
         if ( with) {
             nKey = raw_keys.getSingle(e);
         }
 
-        JsonElement json = raw_data.getSingle(e);
-        File file = raw_jsonFile.getSingle(e);
-        String[] nObjects;
+        try {
+            json = raw_data.getSingle(e);
+            file = raw_jsonFile.getSingle(e);
+        } catch (SkriptAPIException ex) {
+            SkriptGson.warning("&cDid you mean &e'%object%'&c instead of &f'%object");
+            return;
+        }
+        String[] nObjects = new String[]{};
+
+
         if ( file == null || json == null)
             return;
 
         if ( pattern == 1) {
-            JsonElement k = raw_objects.getSingle(e);
-            assert k != null;
-            nObjects = k.toString().contains(";") ? k.toString().split(";") : new String[]{k.toString()};
-
-            if (nObjects[0] == null)
-                return;
+            if ( as){
+                k = raw_objects.getSingle(e);
+                assert k != null;
+                nObjects = k.toString().contains(";") ? k.toString().split(";") : new String[]{k.toString()};
+                if (nObjects[0] == null)
+                    return;
+            }
 
             JsonElement loaded_data = inputReader(file);
             if (loaded_data == null) {
@@ -109,7 +120,8 @@ public class EffWriteToFile extends Effect {
             }
             JsonElement je;
 
-            if (nObjects.length == 1) {
+            if (nObjects.length == 1 || nObjects.length == 0) {
+                System.out.println("IN");
                 if (loaded_data.isJsonObject()) {
                     loaded_data.getAsJsonObject().add(as ? nObjects[0].replaceAll("\"", "") : String.valueOf(loaded_data.getAsJsonObject().size()), json);
                 } else if (loaded_data.isJsonArray()) {
@@ -118,7 +130,7 @@ public class EffWriteToFile extends Effect {
                     SkriptGson.warning("&cBad file format " + file + ",you can use the append method only for &e'Object' &r&land &e'Array'");
                     return;
                 }
-                outputWriter(json, file);
+                outputWriter(loaded_data, file);
             } else {
                 if (loaded_data.isJsonObject()) {
                     je = loaded_data.getAsJsonObject().get(SanitizeString(nObjects[0]));
@@ -149,6 +161,8 @@ public class EffWriteToFile extends Effect {
                 }
                 outputWriter(loaded_data, file);
             }
+        } else {
+            outputWriter(json, file);
         }
     }
     @Override
