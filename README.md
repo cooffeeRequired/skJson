@@ -7,9 +7,8 @@
 
 ## Know issues:
  - Make new file with data will raise error if you have installed Skript-reflect, collision with expression `new`. \
- - 'map json' vracelo pouze JsonPrimitive, nyní Hot-Fixed, vrací nyní pouze String : Patch-Download -> [skript-gson-1.1.0-Fix issue 2.zip](https://github.com/cooffeeRequired/skript-gson/files/9946535/skript-gson-1.1.0-Fix.issue.2.zip)
-
-
+ - 'map json' was returning only JsonPrimitive. fixed in version `1.1.1`
+ 
 #### This addon uses Google Json (Gson) API to work with Json in Script, allowing users to edit Json files or even directly Variables that contain json
 
 
