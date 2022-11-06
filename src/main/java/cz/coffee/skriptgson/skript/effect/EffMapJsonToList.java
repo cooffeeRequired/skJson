@@ -113,7 +113,19 @@ public class EffMapJsonToList extends Effect {
             setVariable(e, name, true);
             JsonHandlerArray(e, name, obj.getAsJsonArray());
         } else {
-            setVariable(e, name, obj);
+            Object data = null;
+            System.out.println(obj);
+            if(obj.getAsJsonPrimitive().isString()){
+                data = obj.getAsJsonPrimitive().getAsString();
+            } else if ( obj.getAsJsonPrimitive().isNumber()) {
+                data = obj.getAsJsonPrimitive().getAsNumber();
+            } else if ( obj.getAsJsonPrimitive().isBoolean()) {
+                data = obj.getAsJsonPrimitive().getAsBoolean();
+            }
+            setVariable(e,
+                    name,
+                    data == null ? obj.toString() : data
+                    );
         }
     }
     private void setVariable(Event e, String name, Object obj) {
