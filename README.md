@@ -1,4 +1,4 @@
-![Snímek obrazovky 2022-11-01 174544 (1)](https://user-images.githubusercontent.com/106232282/199303459-edca99b0-167a-4f13-bd29-af05d6c71a08.png)
+![Git](https://user-images.githubusercontent.com/106232282/200173734-9a309996-c06a-4172-9eef-c3df82be8284.png)
 
 # skript-gson
 ### Official docs of Skript-gson
