@@ -1,5 +1,4 @@
-
-![Git](https://user-images.githubusercontent.com/106232282/200173189-449ccb58-7b6b-4cb1-9e1a-2272da929915.png)
+![Git](https://user-images.githubusercontent.com/106232282/200173734-9a309996-c06a-4172-9eef-c3df82be8284.png)
 
 # skript-gson
 ### Official docs of Skript-gson
