@@ -46,15 +46,15 @@ public class EffWriteToFile extends Effect {
 
     static {
         Skript.registerEffect(EffWriteToFile.class,
-                "write [new] data %jsonelement% to [json] file %object%",
-                "append(ing|) [new] data %jsonelement% to [json] file %object% [(:as) [nested] object %-jsonelement% [(:with) [property] key %-string/integer%]]"
+                "write [new] data %object% to [json] file %object%",
+                "append(ing|) [new] data %object% to [json] file %object% [(:as) [nested] object %-jsonelement% [(:with) [property] key %-string/integer%]]"
         );
     }
 
     private int pattern;
     private boolean as;
     private boolean with;
-    private Expression<JsonElement> raw_data;
+    private Expression<Object> raw_data;
     private Expression<File> raw_jsonFile;
     private Expression<JsonElement> raw_objects;
     private Expression<?> raw_keys;
@@ -71,7 +71,6 @@ public class EffWriteToFile extends Effect {
         }
     }
 
-    // ! todo.
 
     private JsonElement inputReader(File file) {
         JsonElement j;
@@ -90,13 +89,20 @@ public class EffWriteToFile extends Effect {
         Object nKey = null;
         JsonElement k;
         File file;
+        Object RawJson;
         JsonElement json;
         if ( with) {
             nKey = raw_keys.getSingle(e);
         }
 
         try {
-            json = raw_data.getSingle(e);
+            RawJson = raw_data.getSingle(e);
+            if (RawJson instanceof JsonElement) {
+                json = (JsonElement) RawJson;
+            } else {
+                assert RawJson != null;
+                json = JsonParser.parseString(RawJson.toString());
+            }
             file = raw_jsonFile.getSingle(e);
         } catch (SkriptAPIException ex) {
             SkriptGson.warning("&cDid you mean &e'%object%'&c instead of &f'%object");
@@ -178,7 +184,7 @@ public class EffWriteToFile extends Effect {
         pattern = matchedPattern;
         as = parseResult.hasTag("as");
         with = parseResult.hasTag("with");
-        raw_data = (Expression<JsonElement>) exprs[0];
+        raw_data = (Expression<Object>) exprs[0];
         raw_jsonFile = (Expression<File>) exprs[1];
         if ( pattern == 1) {
             raw_objects = (Expression<JsonElement>) exprs[2];
