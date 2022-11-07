@@ -145,13 +145,16 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
         Stream<String> keys = var.keySet().stream().filter(Objects::nonNull);
         if(var.keySet().stream().filter(Objects::nonNull).allMatch(ExprJsonListToJsonElements::isInteger)) {
             JsonArray obj = new JsonArray();
-            keys.forEach(key -> obj.getAsJsonArray().add(JsonParser.parseString(String.valueOf(JsonSubTree(e, name + key)))));
+            keys.forEach(key -> obj.getAsJsonArray().add(
+                    JsonParser.parseString(JsonSubTree(e, name+key).toString())
+                    )
+            );
             return obj;
         } else {
             JsonObject obj = new JsonObject();
             keys.forEach(
                     key -> obj.getAsJsonObject().add(
-                            key, newGson().toJsonTree(JsonSubTree(e, name+key))
+                            key, JsonParser.parseString(JsonSubTree(e, name+key).toString())
                     )
             );
             return obj;

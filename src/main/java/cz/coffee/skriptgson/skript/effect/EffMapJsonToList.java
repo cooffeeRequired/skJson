@@ -111,9 +111,9 @@ public class EffMapJsonToList extends Effect {
             if ( obj.getAsJsonObject().has("__javaclass__") || obj.getAsJsonObject().has("__skriptclass__")) {
                 setVariable(e, name, newGson().toJson(obj));
             } else {
+                JsonHandlerObject(e, name, obj.getAsJsonObject());
                 setVariable(e, name, true);
                 setVariable(e, name, obj.getAsJsonObject());
-                JsonHandlerObject(e, name, obj.getAsJsonObject());
             }
         } else if (obj.isJsonArray()) {
             setVariable(e, name, true);
@@ -129,7 +129,7 @@ public class EffMapJsonToList extends Effect {
             }
             setVariable(e,
                     name,
-                    data == null ? obj.toString() : data
+                    data == null ? obj : data
                     );
         }
     }

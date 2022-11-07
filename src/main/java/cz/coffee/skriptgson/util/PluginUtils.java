@@ -3,6 +3,7 @@
  */
 package cz.coffee.skriptgson.util;
 
+import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.ChatColor;
@@ -29,8 +30,9 @@ public class PluginUtils {
 
     public static Gson newGson() {
         GsonBuilder g = new GsonBuilder()
-                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt());
-       return g.setPrettyPrinting().disableHtmlEscaping().create();
+                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt())
+                .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new SkriptClassAdapt());
+       return g.disableHtmlEscaping().setPrettyPrinting().create();
     }
 
 }
