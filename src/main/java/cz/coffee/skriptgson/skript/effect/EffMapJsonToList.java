@@ -21,6 +21,8 @@ import org.bukkit.event.Event;
 
 import java.util.Locale;
 
+import static cz.coffee.skriptgson.util.PluginUtils.color;
+
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 
 @Since("1.0")
@@ -115,7 +117,7 @@ public class EffMapJsonToList extends Effect {
         } else {
             Object data = null;
             if(obj.getAsJsonPrimitive().isString()){
-                data = obj.getAsJsonPrimitive().getAsString();
+                data = color(obj.getAsJsonPrimitive().getAsString());
             } else if ( obj.getAsJsonPrimitive().isNumber()) {
                 data = obj.getAsJsonPrimitive().getAsNumber();
             } else if ( obj.getAsJsonPrimitive().isBoolean()) {
