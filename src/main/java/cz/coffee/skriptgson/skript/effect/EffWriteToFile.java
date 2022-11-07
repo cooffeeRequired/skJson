@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -24,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
 
 
 @Name("Write/Append data to json file")
@@ -60,9 +60,7 @@ public class EffWriteToFile extends Effect {
     private Expression<?> raw_keys;
     private void outputWriter(JsonElement json, File file) {
         try {
-            String p = new GsonBuilder()
-                    .disableHtmlEscaping().setPrettyPrinting()
-                    .create().toJson(json);
+            String p = newGson().toJson(json);
             FileOutputStream o = new FileOutputStream(file);
             JsonWriter w = new JsonWriter(new OutputStreamWriter(o, StandardCharsets.UTF_8));
             w.jsonValue(p);w.flush();w.close();
@@ -89,19 +87,18 @@ public class EffWriteToFile extends Effect {
         Object nKey = null;
         JsonElement k;
         File file;
-        Object RawJson;
-        JsonElement json;
+        Object rawJson;
+        JsonElement json = null;
         if ( with) {
             nKey = raw_keys.getSingle(e);
         }
-
         try {
-            RawJson = raw_data.getSingle(e);
-            if (RawJson instanceof JsonElement) {
-                json = (JsonElement) RawJson;
+            rawJson = raw_data.getSingle(e);
+            if (rawJson instanceof JsonElement) {
+                json = (JsonElement) rawJson;
             } else {
-                assert RawJson != null;
-                json = JsonParser.parseString(RawJson.toString());
+                assert rawJson != null;
+                json = newGson().toJsonTree(rawJson);
             }
             file = raw_jsonFile.getSingle(e);
         } catch (SkriptAPIException ex) {
@@ -130,7 +127,6 @@ public class EffWriteToFile extends Effect {
             JsonElement je;
 
             if (nObjects.length == 1 || nObjects.length == 0) {
-                System.out.println("IN");
                 if (loaded_data.isJsonObject()) {
                     loaded_data.getAsJsonObject().add(as ? nObjects[0].replaceAll("\"", "") : String.valueOf(loaded_data.getAsJsonObject().size()), json);
                 } else if (loaded_data.isJsonArray()) {

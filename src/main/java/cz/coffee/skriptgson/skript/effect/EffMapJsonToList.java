@@ -14,7 +14,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.VariableUtil;
 import org.bukkit.event.Event;
@@ -22,6 +25,7 @@ import org.bukkit.event.Event;
 import java.util.Locale;
 
 import static cz.coffee.skriptgson.util.PluginUtils.color;
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
 
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 
@@ -105,7 +109,7 @@ public class EffMapJsonToList extends Effect {
     private void map(Event e, String name, JsonElement obj){
         if (obj.isJsonObject()) {
             if ( obj.getAsJsonObject().has("__javaclass__") || obj.getAsJsonObject().has("__skriptclass__")) {
-                setVariable(e, name, new Gson().toJson(obj));
+                setVariable(e, name, newGson().toJson(obj));
             } else {
                 setVariable(e, name, true);
                 setVariable(e, name, obj.getAsJsonObject());

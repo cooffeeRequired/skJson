@@ -3,8 +3,10 @@
  */
 package cz.coffee.skriptgson.util;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 @SuppressWarnings("unused")
 public class PluginUtils {
@@ -24,4 +26,11 @@ public class PluginUtils {
     public static boolean isNumeric(String str){
         return str != null && str.matches("[0-9.]+");
     }
+
+    public static Gson newGson() {
+        GsonBuilder g = new GsonBuilder()
+                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt());
+       return g.setPrettyPrinting().disableHtmlEscaping().create();
+    }
+
 }

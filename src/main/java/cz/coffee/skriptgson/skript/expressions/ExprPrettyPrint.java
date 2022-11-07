@@ -6,12 +6,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.util.PluginUtils.color;
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
 
 @SuppressWarnings({"unchecked", "unused", "NullableProblems"})
 public class ExprPrettyPrint extends SimpleExpression<Object> {
@@ -32,7 +32,7 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
     }
 
     public String[] get(@NotNull Event event) {
-        return new String[]{color("&f"+new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(exprPrint.getSingle(event))
+        return new String[]{color("&f"+newGson().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
                 .replaceAll("([{}])", "§7$0§r")

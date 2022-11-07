@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 @Since("1.0")
 @Name("Converts list")
@@ -130,7 +132,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
             }
         }
         if (!(val instanceof String || val instanceof Number || val instanceof Boolean || val instanceof Map || val instanceof List || val instanceof JsonPrimitive)) {
-            val = new Gson().toJson(val) ;
+            val = newGson().toJson(val);
         }
         return val;
     }
@@ -147,7 +149,11 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
             return obj;
         } else {
             JsonObject obj = new JsonObject();
-            keys.forEach(key -> obj.getAsJsonObject().add(key, JsonParser.parseString(String.valueOf(JsonSubTree(e, name + key)))));
+            keys.forEach(
+                    key -> obj.getAsJsonObject().add(
+                            key, newGson().toJsonTree(JsonSubTree(e, name+key))
+                    )
+            );
             return obj;
         }
     }

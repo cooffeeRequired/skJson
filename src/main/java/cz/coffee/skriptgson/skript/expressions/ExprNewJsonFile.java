@@ -10,7 +10,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
@@ -22,6 +21,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
 
 @Name("New json File")
 @Description("Creates a new JSON file")
@@ -82,9 +83,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
             OutputStream = new FileOutputStream(inputFile);
             writer = new JsonWriter(new OutputStreamWriter(OutputStream, StandardCharsets.UTF_8));
             writer.setIndent("    ");
-            writer.jsonValue(new GsonBuilder()
-                    .setPrettyPrinting()
-                    .create()
+            writer.jsonValue(newGson()
                     .toJson(inputData instanceof JsonElement ? inputData : JsonParser.parseString(inputData == null ? "{}" : (String) inputData))
             );
             writer.flush();
