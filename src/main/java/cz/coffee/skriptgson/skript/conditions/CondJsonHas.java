@@ -17,7 +17,7 @@ import org.bukkit.event.Event;
 import java.util.Objects;
 
 
-@Since("1.0")
+@Since("1.2.0")
 @Name("Json Has Key/Value's")
 @Description({"Used to get information if the key or value is in Json"})
 @Examples({"on script load:",
@@ -105,6 +105,6 @@ public class CondJsonHas extends Condition {
 
     @Override
     public String toString(Event e, boolean debug) {
-        return null;
+        return "json " + check.toString(e,debug) + (isNegated() ? " is exist" : "isn't exist");
     }
 }
