@@ -13,13 +13,13 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+@Since("1.0")
 @Name("is Json empty")
-@Description("Checks if a cached Json is empty.")
-@Examples({
+@Description("Checks if Json is empty.")
+@Examples({"on script load:",
         "json {-e} is empty: ",
         "\tbroadcast \"is empty\"",
 })
-@Since("1.0")
 
 @SuppressWarnings({"unchecked","unused","NullableProblems"})
 public class CondJsonEmpty extends Condition {
@@ -42,10 +42,6 @@ public class CondJsonEmpty extends Condition {
         return true;
     }
 
-    /**
-     * * Fixed problem (Repeatedly .getSingle(e)), also fixed Example..
-     * ? Commit : @bdf5a92
-     */
     @Override
     public boolean check(Event e) {
         JsonElement object = check.getSingle(e);
