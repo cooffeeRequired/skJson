@@ -1,8 +1,9 @@
+<center>
 ![GitHub release](https://img.shields.io/github/release/cooffeeRequired/skript-gson?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues-raw/cooffeeRequired/skript-gson?style=for-the-badge)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/cooffeeRequired/skript-gson.svg?style=for-the-badge)
 ![GitHub All Releases](https://img.shields.io/github/downloads/cooffeeRequired/skript-gson/total.svg?style=for-the-badge)
-[![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)
+[![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)</center>
 ![Git](https://user-images.githubusercontent.com/106232282/200173734-9a309996-c06a-4172-9eef-c3df82be8284.png)
 
 # skript-gson
