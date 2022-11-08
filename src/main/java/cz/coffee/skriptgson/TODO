@@ -1,0 +1,4 @@
+1. change ExprNewJson.class to -> [a] [new] json from [(text|string|request)] %object%
+2. Fix ExprJsonListToJsonElement.
+3. Add ExprCountOfJson.class -> [a] count of [key] %string% in %jsonelement%
+4. Add ExprJsonRegexMatch.class -> [a] (last|first|%integer%) regex-match %string% in [the] %jsonelement%

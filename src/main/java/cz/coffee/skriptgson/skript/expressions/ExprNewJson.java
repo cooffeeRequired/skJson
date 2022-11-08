@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.FileReader;
 import java.util.regex.MatchResult;
 
+import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+
 @Name("JSON from Text/File")
 @Description("Creates a new JSON object from text or file.")
 @Since("1.0")
@@ -37,8 +39,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
     static {
         Skript.registerExpression(ExprNewJson.class, Object.class, ExpressionType.COMBINED,
                 "[a] [new] json from (string|text) %string%",
-                "[a] [new] json from file [path] %string%",
-                "(json ((<\\[.*\\]>)|(<\\{.*\\}>)|((\\\"|')<.+>(\\\"|'))|(<(true|false)>)))"
+                "[a] [new] json from file [path] %string%"
         );
     }
 
@@ -57,7 +58,6 @@ public class ExprNewJson extends SimpleExpression<Object> {
         } else {
             exprString = (Expression<String>) exprs[0];
         }
-
         return true;
     }
 
@@ -81,6 +81,7 @@ public class ExprNewJson extends SimpleExpression<Object> {
         if (pattern == 0 || pattern == 2 || pattern == 3) {
             try {
                 json = JsonParser.parseString(inputString);
+                json = newGson().fromJson(json, JsonElement.class);
             } catch (JsonSyntaxException ex) {
                 return null;
             }
