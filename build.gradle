@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+}
+
+group = 'cz.coffee'
+version = '1.2.0-Pre-Release'
+
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven {
+        url 'https://repo.skriptlang.org/releases'
+    }
+    maven {
+        url 'https://mvnrepository.com/artifact/com.google.code.gson/gson'
+    }
+    maven {
+        url 'https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation'
+    }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
+    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
+    compileOnly 'com.github.SkriptLang:Skript:2.6.3'
+    implementation('com.google.code.gson:gson:2.10')
+    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+
+}
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ["-source", "16", "-target", "16"]
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
