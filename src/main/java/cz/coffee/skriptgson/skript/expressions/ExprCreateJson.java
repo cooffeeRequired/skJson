@@ -24,7 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Name("JSON from Text/File/Request")
 @Description("Creates a new JSON object from test/file/request")
@@ -63,18 +63,15 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     @Override
     protected JsonElement[] get(Event e) {
         Object data = toParse.getSingle(e);
-        boolean object = false;
-        if (data instanceof ConfigurationSerializable || data instanceof YggdrasilSerializable) {
-            object = true;
-        }
+        boolean object = data instanceof ConfigurationSerializable || data instanceof YggdrasilSerializable;
         JsonElement element = null;
         if(data == null)
             return null;
 
         if(pattern == 0) {
-            try {element = (object) ? newGson().toJsonTree(data) : JsonParser.parseString(data.toString());} catch (JsonSyntaxException ignored){};
+            try {element = (object) ? newGson().toJsonTree(data) : JsonParser.parseString(data.toString());} catch (JsonSyntaxException ignored){}
         } else if(pattern == 1){
-            try {element = JsonParser.parseReader(new JsonReader(new FileReader(data.toString())));} catch (FileNotFoundException ignored){};
+            try {element = JsonParser.parseReader(new JsonReader(new FileReader(data.toString())));} catch (FileNotFoundException ignored){}
         }
         return new JsonElement[]{element};
     }

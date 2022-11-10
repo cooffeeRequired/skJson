@@ -22,7 +22,7 @@ import cz.coffee.skriptgson.util.JsonMap;
 import java.io.StreamCorruptedException;
 import java.util.List;
 
-import static cz.coffee.skriptgson.util.PluginUtils.*;
+import static cz.coffee.skriptgson.util.Utils.*;
 
 @SuppressWarnings({"unused", "NullableProblems", "UnnecessaryReturnStatement"})
 public class GsonType {

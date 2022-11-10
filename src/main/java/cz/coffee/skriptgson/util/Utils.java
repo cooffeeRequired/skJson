@@ -10,7 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 @SuppressWarnings("unused")
-public class PluginUtils {
+public class Utils {
 
     public static String color(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
@@ -30,7 +30,7 @@ public class PluginUtils {
 
     public static Gson newGson() {
         GsonBuilder g = new GsonBuilder()
-                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt())
+                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new SkriptBukkitClassAdapt())
                 .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new SkriptClassAdapt());
        return g.disableHtmlEscaping().setPrettyPrinting().create();
     }

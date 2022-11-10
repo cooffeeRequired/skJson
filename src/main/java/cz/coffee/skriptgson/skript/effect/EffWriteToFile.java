@@ -22,8 +22,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static cz.coffee.skriptgson.util.PluginUtils.SanitizeString;
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.SanitizeString;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 
 @Name("Write/Append data to json file")
@@ -88,7 +88,7 @@ public class EffWriteToFile extends Effect {
         String k;
         File file;
         Object rawJson;
-        JsonElement json = null;
+        JsonElement json;
         if ( with) {
             nKey = raw_keys.getSingle(e);
         }

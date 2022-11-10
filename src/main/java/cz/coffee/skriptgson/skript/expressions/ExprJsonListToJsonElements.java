@@ -12,14 +12,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.VariableUtil;
+import cz.coffee.skriptgson.util.Variable;
 import org.bukkit.event.Event;
 
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 @Since("1.0")
@@ -53,9 +52,9 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         Expression<?> expr = exprs[0];
-        if (expr instanceof Variable<?> varExpr) {
+        if (expr instanceof ch.njol.skript.lang.Variable<?> varExpr) {
             if (varExpr.isList()) {
-                var = VariableUtil.getVarName(varExpr);
+                var = Variable.getVarName(varExpr);
                 isLocal = varExpr.isLocal();
                 return true;
             }
@@ -91,7 +90,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     private Object getVariable(Event e, String name) {
         final Object val = Variables.getVariable(name, e, isLocal);
         if (val == null) {
-            return Variables.getVariable((isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
+            return Variables.getVariable((isLocal ? ch.njol.skript.lang.Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
         }
         return val;
     }
@@ -124,9 +123,9 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     private Object JsonSubTree(Event e, String name) {
         Object val = getVariable(e, name);
         if (val == null) {
-            val = JsonTree(e, name + Variable.SEPARATOR, false);
+            val = JsonTree(e, name + ch.njol.skript.lang.Variable.SEPARATOR, false);
         } else if (val == Boolean.TRUE) {
-            Object subtree = JsonTree(e,name + Variable.SEPARATOR,true);
+            Object subtree = JsonTree(e,name + ch.njol.skript.lang.Variable.SEPARATOR,true);
             if(subtree != null) {
                 val = subtree;
             }

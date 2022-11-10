@@ -5,7 +5,7 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import cz.coffee.skriptgson.util.PluginUtils;
+import cz.coffee.skriptgson.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -79,19 +79,19 @@ public class SkriptGson extends JavaPlugin {
 
     // Utilities
     public static void info(String string) {
-        Bukkit.getLogger().info(PluginUtils.color(PREFIX + PluginUtils.color(string)));
+        Bukkit.getLogger().info(Utils.color(PREFIX + Utils.color(string)));
     }
 
     public static void warning(String string) {
-        Bukkit.getLogger().warning(PluginUtils.color(PREFIX + "&e" + PluginUtils.color(string)));
+        Bukkit.getLogger().warning(Utils.color(PREFIX + "&e" + Utils.color(string)));
     }
 
     public static void severe(String string) {
-        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&c" + PluginUtils.color(string)));
+        Bukkit.getLogger().severe(Utils.color(PREFIX + "&c" + Utils.color(string)));
     }
 
     public static void debug(Object str) {
-        Bukkit.getLogger().severe(PluginUtils.color(PREFIX + "&4&l! -> DEBUG! " + "&r" + PluginUtils.color(String.valueOf(str))));
+        Bukkit.getLogger().severe(Utils.color(PREFIX + "&4&l! -> DEBUG! " + "&r" + Utils.color(String.valueOf(str))));
     }
 
 }

@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Name("New json File")
 @Description("Creates a new JSON file")

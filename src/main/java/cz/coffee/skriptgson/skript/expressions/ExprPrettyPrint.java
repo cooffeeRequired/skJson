@@ -10,8 +10,8 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.skriptgson.util.PluginUtils.color;
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.color;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @SuppressWarnings({"unchecked", "unused", "NullableProblems"})
 public class ExprPrettyPrint extends SimpleExpression<Object> {

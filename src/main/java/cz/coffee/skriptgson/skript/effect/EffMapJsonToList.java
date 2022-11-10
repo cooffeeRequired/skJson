@@ -11,7 +11,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
@@ -19,13 +22,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.VariableUtil;
+import cz.coffee.skriptgson.util.Variable;
 import org.bukkit.event.Event;
 
 import java.util.Locale;
 
-import static cz.coffee.skriptgson.util.PluginUtils.color;
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.color;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @SuppressWarnings({"unused","NullableProblems","unchecked"})
 
@@ -53,9 +56,9 @@ public class EffMapJsonToList extends Effect {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         json = (Expression<Object>) exprs[0];
         Expression<?> expr = exprs[1];
-        if (expr instanceof Variable<?> varExpr) {
+        if (expr instanceof ch.njol.skript.lang.Variable<?> varExpr) {
             if(varExpr.isList()){
-                variable = VariableUtil.getVarName((Variable<?>) expr);
+                variable = Variable.getVarName((ch.njol.skript.lang.Variable<?>) expr);
                 isLocal = varExpr.isLocal();
                 return true;
             }
@@ -97,13 +100,13 @@ public class EffMapJsonToList extends Effect {
 
     private void JsonHandlerObject(Event e, String name, JsonObject obj) {
         obj.keySet()
-                .forEach(key -> map(e,name + Variable.SEPARATOR + key, obj
+                .forEach(key -> map(e,name + ch.njol.skript.lang.Variable.SEPARATOR + key, obj
                         .get(key)
                 ));
     }
     private void JsonHandlerArray(Event e, String name, JsonArray obj) {
         for (int i =0;i < obj.size(); i++){
-            map(e,name+Variable.SEPARATOR + (i+1),obj.get(i));
+            map(e,name+ ch.njol.skript.lang.Variable.SEPARATOR + (i+1),obj.get(i));
         }
     }
     private void map(Event e, String name, JsonElement obj){

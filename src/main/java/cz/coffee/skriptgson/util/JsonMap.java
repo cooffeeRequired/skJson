@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static cz.coffee.skriptgson.util.PluginUtils.newGson;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
 public class JsonMap {
 
