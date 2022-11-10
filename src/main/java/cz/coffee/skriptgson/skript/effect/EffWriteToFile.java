@@ -47,7 +47,7 @@ public class EffWriteToFile extends Effect {
     static {
         Skript.registerEffect(EffWriteToFile.class,
                 "write [new] data %object% to [json] file %object%",
-                "append(ing|) [new] data %object% to [json] file %object% [(:as) [nested] object %-jsonelement% [(:with) [property] key %-string/integer%]]"
+                "append(ing|) [new] data %object% to [json] file %object% [(:as) [nested] object %-string% [(:with) [property] key %-string/integer%]]"
         );
     }
 
@@ -56,7 +56,7 @@ public class EffWriteToFile extends Effect {
     private boolean with;
     private Expression<Object> raw_data;
     private Expression<File> raw_jsonFile;
-    private Expression<JsonElement> raw_objects;
+    private Expression<String> raw_objects;
     private Expression<?> raw_keys;
     private void outputWriter(JsonElement json, File file) {
         try {
@@ -85,7 +85,7 @@ public class EffWriteToFile extends Effect {
     @Override
     protected void execute(Event e) {
         Object nKey = null;
-        JsonElement k;
+        String k;
         File file;
         Object rawJson;
         JsonElement json = null;
@@ -113,9 +113,10 @@ public class EffWriteToFile extends Effect {
 
         if ( pattern == 1) {
             if ( as){
+                System.out.println(raw_objects.getSingle(e));
                 k = raw_objects.getSingle(e);
                 assert k != null;
-                nObjects = k.toString().contains(";") ? k.toString().split(";") : new String[]{k.toString()};
+                nObjects = k.contains(";") ? k.split(";") : new String[]{k};
                 if (nObjects[0] == null)
                     return;
             }
@@ -183,10 +184,9 @@ public class EffWriteToFile extends Effect {
         raw_data = (Expression<Object>) exprs[0];
         raw_jsonFile = (Expression<File>) exprs[1];
         if ( pattern == 1) {
-            raw_objects = (Expression<JsonElement>) exprs[2];
+            raw_objects = (Expression<String>) exprs[2];
             raw_keys = exprs[3];
         }
-
         return true;
     }
 }
