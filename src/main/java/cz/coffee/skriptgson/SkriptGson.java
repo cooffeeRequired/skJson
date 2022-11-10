@@ -41,7 +41,7 @@ public class SkriptGson extends JavaPlugin {
             return;
         }
         info("&aFinished loading.");
-        info("Build: &r&f#33f20");
+        info("Build: &r&f#hh000");
 
     }
 
