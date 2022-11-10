@@ -1,5 +1,6 @@
 package cz.coffee.skriptgson.skript;
 
+@SuppressWarnings({"unused", "DanglingJavadoc"})
 public class TODO {
     /**
      * ? FINISHED 1. change ExprNewJson.class to -> [a] [new] json from [(text|string|request)] %object%
