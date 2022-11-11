@@ -18,14 +18,14 @@ import java.util.List;
 
 @Name("is %jsonelement% %json-type%")
 @Description("Check what json type is passed %jsonelement%")
-@Examples({
-        "set {-e} to json from string \"['A': 'B']\"",
-        "json {-e} is array: ",
-        "\tbroadcast \"true\"",
-
-        "set {-e} to json from string \"{'A': 'B'}\"",
-        "json {-e} is object: ",
-        "\tbroadcast \"true\"",
+@Examples({"on load:",
+        "\tset {-e} to json from string \"[1, false, 'test', null\"",
+        "\tjson {-e} is array: ",
+        "\t\tbroadcast true",
+        "",
+        "\tset {-e} to json from string \"{'Hi': 'There'}\"",
+        "\tjson {-e} is object: ",
+        "\t\tbroadcast true",
 })
 @Since("1.0")
 

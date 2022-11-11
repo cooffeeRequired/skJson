@@ -7,36 +7,36 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 @Name("is JsonFile exist")
 @Description("Checks if jsonFile exist")
-@Examples({
-        "json file \"test\\test.json\" exist:",
-        "\t broadcast true"
+@Examples({"on load:",
+        "\tjson file \"test\\test.json\" exists:",
+        "\t\tbroadcast true"
 })
 @Since("1.0")
 
-@SuppressWarnings({"unchecked","unused","NullableProblems"})
-
-public class CondJsonFileExist extends Condition {
+public class CondFileExist extends Condition {
 
     static {
-        Skript.registerCondition(CondJsonFileExist.class,
-                "json file %object% is exist",
-                "json file %object% is( not|n't) exist[s]"
+        Skript.registerCondition(CondFileExist.class,
+                "json file %object% is exists",
+                "json file %object% is( not|n't) exists"
         );
     }
 
     private Expression<Object> check;
     private int pattern;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         check = (Expression<Object>) exprs[0];
         pattern = matchedPattern;
         setNegated(pattern == 1);
@@ -44,7 +44,7 @@ public class CondJsonFileExist extends Condition {
     }
 
     @Override
-    public boolean check(Event e) {
+    public boolean check(@NotNull Event e) {
         File object;
         Object RawObject = check.getSingle(e);
         if ( RawObject instanceof File) {
@@ -58,7 +58,7 @@ public class CondJsonFileExist extends Condition {
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
+    public @NotNull String toString(Event e, boolean debug) {
         return "json file" + check.toString(e,debug) + (isNegated() ? " is exist" : "isn't exist");
 
     }

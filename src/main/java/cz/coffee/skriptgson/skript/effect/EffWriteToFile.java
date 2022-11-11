@@ -22,8 +22,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static cz.coffee.skriptgson.util.Utils.SanitizeString;
-import static cz.coffee.skriptgson.util.Utils.newGson;
+import static cz.coffee.skriptgson.util.Utils.*;
 
 
 @Name("Write/Append data to json file")
@@ -62,24 +61,28 @@ public class EffWriteToFile extends Effect {
         try {
             String p = newGson().toJson(json);
             FileOutputStream o = new FileOutputStream(file);
-            JsonWriter w = new JsonWriter(new OutputStreamWriter(o, StandardCharsets.UTF_8));
-            w.jsonValue(p);w.flush();w.close();
+            try (var writer = new JsonWriter(new OutputStreamWriter(o, StandardCharsets.UTF_8))) {
+                writer.jsonValue(p);
+            }
         } catch (IOException | JsonSyntaxException ex) {
-            SkriptGson.severe("&cBad file format " + file + "");
+            Skript.error(color("&cBad file format " + file + ""));
         }
     }
 
 
     private JsonElement inputReader(File file) {
-        JsonElement j;
-        try {
-            JsonReader r = new JsonReader(new FileReader(file));
-            j = JsonParser.parseReader(r);
-            r.close();
-        } catch (IOException|JsonSyntaxException ex) {
-            return null;
+        JsonElement jsonElement;
+        try (var reader = new JsonReader(new FileReader(file))) {
+            jsonElement = JsonParser.parseReader(reader);
+            return jsonElement;
+        } catch (JsonSyntaxException | IOException ex) {
+            if(ex instanceof JsonSyntaxException) {
+                Skript.error(color("&cThe json syntax isn't correct"));
+            } else {
+                Skript.error(color("&cSomething went wrong " + ex.getMessage() + ""));
+            }
         }
-        return j;
+        return null;
     }
 
     @Override

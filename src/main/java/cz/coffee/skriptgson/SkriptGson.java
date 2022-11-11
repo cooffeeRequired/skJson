@@ -5,23 +5,25 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import cz.coffee.skriptgson.util.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 
+import static cz.coffee.skriptgson.util.Utils.color;
+
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 
 public class SkriptGson extends JavaPlugin {
 
-    private static Logger logger;
+    /**
+     * Create new pluginLogger.
+     */
+    private static final Logger logger = Logger.getLogger("skript-gson");
 
     private static SkriptGson instance;
-    public static final String PREFIX = "&7[&e&lskript-gson&7] ";
     private SkriptAddon addon;
     private final PluginManager pluginManager = this.getServer().getPluginManager();
 
@@ -36,12 +38,11 @@ public class SkriptGson extends JavaPlugin {
             addon = Skript.registerAddon(this);
             addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (Exception ex) {
-            SkriptGson.severe("Unable to register " + getDescription().getName() + " syntax's:\n- " + ex.getMessage());
+            severe("Unable to register " + getDescription().getName() + " syntax's:\n- " + ex.getMessage());
             ex.printStackTrace();
             return;
         }
         info("&aFinished loading.");
-        info("Build: &r&f#hh000");
 
     }
 
@@ -60,7 +61,7 @@ public class SkriptGson extends JavaPlugin {
             }
 
         if (!canLoad) {
-            SkriptGson.severe("Could not load " + getDescription().getName() + ":\n- " + reason);
+            severe("Could not load " + getDescription().getName() + ":\n- " + reason);
         }
         return canLoad;
     }
@@ -74,24 +75,24 @@ public class SkriptGson extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        SkriptGson.info("&eDisabling... good bye!");
+        info("&eDisabling... good bye!");
     }
 
     // Utilities
     public static void info(String string) {
-        Bukkit.getLogger().info(Utils.color(PREFIX + Utils.color(string)));
+        logger.info(color(string));
     }
 
     public static void warning(String string) {
-        Bukkit.getLogger().warning(Utils.color(PREFIX + "&e" + Utils.color(string)));
+        logger.warning(color("&e" + string));
     }
 
     public static void severe(String string) {
-        Bukkit.getLogger().severe(Utils.color(PREFIX + "&c" + Utils.color(string)));
+        logger.severe(color("&c" + string));
     }
 
     public static void debug(Object str) {
-        Bukkit.getLogger().severe(Utils.color(PREFIX + "&4&l! -> DEBUG! " + "&r" + Utils.color(String.valueOf(str))));
+        logger.severe(color("&4&l! -> DEBUG! " + "&r" + str));
     }
 
 }

@@ -32,7 +32,7 @@ public class JsonMap {
                 } else {
                     j = newGson().toJsonTree(input[0]);
                 }
-                System.out.println(j);
+
                 if (Objects.equals(element, j)){
                     return true;
                 }
@@ -53,6 +53,23 @@ public class JsonMap {
     public static boolean checkArray(JsonArray jArray, int type, Object ...input) {
         for (int index = 0; index < jArray.size(); index++) {
             JsonElement element = jArray.get(index);
+            JsonElement j;
+
+            if ( type == 1) {
+                if (Objects.equals(element, input[0]))
+                    return true;
+            } else if ( type == 2) {
+                if (input[0].toString().startsWith("{") || input[0].toString().startsWith("[")) {
+                    j = JsonParser.parseString(input[0].toString());
+                } else {
+                    j = newGson().toJsonTree(input[0]);
+                }
+
+                if (Objects.equals(element, j)) {
+                    return true;
+                }
+            }
+
             if (element.isJsonArray()) {
                 if (checkArray(element.getAsJsonArray(), type, input[0])) {
                     return true;
