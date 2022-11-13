@@ -43,7 +43,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
         JsonElement jsonElement = json.getSingle(e);
         String search = str.getSingle(e);
         if(jsonElement == null) return new Integer[0];
-        return new Integer[]{map.countOccurrenceOfKey(jsonElement, search, tag).getCount()};
+        return new Integer[]{map.countOfKey(jsonElement, search, tag).getCount()};
     }
 
     @Override

@@ -7,7 +7,7 @@ import ch.njol.skript.lang.VariableString;
 
 import java.lang.reflect.Field;
 
-public class Variable {
+public class VariableReflect {
     static {
         Field _VARIABLE_NAME = null;
         try {

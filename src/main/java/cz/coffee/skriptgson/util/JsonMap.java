@@ -83,67 +83,6 @@ public class JsonMap {
         return false;
     }
 
-    public JsonMap countOccurrenceOfKey(final JsonElement jel, String key, int ...type) {
-        final JsonObject object;
-        final JsonArray array;
-        JsonElement n;
-        if(jel.isJsonArray()) {
-            array = jel.getAsJsonArray();
-            for (int index = 0; index < array.size(); index++){
-                JsonElement j = array.get(index);
-                if ( type[0] == 1) {
-                    if(Objects.equals(key, j.toString())) {
-                        this.i++;
-                    }
-                } else if ( type[0] == 2) {
-                    if(key.startsWith("{") || key.startsWith("[")) {
-                        n = JsonParser.parseString(key);
-                    } else {
-                        n = newGson().toJsonTree(key);
-                    }
-                    if(Objects.equals(n, j)) {
-                        this.i++;
-                    }
-                }
-                if (j.isJsonObject()) {
-                    countOccurrenceOfKey(j.getAsJsonObject(), key, type[0]);
-                } else if (j.isJsonArray()) {
-                    countOccurrenceOfKey(j.getAsJsonArray(), key, type[0]);
-                }
-            }
-        } else if (jel.isJsonObject()) {
-            object = jel.getAsJsonObject();
-            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                JsonElement j = entry.getValue();
-
-                if ( type[0] == 1) {
-                    if(Objects.equals(key, entry.getKey())) {
-                        this.i++;
-                    }
-                } else if ( type[0] == 2) {
-                    if(key.startsWith("{") || key.startsWith("[")) {
-                        n = JsonParser.parseString(key);
-                    } else {
-                        n = newGson().toJsonTree(key);
-                    }
-                    if(Objects.equals(n, j)) {
-                        this.i++;
-                    }
-                }
-                if(j.isJsonObject()) {
-                    countOccurrenceOfKey(j.getAsJsonObject(), key, type[0]);
-                } else if(j.isJsonArray()) {
-                    countOccurrenceOfKey(j.getAsJsonArray(), key, type[0]);
-                }
-            }
-        }
-        return this;
-    }
-
-    public int getCount() {
-        return this.i;
-    }
-
     public static void parseJsonArray(JsonArray jArray) {
         for (int index = 0; index < jArray.size(); index++) {
             JsonElement element = jArray.get(index);
@@ -167,5 +106,68 @@ public class JsonMap {
             counts.add(entry.getKey());
         }
         return counts;
+    }
+
+
+
+    public JsonMap countOfKey(final JsonElement jel, String key, int ...type) {
+        final JsonObject object;
+        final JsonArray array;
+        JsonElement n;
+        if(jel.isJsonArray()) {
+            array = jel.getAsJsonArray();
+            for (int index = 0; index < array.size(); index++){
+                JsonElement j = array.get(index);
+                if ( type[0] == 1) {
+                    if(Objects.equals(key, j.toString())) {
+                        this.i++;
+                    }
+                } else if ( type[0] == 2) {
+                    if(key.startsWith("{") || key.startsWith("[")) {
+                        n = JsonParser.parseString(key);
+                    } else {
+                        n = newGson().toJsonTree(key);
+                    }
+                    if(Objects.equals(n, j)) {
+                        this.i++;
+                    }
+                }
+                if (j.isJsonObject()) {
+                    countOfKey(j.getAsJsonObject(), key, type[0]);
+                } else if (j.isJsonArray()) {
+                    countOfKey(j.getAsJsonArray(), key, type[0]);
+                }
+            }
+        } else if (jel.isJsonObject()) {
+            object = jel.getAsJsonObject();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                JsonElement j = entry.getValue();
+
+                if ( type[0] == 1) {
+                    if(Objects.equals(key, entry.getKey())) {
+                        this.i++;
+                    }
+                } else if ( type[0] == 2) {
+                    if(key.startsWith("{") || key.startsWith("[")) {
+                        n = JsonParser.parseString(key);
+                    } else {
+                        n = newGson().toJsonTree(key);
+                    }
+                    if(Objects.equals(n, j)) {
+                        this.i++;
+                    }
+                }
+                if(j.isJsonObject()) {
+                    countOfKey(j.getAsJsonObject(), key, type[0]);
+                } else if(j.isJsonArray()) {
+                    countOfKey(j.getAsJsonArray(), key, type[0]);
+                }
+            }
+        }
+        return this;
+    }
+
+    public int getCount() {
+        return this.i;
     }
 }

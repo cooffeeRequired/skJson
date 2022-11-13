@@ -46,11 +46,11 @@ public class CondFileExist extends Condition {
     @Override
     public boolean check(@NotNull Event e) {
         File object;
-        Object RawObject = check.getSingle(e);
-        if ( RawObject instanceof File) {
-            object = (File) RawObject;
-        } else if ( RawObject instanceof String ){
-            object = new File(RawObject.toString());
+        Object rawobject = check.getSingle(e);
+        if ( rawobject instanceof File) {
+            object = (File) rawobject;
+        } else if ( rawobject instanceof String ){
+            object = new File(rawobject.toString());
         } else {
             return false;
         }

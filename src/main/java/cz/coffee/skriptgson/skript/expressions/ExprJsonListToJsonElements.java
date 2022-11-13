@@ -36,7 +36,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.Variable;
+import cz.coffee.skriptgson.util.VariableReflect;
 import org.bukkit.event.Event;
 
 import java.util.List;
@@ -72,7 +72,7 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
         Expression<?> expr = exprs[0];
         if (expr instanceof ch.njol.skript.lang.Variable<?> varExpr) {
             if (varExpr.isList()) {
-                var = Variable.getVarName(varExpr);
+                var = VariableReflect.getVarName(varExpr);
                 isLocal = varExpr.isLocal();
                 return true;
             }

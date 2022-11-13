@@ -31,7 +31,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -40,17 +40,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.Variable;
+import cz.coffee.skriptgson.util.VariableReflect;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 import static cz.coffee.skriptgson.util.Utils.color;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
-@SuppressWarnings({"unused","NullableProblems","unchecked"})
-
-@Since("1.0")
+@Since("1.2.0")
 @Name("Map|Copy json to list variables")
 @Description("You can copy|map json to variable list, and work with the values:keys pair")
 @Examples({
@@ -70,23 +69,24 @@ public class EffMapJsonToList extends Effect {
     private VariableString variable;
     private boolean isLocal;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         json = (Expression<Object>) exprs[0];
         Expression<?> expr = exprs[1];
         if (expr instanceof ch.njol.skript.lang.Variable<?> varExpr) {
             if(varExpr.isList()){
-                variable = Variable.getVarName((ch.njol.skript.lang.Variable<?>) expr);
+                variable = VariableReflect.getVarName((ch.njol.skript.lang.Variable<?>) expr);
                 isLocal = varExpr.isLocal();
                 return true;
             }
         }
-        SkriptGson.warning(expr +  "is not al ist variable");
+        SkriptGson.warning(expr +  "The variable is not a list.");
         return false;
     }
 
     @Override
-    protected void execute(Event e) {
+    protected void execute(@NotNull Event e) {
         if (json == null) {
             return;
         }

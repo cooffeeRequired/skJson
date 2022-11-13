@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("is %jsonelement% %json-type%")
+@Name("is type of JsonElement")
 @Description("Check what json type is passed %jsonelement%")
 @Examples({"on load:",
         "\tset {-e} to json from string \"[1, false, 'test', null\"",
