@@ -92,7 +92,7 @@ public class SkriptGson extends JavaPlugin {
     }
 
     public static void debug(Object str) {
-        logger.severe(color("&4&l! -> DEBUG! " + "&r" + str));
+        logger.severe(color("DEBUG! " + "&r" + str));
     }
 
 }
