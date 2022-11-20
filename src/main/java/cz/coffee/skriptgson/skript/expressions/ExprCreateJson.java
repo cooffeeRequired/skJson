@@ -7,7 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -20,6 +20,7 @@ import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -35,7 +36,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
         "\tsend new json from arg-1"
 })
 
-@SuppressWarnings({"unused","NullableProblems"})
+@SuppressWarnings({"unused"})
 public class ExprCreateJson extends SimpleExpression<Object> {
 
     static {
@@ -50,7 +51,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     private int pattern;
 
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         pattern = matchedPattern;
         if(pattern == 2) {
             SkriptGson.warning("&cSorry but at this moment you can't use this syntax.");
@@ -61,12 +62,12 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     }
 
     @Override
-    protected JsonElement[] get(Event e) {
+    protected JsonElement @NotNull [] get(@NotNull Event e) {
         Object data = toParse.getSingle(e);
         boolean object = data instanceof ConfigurationSerializable || data instanceof YggdrasilSerializable;
         JsonElement element = null;
         if(data == null)
-            return null;
+            return new JsonElement[]{};
 
         if(pattern == 0) {
             try {element = (object) ? newGson().toJsonTree(data) : JsonParser.parseString(data.toString());} catch (JsonSyntaxException ignored){}
@@ -80,11 +81,11 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     public boolean isSingle() {return true;}
 
     @Override
-    public Class<? extends JsonElement> getReturnType() {return JsonElement.class;}
+    public @NotNull Class<? extends JsonElement> getReturnType() {return JsonElement.class;}
 
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
         if(pattern == 0) {return  "new json from text";
         } else if (pattern == 1) {return  "new json from file";
         } else {return  "new json from request";

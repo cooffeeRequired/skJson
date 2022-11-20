@@ -100,8 +100,10 @@ public class EffMapJsonToList extends Effect {
             jsonEl = (JsonElement) json; }
         try {
             assert jsonEl != null;
-            mapE(e, variable.substring(0,variable.length()-3),jsonEl);
-        } catch (Exception ex) {ex.printStackTrace(); }
+            String N = variable.substring(0,variable.length()-3);
+            mapE(e, N,jsonEl);
+        } catch (Exception ex) {ex.printStackTrace();
+            System.out.println("Here we are, EFF MAP");}
     }
 
     private void mapE(Event e, String name, JsonElement obj){
@@ -158,7 +160,7 @@ public class EffMapJsonToList extends Effect {
         Variables.setVariable(name.toLowerCase(Locale.ENGLISH), obj, e, isLocal);
     }
     @Override
-    public String toString( Event e, boolean debug) {
+    public @NotNull String toString(Event e, boolean debug) {
         return json.toString(e,debug) + " => " + variable.toString(e,debug);
     }
 }

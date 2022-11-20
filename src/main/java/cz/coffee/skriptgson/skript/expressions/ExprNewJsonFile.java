@@ -7,10 +7,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import cz.coffee.skriptgson.SkriptGson;
@@ -34,7 +33,6 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 })
 
 
-@SuppressWarnings({"unchecked","unused","NullableProblems"})
 public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     static {
@@ -47,8 +45,9 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
     private Expression<String> exprRawData;
     private boolean withData;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];
         if (!parseResult.tags.isEmpty()) {
             exprRawData = (Expression<String>) exprs[1];
@@ -57,17 +56,15 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         return true;
     }
 
-    public File[] get(@NotNull Event event) {
-
+    public File @NotNull [] get(@NotNull Event event) {
         if (exprString == null)
-            return null;
+            return new File[]{};
         String inputFile = exprString.getSingle(event);
         if (inputFile == null)
-            return null;
+            return new File[]{};
 
         FileOutputStream OutputStream;
         JsonWriter writer;
-        JsonElement parsedString;
         Object inputData;
 
         inputData = (exprRawData != null ? exprRawData.getSingle(event) : null);
@@ -75,7 +72,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         if (new File(inputFile).exists()){
             if(new File(inputFile).length() >1) {
                 SkriptGson.warning("&r&ccan't create the file &e" + inputFile + ",&c because is already exist");
-                return null;
+                return new File[]{};
             }
         }
 
@@ -84,17 +81,17 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
             writer = new JsonWriter(new OutputStreamWriter(OutputStream, StandardCharsets.UTF_8));
             writer.setIndent("    ");
             writer.jsonValue(newGson()
-                    .toJson(inputData instanceof JsonElement ? inputData : JsonParser.parseString(inputData == null ? "{}" : (String) inputData))
+                    .toJson(JsonParser.parseString(inputData == null ? "{}" : (String) inputData))
             );
             writer.flush();
             writer.close();
         } catch (Exception e) {
-            return null;
+            return new File[]{};
         }
         return new File[]{new File(inputFile)};
     }
     @Override
-    public String toString(Event event,boolean debug) {
+    public @NotNull String toString(Event event, boolean debug) {
         return "json file " + (!withData ? "" : "with data");}
 
     @Override
@@ -103,7 +100,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
     }
 
     @Override
-    public Class<? extends File> getReturnType() {
+    public @NotNull Class<? extends File> getReturnType() {
         return File.class;
     }
 }

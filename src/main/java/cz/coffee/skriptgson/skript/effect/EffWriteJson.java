@@ -1,0 +1,171 @@
+package cz.coffee.skriptgson.skript.effect;
+
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.LiteralUtils;
+import ch.njol.util.Kleenean;
+import ch.njol.yggdrasil.YggdrasilSerializable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import cz.coffee.skriptgson.util.GsonUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+import static cz.coffee.skriptgson.util.Utils.color;
+import static cz.coffee.skriptgson.util.Utils.newGson;
+
+@Since("1.2.2")
+@Name("Write/Append JsonFile")
+@Description("Inserting / overwriting data to json file., It can be inserted as a nested object and also with the specified key")
+@Examples({"on load:",
+        "\tset {-file} to new json file \"plugins\\test\\test.json\"",
+        "\tset {-item} to iron sword named \"&cTest\"",
+        "\twrite data {-item} to json file {-file}",
+        "\tappend data {-item} with key \"Item\" to json file {-file}",
+        "\tset {-file} to new json file \"plugins\\test\\test.json\" with data (new json from string \"{'main':{'second':{'another':[]}}}\"",
+        "\tappend data {-item} as nested object \"main:second:another\" with key \"Item\" to json file {-file}"
+})
+
+
+
+public class EffWriteJson  extends Effect {
+
+
+    private boolean write, append, nested, key;
+    private Expression<Object> raw_data;
+    private Expression<String> raw_nested_data;
+    private Expression<String> raw_key;
+    private Expression<Object> raw_file;
+
+
+    static {
+        Skript.registerEffect(EffWriteJson.class,
+                "append data %object% [as new (:nested) object %-string%] [with (:key) %-string%] to [json] file %object%",
+                "write data %object% to [json] file %object%"
+        );
+    }
+
+
+    private void outputWriter(JsonElement json, File file) {
+        try {
+            String jsonString = newGson().toJson(json);
+            FileOutputStream fos = new FileOutputStream(file);
+            try (var writer = new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+                writer.jsonValue(jsonString);
+            }
+            } catch (IOException| JsonSyntaxException ex) {
+                Skript.error("Bad file format " + file);
+            }
+    }
+    private JsonElement inputReader(File file) {
+        JsonElement element;
+        try (var reader = new JsonReader(new FileReader(file))) {
+            element = JsonParser.parseReader(reader);
+            return element;
+        } catch (JsonSyntaxException | IOException ex) {
+            if(ex instanceof JsonSyntaxException) {
+                Skript.error(color("&cThe json syntax isn't correct, error message "+ex.getMessage()));
+            }
+        }
+        return null;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        write = matchedPattern == 1;
+        append = matchedPattern == 0;
+
+        if(write) {
+            raw_data = LiteralUtils.defendExpression(exprs[0]);
+            raw_file = (Expression<Object>) exprs[1];
+        }
+        if(append) {
+            raw_data = LiteralUtils.defendExpression(exprs[0]);
+            raw_nested_data = (Expression<String>) exprs[1];
+            raw_key = (Expression<String>) exprs[2];
+            raw_file = (Expression<Object>) exprs[3];
+            key = parseResult.hasTag("key");
+            nested = parseResult.hasTag("nested");
+        }
+        return LiteralUtils.canInitSafely(raw_data);
+    }
+
+    @Override
+    protected void execute(@NotNull Event e) {
+        String Key = null, Nested = null;
+        Object data = raw_data.getSingle(e);
+        Object __ = raw_file.getSingle(e);
+        if(__ == null) return;
+        File file = __ instanceof File ? (File)__ : new File(__.toString());
+        GsonUtils utils = new GsonUtils();
+
+        if(key) {
+            Key = raw_key.getSingle(e);
+        }
+        if(nested) {
+            Nested = raw_nested_data.getSingle(e);
+        }
+
+        JsonElement element = null;
+        if(data != null) {
+            if (data instanceof JsonElement) {
+                element = (JsonElement) data;
+            } else if(data instanceof YggdrasilSerializable) {
+                element = newGson().toJsonTree(data);
+            } else {
+                element = JsonParser.parseString(data.toString());
+            }
+        }
+
+        if(element == null) return;
+        JsonElement fileJson;
+        fileJson = inputReader(file);
+        if(fileJson == null) return;
+
+        if(write) {
+            outputWriter(element, file);
+        }
+
+        if(append) {
+            if(nested) {
+                if(fileJson.isJsonArray()) {
+                    System.out.println("Array from nested");
+                    fileJson = utils.append(fileJson.getAsJsonArray(), Key, Nested, element);
+                } else if(fileJson.isJsonObject()) {
+                    fileJson = utils.append(fileJson.getAsJsonObject(), Key, Nested, element);
+                }
+            } else {
+                if(fileJson.isJsonArray()) {
+                    fileJson.getAsJsonArray().add(element);
+                } else if(fileJson.isJsonObject()) {
+                    fileJson.getAsJsonObject().add(
+                            !key ? String.valueOf(fileJson.getAsJsonObject().entrySet().size() + 1) : (Key != null ? Key : "0"), element
+                    );
+                }
+            }
+            if(fileJson == null) return;
+            outputWriter(fileJson, file);
+        }
+    }
+
+    @Override
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
+        return (write ? "write" : "append") + " data " + raw_data.toString(e, debug) + " to json file " + raw_file.toString(e, debug);
+    }
+}

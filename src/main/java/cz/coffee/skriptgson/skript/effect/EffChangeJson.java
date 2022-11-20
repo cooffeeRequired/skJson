@@ -13,7 +13,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.JsonMapChange;
+import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +23,8 @@ import java.util.Objects;
 
 
 @Since("1.2.1")
-@Name("Change jsonFile.")
-@Description({"With this effect you can change JsonObject or JsonArray."})
+@Name("Change Json.")
+@Description("With this effect you can change JsonObject or JsonArray.")
 @Examples({"on script load:",
         "\tset {-json} to json from string \"{'Players': {'3a51d20a-6200-11ed-9b6a-0242ac120002': {'name': 'coffee', 'isAdmin': true, 'prefix': '&4Admin'}}}\"",
         "\tset {-file} to new json file \"plugins/gson/yourJson.json\" with data {-json}",
@@ -36,8 +36,8 @@ public class EffChangeJson extends Effect {
 
     static {
         Skript.registerEffect(EffChangeJson.class,
-                "change %jsonelement% (:key|:value) %object% to %object%",
-                "change %jsonelement% (:keys|:values) %objects% to %objects%"
+                "change %jsonelement% (:key|:value) %object%(=>| to )%object%",
+                "change %jsonelement% (:keys|:values) %objects%(=>| to )%objects%"
         );
     }
 
@@ -77,21 +77,21 @@ public class EffChangeJson extends Effect {
         Object[] from = (pattern == 1) ? expressionFrom.getArray(e) : new Object[]{expressionFrom.getSingle(e)};
         if(element == null) return;
         
-        JsonMapChange map =  new JsonMapChange();
+        GsonUtils utils =  new GsonUtils();
         JsonElement changed = null;
 
         if(pattern == 0) { // Single
             if (tag == 1) {
-                changed = map.changeKey(element, from[0], to[0], true);
+                changed = utils.getKey(from[0]).change(element, to[0]);
             } else{
-                changed = map.changeValue(element, from[0], to[0], true);
+                changed = utils.getValue(from[0]).change(element, to[0]);
             }
         } else if(pattern == 1) { // List
             for(int i = 0; from.length > i; i++) {
-                if (tag == 2) {
-                    changed = map.changeValue(element, from[i], to[i], true);
+                if (tag == 1) {
+                    changed = utils.getKey(from[i]).change(element, to[i]);
                 } else{
-                    changed = map.changeKey(element, from[i], to[i], true);
+                    changed = utils.getValue(from[i]).change(element, to[i]);
                 }
             }
         }

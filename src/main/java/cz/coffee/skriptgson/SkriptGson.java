@@ -21,7 +21,7 @@ public class SkriptGson extends JavaPlugin {
     /**
      * Create new pluginLogger.
      */
-    private static final Logger logger = Logger.getLogger("skript-gson");
+    private static Logger logger = null;
 
     private static SkriptGson instance;
     private SkriptAddon addon;
@@ -48,6 +48,7 @@ public class SkriptGson extends JavaPlugin {
 
     // Plugin preload checks
     private boolean canLoadPlugin() {
+        logger = getLogger();
         boolean canLoad = true;
         String reason = null;
         Plugin skriptPlugin = pluginManager.getPlugin("Skript");

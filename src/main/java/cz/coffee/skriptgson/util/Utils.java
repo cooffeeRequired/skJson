@@ -30,7 +30,7 @@ public class Utils {
 
     public static Gson newGson() {
         GsonBuilder g = new GsonBuilder()
-                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new SkriptBukkitClassAdapt())
+                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt())
                 .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new SkriptClassAdapt());
        return g.disableHtmlEscaping().setPrettyPrinting().create();
     }

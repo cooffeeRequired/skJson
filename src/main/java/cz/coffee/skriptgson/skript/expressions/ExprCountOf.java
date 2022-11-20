@@ -12,12 +12,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.JsonMap;
+import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-@Since("1.3.0")
+@Since("1.2.2")
 @Name("Count of Value/Key")
 @Description({"Displays the result of how many keys/values are found with JsonElement"})
 @Examples({"on script load:",
@@ -39,7 +39,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
 
     @Override
     protected Integer @NotNull [] get(@NotNull Event e) {
-        JsonMap map = new JsonMap();
+        GsonUtils map = new GsonUtils();
         JsonElement jsonElement = json.getSingle(e);
         String search = str.getSingle(e);
         if(jsonElement == null) return new Integer[0];

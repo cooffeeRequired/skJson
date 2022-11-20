@@ -9,9 +9,10 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.NotNull;
 
 @Name("Size of JSON")
 @Description("Return size of JSON elements.")
@@ -23,7 +24,6 @@ import com.google.gson.JsonElement;
 })
 @Since("1.0")
 
-@SuppressWarnings({"unused","NullableProblems"})
 public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Integer> {
 
     static {
@@ -33,13 +33,13 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         setExpr((Expression<? extends JsonElement>) exprs[0]);
         return true;
     }
 
     @Override
-    protected String getPropertyName() {
+    protected @NotNull String getPropertyName() {
         return "json size of json element";
     }
 
@@ -52,7 +52,7 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
     }
 
     @Override
-    public Class<? extends Integer> getReturnType() {
+    public @NotNull Class<? extends Integer> getReturnType() {
         return Integer.class;
     }
 }

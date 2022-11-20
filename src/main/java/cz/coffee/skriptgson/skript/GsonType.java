@@ -17,7 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.JsonMap;
+import cz.coffee.skriptgson.util.GsonUtils;
 
 import java.io.StreamCorruptedException;
 import java.util.List;
@@ -84,7 +84,7 @@ public class GsonType {
 
         @Override
         public boolean mustSyncDeserialization() {
-            return true;
+            return false;
         }
 
         @Override
@@ -179,7 +179,7 @@ public class GsonType {
                     try {
                         String value = String.valueOf(delta[0]).replaceAll("\"", "");
                         for (JsonElement object : what) {
-                            List<String> values = JsonMap.getValues(object.getAsJsonObject());
+                            List<String> values = GsonUtils.getValues(object.getAsJsonObject());
                             for (int i = 0; values.size() > i; i++) {
                                 if (value.contains(";")) {
                                     String[] s = value.split(";");

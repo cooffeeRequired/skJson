@@ -7,13 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +30,6 @@ import java.util.regex.Pattern;
 })
 @Since("1.2.0")
 
-@SuppressWarnings({"unused","NullableProblems","unchecked"})
-
-
 public class ExprRegexMatchJson extends SimpleExpression<String> {
 
     static {
@@ -43,17 +41,20 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
     private Expression<String> inputRegex;
     private Expression<JsonElement> Json;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         Json = (Expression<JsonElement>) exprs[0];
         inputRegex = (Expression<String>) exprs[1];
         return Json != null && inputRegex != null;
     }
 
     @Override
-    protected @Nullable String[] get(Event e) {
+    protected @Nullable String @NotNull [] get(@NotNull Event e) {
         String regex = inputRegex.getSingle(e);
-        String element = Json.getSingle(e).toString();
+        Object iR = Json.getSingle(e);
+        if(iR == null) return new String[]{""};
+        String element = iR.toString();
         assert regex != null;
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(element);
@@ -70,7 +71,7 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
                 return new String[]{output.toString().replaceAll("]", "").replaceAll("]", "")};
             }
         }
-        return null;
+        return new String[]{""};
     }
 
     @Override
@@ -79,12 +80,12 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
     }
 
     @Override
-    public Class<? extends String> getReturnType() {
+    public @NotNull Class<? extends String> getReturnType() {
         return String.class;
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return null;
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
+        return "Regex match";
     }
 }

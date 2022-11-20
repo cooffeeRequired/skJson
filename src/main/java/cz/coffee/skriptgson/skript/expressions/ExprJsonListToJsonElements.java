@@ -29,7 +29,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.variables.Variables;
@@ -38,6 +39,7 @@ import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.VariableReflect;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
@@ -47,12 +49,11 @@ import java.util.stream.Stream;
 
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
-@SuppressWarnings({"unused","NullableProblems","unchecked"})
+@SuppressWarnings({"unused"})
 @Since("1.0")
 @Name("Converts list")
 @Description("Converting list variable to JsonElement")
-@Examples({
-        "\n", "on load:",
+@Examples({"on load:",
         "\tset {-w} to form of {_json::*}",
         "\tbroadcast {-w} pretty printed"
 })
@@ -61,33 +62,30 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     static {
         PropertyExpression.register(ExprJsonListToJsonElements.class, JsonElement.class,
                 "(form|structure)",
-                "objects");
+                "jsonelements");
     }
 
     private VariableString var;
     private boolean isLocal;
 
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         Expression<?> expr = exprs[0];
-        if (expr instanceof ch.njol.skript.lang.Variable<?> varExpr) {
+        if (expr instanceof Variable<?> varExpr) {
             if (varExpr.isList()) {
                 var = VariableReflect.getVarName(varExpr);
                 isLocal = varExpr.isLocal();
                 return true;
             }
         }
-        SkriptGson.warning(expr +  "is not al ist variable");
+        SkriptGson.warning(expr +  "is not a list variable");
         return false;
     }
 
     @Override
-    protected JsonElement[] get(Event e) {
-        try {
-            String var = this.var.toString(e).toLowerCase(Locale.ENGLISH);
-            return new JsonElement[] {JsonParser.parseString(String.valueOf(JsonTree(e, var.substring(0, var.length() - 1), false)))};
-        } catch (Exception ex) {ex.printStackTrace();}
-        return null;
+    protected JsonElement @NotNull [] get(@NotNull Event e) {
+        String var = this.var.toString(e).toLowerCase(Locale.ENGLISH);
+        return new JsonElement[] {JsonParser.parseString(String.valueOf(JsonTree(e, var.substring(0, var.length() - 1), false)))};
     }
 
     @Override
@@ -96,19 +94,19 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    public Class<? extends JsonElement> getReturnType() {
+    public @NotNull Class<? extends JsonElement> getReturnType() {
         return JsonElement.class;
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
-        return null;
+    public @NotNull String toString(Event e, boolean debug) {
+        return "";
     }
 
     private Object getVariable(Event e, String name) {
         final Object val = Variables.getVariable(name, e, isLocal);
         if (val == null) {
-            return Variables.getVariable((isLocal ? ch.njol.skript.lang.Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
+            return Variables.getVariable((isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
         }
         return val;
     }
@@ -153,6 +151,8 @@ public class ExprJsonListToJsonElements extends SimpleExpression<JsonElement> {
         }
         return val;
     }
+
+    @SuppressWarnings("unchecked")
     private JsonElement JsonTree(Event e, String name, boolean nullable) {
         Map<String, Object> var = (Map<String, Object>) getVariable(e, name + "*");
         if (var==null) {

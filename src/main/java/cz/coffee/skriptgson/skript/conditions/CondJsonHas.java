@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.JsonMap;
+import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +64,8 @@ public class CondJsonHas extends Condition {
     }
 
     @Override
-    public boolean check(Event e) {
+    public boolean check(@NotNull Event e) {
+        GsonUtils utils = new GsonUtils();
         JsonElement jsonelement = otch.getSingle(e);
         String object = null;
         Object[] objects = new Objects[0];
@@ -78,19 +79,19 @@ public class CondJsonHas extends Condition {
 
         if (mark == 1) {
             if (jsonelement.isJsonObject()) {
-                return (pattern == 0) == JsonMap.checkObject(jsonelement.getAsJsonObject(), type, object);
+                return (pattern == 0) == (type == 1 ? utils.getKey(object).check(jsonelement.getAsJsonObject()) : utils.getValue(object).check(jsonelement.getAsJsonObject()));
             } else if (jsonelement.isJsonArray()) {
-                return (pattern == 0) == JsonMap.checkArray(jsonelement.getAsJsonArray(), type, object);
+                return (pattern == 0) == (type == 1 ? utils.getKey(object).check(jsonelement.getAsJsonArray()) : utils.getValue(object).check(jsonelement.getAsJsonArray()));
             }
         } else {
             boolean b = false;
             for (Object key : objects) {
                 if(jsonelement.isJsonObject()) {
-                    b = (pattern == 0) == JsonMap.checkObject(jsonelement.getAsJsonObject(), type, key);
+                    b = (pattern == 0) == (type == 1 ? utils.getKey(key).check(jsonelement.getAsJsonObject()) : utils.getValue(key).check(jsonelement.getAsJsonObject()));
                     if (!b)
                         return false;
                 } else if(jsonelement.isJsonArray()){
-                    b = (pattern == 0) == JsonMap.checkArray(jsonelement.getAsJsonArray(), type, key);
+                    b = (pattern == 0) == (type == 1 ? utils.getKey(key).check(jsonelement.getAsJsonArray()) : utils.getValue(key).check(jsonelement.getAsJsonArray()));
                     if (!b)
                         return false;
                 }

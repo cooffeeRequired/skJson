@@ -5,6 +5,8 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 
+import static cz.coffee.skriptgson.util.Utils.newGson;
+
 public class SkriptClassAdapt implements JsonSerializer<YggdrasilSerializable>, JsonDeserializer<YggdrasilSerializable> {
 
     @Override
@@ -20,6 +22,11 @@ public class SkriptClassAdapt implements JsonSerializer<YggdrasilSerializable>, 
             Type typeOfSrc,
             JsonSerializationContext context)
     {
-        return new Gson().toJsonTree(src.toString());
+        /*
+        JsonElement json = new Gson().toJsonTree(new Fields(src));
+         */
+        //return JsonParser.parseString(json.toString().replaceAll("\\\\\"", ""));
+        // TODO -> Make better serializer
+        return newGson().toJsonTree(src.toString());
     }
 }
