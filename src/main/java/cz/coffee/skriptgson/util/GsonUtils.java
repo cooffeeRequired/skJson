@@ -3,11 +3,11 @@
  */
 package cz.coffee.skriptgson.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import ch.njol.skript.lang.Variable;
+import ch.njol.skript.variables.Variables;
+import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,6 +22,11 @@ public class GsonUtils {
     private int i;
     private int type = 1;
     private Object input;
+
+    private String sep;
+    private boolean isLocal;
+
+
 
     public GsonUtils getKey(Object k) {
         this.type = 1;
@@ -60,6 +65,61 @@ public class GsonUtils {
         }
         return(fromFile);
     }
+
+    public void mapJson(Event e, JsonElement json, String name, boolean isLocal) {
+        sep = Variable.SEPARATOR;
+        this.isLocal = isLocal;
+        _mapJsonFirst(e, name, json);
+    }
+
+
+    private void mapJsonObject(Event e, String name, JsonObject element) {
+        element.keySet().forEach(k-> _mapJson(e, name+sep+k, element.get(k)));
+    }
+
+    private void mapJsonArray(Event e, String name, JsonArray element) {
+        for(int index = 0; element.size() > index; index++) {_mapJson(e, name+sep+(index+1), element.get(index));}
+    }
+
+
+    private void _mapJson(Event e, String name, JsonElement json) {
+        if(json.isJsonObject()) {
+            setVariable(name, json.getAsJsonObject(), e, isLocal);
+            mapJsonObject(e, name, json.getAsJsonObject());
+        } else if(json.isJsonArray()) {
+            setVariable(name, json.getAsJsonArray(), e, isLocal);
+            mapJsonArray(e, name, json.getAsJsonArray());
+        } else {
+            System.out.println("primitive");
+            setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
+        }
+    }
+
+    private void _mapJsonFirst(Event e, String name, JsonElement json) {
+        if(json == null) return;
+        if(json.isJsonObject()) {
+            mapJsonObject(e, name, json.getAsJsonObject());
+        } else if(json.isJsonArray()) {
+            mapJsonArray(e, name, json.getAsJsonArray());
+        } else {
+            setVariable(name, json, e, isLocal);
+        }
+    }
+
+    private void setVariable(String name, Object element, Event e, boolean isLocal) {
+        Variables.setVariable(name, element, e, isLocal);
+    }
+
+    private void setPrimitiveType(String name, JsonPrimitive element, Event e, boolean isLocal) {
+        if(element.isBoolean()) {
+            setVariable(name, element.getAsBoolean(), e, isLocal);
+        } else if(element.isNumber()) {
+            setVariable(name, element.getAsDouble(), e, isLocal);
+        } else if(element.isString()) {
+            setVariable(name, element.getAsString(), e, isLocal);
+        }
+    }
+
 
     private static boolean checkObject(JsonObject jElem, int type, Object input) {
         for (Map.Entry<String, JsonElement> entry : jElem.entrySet()) {
