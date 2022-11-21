@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
@@ -66,6 +67,49 @@ public class GsonUtils {
         return(fromFile);
     }
 
+
+    public JsonElement mapList(Event e, String name, boolean nullable, boolean isLocal) {
+        this.isLocal = isLocal;
+        JsonElement json;
+        json = _listMainTree(e, name, nullable);
+        return JsonParser.parseString(newGson().toJson(json));
+    }
+
+    private JsonElement _listSubTree(Event e, String name) {
+        Object variable = getVariable(e, name);
+        if(variable == null) {
+            variable = _listMainTree(e, name+Variable.SEPARATOR, false);
+        } else if( variable == Boolean.TRUE) {
+            Object subtree = _listMainTree(e, name+Variable.SEPARATOR, true);
+            if(subtree != null) variable = subtree;
+        }
+
+        if(!(variable instanceof String || variable instanceof Number || variable instanceof Map || variable instanceof List || variable instanceof JsonPrimitive)) {
+            variable = newGson().toJsonTree(variable);
+        }
+        return newGson().toJsonTree(variable);
+    }
+
+    @SuppressWarnings("unchecked")
+    private JsonElement _listMainTree(Event e, String name, boolean nullable) {
+        Map<String, Object> variable = (Map<String, Object>) getVariable(e, name+"*");
+        if(variable == null) {
+            return nullable ? null : new JsonPrimitive("");
+        }
+
+        Stream<String> keys = variable.keySet().stream().filter(Objects::nonNull);
+        if(variable.keySet().stream().filter(Objects::nonNull).allMatch(GsonUtils::isInteger)) {
+            JsonArray array = new JsonArray();
+            keys.forEach(k->array.getAsJsonArray().add((_listSubTree(e, name+k))));
+            return array;
+        } else {
+            JsonObject object = new JsonObject();
+            keys.forEach(k->object.getAsJsonObject().add(k, _listSubTree(e, name+k)));
+            return object;
+        }
+    }
+
+
     public void mapJson(Event e, JsonElement json, String name, boolean isLocal) {
         sep = Variable.SEPARATOR;
         this.isLocal = isLocal;
@@ -89,8 +133,10 @@ public class GsonUtils {
         } else if(json.isJsonArray()) {
             setVariable(name, json.getAsJsonArray(), e, isLocal);
             mapJsonArray(e, name, json.getAsJsonArray());
-        } else {
+        } else if(json.isJsonPrimitive()) {
             setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
+        } else {
+            setVariable(name, json, e, isLocal);
         }
     }
 
@@ -100,13 +146,49 @@ public class GsonUtils {
             mapJsonObject(e, name, json.getAsJsonObject());
         } else if(json.isJsonArray()) {
             mapJsonArray(e, name, json.getAsJsonArray());
+        } else if(json.isJsonPrimitive()) {
+            setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
         } else {
             setVariable(name, json, e, isLocal);
         }
     }
 
+    private static boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        int length = str.length();
+        if ( length == 0) {
+            return  false;
+        }
+        int i = 0;
+        if(str.charAt(0) == '-'){
+            if(length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        while (i < length) {
+            char c =  str.charAt(i);
+            if(c < '0' || c > '9') {
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+
     private void setVariable(String name, Object element, Event e, boolean isLocal) {
         Variables.setVariable(name, element, e, isLocal);
+    }
+
+    private Object getVariable(Event e, String name) {
+        final Object variable = Variables.getVariable(name, e, isLocal);
+        if(variable == null) {
+            return Variables.getVariable((isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
+        }
+        return variable;
     }
 
     private void setPrimitiveType(String name, JsonPrimitive element, Event e, boolean isLocal) {
