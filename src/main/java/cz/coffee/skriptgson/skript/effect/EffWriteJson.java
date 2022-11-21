@@ -145,7 +145,6 @@ public class EffWriteJson  extends Effect {
         if(append) {
             if(nested) {
                 if(fileJson.isJsonArray()) {
-                    System.out.println("Array from nested");
                     fileJson = utils.append(fileJson.getAsJsonArray(), Key, Nested, element);
                 } else if(fileJson.isJsonObject()) {
                     fileJson = utils.append(fileJson.getAsJsonObject(), Key, Nested, element);

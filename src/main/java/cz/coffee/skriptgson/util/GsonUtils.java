@@ -59,10 +59,18 @@ public class GsonUtils {
     }
 
     public JsonElement append(JsonElement fromFile, Object Key, Object Nested, Object new_data) {
+
+        if(Key == null) {
+            Key = "$$null";
+        } else {
+            Key = Key.toString();
+        }
+
+
         if(fromFile.isJsonObject()) {
-            return(append_(fromFile.getAsJsonObject(), Key.toString(), Nested.toString(), JsonParser.parseString(new_data.toString())));
+            return(append_(fromFile.getAsJsonObject(), (String) Key, Nested.toString(), JsonParser.parseString(new_data.toString())));
         } else if(fromFile.isJsonArray()) {
-            return(append_(fromFile.getAsJsonArray(), Key.toString(), Nested.toString(), JsonParser.parseString(new_data.toString())));
+            return(append_(fromFile.getAsJsonArray(), (String) Key, Nested.toString(), JsonParser.parseString(new_data.toString())));
         }
         return(fromFile);
     }
@@ -339,6 +347,11 @@ public class GsonUtils {
     }
 
     private JsonElement append_(JsonElement json, String Key, String Nested, JsonElement data) {
+
+        if (Objects.equals(Key, "$$null")) {
+            Key = null;
+        }
+
         String[] nesteds = Nested.split(":");
         JsonElement element;
         element = json;

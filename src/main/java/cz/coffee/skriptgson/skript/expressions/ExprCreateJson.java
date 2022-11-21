@@ -69,8 +69,15 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         if(data == null)
             return new JsonElement[]{};
 
+        String sData = data.toString();
+
         if(pattern == 0) {
-            try {element = (object) ? newGson().toJsonTree(data) : JsonParser.parseString(data.toString());} catch (JsonSyntaxException ignored){}
+            try {element = (object) ? newGson().toJsonTree(data) : JsonParser.parseString(sData);
+            } catch (JsonSyntaxException W){
+                String cause = W.getMessage().split("column")[1].replaceAll("[^0-9]+", " ");
+                int coll = Integer.parseInt(cause.trim().split(" ")[0]);
+                SkriptGson.warning("JSON syntax error in values -> "+sData.substring(coll-3, coll+4)+". Try change "+(String.valueOf(sData.charAt(102)).equals("'") ? "to \"" : "to '"));
+            }
         } else if(pattern == 1){
             try {element = JsonParser.parseReader(new JsonReader(new FileReader(data.toString())));} catch (FileNotFoundException ignored){}
         }
