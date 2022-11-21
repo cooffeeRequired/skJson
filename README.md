@@ -19,7 +19,7 @@
 
 
 > **Download**: Here or Spigot\
-> **Discord**: https://discord.gg/ewr5zYknHD \
+> **Discord:** https://discord.gg/trwWpUkmQp\
 > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \
 > **Requirements**
 > * Java 14 +
