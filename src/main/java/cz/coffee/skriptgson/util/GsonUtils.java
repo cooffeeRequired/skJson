@@ -90,7 +90,6 @@ public class GsonUtils {
             setVariable(name, json.getAsJsonArray(), e, isLocal);
             mapJsonArray(e, name, json.getAsJsonArray());
         } else {
-            System.out.println("primitive");
             setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
         }
     }
