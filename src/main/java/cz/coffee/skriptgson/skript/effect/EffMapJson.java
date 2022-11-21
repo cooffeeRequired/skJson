@@ -48,7 +48,7 @@ public class EffMapJson extends Effect {
         raw_json = (Expression<Object>) exprs[0];
         Expression<?> objects = exprs[1];
         if(objects instanceof Variable<?> variable) {
-            if(variable.isLocal()){
+            if(variable.isList()){
                 variableString = variable.getName();
                 isLocal = variable.isLocal();
                 return true;
@@ -61,6 +61,7 @@ public class EffMapJson extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
+
         JsonElement element;
 
         if(raw_json == null) return;
@@ -69,6 +70,7 @@ public class EffMapJson extends Effect {
         String clearVarName = variableString.toString(e).toLowerCase(Locale.ENGLISH).substring(0, variableString.toString(e).length()-3);
 
         GsonUtils utils = new GsonUtils();
+
         utils.mapJson(e, element, clearVarName, isLocal);
 
 
