@@ -12,7 +12,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
-import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,10 +57,10 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     public File @NotNull [] get(@NotNull Event event) {
         if (exprString == null)
-            return new File[]{};
+            return new File[0];
         String inputFile = exprString.getSingle(event);
         if (inputFile == null)
-            return new File[]{};
+            return new File[0];
 
         FileOutputStream OutputStream;
         JsonWriter writer;
@@ -71,8 +70,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
         if (new File(inputFile).exists()){
             if(new File(inputFile).length() >1) {
-                SkriptGson.warning("&r&ccan't create the file &e" + inputFile + ",&c because is already exist");
-                return new File[]{};
+                return new File[]{new File(inputFile)};
             }
         }
 
@@ -86,7 +84,7 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
             writer.flush();
             writer.close();
         } catch (Exception e) {
-            return new File[]{};
+            return new File[0];
         }
         return new File[]{new File(inputFile)};
     }

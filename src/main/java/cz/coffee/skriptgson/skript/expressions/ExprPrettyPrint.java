@@ -33,7 +33,7 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
     }
 
     public String @NotNull [] get(@NotNull Event event) {
-        return new String[]{color("&f"+newGson().toJson(exprPrint.getSingle(event))
+        return new String[]{color("\n&f"+newGson().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
                 .replaceAll("([{}])", "§7$0§r")

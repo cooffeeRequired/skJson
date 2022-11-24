@@ -46,10 +46,10 @@ public class EffWriteJson  extends Effect {
 
 
     private boolean write, append, nested, key;
-    private Expression<Object> raw_data;
-    private Expression<String> raw_nested_data;
-    private Expression<String> raw_key;
-    private Expression<Object> raw_file;
+    private Expression<Object> rawData;
+    private Expression<String> rawNestedData;
+    private Expression<String> rawKey;
+    private Expression<Object> rawFile;
 
 
     static {
@@ -92,34 +92,34 @@ public class EffWriteJson  extends Effect {
         append = matchedPattern == 0;
 
         if(write) {
-            raw_data = LiteralUtils.defendExpression(exprs[0]);
-            raw_file = (Expression<Object>) exprs[1];
+            rawData = LiteralUtils.defendExpression(exprs[0]);
+            rawFile = (Expression<Object>) exprs[1];
         }
         if(append) {
-            raw_data = LiteralUtils.defendExpression(exprs[0]);
-            raw_nested_data = (Expression<String>) exprs[1];
-            raw_key = (Expression<String>) exprs[2];
-            raw_file = (Expression<Object>) exprs[3];
+            rawData = LiteralUtils.defendExpression(exprs[0]);
+            rawNestedData = (Expression<String>) exprs[1];
+            rawKey = (Expression<String>) exprs[2];
+            rawFile = (Expression<Object>) exprs[3];
             key = parseResult.hasTag("key");
             nested = parseResult.hasTag("nested");
         }
-        return LiteralUtils.canInitSafely(raw_data);
+        return LiteralUtils.canInitSafely(rawData);
     }
 
     @Override
     protected void execute(@NotNull Event e) {
         String Key = null, Nested = null;
-        Object data = raw_data.getSingle(e);
-        Object __ = raw_file.getSingle(e);
+        Object data = rawData.getSingle(e);
+        Object __ = rawFile.getSingle(e);
         if(__ == null) return;
         File file = __ instanceof File ? (File)__ : new File(__.toString());
         GsonUtils utils = new GsonUtils();
 
         if(key) {
-            Key = raw_key.getSingle(e);
+            Key = rawKey.getSingle(e);
         }
         if(nested) {
-            Nested = raw_nested_data.getSingle(e);
+            Nested = rawNestedData.getSingle(e);
         }
 
         JsonElement element = null;
@@ -165,6 +165,6 @@ public class EffWriteJson  extends Effect {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return (write ? "write" : "append") + " data " + raw_data.toString(e, debug) + " to json file " + raw_file.toString(e, debug);
+        return (write ? "write" : "append") + " data " + rawData.toString(e, debug) + " to json file " + rawFile.toString(e, debug);
     }
 }

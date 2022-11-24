@@ -20,7 +20,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 
 public class GsonUtils {
 
-    private int i;
+    private int countOf;
     private int type = 1;
     private Object input;
 
@@ -58,19 +58,11 @@ public class GsonUtils {
         return json;
     }
 
-    public JsonElement append(JsonElement fromFile, Object Key, Object Nested, Object new_data) {
-
-        if(Key == null) {
-            Key = "$$null";
-        } else {
-            Key = Key.toString();
-        }
-
-
+    public JsonElement append(JsonElement fromFile, String Key, String Nested, JsonElement json) {
         if(fromFile.isJsonObject()) {
-            return(append_(fromFile.getAsJsonObject(), (String) Key, Nested.toString(), JsonParser.parseString(new_data.toString())));
+            return(append_(fromFile.getAsJsonObject(), Key+"", Nested, json));
         } else if(fromFile.isJsonArray()) {
-            return(append_(fromFile.getAsJsonArray(), (String) Key, Nested.toString(), JsonParser.parseString(new_data.toString())));
+            return(append_(fromFile.getAsJsonArray(), Key+"", Nested, json));
         }
         return(fromFile);
     }
@@ -98,15 +90,15 @@ public class GsonUtils {
         return newGson().toJsonTree(variable);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     private JsonElement _listMainTree(Event e, String name, boolean nullable) {
         Map<String, Object> variable = (Map<String, Object>) getVariable(e, name+"*");
         if(variable == null) {
-            return nullable ? null : new JsonPrimitive("");
+            return nullable ? null : new JsonNull();
         }
 
         Stream<String> keys = variable.keySet().stream().filter(Objects::nonNull);
-        if(variable.keySet().stream().filter(Objects::nonNull).allMatch(GsonUtils::isInteger)) {
+        if(variable.keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
             JsonArray array = new JsonArray();
             keys.forEach(k->array.getAsJsonArray().add((_listSubTree(e, name+k))));
             return array;
@@ -161,32 +153,6 @@ public class GsonUtils {
         }
     }
 
-    private static boolean isInteger(String str) {
-        if (str == null) {
-            return false;
-        }
-        int length = str.length();
-        if ( length == 0) {
-            return  false;
-        }
-        int i = 0;
-        if(str.charAt(0) == '-'){
-            if(length == 1) {
-                return false;
-            }
-            i = 1;
-        }
-        while (i < length) {
-            char c =  str.charAt(i);
-            if(c < '0' || c > '9') {
-                return false;
-            }
-            i++;
-        }
-        return true;
-    }
-
-
     private void setVariable(String name, Object element, Event e, boolean isLocal) {
         Variables.setVariable(name, element, e, isLocal);
     }
@@ -214,7 +180,7 @@ public class GsonUtils {
         for (Map.Entry<String, JsonElement> entry : jElem.entrySet()) {
             JsonElement element = entry.getValue();
             JsonElement j;
-            if ( type == 1) {
+            if (type == 1) {
                 if (Objects.equals(entry.getKey(), input.toString())) {
                     return true;
                 }
@@ -224,7 +190,9 @@ public class GsonUtils {
                 } else {
                     j = JsonParser.parseString(input.toString());
                 }
-                if (Objects.equals(element, j)) return true;
+                if (Objects.equals(element, j)) {
+                    return true;
+                }
             }
             if (element.isJsonArray()) {
                 if (checkArray(element.getAsJsonArray(), type, input)) return true;
@@ -347,11 +315,6 @@ public class GsonUtils {
     }
 
     private JsonElement append_(JsonElement json, String Key, String Nested, JsonElement data) {
-
-        if (Objects.equals(Key, "$$null")) {
-            Key = null;
-        }
-
         String[] nesteds = Nested.split(":");
         JsonElement element;
         element = json;
@@ -466,64 +429,56 @@ public class GsonUtils {
 
 
 
-    public GsonUtils countOfKey(final JsonElement jel, String key, int ...type) {
+
+    public GsonUtils countOf(final JsonElement json, String key) {
         final JsonObject object;
         final JsonArray array;
-        JsonElement n;
-        if(jel.isJsonArray()) {
-            array = jel.getAsJsonArray();
-            for (int index = 0; index < array.size(); index++){
-                JsonElement j = array.get(index);
-                if ( type[0] == 1) {
-                    if(Objects.equals(key, j.toString())) {
-                        this.i++;
-                    }
-                } else if ( type[0] == 2) {
-                    if(key.startsWith("{") || key.startsWith("[")) {
-                        n = JsonParser.parseString(key);
-                    } else {
-                        n = newGson().toJsonTree(key);
-                    }
-                    if(Objects.equals(n, j)) {
-                        this.i++;
-                    }
-                }
-                if (j.isJsonObject()) {
-                    countOfKey(j.getAsJsonObject(), key, type[0]);
-                } else if (j.isJsonArray()) {
-                    countOfKey(j.getAsJsonArray(), key, type[0]);
-                }
-            }
-        } else if (jel.isJsonObject()) {
-            object = jel.getAsJsonObject();
-            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                JsonElement j = entry.getValue();
+        JsonElement element = null;
 
-                if ( type[0] == 1) {
-                    if(Objects.equals(key, entry.getKey())) {
-                        this.i++;
-                    }
-                } else if ( type[0] == 2) {
-                    if(key.startsWith("{") || key.startsWith("[")) {
-                        n = JsonParser.parseString(key);
-                    } else {
-                        n = newGson().toJsonTree(key);
-                    }
-                    if(Objects.equals(n, j)) {
-                        this.i++;
-                    }
-                }
-                if(j.isJsonObject()) {
-                    countOfKey(j.getAsJsonObject(), key, type[0]);
-                } else if(j.isJsonArray()) {
-                    countOfKey(j.getAsJsonArray(), key, type[0]);
+        if(this.type == 1) {
+            if(getKey(key).check(json)) this.countOf++;
+        }else if(this.type == 2) {
+            if(getValue(key).check(json)) {
+                this.countOf++;
+            }
+        }
+
+
+
+        if(json.isJsonArray()) {
+            array = json.getAsJsonArray();
+
+            for(int index = 0; index < array.size(); index++) {
+                element =  array.get(index);
+                if(element.isJsonObject()) {
+                    countOf(element.getAsJsonObject(), key);
+                } else if(element.isJsonArray()) {
+                    countOf(element.getAsJsonArray(), key);
                 }
             }
+        } else if(json.isJsonObject()) {
+            object = json.getAsJsonObject();
+
+            for(Map.Entry<String, JsonElement> map : object.entrySet()) {
+                element = map.getValue();
+                if(element.isJsonObject()) {
+                    countOf(element.getAsJsonObject(), key);
+                } else if(element.isJsonArray()) {
+                    countOf(element.getAsJsonArray(), key);
+                }
+            }
+
         }
         return this;
     }
 
     public int getCount() {
-        return this.i;
+        return this.countOf;
     }
+
+    public GsonUtils setType(int Type) {
+        this.type = Type;
+        return this;
+    }
+
 }

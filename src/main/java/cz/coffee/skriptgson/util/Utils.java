@@ -15,11 +15,11 @@ public class Utils {
     public static String color(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
-    public static String SanitizeString(Object strObj) {
-        return String.valueOf(strObj).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
+    public static String SanitizeString(Object stringObject) {
+        return String.valueOf(stringObject).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
     }
-    public static String SanitizeJson(Object strObj) {
-        return String.valueOf(strObj).replaceAll("^\\{", "").replaceAll("}$","");
+    public static String SanitizeJson(Object stringObject) {
+        return String.valueOf(stringObject).replaceAll("^[{}$]", "");
     }
     public static String gsonText(Object StringifyElement) {
         return new GsonBuilder().disableHtmlEscaping().create().toJson(StringifyElement);

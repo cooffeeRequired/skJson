@@ -25,12 +25,11 @@ public class SkriptGson extends JavaPlugin {
 
     private static SkriptGson instance;
     private SkriptAddon addon;
-    private final PluginManager pluginManager = this.getServer().getPluginManager();
 
     @Override
     public void onEnable() {
         if (!canLoadPlugin()) {
-            pluginManager.disablePlugin(this);
+            getPluginManager().disablePlugin(this);
             return;
         }
         instance = this;
@@ -51,7 +50,7 @@ public class SkriptGson extends JavaPlugin {
         logger = getLogger();
         boolean canLoad = true;
         String reason = null;
-        Plugin skriptPlugin = pluginManager.getPlugin("Skript");
+        Plugin skriptPlugin = getPluginManager().getPlugin("Skript");
         if (skriptPlugin == null) {
             reason = "Plugin 'Skript' is not found!";
             canLoad = false;
@@ -72,6 +71,10 @@ public class SkriptGson extends JavaPlugin {
             throw new IllegalStateException();
         }
         return instance;
+    }
+
+    public PluginManager getPluginManager() {
+        return this.getServer().getPluginManager();
     }
 
     @Override

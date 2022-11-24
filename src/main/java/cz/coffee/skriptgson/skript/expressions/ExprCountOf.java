@@ -28,7 +28,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
 
     static {
         Skript.registerExpression(ExprCountOf.class, Integer.class, ExpressionType.COMBINED,
-                "(count|number) (:value|:key) %string% of %jsonelement%"
+                "(count|number) [of] (:value|:key) %string% of %jsonelement%"
         );
     }
 
@@ -43,7 +43,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
         JsonElement jsonElement = json.getSingle(e);
         String search = str.getSingle(e);
         if(jsonElement == null) return new Integer[0];
-        return new Integer[]{map.countOfKey(jsonElement, search, tag).getCount()};
+        return new Integer[]{map.setType(tag).countOf(jsonElement, search).getCount()};
     }
 
     @Override

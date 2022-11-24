@@ -65,10 +65,10 @@ public class CondJsonType extends Condition {
             return (pattern == 0) == checkSingle.isJsonObject();
         } else if (tag.contains("primitive")){
             return (pattern == 0) == checkSingle.isJsonPrimitive();
-        } else {
-            SkriptGson.warning("&r&7You can compare &l&e%jsonelement%&7 only with array,object,primitive");
-            return false;
         }
+        SkriptGson.warning("&7You can compare &l&e%jsonelement%&7 only with array,object,primitive");
+        return false;
+
     }
 
     @Override

@@ -45,21 +45,21 @@ public class CondFileExist extends Condition {
 
     @Override
     public boolean check(@NotNull Event e) {
-        File object;
         Object raw_object = check.getSingle(e);
+        Object file;
         if ( raw_object instanceof File) {
-            object = (File) raw_object;
+            file = (File) raw_object;
         } else if ( raw_object instanceof String ){
-            object = new File(raw_object.toString());
+            file = new File(raw_object.toString());
         } else {
             return false;
         }
-        return ( pattern ==  0) == object.exists();
+        return ( pattern ==  0) == ((File) file).exists();
     }
 
     @Override
     public @NotNull String toString(Event e, boolean debug) {
-        return "json file" + check.toString(e,debug) + (isNegated() ? " is exist" : "isn't exist");
+        return "json file " + check.toString(e,debug) + (isNegated() ? " is exist" : "isn't exist");
 
     }
 }
