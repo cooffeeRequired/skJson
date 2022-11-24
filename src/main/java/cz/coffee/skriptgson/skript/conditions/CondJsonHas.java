@@ -19,8 +19,8 @@ import java.util.Objects;
 
 
 @Since("1.2.0")
-@Name("Json Has Key/Value's")
-@Description({"Used to get information if the key or value is in Json"})
+@Name("JSON Has Key/Value's")
+@Description({"Used to get information if the key or value is in JSON"})
 @Examples({"on script load:",
         "\tset {-data} to json from string \"{'Hello': {'Hi': 'There'}}\"",
         "\tif {-data} has keys \"Hello\", \"Hi\":",

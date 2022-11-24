@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-@Name("is JsonFile exist")
-@Description("Checks if jsonFile exist")
+@Name("is JSON File exist")
+@Description("Checks if JSON File exist")
 @Examples({"on load:",
         "\tjson file \"test\\test.json\" exists:",
         "\t\tbroadcast true"

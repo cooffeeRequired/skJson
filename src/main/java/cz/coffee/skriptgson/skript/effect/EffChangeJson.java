@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 @Since("1.2.1")
-@Name("Change Json.")
+@Name("Change JSON.")
 @Description("With this effect you can change JsonObject or JsonArray.")
 @Examples({"on script load:",
         "\tset {-json} to json from string \"{'Players': {'3a51d20a-6200-11ed-9b6a-0242ac120002': {'name': 'coffee', 'isAdmin': true, 'prefix': '&4Admin'}}}\"",

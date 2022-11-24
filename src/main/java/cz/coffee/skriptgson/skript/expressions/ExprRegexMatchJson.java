@@ -20,10 +20,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Name("Json regex match")
+@Name("JSON regex match")
 @Description("Get a All matches of regex pattern from json")
-@Examples({
-        "on load:",
+@Examples({"on load:",
         "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
         "\tsend {-e} regex matches \"anything\"",
 })

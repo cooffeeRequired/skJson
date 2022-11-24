@@ -1,6 +1,9 @@
 package cz.coffee.skriptgson.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -13,7 +16,13 @@ import org.jetbrains.annotations.NotNull;
 import static cz.coffee.skriptgson.util.Utils.color;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
-@SuppressWarnings("unused")
+@Since("1.0")
+@Name("Pretty printed JSON")
+@Examples({"on load:",
+        "\tset {_json} to \"{'test': true}\"",
+        "\tsend {_json} with pretty print"
+})
+
 public class ExprPrettyPrint extends SimpleExpression<Object> {
 
     static {

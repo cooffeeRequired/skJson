@@ -29,7 +29,7 @@ import static cz.coffee.skriptgson.util.Utils.color;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Since("1.2.2")
-@Name("Write/Append JsonFile")
+@Name("Write/Append JSON File")
 @Description("Inserting / overwriting data to json file., It can be inserted as a nested object and also with the specified key")
 @Examples({"on load:",
         "\tset {-file} to new json file \"plugins\\test\\test.json\"",

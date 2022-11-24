@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("is type of JsonElement")
-@Description("Check what json type is passed %jsonelement%")
+@Name("Type of JSON")
+@Description("Check what JSON type is passed %jsonelement%")
 @Examples({"on load:",
         "\tset {-e} to json from string \"[1, false, 'test', null\"",
         "\tjson {-e} is an array: ",
@@ -36,8 +36,8 @@ public class CondJsonType extends Condition {
 
     static {
         Skript.registerCondition(CondJsonType.class,
-                "(json|jsonelement) %jsonelement% is an (:array|:object|:primitive)",
-                "(json|jsonelement) %jsonelement% is(n't| not) an (:array|:object|:primitive)"
+                "json %jsonelement% is an (:array|:object|:primitive)",
+                "json %jsonelement% is(n't| not) an (:array|:object|:primitive)"
         );
     }
 

@@ -22,7 +22,7 @@ import java.util.Locale;
 
 
 @Since("1.3.0")
-@Name("Array or List formatted to json.")
+@Name("Array or List formatted to JSON.")
 @Description({"It allows you to convert the sheet back to Json!",
         "Value changes don't work for nested objects, to change the values of a nested object use Change"})
 @Examples({"on script load:",

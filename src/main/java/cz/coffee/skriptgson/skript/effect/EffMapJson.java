@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 @Since("1.3.0")
-@Name("[Reworked] Mapping Json to List.")
+@Name("[Reworked] Mapping JSON to List.")
 @Description("")
 @Examples({"on script load:",
         "\tset {_json} to new json from string \"{'players': {'coffee': {'data': {'name': 'coffeeRequired'}}}}\"",

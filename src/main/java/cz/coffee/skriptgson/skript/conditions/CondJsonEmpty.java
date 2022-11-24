@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Since("1.3.0")
-@Name("is Json empty")
-@Description("Checks if Json is empty.")
+@Name("is JSON empty")
+@Description("Checks if JSON is empty.")
 @Examples({"on script load:",
         "\tset {-e} to json from string \"{'Hello': 'There'\"}",
         "\tjson {-e} is empty: ",
