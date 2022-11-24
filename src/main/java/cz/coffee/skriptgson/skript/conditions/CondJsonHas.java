@@ -28,16 +28,23 @@ import java.util.Objects;
 })
 public class CondJsonHas extends Condition {
 
+//    static {
+//        Skript.registerCondition(CondJsonHas.class,
+//                "%jsonelement% has (1¦(:key|:value) %-string/integer/boolean%|2¦(:keys|:values) %-objects%)",
+//                "%jsonelement% has(n't| not) (1¦(:key|:value)%-string/integer/boolean%|2¦(:keys|:values) %-objects%)"
+//        );
+//    }
+
     static {
         Skript.registerCondition(CondJsonHas.class,
-                "%jsonelement% has (1¦(:key|:value) %-string/integer/boolean%|2¦(:keys|:values) %-objects%)",
-                "%jsonelement% has(n't| not) (1¦(:key|:value)%-string/integer/boolean%|2¦(:keys|:values) %-objects%)"
+                "%jsonelement% have (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)",
+                "%jsonelement% have(n't| not) (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)"
+
         );
     }
 
     private Expression<JsonElement> otch;
     private Expression<?> check;
-    private Expression<?> checkAll;
     private int pattern;
     private int mark;
     private int type;
@@ -54,13 +61,12 @@ public class CondJsonHas extends Condition {
             return false;
         setNegated(pattern == 1);
         if (mark == 2) {
-            checkAll = LiteralUtils.defendExpression(exprs[2]);
+            check = LiteralUtils.defendExpression(exprs[2]);
             type = parseResult.tags.contains("keys") ? 1 : 2;
-            return LiteralUtils.canInitSafely(exprs[2]);
         } else {
             check = LiteralUtils.defendExpression(exprs[1]);
-            return LiteralUtils.canInitSafely(exprs[1]);
         }
+        return LiteralUtils.canInitSafely(check);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class CondJsonHas extends Condition {
         String object = null;
         Object[] objects = new Objects[0];
         if (mark == 2) {
-            objects = checkAll.getAll(e);
+            objects = check.getAll(e);
         } else {
             object = String.valueOf(check.getSingle(e));
         }

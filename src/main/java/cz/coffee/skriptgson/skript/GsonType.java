@@ -12,34 +12,32 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.GsonUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
-import java.util.List;
 
-import static cz.coffee.skriptgson.util.Utils.*;
+import static cz.coffee.skriptgson.util.Utils.newGson;
 
-@SuppressWarnings({"unused", "NullableProblems", "UnnecessaryReturnStatement"})
+@SuppressWarnings({"unused",})
 public class GsonType {
 
     private static final Parser<JsonElement> parser = new Parser<>() {
         @Override
-        public boolean canParse(final ParseContext context) {
+        public boolean canParse(final @NotNull ParseContext context) {
             return false;
         }
 
         @Override
-        public String toString(JsonElement json, int flags) {
+        public @NotNull String toString(JsonElement json, int flags) {
             return json.toString();
         }
 
         @Override
-        public String toVariableNameString(JsonElement json) {
+        public @NotNull String toVariableNameString(JsonElement json) {
             return json.toString();
         }
     };
@@ -47,14 +45,14 @@ public class GsonType {
     private static final Serializer<JsonElement> serializer = new Serializer<>() {
 
         @Override
-        public Fields serialize(JsonElement json) {
+        public @NotNull Fields serialize(JsonElement json) {
             Fields fields = new Fields();
             fields.putObject("json", json.toString());
             return fields;
         }
 
         @Override
-        public void deserialize(JsonElement json, Fields f) {
+        public void deserialize(JsonElement json, @NotNull Fields f) {
             assert false;
         }
 
@@ -95,119 +93,48 @@ public class GsonType {
 
     private static final Changer<JsonElement> changer = new Changer<>() {
         @Override
-        public Class<?>[] acceptChange(ChangeMode mode) {
-            //noinspection EnhancedSwitchMigration
-            switch (mode) {
-                case ADD:
-                case SET:
-                case REMOVE:
-                    return CollectionUtils.array(JsonElement.class);
-            }
+        public Class<?> @NotNull [] acceptChange(ChangeMode mode) {
+            return switch (mode) {
+                case ADD, SET, REMOVE -> CollectionUtils.array(JsonElement.class);
+                default -> CollectionUtils.array(Object.class);
+            };
 
-            return null;
         }
 
         @Override
-        public void change(JsonElement[] what, Object[] delta, ChangeMode mode) {
+        public void change(JsonElement @NotNull [] what, Object @NotNull [] delta, ChangeMode mode) {
+            GsonUtils utils = new GsonUtils();
             switch (mode) {
                 case ADD -> {
-                    try {
-                        String[] i;
-                        boolean AddCase = false;
-                        JsonElement[] value = new JsonElement[]{JsonParser.parseString(String.valueOf(delta[0]))};
-                        for (JsonElement object : what) {
-                            for (JsonElement jsonElement : value) {
-                                if (object.isJsonArray()) {
-                                    object.getAsJsonArray().add(jsonElement);
-                                } else {
-                                    if (jsonElement.isJsonPrimitive()) {
-                                        i = new Gson().toJson(jsonElement.getAsJsonPrimitive())
-                                                .split(";");
-
-                                        AddCase = i[0].endsWith("+");
-                                        if (AddCase) {
-                                            jsonElement = JsonParser.parseString(SanitizeString(
-                                                    "[" + i[1] + "]")
-                                                    .replaceAll("^(.*?):(.*)$", "$1,$2")
-                                            );
-                                        } else {
-                                            jsonElement = JsonParser.parseString(SanitizeString(i[1]));
-                                        }
-                                    } else {
-                                        i = new String[]{object.getAsJsonObject().entrySet().isEmpty() ?
-                                                String.valueOf(0) :
-                                                String.valueOf(object.getAsJsonObject().entrySet().toArray().length - 1)};
-                                    }
-                                    if (AddCase) {
-                                        String Key = SanitizeString(i[0].replaceAll("\\+", ""));
-
-                                        if (object.getAsJsonObject().get(Key).isJsonArray()) {
-                                            SkriptGson.info(color("&b?&r &cWe're sorry!&cYou can't data to defined array at this moment!"));
-                                            return;
-                                        }
-
-                                        String Value1 = jsonElement.getAsJsonArray()
-                                                .size() > 1 ? gsonText(jsonElement.getAsJsonArray().get(0)).replaceAll("\"", "") :
-                                                String.valueOf(object.getAsJsonObject().get(Key).getAsJsonObject().size() - 1);
-
-                                        JsonElement Value2 = JsonParser.parseString(gsonText(jsonElement.getAsJsonArray()
-                                                .get(jsonElement
-                                                        .getAsJsonArray().size() > 1 ? 1 : 0)));
-
-                                        if (jsonElement.isJsonArray()) {
-                                            object.getAsJsonObject()
-                                                    .get(Key)
-                                                    .getAsJsonObject()
-                                                    .add(Value1, Value2);
-                                        } else {
-                                            object.getAsJsonObject()
-                                                    .get(Key)
-                                                    .getAsJsonObject()
-                                                    .add(Value1, Value2);
-                                        }
-                                    } else {
-                                        object.getAsJsonObject().add(SanitizeString(i[0]), jsonElement);
-                                    }
-                                }
+                    for(JsonElement varElement : what) {
+                        for(Object addElement : delta) {
+                            if(varElement.isJsonObject()) {
+                                String size = String.valueOf(varElement.getAsJsonObject().entrySet().size());
+                                varElement.getAsJsonObject().add(size, newGson().toJsonTree(addElement));
+                            } else if(varElement.isJsonArray()) {
+                                String size = String.valueOf(varElement.getAsJsonArray().size());
+                                varElement.getAsJsonArray().add(newGson().toJsonTree(addElement));
+                            } else{
+                                return;
                             }
                         }
-                    } catch (Exception e) {
-                        return;
                     }
                 }
                 case REMOVE -> {
-                    try {
-                        String value = String.valueOf(delta[0]).replaceAll("\"", "");
-                        for (JsonElement object : what) {
-                            List<String> values = GsonUtils.getValues(object.getAsJsonObject());
-                            for (int i = 0; values.size() > i; i++) {
-                                if (value.contains(";")) {
-                                    String[] s = value.split(";");
-                                    JsonElement jsonElements = object.getAsJsonObject();
-                                    for (String st : s) {
-                                        if (jsonElements == null || jsonElements.isJsonNull()) {
-                                            return;
-                                        }
-                                        if (jsonElements.isJsonObject()) {
-                                            jsonElements.getAsJsonObject().remove(s[s.length - 1]);
-                                            jsonElements = jsonElements.getAsJsonObject().get(st);
-                                        } else {
-                                            jsonElements.getAsJsonArray().remove(Integer.parseInt(s[s.length - 1]));
-                                        }
-                                    }
+                    for(JsonElement varElement : what) {
+                        for(Object removeElement : delta) {
+                            if(utils.getKey(removeElement.toString()).check(varElement)) {
+                                if(varElement.isJsonObject()) {
+                                    varElement.getAsJsonObject().remove(removeElement.toString());
+                                } else if(varElement.isJsonArray()) {
+                                    varElement.getAsJsonArray().remove(Integer.parseInt(removeElement.toString()));
                                 } else {
-                                    if (value.equals(values.get(i))) {
-                                        if (object.isJsonObject()) {
-                                            object.getAsJsonObject().remove(value);
-                                        } else {
-                                            object.getAsJsonArray().remove(i);
-                                        }
-                                    }
+                                    return;
                                 }
                             }
                         }
-                    } catch (IndexOutOfBoundsException ignored) {
                     }
+
                 }
             }
         }
