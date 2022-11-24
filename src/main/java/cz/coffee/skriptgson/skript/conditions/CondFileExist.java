@@ -26,8 +26,8 @@ public class CondFileExist extends Condition {
 
     static {
         Skript.registerCondition(CondFileExist.class,
-                "json file %object% is exists",
-                "json file %object% is( not|n't) exists"
+                "json file %object% exists",
+                "json file %object% does( not|n't) exists"
         );
     }
 

@@ -28,17 +28,10 @@ import java.util.Objects;
 })
 public class CondJsonHas extends Condition {
 
-//    static {
-//        Skript.registerCondition(CondJsonHas.class,
-//                "%jsonelement% has (1¦(:key|:value) %-string/integer/boolean%|2¦(:keys|:values) %-objects%)",
-//                "%jsonelement% has(n't| not) (1¦(:key|:value)%-string/integer/boolean%|2¦(:keys|:values) %-objects%)"
-//        );
-//    }
-
     static {
         Skript.registerCondition(CondJsonHas.class,
-                "%jsonelement% have (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)",
-                "%jsonelement% have(n't| not) (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)"
+                "%jsonelement% has (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)",
+                "%jsonelement% does(n't| not) have (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)"
 
         );
     }
