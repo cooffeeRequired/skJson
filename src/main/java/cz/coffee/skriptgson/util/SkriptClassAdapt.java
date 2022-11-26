@@ -20,8 +20,7 @@ public class SkriptClassAdapt implements JsonSerializer<YggdrasilSerializable>, 
     public JsonElement serialize(
             YggdrasilSerializable src,
             Type typeOfSrc,
-            JsonSerializationContext context)
-    {
+            JsonSerializationContext context) {
         /*
         JsonElement json = new Gson().toJsonTree(new Fields(src));
          */

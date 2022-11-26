@@ -56,21 +56,21 @@ public class GsonType {
             assert false;
         }
 
-        public JsonElement deserialize(Fields f) throws StreamCorruptedException{
+        public JsonElement deserialize(Fields f) throws StreamCorruptedException {
 
             JsonElement fromField = null;
             Object bField = f.getObject("json");
 
-            if ( bField != null ){
+            if (bField != null) {
                 fromField = JsonParser.parseString(bField.toString());
             }
-            if ( fromField != null ) {
+            if (fromField != null) {
                 if (!fromField.isJsonNull()) {
                     if (fromField.isJsonObject()) {
                         return fromField.getAsJsonObject();
                     } else if (fromField.isJsonArray()) {
                         return fromField.getAsJsonArray();
-                    } else if ( fromField.isJsonPrimitive()) {
+                    } else if (fromField.isJsonPrimitive()) {
                         return fromField.getAsJsonPrimitive();
                     }
                 }
@@ -106,27 +106,27 @@ public class GsonType {
             GsonUtils utils = new GsonUtils();
             switch (mode) {
                 case ADD -> {
-                    for(JsonElement varElement : what) {
-                        for(Object addElement : delta) {
-                            if(varElement.isJsonObject()) {
+                    for (JsonElement varElement : what) {
+                        for (Object addElement : delta) {
+                            if (varElement.isJsonObject()) {
                                 String size = String.valueOf(varElement.getAsJsonObject().entrySet().size());
                                 varElement.getAsJsonObject().add(size, newGson().toJsonTree(addElement));
-                            } else if(varElement.isJsonArray()) {
+                            } else if (varElement.isJsonArray()) {
                                 String size = String.valueOf(varElement.getAsJsonArray().size());
                                 varElement.getAsJsonArray().add(newGson().toJsonTree(addElement));
-                            } else{
+                            } else {
                                 return;
                             }
                         }
                     }
                 }
                 case REMOVE -> {
-                    for(JsonElement varElement : what) {
-                        for(Object removeElement : delta) {
-                            if(utils.getKey(removeElement.toString()).check(varElement)) {
-                                if(varElement.isJsonObject()) {
+                    for (JsonElement varElement : what) {
+                        for (Object removeElement : delta) {
+                            if (utils.getKey(removeElement.toString()).check(varElement)) {
+                                if (varElement.isJsonObject()) {
                                     varElement.getAsJsonObject().remove(removeElement.toString());
-                                } else if(varElement.isJsonArray()) {
+                                } else if (varElement.isJsonArray()) {
                                     varElement.getAsJsonArray().remove(Integer.parseInt(removeElement.toString()));
                                 } else {
                                     return;

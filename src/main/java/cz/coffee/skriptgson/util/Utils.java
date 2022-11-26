@@ -65,6 +65,9 @@ public class Utils {
                     scanner.close();
                 }
                 return JsonParser.parseString(inLine.toString()).getAsJsonObject().get("tag_name").toString().replaceAll("\"", "");
+            } else if (response == 403) {
+                SkriptGson.warning("Tots of restart in a little while, GitHub API Unavailable, Code: "+response);
+                return "403";
             }
             SkriptGson.warning("GitHubRelease response code " + response);
             SkriptGson.warning("We can't check the version, check your connection");

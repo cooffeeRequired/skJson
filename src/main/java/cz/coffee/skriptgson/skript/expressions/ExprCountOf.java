@@ -12,7 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.GsonUtils;
+import cz.coffee.skriptgson.util.newSkriptGsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
         "\tsend count value \"There\" of {-data}"
 })
 public class ExprCountOf extends SimpleExpression<Integer> {
-
     static {
         Skript.registerExpression(ExprCountOf.class, Integer.class, ExpressionType.COMBINED,
                 "(count|number) [of] (:value|:key) %string% of %jsonelement%"
@@ -39,11 +38,13 @@ public class ExprCountOf extends SimpleExpression<Integer> {
 
     @Override
     protected Integer @NotNull [] get(@NotNull Event e) {
-        GsonUtils map = new GsonUtils();
         JsonElement jsonElement = json.getSingle(e);
         String search = str.getSingle(e);
-        if(jsonElement == null) return new Integer[0];
-        return new Integer[]{map.setType(tag).countOf(jsonElement, search).getCount()};
+
+        if (jsonElement == null) return new Integer[0];
+
+        return new Integer[]{newSkriptGsonUtils.count(search, jsonElement, tag == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE)};
+
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "count "+ (tag == 1 ? "key" : "value") + "of " + json.toString(e, debug);
+        return "count " + (tag == 1 ? "key" : "value") + "of " + json.toString(e, debug);
     }
 
     @SuppressWarnings("unchecked")

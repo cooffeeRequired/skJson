@@ -10,11 +10,15 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import cz.coffee.skriptgson.util.GsonUtils;
+import cz.coffee.skriptgson.util.newSkriptGsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -22,9 +26,9 @@ import java.util.Objects;
 @Name("JSON Has Key/Value's")
 @Description({"Used to get information if the key or value is in JSON"})
 @Examples({"on script load:",
-        "\tset {-data} to json from string \"{'Hello': {'Hi': 'There'}}\"",
-        "\tif {-data} has keys \"Hello\", \"Hi\":",
-        "\tsend true"
+        "   set {-data} to json from string \"{'Hello': {'Hi': 'There'}}\"",
+        "   if {-data} has keys \"Hello\", \"Hi\":",
+        "       send true"
 })
 public class CondJsonHas extends Condition {
 
@@ -32,12 +36,11 @@ public class CondJsonHas extends Condition {
         Skript.registerCondition(CondJsonHas.class,
                 "%jsonelement% has (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)",
                 "%jsonelement% does(n't| not) have (1¦(:key|:value) %-object%|2¦(:keys|:values) %-objects%)"
-
         );
     }
 
-    private Expression<JsonElement> otch;
-    private Expression<?> check;
+    private Expression<JsonElement> exprJsonElement;
+    private Expression<?> exprSearch;
     private int pattern;
     private int mark;
     private int type;
@@ -49,59 +52,66 @@ public class CondJsonHas extends Condition {
         pattern = matchedPattern;
         mark = parseResult.mark;
         type = parseResult.tags.contains("key") ? 1 : 2;
-        otch = (Expression<JsonElement>) exprs[0];
-        if ( exprs[0] == null)
+        exprJsonElement = (Expression<JsonElement>) exprs[0];
+        if (exprs[0] == null)
             return false;
         setNegated(pattern == 1);
         if (mark == 2) {
-            check = LiteralUtils.defendExpression(exprs[2]);
+            exprSearch = LiteralUtils.defendExpression(exprs[2]);
             type = parseResult.tags.contains("keys") ? 1 : 2;
         } else {
-            check = LiteralUtils.defendExpression(exprs[1]);
+            exprSearch = LiteralUtils.defendExpression(exprs[1]);
         }
-        return LiteralUtils.canInitSafely(check);
+        return LiteralUtils.canInitSafely(exprSearch);
     }
 
     @Override
     public boolean check(@NotNull Event e) {
+        JsonObject jsonObject;
+        JsonArray jsonArray;
+        JsonElement json = exprJsonElement.getSingle(e);
         GsonUtils utils = new GsonUtils();
-        JsonElement jsonelement = otch.getSingle(e);
-        String object = null;
-        Object[] objects = new Objects[0];
-        if (mark == 2) {
-            objects = check.getAll(e);
-        } else {
-            object = String.valueOf(check.getSingle(e));
-        }
-        if(jsonelement == null)
-            return false;
 
-        if (mark == 1) {
-            if (jsonelement.isJsonObject()) {
-                return (pattern == 0) == (type == 1 ? utils.getKey(object).check(jsonelement.getAsJsonObject()) : utils.getValue(object).check(jsonelement.getAsJsonObject()));
-            } else if (jsonelement.isJsonArray()) {
-                return (pattern == 0) == (type == 1 ? utils.getKey(object).check(jsonelement.getAsJsonArray()) : utils.getValue(object).check(jsonelement.getAsJsonArray()));
-            }
+        String search = null;
+        Object[] searches = new Objects[0];
+
+        if (mark == 2) {
+            searches = exprSearch.getAll(e);
         } else {
-            boolean b = false;
-            for (Object key : objects) {
-                if(jsonelement.isJsonObject()) {
-                    b = (pattern == 0) == (type == 1 ? utils.getKey(key).check(jsonelement.getAsJsonObject()) : utils.getValue(key).check(jsonelement.getAsJsonObject()));
-                    if (!b)
-                        return false;
-                } else if(jsonelement.isJsonArray()){
-                    b = (pattern == 0) == (type == 1 ? utils.getKey(key).check(jsonelement.getAsJsonArray()) : utils.getValue(key).check(jsonelement.getAsJsonArray()));
-                    if (!b)
-                        return false;
+            Object nonStringifySearch = exprSearch.getSingle(e);
+            if (nonStringifySearch == null) return false;
+            search = nonStringifySearch.toString();
+        }
+
+        if (json == null) return false;
+        boolean match = false;
+
+        if (json instanceof JsonObject object) {
+            if (mark == 1) {
+                return (pattern == 0) == newSkriptGsonUtils.check(object, search, type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+            } else {
+                for (Object search0 : searches) {
+                    match = (pattern == 0) == newSkriptGsonUtils.check(object, search0.toString(), type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                    if (!match) return false;
                 }
+                return match;
             }
-            return b;
+        } else if (json instanceof JsonArray array) {
+            if (mark == 1) {
+                return (pattern == 0) == newSkriptGsonUtils.check(array, search, type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+            } else {
+                for (Object search0 : searches) {
+                    match = (pattern == 0) == newSkriptGsonUtils.check(array, search0.toString(), type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                    if (!match) return false;
+                }
+                return match;
+            }
         }
         return false;
     }
 
     @Override
     public @NotNull String toString(Event e, boolean debug) {
-        return "json " + check.toString(e,debug) + (isNegated() ? " is exist" : "isn't exist");
+        return "json " + exprSearch.toString(e, debug) + (isNegated() ? " doesn't have" : " has") + (mark == 1 ? (type == 1 ? " key " + exprSearch.getSingle(e) : " value " + exprSearch.getSingle(e)) : (type == 1 ? " keys " + Arrays.toString(exprSearch.getAll(e)) : " values " + Arrays.toString(exprSearch.getAll(e))));
     }
 }

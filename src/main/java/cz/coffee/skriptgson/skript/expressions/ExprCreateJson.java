@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         pattern = matchedPattern;
         with = parseResult.hasTag("with variables");
-        if(pattern == 2) {
+        if (pattern == 2) {
             SkriptGson.warning("&cSorry but at this moment you can't use this syntax.");
             return false;
         }
@@ -78,66 +79,84 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
         Object nonParsedData = toParse.getSingle(e);
-        boolean object = nonParsedData instanceof ConfigurationSerializable || nonParsedData instanceof YggdrasilSerializable;
+        boolean isSerializable = nonParsedData instanceof ConfigurationSerializable || nonParsedData instanceof YggdrasilSerializable;
         JsonElement element = null;
-        if(nonParsedData == null)
+        if (nonParsedData == null)
             return new JsonElement[0];
 
         String rawString = nonParsedData.toString();
 
-        if(pattern == 0 | pattern == 2) {
-            if(with) {
-                return new JsonElement[]{parsedVariable(rawString,e)};
+        if (pattern == 0 | pattern == 2) {
+            if (with) {
+                return new JsonElement[]{parsedVariable(rawString, e)};
             }
         }
 
-        if(pattern == 0) {
-            try {element = (object) ? newGson().toJsonTree(nonParsedData) : JsonParser.parseString(rawString);
-            } catch (JsonSyntaxException jsonSyntaxException){
-                if(jsonSyntaxException.getMessage().contains("Unterminated object") || jsonSyntaxException.getMessage().contains("$")) {
-                    SkriptGson.severe("It looks like you are using Script-Gson variables &e'${...}'&c, try using &e'with variables'");
-                    SkriptGson.severe("Your input string: new json from string &e'"+toParse.toString()+"'"+(with ? "&bwith variables" : "" ));
+        if (pattern == 0) {
+            try {
+                element = (isSerializable) ? newGson().toJsonTree(nonParsedData) : JsonParser.parseString(rawString);
+            } catch (JsonSyntaxException jsonSyntaxException) {
+                if (Pattern.compile("\\$\\{.+}").matcher(rawString).find()) {
+                    SkriptGson.severe("It looks like you are using Skript-Gson variables &e'${...}'&c, try using &e'with variables'");
+                    SkriptGson.severe("Your input string: new json from string &e'" + toParse.toString() + "'" + (with ? "&bwith variables" : ""));
                 }
             }
-        } else if(pattern == 1){
+        } else if (pattern == 1) {
             try (var protectedReader = new JsonReader(new FileReader(nonParsedData.toString()))) {
                 element = JsonParser.parseReader(protectedReader);
-            } catch (IOException ex) {
-                SkriptGson.severe(ex.getMessage());
+            } catch (JsonSyntaxException | FileNotFoundException ex) {
+                String cause = ex.getMessage().split("MalformedJsonException: ")[1];
+                SkriptGson.warning("JSON syntax error -> " + cause);
+                SkriptGson.warning("JSON syntax error -> Try check the escapes from string!");
+                SkriptGson.warning("Your input: new json from file '" + toParse.toString() + "'");
+                SkriptGson.warning("Try \"key\": \"value with \\\"some\\\"\"");
                 return new JsonElement[0];
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         }
         return new JsonElement[]{element};
     }
 
     @Override
-    public boolean isSingle() {return true;}
+    public boolean isSingle() {
+        return true;
+    }
 
     @Override
-    public @NotNull Class<? extends JsonElement> getReturnType() {return JsonElement.class;}
+    public @NotNull Class<? extends JsonElement> getReturnType() {
+        return JsonElement.class;
+    }
 
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        if(pattern == 0)
-            return "new json from string '"+toParse.toString(e, debug)+"'"+(with ? "with variables" : "" );
-        else if(pattern == 1)
-            return "new json from file '"+toParse.toString(e, debug)+"'";
+        if (pattern == 0)
+            return "new json from string '" + toParse.toString(e, debug) + "'" + (with ? "with variables" : "");
+        else if (pattern == 1)
+            return "new json from file '" + toParse.toString(e, debug) + "'";
         else
-            return "new json from request '"+toParse.toString(e, debug)+"'"+(with ? "with variables" : "" );
+            return "new json from request '" + toParse.toString(e, debug) + "'" + (with ? "with variables" : "");
     }
 
     private Object getSkriptVariable(Object input, Event e) {
-        boolean isLocal = false;
+        boolean isLocal;
         JsonElement newJsonElement;
         JsonObject output = new JsonObject();
         HashMap<String, Object> returnMap = new HashMap<>();
-        String name = input.toString().replaceAll("[{}]", "");
+        String name = input.toString().replaceAll("[{}$]", "");
         if (name.startsWith("$_")) {
             isLocal = true;
-            name = name.replaceAll("_", "").replaceAll("[$]","Variable.");
+            name = name.replaceAll("_", "").replaceAll("[$]", "Variable.");
+        } else if (name.startsWith("$-")) {
+            name = name.replaceAll("-", "").replaceAll("[$]", "Variable.");
+            isLocal = false;
+        } else {
+            name = name.replaceAll("[$]", "Variable.");
+            isLocal = false;
         }
-        Object variable = Variables.getVariable(name.replaceAll("Variable.",""), e, isLocal);
+
+        Object variable = Variables.getVariable(name.replaceAll("Variable.", ""), e, isLocal);
 
         newJsonElement = newGson().toJsonTree(variable);
         if (variable == null)
@@ -149,17 +168,18 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         return returnMap;
     }
 
+
     private JsonElement parsedVariable(String rawString, Event e) {
         Matcher m = Pattern.compile("\\$\\{.+?}").matcher(rawString);
-        rawString = rawString.replaceAll("(?<!^)[_{}*](?!$)", "").replaceAll("[$]","Variable.");
+        rawString = rawString.replaceAll("(?<!^)[_{}*](?!$)", "").replaceAll("[$]", "Variable.");
 
-        for (Iterator<Object> it = m.results().map(MatchResult::group).map(k-> getSkriptVariable(k,e)).iterator(); it.hasNext(); ) {
+        for (Iterator<Object> it = m.results().map(MatchResult::group).map(k -> getSkriptVariable(k, e)).iterator(); it.hasNext(); ) {
             String Value;
             JsonObject object = newGson().toJsonTree(it.next()).getAsJsonObject();
-            for(Map.Entry<String, JsonElement> map : object.entrySet()) {
+            for (Map.Entry<String, JsonElement> map : object.entrySet()) {
                 JsonObject json = map.getValue().getAsJsonObject();
 
-                if(json.get("variable").isJsonObject()) {
+                if (json.get("variable").isJsonObject()) {
                     Stream<String> keys = json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull);
                     if (json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
                         JsonArray array = new JsonArray();
@@ -168,12 +188,20 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                     } else {
                         Value = json.getAsJsonObject().get("variable").toString();
                     }
-                }else{
+                } else {
                     Value = json.get("variable").toString();
                 }
                 rawString = rawString.replaceAll(map.getKey(), Value);
             }
         }
-        return JsonParser.parseString(rawString);
+        JsonElement raw = null;
+        try {
+            raw = JsonParser.parseString(rawString);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            SkriptGson.debug("rawString: " + rawString);
+        }
+        return raw;
     }
+
 }

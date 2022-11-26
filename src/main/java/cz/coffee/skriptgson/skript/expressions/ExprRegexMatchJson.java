@@ -51,18 +51,18 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
         String regex = inputRegex.getSingle(e);
         Object iR = Json.getSingle(e);
-        if(iR == null) return new String[]{""};
+        if (iR == null) return new String[]{""};
         String element = iR.toString();
         assert regex != null;
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(element);
 
         if (m.matches()) {
-            if(m.groupCount() == 0) {
+            if (m.groupCount() == 0) {
                 return new String[]{m.group(0)};
             } else if (m.groupCount() >= 1) {
                 List<String> output = new ArrayList<>();
-                for(int i = 0; (m.groupCount() +1)> i; i++) {
+                for (int i = 0; (m.groupCount() + 1) > i; i++) {
                     output.add(i, m.group(i));
                 }
                 return new String[]{output.toString().replaceAll("[\\[\\]]", "")};

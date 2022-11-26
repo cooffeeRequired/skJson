@@ -42,16 +42,16 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
     }
 
     public String @NotNull [] get(@NotNull Event event) {
-        return new String[]{color("\n&f"+newGson().toJson(exprPrint.getSingle(event))
+        return new String[]{color("\n&f" + newGson().toJson(exprPrint.getSingle(event))
                 .replaceAll("(true)", "§a$0§r")
                 .replaceAll("(false)", "§c$0§r")
                 .replaceAll("([{}])", "§7$0§r")
                 .replaceAll("([\\[\\]])", "§6$0§r")
                 .replaceAll("((?<!\\\\)['\"])((?:.(?!(?<!\\\\)\\1))*.?)\\1", "§7$0§r")
                 .replaceAll("(\"(.*)\")", "§7$1§r")
-                .replaceAll("(null)","§5$0§r")
+                .replaceAll("(null)", "§5$0§r")
                 .replaceAll("(\")(.*?)(\")", "$1§3$2§r$3")
-                .replaceAll("\"","§r\"" )
+                .replaceAll("\"", "§r\"")
                 .replaceAll("(?<=\\s|^)\\d+", "§3$0§r"))};
     }
 

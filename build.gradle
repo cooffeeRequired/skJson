@@ -29,6 +29,11 @@ repositories {
     }
 }
 
+
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.jetbrains:annotations:23.0.0'
@@ -36,6 +41,7 @@ dependencies {
     compileOnly 'com.github.SkriptLang:Skript:2.6.3'
     implementation('com.google.code.gson:gson:2.10')
     implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+
 
 
 
@@ -64,6 +70,11 @@ task server(type: Exec) {
     println("DEVSERVER FOR 1.16")
     workingDir "A:/Bukkit-Core/purpur/dev-1.16.5"
     commandLine 'cmd', '/c', "powershell A:/Scripts/build.ps1"
+    return 1
+}
+
+task reload(type: Exec) {
+    commandLine 'cmd', '/c', "start powershell A:/Scripts/reload.ps1"
     return 1
 }
 

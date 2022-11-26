@@ -35,7 +35,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 public class ExprNewJsonFile extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(ExprNewJsonFile.class,Object.class, ExpressionType.COMBINED,
+        Skript.registerExpression(ExprNewJsonFile.class, Object.class, ExpressionType.COMBINED,
                 "[a] new json file %string% [(:with [data] %-string/jsonelement%)]");
 
     }
@@ -68,8 +68,8 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
 
         inputData = (exprRawData != null ? exprRawData.getSingle(event) : null);
 
-        if (new File(inputFile).exists()){
-            if(new File(inputFile).length() >1) {
+        if (new File(inputFile).exists()) {
+            if (new File(inputFile).length() > 1) {
                 return new File[]{new File(inputFile)};
             }
         }
@@ -88,9 +88,11 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
         }
         return new File[]{new File(inputFile)};
     }
+
     @Override
     public @NotNull String toString(Event event, boolean debug) {
-        return "json file " + (!withData ? "" : "with data");}
+        return "json file " + (!withData ? "" : "with data");
+    }
 
     @Override
     public boolean isSingle() {

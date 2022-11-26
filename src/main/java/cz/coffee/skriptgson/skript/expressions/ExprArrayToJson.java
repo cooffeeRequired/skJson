@@ -47,8 +47,8 @@ public class ExprArrayToJson extends SimpleExpression<JsonElement> {
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         Expression<?> objects = exprs[0];
-        if(objects instanceof Variable<?> variable) {
-            if(variable.isList()) {
+        if (objects instanceof Variable<?> variable) {
+            if (variable.isList()) {
                 variableString = variable.getName();
                 isLocal = variable.isLocal();
                 return true;
@@ -79,6 +79,6 @@ public class ExprArrayToJson extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "{"+(isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "")+variableString.toString(e, debug) + "}'form";
+        return "{" + (isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + variableString.toString(e, debug) + "}'form";
     }
 }

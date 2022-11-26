@@ -64,10 +64,10 @@ public class CondJsonType extends Condition {
             return (pattern == 0) == checkSingle.isJsonArray();
         } else if (tag.contains("object")) {
             return (pattern == 0) == checkSingle.isJsonObject();
-        } else if (tag.contains("primitive")){
+        } else if (tag.contains("primitive")) {
             return (pattern == 0) == checkSingle.isJsonPrimitive();
         }
-        SkriptGson.warning("&7You can compare &l&e%jsonelement%&7 only with array,object,primitive");
+        SkriptGson.warning("&7You can compare &l&e%jsonelement%&7 only with array, object or primitive");
         return false;
 
     }
@@ -75,9 +75,9 @@ public class CondJsonType extends Condition {
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
         if (tag.contains("array")) {
-            return "json " + check.toString(e,debug) + (isNegated() ? " is array" : "isn't array" );
+            return "json " + check.toString(e, debug) + (isNegated() ? " is array" : "isn't array");
         } else if (tag.contains("object")) {
-            return "json " + check.toString(e,debug) + (isNegated() ? " is object" : "isn't object" );
+            return "json " + check.toString(e, debug) + (isNegated() ? " is object" : "isn't object");
         } else if (tag.contains("primitive")) {
             return "json " + check.toString(e, debug) + (isNegated() ? " is primitive" : "isn't primitive");
         } else {

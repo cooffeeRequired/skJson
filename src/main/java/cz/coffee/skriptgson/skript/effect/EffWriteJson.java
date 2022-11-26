@@ -41,8 +41,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 })
 
 
-
-public class EffWriteJson  extends Effect {
+public class EffWriteJson extends Effect {
 
 
     private boolean write, append, nested, key;
@@ -67,18 +66,19 @@ public class EffWriteJson  extends Effect {
             try (var writer = new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
                 writer.jsonValue(jsonString);
             }
-            } catch (IOException| JsonSyntaxException ex) {
-                Skript.error("Bad file format " + file);
-            }
+        } catch (IOException | JsonSyntaxException ex) {
+            Skript.error("Bad file format " + file);
+        }
     }
+
     private JsonElement inputReader(File file) {
         JsonElement element;
         try (var reader = new JsonReader(new FileReader(file))) {
             element = JsonParser.parseReader(reader);
             return element;
         } catch (JsonSyntaxException | IOException ex) {
-            if(ex instanceof JsonSyntaxException) {
-                Skript.error(color("&cThe json syntax isn't correct, error message "+ex.getMessage()));
+            if (ex instanceof JsonSyntaxException) {
+                Skript.error(color("&cThe json syntax isn't correct, error message " + ex.getMessage()));
             }
         }
         return null;
@@ -91,15 +91,18 @@ public class EffWriteJson  extends Effect {
         write = matchedPattern == 1;
         append = matchedPattern == 0;
 
-        if(write) {
+        if (write) {
             rawData = LiteralUtils.defendExpression(exprs[0]);
             rawFile = (Expression<Object>) exprs[1];
         }
-        if(append) {
+        if (append) {
             rawData = LiteralUtils.defendExpression(exprs[0]);
             rawNestedData = (Expression<String>) exprs[1];
             rawKey = (Expression<String>) exprs[2];
-            rawFile = (Expression<Object>) exprs[3];
+            rawFile = LiteralUtils.defendExpression(exprs[3]);
+
+            if (!LiteralUtils.canInitSafely(rawFile)) return false;
+
             key = parseResult.hasTag("key");
             nested = parseResult.hasTag("nested");
         }
@@ -111,54 +114,55 @@ public class EffWriteJson  extends Effect {
         String Key = null, Nested = null;
         Object data = rawData.getSingle(e);
         Object __ = rawFile.getSingle(e);
-        if(__ == null) return;
-        File file = __ instanceof File ? (File)__ : new File(__.toString());
+
+        if (__ == null) return;
+        File file = __ instanceof File ? (File) __ : new File(__.toString());
         GsonUtils utils = new GsonUtils();
 
-        if(key) {
+        if (key) {
             Key = rawKey.getSingle(e);
         }
-        if(nested) {
+        if (nested) {
             Nested = rawNestedData.getSingle(e);
         }
 
         JsonElement element = null;
-        if(data != null) {
+        if (data != null) {
             if (data instanceof JsonElement) {
                 element = (JsonElement) data;
-            } else if(data instanceof YggdrasilSerializable) {
+            } else if (data instanceof YggdrasilSerializable) {
                 element = newGson().toJsonTree(data);
             } else {
                 element = JsonParser.parseString(data.toString());
             }
         }
 
-        if(element == null) return;
+        if (element == null) return;
         JsonElement fileJson;
         fileJson = inputReader(file);
-        if(fileJson == null) return;
+        if (fileJson == null) return;
 
-        if(write) {
+        if (write) {
             outputWriter(element, file);
         }
 
-        if(append) {
-            if(nested) {
-                if(fileJson.isJsonArray()) {
+        if (append) {
+            if (nested) {
+                if (fileJson.isJsonArray()) {
                     fileJson = utils.append(fileJson.getAsJsonArray(), Key, Nested, element);
-                } else if(fileJson.isJsonObject()) {
+                } else if (fileJson.isJsonObject()) {
                     fileJson = utils.append(fileJson.getAsJsonObject(), Key, Nested, element);
                 }
             } else {
-                if(fileJson.isJsonArray()) {
+                if (fileJson.isJsonArray()) {
                     fileJson.getAsJsonArray().add(element);
-                } else if(fileJson.isJsonObject()) {
+                } else if (fileJson.isJsonObject()) {
                     fileJson.getAsJsonObject().add(
                             !key ? String.valueOf(fileJson.getAsJsonObject().entrySet().size() + 1) : (Key != null ? Key : "0"), element
                     );
                 }
             }
-            if(fileJson == null) return;
+            if (fileJson == null) return;
             outputWriter(fileJson, file);
         }
     }

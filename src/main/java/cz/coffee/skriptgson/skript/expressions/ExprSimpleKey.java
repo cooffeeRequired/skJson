@@ -31,17 +31,17 @@ public class ExprSimpleKey extends SimpleExpression<JsonPrimitive> {
         Object object = key.getSingle(e);
         JsonElement json = null;
 
-        if(object instanceof String) {
+        if (object instanceof String) {
             json = new JsonPrimitive((String) object);
-        } else if(object instanceof Double) {
+        } else if (object instanceof Double) {
             json = new JsonPrimitive(((Double) object).intValue());
-        } else if(object instanceof Number) {
+        } else if (object instanceof Number) {
             json = new JsonPrimitive(((Number) object).intValue());
-        } else if(object instanceof Boolean) {
+        } else if (object instanceof Boolean) {
             json = new JsonPrimitive((Boolean) object);
 
         }
-        if(json == null) return new JsonPrimitive[0];
+        if (json == null) return new JsonPrimitive[0];
         return new JsonPrimitive[]{json.getAsJsonPrimitive()};
     }
 
