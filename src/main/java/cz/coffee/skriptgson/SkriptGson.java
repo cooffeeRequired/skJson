@@ -5,6 +5,7 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -31,6 +32,8 @@ public class SkriptGson extends JavaPlugin {
     @Override
     public void onEnable() {
         pm = getPluginManager();
+        pdf = this.getDescription();
+
         if (!canLoadPlugin()) {
             pm.disablePlugin(this);
             return;
@@ -44,21 +47,13 @@ public class SkriptGson extends JavaPlugin {
             ex.printStackTrace();
             return;
         }
+
+        // gitHub
+        githubChecker();
+        // metrics
+        loadMetrics();
+
         info("&aFinished loading.");
-
-        pdf = this.getDescription();
-        String gitVersion = getGitVersion();
-
-
-        if (Objects.equals(gitVersion, pdf.getVersion())) {
-            info("You're running on &alatest&r version");
-        } else if (gitVersion != null) {
-            warning("You're running on outdated version&c " + pdf.getVersion() + "&e!");
-            warning("Download the latest version from GitHub");
-            warning("Link: " + pdf.getWebsite() + "releases/tag/" + getGitVersion());
-        } else {
-            warning("Something went wrong.");
-        }
     }
 
 
@@ -77,13 +72,26 @@ public class SkriptGson extends JavaPlugin {
         if (!canLoad) {
             severe("Could not load " + pdf.getName() + ":\n- " + reason);
         }
+        logger = getLogger();
         return canLoad;
     }
 
     private void loadMetrics() {
-        metrics = new Metrics(this, 16942);
+        metrics = new Metrics(this, 16953);
         metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
-        info("Loaded metrics!");
+        bukkitOut("&fMetrics&r: Loaded metrics&a successfully!");
+    }
+
+    private void githubChecker() {
+        String gitVersion = getGitVersion();
+
+        if (Objects.equals(gitVersion, pdf.getVersion())) {
+            bukkitOut("You're currently running the &flatest&r stable version of Skript");
+        } else if (gitVersion != null) {
+            warning("You're running on outdated version&c " + pdf.getVersion() + "&e!");
+            warning("Download the latest version from Github");
+            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
+        }
     }
 
     public static SkriptGson getInstance() {
@@ -106,6 +114,10 @@ public class SkriptGson extends JavaPlugin {
 
 
     // Simple loggers
+    public void bukkitOut(String string) {
+        Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] "+string)));
+    }
+
     public static void info(String string) {
         logger.info(color(string));
     }

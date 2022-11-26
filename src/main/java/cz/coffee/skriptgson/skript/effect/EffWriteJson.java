@@ -12,9 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.YggdrasilSerializable;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import cz.coffee.skriptgson.util.GsonUtils;
@@ -117,28 +115,24 @@ public class EffWriteJson extends Effect {
 
         if (__ == null) return;
         File file = __ instanceof File ? (File) __ : new File(__.toString());
-        GsonUtils utils = new GsonUtils();
 
-        if (key) {
-            Key = rawKey.getSingle(e);
-        }
-        if (nested) {
-            Nested = rawNestedData.getSingle(e);
-        }
+        if (key) Key = rawKey.getSingle(e);
+        if (nested) Nested = rawNestedData.getSingle(e);
 
         JsonElement element = null;
+
         if (data != null) {
-            if (data instanceof JsonElement) {
+            if (data instanceof JsonElement)
                 element = (JsonElement) data;
-            } else if (data instanceof YggdrasilSerializable) {
+            else if (data instanceof YggdrasilSerializable)
                 element = newGson().toJsonTree(data);
-            } else {
+            else
                 element = JsonParser.parseString(data.toString());
-            }
         }
 
         if (element == null) return;
         JsonElement fileJson;
+
         fileJson = inputReader(file);
         if (fileJson == null) return;
 
@@ -146,25 +140,26 @@ public class EffWriteJson extends Effect {
             outputWriter(element, file);
         }
 
-        if (append) {
+        assert Nested != null;
+
+        if(append) {
             if (nested) {
-                if (fileJson.isJsonArray()) {
-                    fileJson = utils.append(fileJson.getAsJsonArray(), Key, Nested, element);
-                } else if (fileJson.isJsonObject()) {
-                    fileJson = utils.append(fileJson.getAsJsonObject(), Key, Nested, element);
+                if (fileJson instanceof JsonArray array) {
+                    fileJson = GsonUtils.append(array, element, Key, Nested);
                 }
+                else if (fileJson instanceof JsonObject object)
+                    fileJson = GsonUtils.append(object, element, Key, Nested);
             } else {
-                if (fileJson.isJsonArray()) {
-                    fileJson.getAsJsonArray().add(element);
-                } else if (fileJson.isJsonObject()) {
-                    fileJson.getAsJsonObject().add(
-                            !key ? String.valueOf(fileJson.getAsJsonObject().entrySet().size() + 1) : (Key != null ? Key : "0"), element
+                if (fileJson instanceof JsonArray array)
+                    array.add(element);
+                else if (fileJson instanceof JsonObject object)
+                    object.add(
+                            !key ? String.valueOf(object.entrySet().size() + 1) : (Key != null ? Key : "0"), element
                     );
-                }
             }
-            if (fileJson == null) return;
-            outputWriter(fileJson, file);
         }
+        if (fileJson == null) return;
+        outputWriter(fileJson, file);
     }
 
     @Override

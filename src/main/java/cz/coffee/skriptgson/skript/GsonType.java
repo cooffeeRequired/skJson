@@ -123,7 +123,7 @@ public class GsonType {
                 case REMOVE -> {
                     for (JsonElement varElement : what) {
                         for (Object removeElement : delta) {
-                            if (utils.getKey(removeElement.toString()).check(varElement)) {
+                            if (GsonUtils.check(varElement, removeElement.toString(), GsonUtils.Type.KEY)) {
                                 if (varElement.isJsonObject()) {
                                     varElement.getAsJsonObject().remove(removeElement.toString());
                                 } else if (varElement.isJsonArray()) {
@@ -134,7 +134,6 @@ public class GsonType {
                             }
                         }
                     }
-
                 }
             }
         }

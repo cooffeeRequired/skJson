@@ -34,7 +34,6 @@ import java.util.Locale;
 
 public class ExprArrayToJson extends SimpleExpression<JsonElement> {
 
-
     static {
         PropertyExpression.register(ExprArrayToJson.class, JsonElement.class, "(form|formatted json)", "objects");
     }

@@ -72,8 +72,6 @@ public class EffMapJson extends Effect {
         GsonUtils utils = new GsonUtils();
 
         utils.mapJson(e, element, clearVarName, isLocal);
-
-
     }
 
     @Override

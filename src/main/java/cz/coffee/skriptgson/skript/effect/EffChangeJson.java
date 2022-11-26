@@ -12,7 +12,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.newSkriptGsonUtils;
+import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -81,13 +81,13 @@ public class EffChangeJson extends Effect {
         JsonElement changed = null;
 
         if (pattern == 0) { // Single
-            changed = newSkriptGsonUtils.change(element, from[0].toString(), to[0], tag == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+            changed = GsonUtils.change(element, from[0].toString(), to[0], tag == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
         } else if (pattern == 1) { // List
             for (int i = 0; from.length > i; i++) {
-                changed = newSkriptGsonUtils.change(element, from[0].toString(), to[i], tag == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                changed = GsonUtils.change(element, from[0].toString(), to[i], tag == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
             }
         }
-        newSkriptGsonUtils.setVariable(name.toLowerCase(Locale.ENGLISH), changed, e, isLocal);
+        GsonUtils.setVariable(name.toLowerCase(Locale.ENGLISH), changed, e, isLocal);
     }
 
     @Override

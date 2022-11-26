@@ -179,14 +179,14 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             for (Map.Entry<String, JsonElement> map : object.entrySet()) {
                 JsonObject json = map.getValue().getAsJsonObject();
 
-                if (json.get("variable").isJsonObject()) {
-                    Stream<String> keys = json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull);
-                    if (json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
+                if (json.get("variable") instanceof JsonObject varObject) {
+                    Stream<String> keys = varObject.keySet().stream().filter(Objects::nonNull);
+                    if (varObject.keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
                         JsonArray array = new JsonArray();
-                        keys.forEach(k -> array.getAsJsonArray().add(json.get("variable").getAsJsonObject().get(k)));
+                        keys.forEach(k -> array.add(json.get("variable").getAsJsonObject().get(k)));
                         Value = array.toString();
                     } else {
-                        Value = json.getAsJsonObject().get("variable").toString();
+                        Value = varObject.toString();
                     }
                 } else {
                     Value = json.get("variable").toString();

@@ -14,7 +14,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skriptgson.util.GsonUtils;
-import cz.coffee.skriptgson.util.newSkriptGsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,11 +66,7 @@ public class CondJsonHas extends Condition {
 
     @Override
     public boolean check(@NotNull Event e) {
-        JsonObject jsonObject;
-        JsonArray jsonArray;
         JsonElement json = exprJsonElement.getSingle(e);
-        GsonUtils utils = new GsonUtils();
-
         String search = null;
         Object[] searches = new Objects[0];
 
@@ -88,20 +83,20 @@ public class CondJsonHas extends Condition {
 
         if (json instanceof JsonObject object) {
             if (mark == 1) {
-                return (pattern == 0) == newSkriptGsonUtils.check(object, search, type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                return (pattern == 0) == GsonUtils.check(object, search, type == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
             } else {
                 for (Object search0 : searches) {
-                    match = (pattern == 0) == newSkriptGsonUtils.check(object, search0.toString(), type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                    match = (pattern == 0) == GsonUtils.check(object, search0.toString(), type == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
                     if (!match) return false;
                 }
                 return match;
             }
         } else if (json instanceof JsonArray array) {
             if (mark == 1) {
-                return (pattern == 0) == newSkriptGsonUtils.check(array, search, type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                return (pattern == 0) == GsonUtils.check(array, search, type == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
             } else {
                 for (Object search0 : searches) {
-                    match = (pattern == 0) == newSkriptGsonUtils.check(array, search0.toString(), type == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE);
+                    match = (pattern == 0) == GsonUtils.check(array, search0.toString(), type == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE);
                     if (!match) return false;
                 }
                 return match;

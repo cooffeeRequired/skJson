@@ -12,7 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.util.newSkriptGsonUtils;
+import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -43,8 +43,7 @@ public class ExprCountOf extends SimpleExpression<Integer> {
 
         if (jsonElement == null) return new Integer[0];
 
-        return new Integer[]{newSkriptGsonUtils.count(search, jsonElement, tag == 1 ? newSkriptGsonUtils.Type.KEY : newSkriptGsonUtils.Type.VALUE)};
-
+        return new Integer[]{GsonUtils.count(search, jsonElement, tag == 1 ? GsonUtils.Type.KEY : GsonUtils.Type.VALUE)};
     }
 
     @Override
