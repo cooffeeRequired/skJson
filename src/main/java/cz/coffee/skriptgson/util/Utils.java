@@ -15,10 +15,10 @@ public class Utils {
     public static String color(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
-    public static String SanitizeString(Object stringObject) {
+    public static String sanitizeString(Object stringObject) {
         return String.valueOf(stringObject).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
     }
-    public static String SanitizeJson(Object stringObject) {
+    public static String sanitizeJson(Object stringObject) {
         return String.valueOf(stringObject).replaceAll("^[{}$]", "");
     }
     public static String gsonText(Object StringifyElement) {

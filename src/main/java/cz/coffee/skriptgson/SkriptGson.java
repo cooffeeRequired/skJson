@@ -17,40 +17,39 @@ import static cz.coffee.skriptgson.util.Utils.color;
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 
 public class SkriptGson extends JavaPlugin {
-
-    /**
-     * Create new pluginLogger.
-     */
-    private static Logger logger = null;
+    private static Logger logger;
+    private static PluginManager pm;
+    private static Metrics metrics;
 
     private static SkriptGson instance;
     private SkriptAddon addon;
 
     @Override
     public void onEnable() {
+        pm = getPluginManager();
         if (!canLoadPlugin()) {
-            getPluginManager().disablePlugin(this);
+            pm.disablePlugin(this);
             return;
         }
         instance = this;
+        addon = Skript.registerAddon(this);
         try {
-            addon = Skript.registerAddon(this);
             addon.loadClasses("cz.coffee.skriptgson.skript");
         } catch (Exception ex) {
-            severe("Unable to register " + getDescription().getName() + " syntax's:\n- " + ex.getMessage());
+            severe("Unable to register " + getDescription().getName() + " syntaxes:\n" + ex.getMessage());
             ex.printStackTrace();
+            severe(getDescription().getName() + " might not work properly!");
             return;
         }
+        loadMetrics();
         info("&aFinished loading.");
-
     }
 
     // Plugin preload checks
     private boolean canLoadPlugin() {
-        logger = getLogger();
         boolean canLoad = true;
         String reason = null;
-        Plugin skriptPlugin = getPluginManager().getPlugin("Skript");
+        Plugin skriptPlugin = pm.getPlugin("Skript");
         if (skriptPlugin == null) {
             reason = "Plugin 'Skript' is not found!";
             canLoad = false;
@@ -66,6 +65,13 @@ public class SkriptGson extends JavaPlugin {
         return canLoad;
     }
 
+    // Metrics loader
+    private void loadMetrics() {
+        metrics = new Metrics(this, 16942);
+        metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
+        info("Loaded metrics!");
+    }
+
     public static SkriptGson getInstance() {
         if (instance == null) {
             throw new IllegalStateException();
@@ -74,7 +80,7 @@ public class SkriptGson extends JavaPlugin {
     }
 
     public PluginManager getPluginManager() {
-        return this.getServer().getPluginManager();
+        return pm;
     }
 
     @Override
@@ -82,7 +88,7 @@ public class SkriptGson extends JavaPlugin {
         info("&eDisabling... good bye!");
     }
 
-    // Utilities
+    // Simple loggers
     public static void info(String string) {
         logger.info(color(string));
     }
