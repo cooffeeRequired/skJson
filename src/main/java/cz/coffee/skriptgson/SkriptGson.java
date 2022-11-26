@@ -67,7 +67,7 @@ public class SkriptGson extends JavaPlugin {
 
     // Metrics loader
     private void loadMetrics() {
-        metrics = new Metrics(this, 16942);
+        metrics = new Metrics(this, 16943);
         metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
         info("Loaded metrics!");
     }
