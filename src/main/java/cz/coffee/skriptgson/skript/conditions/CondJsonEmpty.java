@@ -52,9 +52,9 @@ public class CondJsonEmpty extends Condition {
         JsonElement json = exprJson.getSingle(e);
         if (json == null) return false;
 
-        if(json instanceof JsonObject object)
+        if (json instanceof JsonObject object)
             return (pattern == 0) == object.entrySet().isEmpty();
-        else if(json instanceof JsonArray array)
+        else if (json instanceof JsonArray array)
             return (pattern == 0) == array.isEmpty();
         else if (json instanceof JsonPrimitive primitive)
             return (pattern == 0) == primitive.isJsonNull();
