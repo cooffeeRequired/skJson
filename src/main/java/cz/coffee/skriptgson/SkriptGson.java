@@ -65,7 +65,7 @@ public class SkriptGson extends JavaPlugin {
         if (skriptPlugin == null) {
             reason = "Plugin 'Skript' is not found!";
             canLoad = false;
-        }else if (!skriptPlugin.isEnabled()) {
+        } else if (!skriptPlugin.isEnabled()) {
             reason = "Plugin 'Skript' is not enabled!";
             canLoad = false;
         }
@@ -111,11 +111,9 @@ public class SkriptGson extends JavaPlugin {
     }
 
 
-
-
     // Simple loggers
     public void bukkitOut(String string) {
-        Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] "+string)));
+        Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] " + string)));
     }
 
     public static void info(String string) {
