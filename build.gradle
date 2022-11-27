@@ -50,6 +50,36 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
+
+Collection getListOfFolders(String dir, String pattern) {
+    file(dir).listFiles({file -> !file.isFile() && file.name ==~ pattern} as FileFilter)
+}
+
+task cleanPlugins(type: Delete) {
+    delete getListOfFolders("A:/Bukkit-Core/purpur/dev-1.17/plugins", "skript-gson*.jar")
+}
+
+task Release(type: Copy) {
+    println("Copied!")
+    from "${buildDir}/libs"
+    into "A:/Bukkit-Core/purpur/dev-1.17/plugins"
+}
+
+task server(type: Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "startServer"'
+    return 1
+}
+
+task reload(dependsOn: ['build', 'cleanPlugins'], type: Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "reload"'
+    return 1
+}
+
+task reload_plus(dependsOn: ['build', 'cleanPlugins'], type: Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "reload_+"'
+    return 1
+}
+
 processResources {
     def props = [version: version]
     inputs.properties props
