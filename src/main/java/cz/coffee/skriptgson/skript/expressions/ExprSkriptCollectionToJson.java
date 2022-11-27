@@ -18,8 +18,6 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-
 
 @Since("1.3.0")
 @Name("Array or List formatted to JSON.")
@@ -32,15 +30,14 @@ import java.util.Locale;
 })
 
 
-public class ExprArrayToJson extends SimpleExpression<JsonElement> {
+public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
 
     static {
-        PropertyExpression.register(ExprArrayToJson.class, JsonElement.class, "(form|formatted json)", "objects");
+        PropertyExpression.register(ExprSkriptCollectionToJson.class, JsonElement.class, "(form|formatted json)", "objects");
     }
 
 
     private VariableString variableString;
-    private boolean isLocal;
 
 
     @Override
@@ -49,7 +46,6 @@ public class ExprArrayToJson extends SimpleExpression<JsonElement> {
         if (objects instanceof Variable<?> variable) {
             if (variable.isList()) {
                 variableString = variable.getName();
-                isLocal = variable.isLocal();
                 return true;
             }
         }
@@ -60,9 +56,8 @@ public class ExprArrayToJson extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-        GsonUtils utils = new GsonUtils();
-        String variableName = variableString.toString(e).toLowerCase(Locale.ENGLISH);
-        JsonElement json = utils.mapList(e, variableName.substring(0, variableName.length() - 1), false, isLocal);
+        String variableName = variableString.toString(e);
+        JsonElement json = GsonUtils.GsonMapping.listToJson(e, variableName.substring(0, variableName.length() - 1));
         return new JsonElement[]{json};
     }
 
@@ -78,6 +73,6 @@ public class ExprArrayToJson extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "{" + (isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + variableString.toString(e, debug) + "}'form";
+        return variableString.toString() + "'s form";
     }
 }
