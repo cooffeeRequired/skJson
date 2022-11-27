@@ -142,12 +142,11 @@ public class EffWriteJson extends Effect {
 
         assert Nested != null;
 
-        if(append) {
+        if (append) {
             if (nested) {
                 if (fileJson instanceof JsonArray array) {
                     fileJson = GsonUtils.append(array, element, Key, Nested);
-                }
-                else if (fileJson instanceof JsonObject object)
+                } else if (fileJson instanceof JsonObject object)
                     fileJson = GsonUtils.append(object, element, Key, Nested);
             } else {
                 if (fileJson instanceof JsonArray array)
