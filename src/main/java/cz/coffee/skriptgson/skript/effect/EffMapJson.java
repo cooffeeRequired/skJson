@@ -65,10 +65,6 @@ public class EffMapJson extends Effect {
         element = (JsonElement) raw_json.getSingle(e);
         String clearVarName = variableString.toString(e).substring(0, variableString.toString(e).length() - 3);
         GsonUtils.GsonMapping.jsonToList(e, clearVarName, element, isLocal);
-
-//        GsonUtils utils = new GsonUtils();
-//
-//        utils.mapJson(e, element, clearVarName, isLocal);
     }
 
     @Override

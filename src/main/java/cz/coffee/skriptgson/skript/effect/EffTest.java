@@ -1,12 +1,11 @@
 package cz.coffee.skriptgson.skript.effect;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -18,6 +17,7 @@ public class EffTest extends Effect {
 
     private Expression<String> code;
     private Expression<Objects> data;
+    private VariableString var;
 
     static {
         Skript.registerEffect(EffTest.class, "test skript-gson %string% %-objects%");
@@ -28,6 +28,8 @@ public class EffTest extends Effect {
 
         String code2 = code.getSingle(e);
         Object[] data2 = data.getAll(e);
+
+
         JsonElement json = JsonParser.parseString("{'A': {'B': {}}}");
         JsonElement parse = JsonParser.parseString("{'A': 'XXXXXXXXXXX'}");
 
@@ -42,14 +44,23 @@ public class EffTest extends Effect {
             System.out.println("Change KEY " + GsonUtils.change(json, "A", "Y", GsonUtils.Type.KEY));
             System.out.println("Change VALUE " + GsonUtils.change(json, "B", parse, GsonUtils.Type.VALUE));
         } else if (Objects.equals(code2, "listToJson")) {
-            if (data2[0] != null)
-                System.out.println(GsonUtils.GsonMapping.listToJson(e, data2[0].toString().substring(0, data2[0].toString().length() - 1)));
+            if (var != null)
+                System.out.println(GsonUtils.GsonMapping.listToJson(e, data2[0].toString().substring(0, data2[0].toString().length() - 1), true));
             else
                 Skript.debug("Do you forgot the name of variable?");
         } else if (Objects.equals(code2, "jsonToList")) {
-            if (data2[0] != null) {
-                String K = data2[0].toString().substring(0, data2[0].toString().length() - 3);
-                GsonUtils.GsonMapping.jsonToList(e, K, json, true);
+            if (var != null) {
+                String clearVarName;
+                clearVarName = var.toString(e).substring(0, var.toString(e).length() - 3);
+                GsonUtils.GsonMapping.jsonToList(e, clearVarName, json, true);
+                clearVarName = var.toString().substring(0, var.toString().length() - 1).replaceFirst("\"", "").replaceAll("[*]", "");
+
+                JsonElement element = GsonUtils.GsonMapping.listToJson(e, clearVarName, true);
+
+                if(element.toString().equalsIgnoreCase(json.toString()))
+                    SkriptGson.info("test &e\"jsonToList\" &aSuccessfully");
+                else
+                    SkriptGson.info("test &e\"jsonToList\" &cFailed");
             } else {
                 Skript.debug("Do you forgot the name of variable?");
             }
@@ -66,6 +77,14 @@ public class EffTest extends Effect {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         code = (Expression<String>) exprs[0];
         data = (Expression<Objects>) exprs[1];
+
+        if (data instanceof Variable<?> variable) {
+            if (variable.isList()) {
+                var = variable.getName();
+                return true;
+            }
+        }
+
         return true;
     }
 }
