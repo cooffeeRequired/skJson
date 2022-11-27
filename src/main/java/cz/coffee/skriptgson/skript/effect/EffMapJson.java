@@ -18,8 +18,6 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-
 @Since("1.3.0")
 @Name("[Reworked] Mapping JSON to List.")
 @Description("")
@@ -42,7 +40,6 @@ public class EffMapJson extends Effect {
     private VariableString variableString;
     private boolean isLocal;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         raw_json = (Expression<Object>) exprs[0];
@@ -66,12 +63,12 @@ public class EffMapJson extends Effect {
 
         if (raw_json == null) return;
         element = (JsonElement) raw_json.getSingle(e);
+        String clearVarName = variableString.toString(e).substring(0, variableString.toString(e).length() - 3);
+        GsonUtils.GsonMapping.jsonToList(e, clearVarName, element, isLocal);
 
-        String clearVarName = variableString.toString(e).toLowerCase(Locale.ENGLISH).substring(0, variableString.toString(e).length() - 3);
-
-        GsonUtils utils = new GsonUtils();
-
-        utils.mapJson(e, element, clearVarName, isLocal);
+//        GsonUtils utils = new GsonUtils();
+//
+//        utils.mapJson(e, element, clearVarName, isLocal);
     }
 
     @Override
