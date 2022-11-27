@@ -20,96 +20,114 @@ public class GsonUtils {
         KEY, VALUE
     }
 
-    /*
+    private static boolean instancesOf(Object input) {
+        return input instanceof String || input instanceof Number || input instanceof Map || input instanceof List || input instanceof JsonPrimitive || input instanceof Boolean;
+    }
+
+
+        /*
     Deprecated methods for mapping json
      */
     // Mapping
-    private JsonElement _listSubTree(Event e, String name) {
-        Object variable = getVariable(e, name, isLocal);
-        if (variable == null) {
-            variable = _listMainTree(e, name + Variable.SEPARATOR, false);
-        } else if (variable == Boolean.TRUE) {
-            Object subtree = _listMainTree(e, name + Variable.SEPARATOR, true);
-            if (subtree != null) variable = subtree;
+
+
+    public static class GsonMapping {
+
+        private static String fieldName;
+
+        public static void jsonToList(Event event, String name, JsonElement json, boolean isLocal) {
+            String SEPARATOR = Variable.SEPARATOR;
+            fieldName = name;
+            JsonElement next;
+            Deque<JsonElement> elements = new ArrayDeque<>();
+            elements.add(json);
+
+            //setVariable(name+SEPARATOR+"*", json, event, isLocal);
+
+            while ((next = elements.pollFirst()) != null) {
+                if (next instanceof JsonObject object) {
+                    object.keySet().forEach(key -> {
+                        JsonElement element = object.get(key);
+
+                        String v = fieldName + SEPARATOR + key;
+                        System.out.println(v);
+
+                        if (element instanceof JsonObject elementObject) {
+                            setVariable(v, elementObject, event, isLocal);
+                            fieldName = v + SEPARATOR + key;
+                            elements.offerLast(elementObject);
+                        } else if (element instanceof JsonArray elementArray) {
+                            setVariable(v, elementArray, event, isLocal);
+                            elements.offerLast(elementArray);
+                        } else if (element instanceof JsonPrimitive elementPrimitive) {
+                            setPrimitiveType(v, elementPrimitive, event, isLocal);
+                        } else {
+                            setVariable(v, element, event, isLocal);
+                        }
+                    });
+                } else if (next instanceof JsonArray array) {
+
+                    System.out.println("Array: " + fieldName);
+
+                    for (int index = 0; array.size() > index; index++) {
+                        fieldName = fieldName + SEPARATOR + (index + 1);
+
+                        System.out.println(fieldName);
+
+                        JsonElement element = array.get(index);
+                        if (element instanceof JsonObject elementObject) {
+                            setVariable(fieldName, elementObject, event, isLocal);
+                            elements.offerLast(elementObject);
+                        } else if (element instanceof JsonArray elementArray) {
+                            setVariable(fieldName, elementArray, event, isLocal);
+                            elements.offerLast(elementArray);
+                        } else if (element instanceof JsonPrimitive elementPrimitive) {
+                            setPrimitiveType(fieldName, elementPrimitive, event, isLocal);
+                        } else {
+                            setVariable(fieldName, element, event, isLocal);
+                        }
+                    }
+                } else if (next instanceof JsonPrimitive primitive) {
+                    setPrimitiveType(name, primitive, event, isLocal);
+                } else {
+                    setVariable(name, next, event, isLocal);
+                }
+            }
+
         }
 
-        if (!(variable instanceof String || variable instanceof Number || variable instanceof Map || variable instanceof List || variable instanceof JsonPrimitive)) {
-            variable = newGson().toJsonTree(variable);
-        }
-        return newGson().toJsonTree(variable);
-    }
 
-    @SuppressWarnings({"unchecked", "deprecation"})
-    private JsonElement _listMainTree(Event e, String name, boolean nullable) {
-        Map<String, Object> variable = (Map<String, Object>) getVariable(e, name + "*", isLocal);
-        if (variable == null) {
-            return nullable ? null : new JsonNull();
-        }
+        public static JsonElement listToJson(Event event, String name) {
+            JsonElement json = null;
+            boolean isLocal = name.startsWith(Variable.LOCAL_VARIABLE_TOKEN);
+            Object next;
+            Deque<Object> objects = new ArrayDeque<>();
+            Map<String, Object> variable = (Map<String, Object>) getVariable(event, name + "*", isLocal);
+            if (variable == null) return new JsonNull();
 
-        Stream<String> keys = variable.keySet().stream().filter(Objects::nonNull);
+            objects.add(variable);
+            while ((next = objects.pollFirst()) != null) {
+                Stream<String> keys = ((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull);
 
-        if (variable.keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
-            JsonArray array = new JsonArray();
-            keys.forEach(k -> array.getAsJsonArray().add((_listSubTree(e, name + k))));
-            return array;
-        } else {
-            JsonObject object = new JsonObject();
-            keys.forEach(k -> object.getAsJsonObject().add(k, _listSubTree(e, name + k)));
-            return object;
-        }
-    }
-
-    private void _mapJson(Event e, String name, JsonElement json) {
-        if (json.isJsonObject()) {
-            setVariable(name, json.getAsJsonObject(), e, isLocal);
-            mapJsonObject(e, name, json.getAsJsonObject());
-        } else if (json.isJsonArray()) {
-            setVariable(name, json.getAsJsonArray(), e, isLocal);
-            mapJsonArray(e, name, json.getAsJsonArray());
-        } else if (json.isJsonPrimitive()) {
-            setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
-        } else {
-            setVariable(name, json, e, isLocal);
+                if (((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
+                    JsonArray array = new JsonArray();
+                    keys.forEach(key -> {
+                        Object nestedVar = getVariable(event, name + key, isLocal);
+                        array.add(newGson().toJsonTree(nestedVar));
+                    });
+                    json = array;
+                } else {
+                    JsonObject object = new JsonObject();
+                    keys.forEach(key -> {
+                        Object nestedVar = getVariable(event, name + key, isLocal);
+                        object.add(key, newGson().toJsonTree(nestedVar));
+                    });
+                    json = object;
+                }
+            }
+            return json;
         }
     }
-
-    private void _mapJsonFirst(Event e, String name, JsonElement json) {
-        if (json == null) return;
-        if (json.isJsonObject()) {
-            mapJsonObject(e, name, json.getAsJsonObject());
-        } else if (json.isJsonArray()) {
-            mapJsonArray(e, name, json.getAsJsonArray());
-        } else if (json.isJsonPrimitive()) {
-            setPrimitiveType(name, json.getAsJsonPrimitive(), e, isLocal);
-        } else {
-            setVariable(name, json, e, isLocal);
-        }
-    }
-
-    private void mapJsonObject(Event e, String name, JsonObject element) {
-        element.keySet().forEach(k -> _mapJson(e, name + sep + k, element.get(k)));
-    }
-
-    private void mapJsonArray(Event e, String name, JsonArray element) {
-        for (int index = 0; element.size() > index; index++) {
-            _mapJson(e, name + sep + (index + 1), element.get(index));
-        }
-    }
-
-    public JsonElement mapList(Event e, String name, boolean nullable, boolean isLocal) {
-        this.isLocal = isLocal;
-        JsonElement json;
-        json = _listMainTree(e, name, nullable);
-        return JsonParser.parseString(newGson().toJson(json));
-    }
-
-    public void mapJson(Event e, JsonElement json, String name, boolean isLocal) {
-        sep = Variable.SEPARATOR;
-        this.isLocal = isLocal;
-        _mapJsonFirst(e, name, json);
-    }
-
-
 
     public static boolean isInt(String NumberString) {
         boolean check;
@@ -131,13 +149,13 @@ public class GsonUtils {
             if (next instanceof JsonArray array) {
                 for (JsonElement element : array) elements.offerLast(element);
             } else if (next instanceof JsonObject map) {
-                for(Map.Entry<String, JsonElement> entry : map.entrySet()) {
+                for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
                     JsonElement value = entry.getValue();
-                    if(type == Type.KEY) {
-                        if(entry.getKey().equals(search)) match = true;
-                        if(!value.isJsonPrimitive()) elements.offerLast(value);
+                    if (type == Type.KEY) {
+                        if (entry.getKey().equals(search)) match = true;
+                        if (!value.isJsonPrimitive()) elements.offerLast(value);
                     } else if (type == Type.VALUE) {
-                        if(value.equals(JsonParser.parseString(search))) match = true;
+                        if (value.equals(JsonParser.parseString(search))) match = true;
                         elements.offerLast(value);
                     }
                 }
@@ -153,17 +171,17 @@ public class GsonUtils {
         elements.add(json);
 
         while ((next = elements.pollFirst()) != null) {
-            if(next instanceof JsonObject map) {
-                if(type.equals(Type.KEY)){
+            if (next instanceof JsonObject map) {
+                if (type.equals(Type.KEY)) {
                     n = map.get(from);
-                    if(n != null) {
+                    if (n != null) {
                         map.remove(from);
                         map.add(to.toString(), n);
                     } else {
-                        for(Map.Entry<String, JsonElement> entry : map.entrySet()) {
-                            if(entry.getKey().equals(from)) {
+                        for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
+                            if (entry.getKey().equals(from)) {
                                 n = map.get(from);
-                                if(n != null) {
+                                if (n != null) {
                                     map.remove(from);
                                     map.add(to.toString(), n);
                                 }
@@ -172,16 +190,16 @@ public class GsonUtils {
                         }
                     }
                 } else if (type.equals(Type.VALUE)) {
-                    for(Map.Entry<String, JsonElement> entry : map.entrySet()) {
+                    for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
                         JsonElement value = entry.getValue();
-                        if(entry.getKey().equals(from)) {
+                        if (entry.getKey().equals(from)) {
                             changed = true;
-                            if(value instanceof JsonPrimitive) {
-                                if(to instanceof Integer i)
+                            if (value instanceof JsonPrimitive) {
+                                if (to instanceof Integer i)
                                     map.addProperty(entry.getKey(), i);
-                                else if(to instanceof String str)
+                                else if (to instanceof String str)
                                     map.addProperty(entry.getKey(), str);
-                                else if(to instanceof Boolean bool)
+                                else if (to instanceof Boolean bool)
                                     map.addProperty(entry.getKey(), bool);
                                 else
                                     map.add(entry.getKey(), JsonParser.parseString(to.toString()));
@@ -189,10 +207,10 @@ public class GsonUtils {
                                 map.add(entry.getKey(), JsonParser.parseString(to.toString()));
                             }
                         }
-                        if(!changed) elements.offerLast(value);
+                        if (!changed) elements.offerLast(value);
                     }
                 }
-            } else if(next instanceof JsonArray array) {
+            } else if (next instanceof JsonArray array) {
                 for (JsonElement element : array) {
                     elements.offerLast(element);
                 }
@@ -226,7 +244,7 @@ public class GsonUtils {
         }
         return jsonFromFile;
     }
-    
+
     // Counting designed by Kenzie#0001
     public static int count(String search, JsonElement start, Type type) {
         int count = 0;
@@ -253,13 +271,10 @@ public class GsonUtils {
     }
 
 
-
-
-
     /*
      * Private Functions
      */
-    private void setPrimitiveType(String name, JsonPrimitive element, Event event, boolean isLocal) {
+    private static void setPrimitiveType(String name, JsonPrimitive element, Event event, boolean isLocal) {
         if (element.isBoolean()) {
             setVariable(name, element.getAsBoolean(), event, isLocal);
         } else if (element.isNumber()) {
@@ -268,10 +283,12 @@ public class GsonUtils {
             setVariable(name, element.getAsString(), event, isLocal);
         }
     }
+
     public static void setVariable(String name, Object element, Event event, boolean isLocal) {
         Variables.setVariable(name, element, event, isLocal);
     }
-    private Object getVariable(Event e, String name, boolean isLocal) {
+
+    private static Object getVariable(Event e, String name, boolean isLocal) {
         final Object variable = Variables.getVariable(name, e, isLocal);
         if (variable == null) {
             return Variables.getVariable((isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
