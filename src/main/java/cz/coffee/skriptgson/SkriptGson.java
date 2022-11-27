@@ -29,6 +29,29 @@ public class SkriptGson extends JavaPlugin {
     private static PluginDescriptionFile pdf;
     private SkriptAddon addon;
 
+    public static SkriptGson getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException();
+        }
+        return instance;
+    }
+
+    public static void info(String string) {
+        logger.info(color(string));
+    }
+
+    public static void warning(String string) {
+        logger.warning(color("&e" + string));
+    }
+
+    public static void severe(String string) {
+        logger.severe(color("&c" + string));
+    }
+
+    public static void debug(Object str) {
+        logger.severe(color("DEBUG! " + "&r" + str));
+    }
+
     @Override
     public void onEnable() {
         pm = getPluginManager();
@@ -55,7 +78,6 @@ public class SkriptGson extends JavaPlugin {
 
         info("&aFinished loading.");
     }
-
 
     // Plugins preload checks
     private boolean canLoadPlugin() {
@@ -94,13 +116,6 @@ public class SkriptGson extends JavaPlugin {
         }
     }
 
-    public static SkriptGson getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException();
-        }
-        return instance;
-    }
-
     public PluginManager getPluginManager() {
         return this.getServer().getPluginManager();
     }
@@ -110,26 +125,9 @@ public class SkriptGson extends JavaPlugin {
         info("&eDisabling... good bye!");
     }
 
-
     // Simple loggers
     public void bukkitOut(String string) {
         Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] " + string)));
-    }
-
-    public static void info(String string) {
-        logger.info(color(string));
-    }
-
-    public static void warning(String string) {
-        logger.warning(color("&e" + string));
-    }
-
-    public static void severe(String string) {
-        logger.severe(color("&c" + string));
-    }
-
-    public static void debug(Object str) {
-        logger.severe(color("DEBUG! " + "&r" + str));
     }
 
 }

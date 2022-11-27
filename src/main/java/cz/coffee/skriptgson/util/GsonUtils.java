@@ -16,86 +16,8 @@ public class GsonUtils {
     private String sep;
     private boolean isLocal;
 
-    public enum Type {
-        KEY, VALUE
-    }
-
     private static boolean instancesOf(Object input) {
         return input instanceof String || input instanceof Number || input instanceof Map || input instanceof List || input instanceof JsonPrimitive || input instanceof Boolean;
-    }
-
-
-        /*
-    Deprecated methods for mapping json
-     */
-    // Mapping
-
-
-    public static class GsonMapping {
-        private static final String SEPARATOR = Variable.SEPARATOR;
-
-        private static void extractNestedObjects(String name, Event event, JsonElement element, boolean isLocal) {
-            if (element instanceof JsonObject object) {
-                object.keySet().forEach(key -> {
-                    jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal);
-                });
-            } else if (element instanceof JsonArray array) {
-                for (int index = 0; array.size() > index; index++) {
-                    jsonToList(event, name + SEPARATOR + (index + 1) , array.get(index), isLocal);
-                }
-            }
-        }
-
-        public static void jsonToList(Event event, String name, JsonElement json, boolean isLocal) {
-            JsonElement next;
-            Deque<JsonElement> elements = new ArrayDeque<>();
-            elements.add(json);
-
-            while ((next = elements.pollFirst()) != null) {
-                if (next instanceof JsonObject object) {
-                    setVariable(name, object, event, isLocal);
-                    extractNestedObjects(name, event, object, isLocal);
-                } else if (next instanceof JsonArray array) {
-                    setVariable(name, array, event, isLocal);
-                    extractNestedObjects(name, event, array, isLocal);
-                } else if (next instanceof JsonPrimitive primitive) {
-                    setPrimitiveType(name, primitive, event, isLocal);
-                } else {
-                    setVariable(name, next, event, isLocal);
-                }
-            }
-        }
-
-
-        public static JsonElement listToJson(Event event, String name, boolean isLocal) {
-            JsonElement json = null;
-
-            Object next;
-            Deque<Object> objects = new ArrayDeque<>();
-            Map<String, Object> variable = (Map<String, Object>) getVariable(event, name + "*", isLocal);
-            if (variable == null) return new JsonNull();
-
-            objects.add(variable);
-            while ((next = objects.pollFirst()) != null) {
-                Stream<String> keys = ((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull);
-                if (((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
-                    JsonArray array = new JsonArray();
-                    keys.forEach(key -> {
-                        Object nestedVar = getVariable(event, name + key, isLocal);
-                        array.add(newGson().toJsonTree(nestedVar));
-                    });
-                    json = array;
-                } else {
-                    JsonObject object = new JsonObject();
-                    keys.forEach(key -> {
-                        Object nestedVar = getVariable(event, name + key, isLocal);
-                        object.add(key, newGson().toJsonTree(nestedVar));
-                    });
-                    json = object;
-                }
-            }
-            return json;
-        }
     }
 
     public static boolean isInt(String NumberString) {
@@ -108,6 +30,12 @@ public class GsonUtils {
         }
         return check;
     }
+
+
+        /*
+    Deprecated methods for mapping json
+     */
+    // Mapping
 
     public static boolean check(JsonElement json, String search, Type type) {
         boolean match = false;
@@ -239,7 +167,6 @@ public class GsonUtils {
         return count;
     }
 
-
     /*
      * Private Functions
      */
@@ -263,6 +190,77 @@ public class GsonUtils {
             return Variables.getVariable((isLocal ? Variable.LOCAL_VARIABLE_TOKEN : "") + name, e, false);
         }
         return variable;
+    }
+
+    public enum Type {
+        KEY, VALUE
+    }
+
+    public static class GsonMapping {
+        private static final String SEPARATOR = Variable.SEPARATOR;
+
+        private static void extractNestedObjects(String name, Event event, JsonElement element, boolean isLocal) {
+            if (element instanceof JsonObject object) {
+                object.keySet().forEach(key -> {
+                    jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal);
+                });
+            } else if (element instanceof JsonArray array) {
+                for (int index = 0; array.size() > index; index++) {
+                    jsonToList(event, name + SEPARATOR + (index + 1), array.get(index), isLocal);
+                }
+            }
+        }
+
+        public static void jsonToList(Event event, String name, JsonElement json, boolean isLocal) {
+            JsonElement next;
+            Deque<JsonElement> elements = new ArrayDeque<>();
+            elements.add(json);
+
+            while ((next = elements.pollFirst()) != null) {
+                if (next instanceof JsonObject object) {
+                    setVariable(name, object, event, isLocal);
+                    extractNestedObjects(name, event, object, isLocal);
+                } else if (next instanceof JsonArray array) {
+                    setVariable(name, array, event, isLocal);
+                    extractNestedObjects(name, event, array, isLocal);
+                } else if (next instanceof JsonPrimitive primitive) {
+                    setPrimitiveType(name, primitive, event, isLocal);
+                } else {
+                    setVariable(name, next, event, isLocal);
+                }
+            }
+        }
+
+
+        public static JsonElement listToJson(Event event, String name, boolean isLocal) {
+            JsonElement json = null;
+
+            Object next;
+            Deque<Object> objects = new ArrayDeque<>();
+            Map<String, Object> variable = (Map<String, Object>) getVariable(event, name + "*", isLocal);
+            if (variable == null) return new JsonNull();
+
+            objects.add(variable);
+            while ((next = objects.pollFirst()) != null) {
+                Stream<String> keys = ((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull);
+                if (((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
+                    JsonArray array = new JsonArray();
+                    keys.forEach(key -> {
+                        Object nestedVar = getVariable(event, name + key, isLocal);
+                        array.add(newGson().toJsonTree(nestedVar));
+                    });
+                    json = array;
+                } else {
+                    JsonObject object = new JsonObject();
+                    keys.forEach(key -> {
+                        Object nestedVar = getVariable(event, name + key, isLocal);
+                        object.add(key, newGson().toJsonTree(nestedVar));
+                    });
+                    json = object;
+                }
+            }
+            return json;
+        }
     }
 
 }

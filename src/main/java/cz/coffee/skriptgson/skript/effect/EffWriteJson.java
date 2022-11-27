@@ -42,13 +42,6 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 public class EffWriteJson extends Effect {
 
 
-    private boolean write, append, nested, key;
-    private Expression<Object> rawData;
-    private Expression<String> rawNestedData;
-    private Expression<String> rawKey;
-    private Expression<Object> rawFile;
-
-
     static {
         Skript.registerEffect(EffWriteJson.class,
                 "append data %object% [as new (:nested) object %-string%] [with (:key) %-string%] to [json] file %object%",
@@ -56,6 +49,11 @@ public class EffWriteJson extends Effect {
         );
     }
 
+    private boolean write, append, nested, key;
+    private Expression<Object> rawData;
+    private Expression<String> rawNestedData;
+    private Expression<String> rawKey;
+    private Expression<Object> rawFile;
 
     private void outputWriter(JsonElement json, File file) {
         try {

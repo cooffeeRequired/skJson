@@ -20,11 +20,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExprSimpleKey extends SimpleExpression<JsonPrimitive> {
 
-    private Expression<Object> key;
-
     static {
         Skript.registerExpression(ExprSimpleKey.class, JsonPrimitive.class, ExpressionType.COMBINED, "~%object%");
     }
+
+    private Expression<Object> key;
 
     @Override
     protected @Nullable JsonPrimitive @NotNull [] get(@NotNull Event e) {
