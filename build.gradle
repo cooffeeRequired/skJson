@@ -1,9 +1,45 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
 version = '1.3.1'
+
+shadowJar {
+    relocate ('com.google.gson', 'cz.coffee.skriptgson.gson')
+    mergeServiceFiles()
+}
+
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+}
+
+static configureRelocations(ShadowJar task) {
+    task.relocate('com.google.gson', 'cz.coffee.skriptgson.google.gson')
+}
+
+tasks.withType(ShadowJar) {
+    dependsOn relocateShadowJar
+    configurations = [
+            project.configurations.shadow
+    ]
+    relocate 'com.google.gson', 'cz.coffee.skriptgson.google.gson'
+    manifest {
+        attributes(
+                'Name': 'cz/coffee/skriptgson',
+                'Automatic-Module-Name': 'cz.coffee.skriptgson',
+                'Sealed': 'true'
+        )
+    }
+    configureRelocations(it)
+}
 
 compileJava.options.encoding = 'UTF-8'
 
@@ -29,40 +65,33 @@ repositories {
     }
 }
 
-
-test {
-    useJUnitPlatform()
-}
-
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
     compileOnly 'com.github.SkriptLang:Skript:2.6.3'
-    implementation('com.google.code.gson:gson:2.10')
+    shadow('com.google.code.gson:gson:2.10')
     implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
-
-
-
-
 }
+
+
+
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
 
-Collection getListOfFolders(String dir, String pattern) {
-    file(dir).listFiles({file -> !file.isFile() && file.name ==~ pattern} as FileFilter)
-}
-
 task cleanPlugins(type: Delete) {
-    delete getListOfFolders("A:/Bukkit-Core/purpur/dev-1.17/plugins", "skript-gson*.jar")
+    new File("A:/plugins/sk-gson").list().each {
+        delete "A:/plugins/sk-gson/" + it
+    }
 }
 
-task Release(type: Copy) {
-    println("Copied!")
-    from "${buildDir}/libs"
-    into "A:/Bukkit-Core/purpur/dev-1.17/plugins"
+task release(type: Copy) {
+    cleanPlugins
+    shadowJar
+    from jar, shadowJar
+    into "A:/plugins/sk-gson"
 }
 
 task server(type: Exec) {
