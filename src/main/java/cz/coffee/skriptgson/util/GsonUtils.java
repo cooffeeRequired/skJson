@@ -28,15 +28,7 @@ public class GsonUtils {
         } catch (NumberFormatException ex) {
             check = false;
         }
-        return check;
-    }
-
-
-        /*
-    Deprecated methods for mapping json
-     */
-    // Mapping
-
+    
     public static boolean check(JsonElement json, String search, Type type) {
         boolean match = false;
         JsonElement next;
