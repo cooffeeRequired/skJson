@@ -6,19 +6,15 @@ import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
 public class GsonUtils {
-
-    private String sep;
-    private boolean isLocal;
-
-    private static boolean instancesOf(Object input) {
-        return input instanceof String || input instanceof Number || input instanceof Map || input instanceof List || input instanceof JsonPrimitive || input instanceof Boolean;
-    }
 
     public static boolean isInt(String NumberString) {
         boolean check;
@@ -28,29 +24,35 @@ public class GsonUtils {
         } catch (NumberFormatException ex) {
             check = false;
         }
+        return check;
+    }
     
     public static boolean check(JsonElement json, String search, Type type) {
-        boolean match = false;
         JsonElement next;
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(json);
         while ((next = elements.pollFirst()) != null) {
             if (next instanceof JsonArray array) {
-                for (JsonElement element : array) elements.offerLast(element);
+                for (JsonElement element : array) {
+                    if(Objects.equals(element.toString(), search)) {
+                        return true;
+                    }
+                    elements.offerLast(element);
+                }
             } else if (next instanceof JsonObject map) {
                 for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
                     JsonElement value = entry.getValue();
                     if (type == Type.KEY) {
-                        if (entry.getKey().equals(search)) match = true;
+                        if (entry.getKey().equals(search)) return true;
                         if (!value.isJsonPrimitive()) elements.offerLast(value);
                     } else if (type == Type.VALUE) {
-                        if (value.equals(JsonParser.parseString(search))) match = true;
+                        if (value.equals(JsonParser.parseString(search))) return true;
                         elements.offerLast(value);
                     }
                 }
             }
         }
-        return match;
+        return false;
     }
 
     public static JsonElement change(JsonElement json, String from, Object to, Type type) {
@@ -134,7 +136,6 @@ public class GsonUtils {
         return jsonFromFile;
     }
 
-    // Counting designed by Kenzie#0001
     public static int count(String search, JsonElement start, Type type) {
         int count = 0;
         JsonElement next;
@@ -193,9 +194,7 @@ public class GsonUtils {
 
         private static void extractNestedObjects(String name, Event event, JsonElement element, boolean isLocal) {
             if (element instanceof JsonObject object) {
-                object.keySet().forEach(key -> {
-                    jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal);
-                });
+                object.keySet().forEach(key -> jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal));
             } else if (element instanceof JsonArray array) {
                 for (int index = 0; array.size() > index; index++) {
                     jsonToList(event, name + SEPARATOR + (index + 1), array.get(index), isLocal);

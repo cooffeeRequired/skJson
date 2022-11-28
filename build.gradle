@@ -90,8 +90,9 @@ task cleanPlugins(type: Delete) {
 task release(type: Copy) {
     cleanPlugins
     shadowJar
-    from jar, shadowJar
+    from shadowJar
     into "A:/plugins/sk-gson"
+    into "A:/Bukkit-Core/purpur/dev-1.17/plugins"
 }
 
 task server(type: Exec) {
