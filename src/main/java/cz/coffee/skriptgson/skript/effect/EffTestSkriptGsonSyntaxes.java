@@ -33,7 +33,6 @@ public class EffTestSkriptGsonSyntaxes extends Effect {
         assert code2 != null;
         code2 = code2.toLowerCase();
 
-
         JsonElement json = JsonParser.parseString("{'A': {'B': {}, 'G': 1}}");
         JsonElement parse = JsonParser.parseString("{'Y': 'parsed'}");
         boolean successfully = false;
@@ -163,7 +162,9 @@ public class EffTestSkriptGsonSyntaxes extends Effect {
     }
 
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
+
+
         code = (Expression<String>) exprs[0];
         data = (Expression<Objects>) exprs[1];
 
