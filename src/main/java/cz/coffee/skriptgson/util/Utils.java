@@ -23,11 +23,11 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    public static String SanitizeString(Object stringObject) {
+    public static String sanitizeString(Object stringObject) {
         return String.valueOf(stringObject).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
     }
 
-    public static String SanitizeJson(Object stringObject) {
+    public static String sanitizeJson(Object stringObject) {
         return String.valueOf(stringObject).replaceAll("^[{}$]", "");
     }
 
