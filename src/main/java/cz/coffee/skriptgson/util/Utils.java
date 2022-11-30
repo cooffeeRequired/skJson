@@ -63,7 +63,8 @@ public class Utils {
                     while (scanner.hasNext())
                         inLine.append(scanner.nextLine());
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    SkriptGson.warning("GitHubRelease response code " + response);
+                    SkriptGson.warning("We can't check the version, check your connection");
                 } finally {
                     assert scanner != null;
                     scanner.close();
@@ -73,10 +74,9 @@ public class Utils {
                 SkriptGson.warning("Tots of restart in a little while, GitHub API Unavailable, Code: " + response);
                 return "403";
             }
-            SkriptGson.warning("GitHubRelease response code " + response);
-            SkriptGson.warning("We can't check the version, check your connection");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            SkriptGson.warning("Check updated &cFailed");
+            SkriptGson.warning("We can't check the version, check your connection");
         }
         return null;
     }
