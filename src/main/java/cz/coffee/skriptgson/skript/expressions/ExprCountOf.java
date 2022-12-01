@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 @Name("Count of Value/Key")
 @Description({"Displays the result of how many keys/values are found with JsonElement"})
 @Examples({"on script load:",
-        "\tset {-data} to json from string \"{'Hello': {'Hi': 'There'}}\"",
+        "\tset {-data} to new json from string \"{'Hello': {'Hi': 'There'}}\"",
         "\tsend count value \"There\" of {-data}"
 })
 public class ExprCountOf extends SimpleExpression<Integer> {

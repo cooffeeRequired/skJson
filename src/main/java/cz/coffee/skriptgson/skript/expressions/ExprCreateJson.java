@@ -40,13 +40,13 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Description("Creates a new JSON object from test/file/request")
 @Since("1.3.1")
 @Examples({"command example:",
-        "\tsend new json from string \"{'Hello': 'There'}\"",
-        "\tsend new json from player's location",
-        "\tsend new json from arg-1",
+        "   send new json from string \"{'Hello': 'There'}\"",
+        "   send new json from player's location",
+        "   send new json from arg-1",
         "#Change v1.3.1",
-        "\tset {_l} to \"Good Test\"",
-        "\tset {_num} to 2222.111",
-        "\tsend new json from string \"{\"Test\": ${_l}, \"Number\": ${_num}\" with variables"
+        "   set {_l} to \"Good Test\"",
+        "   set {_num} to 2222.111",
+        "   send new json from string \"{\"Test\": ${_l}, \"Number\": ${_num}\" with variables"
 })
 
 @SuppressWarnings({"unused"})

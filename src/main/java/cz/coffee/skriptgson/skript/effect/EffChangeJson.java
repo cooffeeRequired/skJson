@@ -22,10 +22,10 @@ import java.util.Objects;
 
 
 @Since("1.2.1")
-@Name("Change JSON.")
+@Name("Change JSON")
 @Description("With this effect you can change JsonObject or JsonArray.")
 @Examples({"on script load:",
-        "   set {-json} to json from string \"{'Players': {'3a51d20a-6200-11ed-9b6a-0242ac120002': {'name': 'coffee', 'isAdmin': true, 'prefix': '&4Admin'}}}\"",
+        "   set {-json} to new json from string \"{'Players': {'3a51d20a-6200-11ed-9b6a-0242ac120002': {'name': 'coffee', 'isAdmin': true, 'prefix': '&4Admin'}}}\"",
         "   set {-file} to new json file \"plugins/gson/yourJson.json\" with data {-json}",
         "   change {_json} values \"isAdmin\", \"prefix\" to false, \"&b&lGod\""
 })
@@ -49,7 +49,6 @@ public class EffChangeJson extends Effect {
     private boolean isLocal;
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         if (json instanceof Variable<?> k) {
             isLocal = k.isLocal();

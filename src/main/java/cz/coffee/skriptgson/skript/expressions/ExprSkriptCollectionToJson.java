@@ -24,9 +24,9 @@ import org.jetbrains.annotations.NotNull;
 @Description({"It allows you to convert the sheet back to Json!",
         "Value changes don't work for nested objects, to change the values of a nested object use Change"})
 @Examples({"on script load:",
-        "\tset {-json} to new json from string \"{'test': [1,2,3,false,null,'some'], 'test2': {'something': false}}\"",
-        "\tmap {-json} to {_json::*}",
-        "\tsend \"&9%{_json::*}'s form with pretty print%\""
+        "   set {-json} to new json from string \"{'test': [1,2,3,false,null,'some'], 'test2': {'something': false}}\"",
+        "   map {-json} to {_json::*}",
+        "   send \"&9%{_json::*}'s form with pretty print%\""
 })
 
 

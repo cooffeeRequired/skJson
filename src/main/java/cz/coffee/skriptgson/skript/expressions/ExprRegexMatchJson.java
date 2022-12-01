@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 @Name("JSON regex match")
 @Description("Get a All matches of regex pattern from json")
 @Examples({"on load:",
-        "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
-        "\tsend {-e} regex matches \"anything\"",
+        "   set {-e} to new json from text {\"anything\": [1,2,\"false\"]",
+        "   send {-e} regex matches \"anything\"",
 })
 @Since("1.2.0")
 
@@ -39,7 +39,6 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
     private Expression<String> inputRegex;
     private Expression<JsonElement> Json;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         Json = (Expression<JsonElement>) exprs[0];
@@ -68,7 +67,7 @@ public class ExprRegexMatchJson extends SimpleExpression<String> {
                 return new String[]{output.toString().replaceAll("[\\[\\]]", "")};
             }
         }
-        return new String[]{""};
+        return new String[0];
     }
 
     @Override

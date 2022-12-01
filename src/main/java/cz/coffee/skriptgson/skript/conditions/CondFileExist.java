@@ -15,10 +15,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-@Name("is JSON File exist")
-@Description("Checks if JSON File exist")
+@Name("JSON File exist")
+@Description("You can simply check whether the JSON file exists or not.")
 @Examples({"on load:",
-        "   json file path \"test\\test.json\" exist:",
+        "   json file path \"test\\test.json\" exists:",
         "       broadcast true"
 })
 @Since("1.3.1")
@@ -27,8 +27,8 @@ public class CondFileExist extends Condition {
 
     static {
         Skript.registerCondition(CondFileExist.class,
-                "json file [path] %object% exist",
-                "json file [path] %object% does(n't| not) exist"
+                "json file [path] %object% exists",
+                "json file [path] %object% does(n't| not) exists"
         );
     }
 

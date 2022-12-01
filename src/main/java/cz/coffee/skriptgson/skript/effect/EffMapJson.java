@@ -19,7 +19,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 @Since("1.3.0")
-@Name("[Reworked] Mapping JSON to List.")
+@Name("Mapping JSON to List")
 @Description("")
 @Examples({"on script load:",
         "\tset {_json} to new json from string \"{'players': {'coffee': {'data': {'name': 'coffeeRequired'}}}}\"",

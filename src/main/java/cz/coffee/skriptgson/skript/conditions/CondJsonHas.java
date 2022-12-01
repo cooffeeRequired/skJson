@@ -23,10 +23,10 @@ import java.util.Objects;
 
 @Since("1.2.0")
 @Name("JSON Has Key/Value's")
-@Description({"Used to get information if the key or value is in JSON"})
+@Description({"Used to get information if the key or value exists in the JSON"})
 @Examples({"on script load:",
-        "   set {-data} to json from string \"{'Hello': {'Hi': 'There'}}\"",
-        "   if {-data} has keys \"Hello\", \"Hi\":",
+        "   set {_j} to new json from string \"{'Hello': {'Hi': 'There'}}\"",
+        "   if {_j} has keys \"Hello\", \"Hi\":",
         "       send true"
 })
 public class CondJsonHas extends Condition {
@@ -45,7 +45,6 @@ public class CondJsonHas extends Condition {
     private int type;
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
         pattern = matchedPattern;

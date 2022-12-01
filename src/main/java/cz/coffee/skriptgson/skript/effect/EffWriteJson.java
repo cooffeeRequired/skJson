@@ -28,7 +28,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Since("1.2.2")
 @Name("Write/Append JSON File")
-@Description("Inserting / overwriting data to json file., It can be inserted as a nested object and also with the specified key")
+@Description("Inserting / overwriting data to json file. It can be inserted as a nested object and also with the specified key")
 @Examples({"on load:",
         "\tset {-file} to new json file \"plugins\\test\\test.json\"",
         "\tset {-item} to iron sword named \"&cTest\"",
@@ -81,7 +81,6 @@ public class EffWriteJson extends Effect {
     }
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         write = matchedPattern == 1;

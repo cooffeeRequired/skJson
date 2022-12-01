@@ -16,11 +16,10 @@ import org.jetbrains.annotations.NotNull;
 
 @Name("Size of JSON")
 @Description("Return size of JSON elements.")
-@Examples({
-        "on load:",
-        "\tset {-e} to json {\"anything\": [1,2,\"false\"]",
-        "\tbroadcast {-e}'size",
-        "\tbroadcast size of {-e}"
+@Examples({"on load:",
+        "   set {-e} to new json from string {\"anything\": [1,2,\"false\"]}",
+        "   broadcast {-e}'size",
+        "   broadcast size of {-e}"
 })
 @Since("1.0")
 
@@ -32,7 +31,6 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         setExpr((Expression<? extends JsonElement>) exprs[0]);
         return true;

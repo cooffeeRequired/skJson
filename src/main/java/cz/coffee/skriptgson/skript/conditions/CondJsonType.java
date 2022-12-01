@@ -18,20 +18,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Name("Type of JSON")
-@Description("Check what JSON type is passed %jsonelement%")
+@Description("You can simply check what type of object you are working with")
 @Examples({"on load:",
-        "\tset {-e} to json from string \"[1, false, 'test', null\"",
-        "\tjson {-e} is an array: ",
-        "\t\tbroadcast true",
-        "",
-        "\tset {-e} to json from string \"{'Hi': 'There'}\"",
-        "\tjson {-e} is an object: ",
-        "\t\tbroadcast true",
+        "   set {_j} to new json from string \"[1, false, 'test', null]\"",
+        "       json {_j} is an array: ",
+        "           broadcast true"
 })
 @Since("1.0")
 
-
-@SuppressWarnings({"unchecked"})
 public class CondJsonType extends Condition {
 
     static {

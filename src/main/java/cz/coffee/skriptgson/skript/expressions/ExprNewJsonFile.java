@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Name("New json File")
-@Description("Creates a new JSON file")
+@Description("Creates a .json file either with or without data, if the file exists and is not empty it reads this file")
 @Since("1.0")
 @Examples({
         "set {-e} to new json file \"YouAreAwesome\\test.json\"",
@@ -44,7 +44,6 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
     private Expression<String> exprRawData;
     private boolean withData;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
         exprString = (Expression<String>) exprs[0];

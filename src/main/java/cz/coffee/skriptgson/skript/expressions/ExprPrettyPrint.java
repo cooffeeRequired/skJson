@@ -19,8 +19,8 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Since("1.0")
 @Name("Pretty printed JSON")
 @Examples({"on load:",
-        "\tset {_json} to \"{'test': true}\"",
-        "\tsend {_json} with pretty print"
+        "   set {_json} to nwe json from text \"{'test': true}\"",
+        "   send {_json} with pretty print"
 })
 
 public class ExprPrettyPrint extends SimpleExpression<Object> {
@@ -35,7 +35,6 @@ public class ExprPrettyPrint extends SimpleExpression<Object> {
     private Expression<JsonElement> exprPrint;
 
 
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         exprPrint = (Expression<JsonElement>) exprs[0];
         return true;

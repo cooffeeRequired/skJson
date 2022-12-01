@@ -19,10 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Since("1.3.0")
 @Name("is JSON empty")
-@Description("Checks if JSON is empty.")
+@Description("You can simply check if the file is empty.")
 @Examples({"on script load:",
-        "   set {-e} to json from string \"{'Hello': 'There'\"}",
-        "   {-e} is empty: ",
+        "   set {_j} to new json from string \"{'Hello': 'There'\"}",
+        "   {_j} is empty: ",
         "       broadcast \"is empty\"",
 })
 
@@ -38,7 +38,6 @@ public class CondJsonEmpty extends Condition {
     private Expression<JsonElement> exprJson;
     private int pattern;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         exprJson = (Expression<JsonElement>) exprs[0];
