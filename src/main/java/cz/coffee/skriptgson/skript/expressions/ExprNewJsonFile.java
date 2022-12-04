@@ -27,7 +27,6 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Since("1.0")
 @Examples({"on script load:",
         "   set {-e} to new json file \"YouAreAwesome\\test.json\"",
-        "   set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json {\"A\":\"B\"})",
         "   set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json from string \"{'Im': 'God'}\")",
 })
 

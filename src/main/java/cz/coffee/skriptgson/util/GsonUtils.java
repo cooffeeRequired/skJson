@@ -6,6 +6,7 @@ import com.google.gson.*;
 import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 
+import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -15,6 +16,10 @@ import java.util.stream.Stream;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
 public class GsonUtils {
+
+    public static boolean canCreate(File folder) {
+        return folder.getParentFile().exists();
+    }
 
     public static boolean isInt(String NumberString) {
         boolean check;
@@ -158,6 +163,17 @@ public class GsonUtils {
             }
         }
         return count;
+    }
+
+    public static Object fromPrimitive(JsonPrimitive primitive) {
+        if (primitive.isBoolean()) {
+            return primitive.getAsBoolean();
+        } else if (primitive.isNumber()) {
+            return primitive.getAsNumber();
+        } else if (primitive.isString()) {
+            return primitive.getAsString();
+        }
+        return null;
     }
 
     /*

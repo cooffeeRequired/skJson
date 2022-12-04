@@ -18,10 +18,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Since("1.3.0")
-@Name("is JSON empty")
+@Name("JSON empty")
 @Description("You can simply check if the file is empty.")
 @Examples({"on script load:",
-        "   set {_j} to new json from string \"{'Hello': 'There'\"}",
+        "   set {_j} to new json from string \"{'Hello': 'There'}\"",
         "   {_j} is empty: ",
         "       broadcast \"is empty\"",
 })

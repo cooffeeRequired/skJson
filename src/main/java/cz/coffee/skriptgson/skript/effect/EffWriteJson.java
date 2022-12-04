@@ -15,7 +15,9 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.util.GsonUtils;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import static cz.coffee.skriptgson.util.GsonUtils.canCreate;
 import static cz.coffee.skriptgson.util.Utils.color;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
@@ -34,8 +37,8 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
         "   set {-item} to iron sword named \"&cTest\"",
         "   write data {-item} to json file {-file}",
         "   append data {-item} with key \"Item\" to json file {-file}",
-        "   set {-file} to new json file \"plugins\\test\\test.json\" with data (new json from string \"{'main':{'second':{'another':[]}}}\"",
-        "   append data {-item} as nested object \"main:second:another\" with key \"Item\" to json file {-file}"
+        "   set {-file} to new json file \"plugins\\test\\test.json\" with data (new json from string \"{'main':{'second':{'another':[]}}})\"",
+        "   append data {-item} as new nested object \"main:second:another\" with key \"Item\" to json file {-file}"
 })
 
 
@@ -62,8 +65,12 @@ public class EffWriteJson extends Effect {
             try (var writer = new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
                 writer.jsonValue(jsonString);
             }
-        } catch (Exception ex) {
-            Skript.error("Bad file format " + file);
+        } catch (IOException ex) {
+            if(!canCreate(file)) {
+                SkriptGson.warning("Any of parent directories doesn't exist for your current input '" + file + "'");
+            } else {
+                SkriptGson.warning("Bad file format " + file);
+            }
         }
     }
 
@@ -122,8 +129,11 @@ public class EffWriteJson extends Effect {
                 element = (JsonElement) data;
             else if (data instanceof YggdrasilSerializable)
                 element = newGson().toJsonTree(data);
+            else if (data instanceof ConfigurationSerializable)
+                element = newGson().toJsonTree(data);
             else
                 element = JsonParser.parseString(data.toString());
+
         }
 
         if (element == null) return;

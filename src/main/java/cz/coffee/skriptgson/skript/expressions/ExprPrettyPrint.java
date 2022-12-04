@@ -19,7 +19,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Since("1.0")
 @Name("Pretty printed JSON")
 @Examples({"on load:",
-        "   set {_json} to nwe json from text \"{'test': true}\"",
+        "   set {_json} to new json from text \"{'test': true}\"",
         "   send {_json} with pretty print"
 })
 

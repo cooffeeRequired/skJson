@@ -26,6 +26,7 @@ public class SkriptClassAdapt implements JsonSerializer<YggdrasilSerializable>, 
          */
         //return JsonParser.parseString(json.toString().replaceAll("\\\\\"", ""));
         // TODO -> Make better serializer
+
         return newGson().toJsonTree(src.toString());
     }
 }

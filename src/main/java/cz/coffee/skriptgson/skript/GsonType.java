@@ -103,7 +103,6 @@ public class GsonType {
 
         @Override
         public void change(JsonElement @NotNull [] what, Object @NotNull [] delta, ChangeMode mode) {
-            GsonUtils utils = new GsonUtils();
             switch (mode) {
                 case ADD -> {
                     for (JsonElement varElement : what) {
@@ -144,6 +143,14 @@ public class GsonType {
                 .user("json[[ ]element]")
                 .name("Json Element")
                 .description("Representing a JSON element")
+                .examples("on script load:",
+                        "# Add",
+                        "   set {_e} to new json from text \"{'hello' : 'hi'}\"",
+                        "   add (new json from text \"{'bye': 'bb'}\") to {_e}",
+                        "# Remove",
+                        "   set {_e} to new json from text \"{'hello' : 'hi'}\"",
+                        "   remove \"hello\" from {_e}"
+                )
                 .since("1.0")
                 .parser(parser)
                 .changer(changer)

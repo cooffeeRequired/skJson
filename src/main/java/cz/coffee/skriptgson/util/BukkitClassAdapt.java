@@ -10,14 +10,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class BukkitClassAdapt implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
-    final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
-    }.getType();
+    final Type objectStringMapType = new TypeToken<Map<String, Object>>() {}.getType();
 
     @Override
     public ConfigurationSerializable deserialize(
             JsonElement json,
             Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
+
+
         final Map<String, Object> map = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
             final JsonElement value = entry.getValue();

@@ -39,7 +39,7 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Name("JSON from Text/File/Request")
 @Description("Creates a new JSON object from test/file/request")
 @Since("1.3.1")
-@Examples({"command example:",
+@Examples({"command example <string>:",
         "   send new json from string \"{'Hello': 'There'}\"",
         "   send new json from player's location",
         "   send new json from arg-1",

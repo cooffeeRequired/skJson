@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-@Name("JSON File exist")
+@Name("JSON File exists")
 @Description("You can simply check whether the JSON file exists or not.")
 @Examples({"on load:",
         "   json file path \"test\\test.json\" exists:",
