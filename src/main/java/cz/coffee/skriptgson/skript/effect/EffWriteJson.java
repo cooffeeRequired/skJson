@@ -30,12 +30,12 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Name("Write/Append JSON File")
 @Description("Inserting / overwriting data to json file. It can be inserted as a nested object and also with the specified key")
 @Examples({"on load:",
-        "\tset {-file} to new json file \"plugins\\test\\test.json\"",
-        "\tset {-item} to iron sword named \"&cTest\"",
-        "\twrite data {-item} to json file {-file}",
-        "\tappend data {-item} with key \"Item\" to json file {-file}",
-        "\tset {-file} to new json file \"plugins\\test\\test.json\" with data (new json from string \"{'main':{'second':{'another':[]}}}\"",
-        "\tappend data {-item} as nested object \"main:second:another\" with key \"Item\" to json file {-file}"
+        "   set {-file} to new json file \"plugins\\test\\test.json\"",
+        "   set {-item} to iron sword named \"&cTest\"",
+        "   write data {-item} to json file {-file}",
+        "   append data {-item} with key \"Item\" to json file {-file}",
+        "   set {-file} to new json file \"plugins\\test\\test.json\" with data (new json from string \"{'main':{'second':{'another':[]}}}\"",
+        "   append data {-item} as nested object \"main:second:another\" with key \"Item\" to json file {-file}"
 })
 
 

@@ -21,8 +21,8 @@ import java.util.List;
 @Description("You can simply check what type of object you are working with")
 @Examples({"on load:",
         "   set {_j} to new json from string \"[1, false, 'test', null]\"",
-        "       json {_j} is an array: ",
-        "           broadcast true"
+        "   json {_j} is an array: ",
+        "       broadcast true"
 })
 @Since("1.0")
 

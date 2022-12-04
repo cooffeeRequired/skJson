@@ -25,10 +25,10 @@ import static cz.coffee.skriptgson.util.Utils.newGson;
 @Name("New json File")
 @Description("Creates a .json file either with or without data, if the file exists and is not empty it reads this file")
 @Since("1.0")
-@Examples({
-        "set {-e} to new json file \"YouAreAwesome\\test.json\"",
-        "set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json {\"A\":\"B\"})",
-        "set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json from string \"{'Im': 'God'}\")",
+@Examples({"on script load:",
+        "   set {-e} to new json file \"YouAreAwesome\\test.json\"",
+        "   set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json {\"A\":\"B\"})",
+        "   set {-e} to new json file \"YouAreAwesome\\test.json\" with data (json from string \"{'Im': 'God'}\")",
 })
 
 

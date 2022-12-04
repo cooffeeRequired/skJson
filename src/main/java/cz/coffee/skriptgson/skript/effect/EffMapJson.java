@@ -22,9 +22,9 @@ import org.jetbrains.annotations.NotNull;
 @Name("Mapping JSON to List")
 @Description("")
 @Examples({"on script load:",
-        "\tset {_json} to new json from string \"{'players': {'coffee': {'data': {'name': 'coffeeRequired'}}}}\"",
-        "\tmap {_json} to {_json::*}",
-        "send {_json::*}"
+        "   set {_json} to new json from string \"{'players': {'coffee': {'data': {'name': 'coffeeRequired'}}}}\"",
+        "   map {_json} to {_json::*}",
+        "   send {_json::*}"
 })
 
 

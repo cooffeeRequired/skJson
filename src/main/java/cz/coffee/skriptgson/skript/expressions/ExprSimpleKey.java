@@ -18,7 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 @Name("Simple JSON changer from skript object")
 @Since("1.3.1")
-@Examples({"set {_jsonNumber} to ~1","set {_jsonString} to ~\"Hi There\""})
+@Examples({"on script load:",
+        "   set {_jsonNumber} to ~1",
+        "   set {_jsonString} to ~\"Hi There\""
+})
 
 public class ExprSimpleKey extends SimpleExpression<JsonPrimitive> {
 
