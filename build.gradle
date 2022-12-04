@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '1.4.0-1a0aa'
+version = '1.4.0'
 
 shadowJar {
     relocate ('com.google.gson', 'cz.coffee.skriptgson.gson')
