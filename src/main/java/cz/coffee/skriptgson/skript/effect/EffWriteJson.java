@@ -62,7 +62,7 @@ public class EffWriteJson extends Effect {
             try (var writer = new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
                 writer.jsonValue(jsonString);
             }
-        } catch (IOException | JsonSyntaxException ex) {
+        } catch (Exception ex) {
             Skript.error("Bad file format " + file);
         }
     }
@@ -115,7 +115,6 @@ public class EffWriteJson extends Effect {
 
         if (key) Key = rawKey.getSingle(e);
         if (nested) Nested = rawNestedData.getSingle(e);
-
         JsonElement element = null;
 
         if (data != null) {
@@ -128,10 +127,6 @@ public class EffWriteJson extends Effect {
         }
 
         if (element == null) return;
-        JsonElement fileJson;
-
-        fileJson = inputReader(file);
-        if (fileJson == null) return;
 
         if (write) {
             outputWriter(element, file);
@@ -140,6 +135,12 @@ public class EffWriteJson extends Effect {
         assert Nested != null;
 
         if (append) {
+
+            JsonElement fileJson;
+
+            fileJson = inputReader(file);
+            if (fileJson == null) return;
+
             if (nested) {
                 if (fileJson instanceof JsonArray array) {
                     fileJson = GsonUtils.append(array, element, Key, Nested);
@@ -153,9 +154,9 @@ public class EffWriteJson extends Effect {
                             !key ? String.valueOf(object.entrySet().size() + 1) : (Key != null ? Key : "0"), element
                     );
             }
+            if (fileJson == null) return;
+            outputWriter(fileJson, file);
         }
-        if (fileJson == null) return;
-        outputWriter(fileJson, file);
     }
 
     @Override
