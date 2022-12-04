@@ -113,7 +113,7 @@ public class SkriptGson extends JavaPlugin {
         String gitVersion = getGitVersion();
 
         if (Objects.equals(gitVersion, pdf.getVersion())) {
-            bukkitOut("You're currently running the &flatest&r stable version of Skript");
+            bukkitOut("You're currently running the &flatest&r stable version of skript-gson");
         } else if (gitVersion != null) {
             warning("You're running on outdated version&c " + pdf.getVersion() + "&e!");
             warning("Download the latest version from Github");

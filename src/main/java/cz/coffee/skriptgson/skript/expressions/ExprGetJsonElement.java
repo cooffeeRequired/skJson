@@ -43,31 +43,33 @@ public class ExprGetJsonElement extends SimpleExpression<Object> {
         JsonElement json = rawJson.getSingle(e);
 
         if(json == null || str[0] == null) return new JsonElement[0];
+        if(json instanceof JsonObject object) {
+            for(String key : object.keySet()) {
+                for (String mKey : str) {
+                    if (mKey.equals(key)) {
 
-        for(String key : json.getAsJsonObject().keySet()) {
-            for (String mKey : str) {
-                if (mKey.equals(key)) {
-                    JsonElement j = json.getAsJsonObject().get(mKey);
-                    Map<String, Object> hash = new HashMap<>();
-                    for(Map.Entry<String, JsonElement> map : j.getAsJsonObject().entrySet()) {
-                        if(map.getValue() instanceof JsonObject || map.getValue() instanceof JsonArray) {
-                            hash.put(map.getKey(), map.getValue());
-                        } else if(map.getValue() instanceof JsonPrimitive primitive) {
-                            hash.put(map.getKey(), fromPrimitive(primitive));
+                        if(!object.has(mKey)) return new JsonElement[0];
+
+                        JsonElement j = object.get(mKey);
+                        Map<String, Object> hash = new HashMap<>();
+                        for(Map.Entry<String, JsonElement> map : j.getAsJsonObject().entrySet()) {
+                            if(map.getValue() instanceof JsonObject || map.getValue() instanceof JsonArray) {
+                                hash.put(map.getKey(), map.getValue());
+                            } else if(map.getValue() instanceof JsonPrimitive primitive) {
+                                hash.put(map.getKey(), fromPrimitive(primitive));
+                            }
                         }
-                    }
-                    ConfigurationSerializable co = ConfigurationSerialization.deserializeObject(hash);
+                        ConfigurationSerializable co = ConfigurationSerialization.deserializeObject(hash);
 
-                    if(co == null) {
-                        return new Object[]{newGson().toJson(hash)};
-                    } else {
-                        return new Object[]{ConfigurationSerialization.deserializeObject(hash)};
+                        if(co == null) {
+                            return new Object[]{newGson().toJson(hash)};
+                        } else {
+                            return new Object[]{ConfigurationSerialization.deserializeObject(hash)};
+                        }
                     }
                 }
             }
         }
-
-
 
         return new JsonElement[0];
     }

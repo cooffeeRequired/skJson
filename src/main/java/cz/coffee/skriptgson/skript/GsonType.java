@@ -12,10 +12,10 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import cz.coffee.skriptgson.util.GsonUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
@@ -120,16 +120,17 @@ public class GsonType {
                     }
                 }
                 case REMOVE -> {
+
                     for (JsonElement varElement : what) {
                         for (Object removeElement : delta) {
-                            if (GsonUtils.check(varElement, removeElement.toString(), GsonUtils.Type.KEY)) {
-                                if (varElement.isJsonObject()) {
-                                    varElement.getAsJsonObject().remove(removeElement.toString());
-                                } else if (varElement.isJsonArray()) {
-                                    varElement.getAsJsonArray().remove(Integer.parseInt(removeElement.toString()));
-                                } else {
-                                    return;
+                            String remove = removeElement.toString().replaceAll("\"", "");
+
+                            if(varElement instanceof JsonObject element) {
+                                if(element.has(remove)) {
+                                    element.remove(remove);
                                 }
+                            } else if (varElement instanceof JsonArray elementA) {
+                                elementA.remove(Integer.parseInt(remove));
                             }
                         }
                     }

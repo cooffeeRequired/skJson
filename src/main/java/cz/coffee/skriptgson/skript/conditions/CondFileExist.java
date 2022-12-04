@@ -49,7 +49,6 @@ public class CondFileExist extends Condition {
         if (filePath == null) return false;
 
         String stringifyFilePath = filePath.toString();
-
         return (pattern == 0) == new File(stringifyFilePath).exists();
     }
 

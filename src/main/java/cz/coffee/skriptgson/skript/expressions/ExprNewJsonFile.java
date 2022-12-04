@@ -12,6 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
+import cz.coffee.skriptgson.SkriptGson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
+import static cz.coffee.skriptgson.util.GsonUtils.canCreate;
 import static cz.coffee.skriptgson.util.Utils.newGson;
 
 @Name("New json File")
@@ -82,6 +84,9 @@ public class ExprNewJsonFile extends SimpleExpression<Object> {
             writer.flush();
             writer.close();
         } catch (Exception e) {
+            if(!canCreate(new File(inputFile))) {
+                SkriptGson.warning("Any of parent directories doesn't exist for your current input '" + new File(inputFile) + "'");
+            }
             return new File[0];
         }
         return new File[]{new File(inputFile)};
