@@ -11,12 +11,13 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import static cz.coffee.skriptgson.util.Utils.color;
-import static cz.coffee.skriptgson.util.Utils.getGitVersion;
+import static cz.coffee.skriptgson.utils.Utils.color;
+import static cz.coffee.skriptgson.utils.Utils.getGitVersion;
 
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -24,7 +25,7 @@ import static cz.coffee.skriptgson.util.Utils.getGitVersion;
 public class SkriptGson extends JavaPlugin {
 
     public static HashMap<String, Object> JSON_HASHMAP = new HashMap<>();
-
+    public static HashMap<String, File> FILE_JSON_HASHMAP = new HashMap<>();
 
     private static Logger logger;
     private static PluginManager pm;

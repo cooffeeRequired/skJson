@@ -13,21 +13,22 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.util.GsonUtils;
+import cz.coffee.skriptgson.utils.GsonErrorLogger;
+import cz.coffee.skriptgson.utils.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 
-@Since("1.3.0")
 @Name("Array or List formatted to JSON.")
 @Description({"It allows you to convert the sheet back to Json!",
         "Value changes don't work for nested objects, to change the values of a nested object use Change"})
 @Examples({"on script load:",
-        "   set {-json} to new json from string \"{'test': [1,2,3,false,null,'some'], 'test2': {'something': false}}\"",
-        "   map {-json} to {_json::*}",
-        "   send \"&9%{_json::*}'s form with pretty print%\""
+        "\tset {-json} to new json from string \"{'test': [1,2,3,false,null,'some'], 'test2': {'something': false}}\"",
+        "\tmap {-json} to {_json::*}",
+        "\tsend \"&9%{_json::*}'s form with pretty print%\""
 })
+@Since("1.3.0")
 
 
 public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
@@ -36,23 +37,27 @@ public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
         PropertyExpression.register(ExprSkriptCollectionToJson.class, JsonElement.class, "(form|formatted json)", "objects");
     }
 
-
     private VariableString variableString;
     private boolean isLocal;
 
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        GsonErrorLogger err = new GsonErrorLogger();
         Expression<?> objects = exprs[0];
-        if (objects instanceof Variable<?> variable) {
-            if (variable.isList()) {
-                variableString = variable.getName();
-                isLocal = variable.isLocal();
-                return true;
+        if (objects instanceof Variable<?> var) {
+            if (var.isList()) {
+                isLocal = var.isLocal();
+                variableString = var.getName();
+            } else {
+                SkriptGson.severe(err.VAR_NEED_TO_BE_LIST);
+                return false;
             }
+        } else {
+            SkriptGson.severe(err.ONLY_VAR_IS_ALLOWED);
+            return false;
         }
-        SkriptGson.severe(variableString + " variable is not a type list variable");
-        return false;
+        return true;
     }
 
 

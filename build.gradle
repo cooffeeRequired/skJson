@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '1.4.0'
+version = '2.0.0'
 
 shadowJar {
     relocate ('com.google.gson', 'cz.coffee.skriptgson.gson')
@@ -92,7 +92,7 @@ task release(type: Copy) {
     shadowJar
     from shadowJar
     into "A:/plugins/sk-gson"
-    into "A:/Bukkit-Core/purpur/dev-1.17/plugins"
+    into "A:/Bukkit-Core/purpur/dev-latest/plugins"
 }
 
 task server(type: Exec) {

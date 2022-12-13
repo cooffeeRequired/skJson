@@ -1,6 +1,3 @@
-/**
- * Copyright CooffeeRequired, and SkriptLang team and contributors
- */
 package cz.coffee.skriptgson.skript.expressions;
 
 import ch.njol.skript.doc.Description;
@@ -11,7 +8,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 @Name("Size of JSON")
@@ -23,10 +22,10 @@ import org.jetbrains.annotations.NotNull;
 })
 @Since("1.0")
 
-public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Integer> {
+public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {
 
     static {
-        register(ExprSizeOfJson.class, Integer.class,
+        register(ExprJsonSize.class, Integer.class,
                 "size", "jsonelements");
     }
 
@@ -46,7 +45,7 @@ public class ExprSizeOfJson extends SimplePropertyExpression<JsonElement, Intege
         if (jsonElement.isJsonNull() || jsonElement.isJsonPrimitive())
             return null;
 
-        return jsonElement.isJsonObject() ? jsonElement.getAsJsonObject().size() : jsonElement.getAsJsonArray().size();
+        return jsonElement instanceof JsonObject object ? object.size() : jsonElement instanceof JsonArray array ? array.size() : 0;
     }
 
     @Override

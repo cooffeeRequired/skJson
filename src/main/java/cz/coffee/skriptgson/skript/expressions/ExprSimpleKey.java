@@ -1,5 +1,6 @@
 package cz.coffee.skriptgson.skript.expressions;
 
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -17,11 +18,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 @Name("Simple JSON changer from skript object")
-@Since("1.3.1")
 @Examples({"on script load:",
-        "   set {_jsonNumber} to ~1",
-        "   set {_jsonString} to ~\"Hi There\""
+        "\tset {_jsonNumber} to ~1",
+        "\tset {_jsonString} to ~\"Hi There\""
 })
+@Since("1.3.1")
+
 
 public class ExprSimpleKey extends SimpleExpression<JsonPrimitive> {
 
@@ -66,7 +68,6 @@ public class ExprSimpleKey extends SimpleExpression<JsonPrimitive> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         key = LiteralUtils.defendExpression(exprs[0]);
         return LiteralUtils.canInitSafely(key);
