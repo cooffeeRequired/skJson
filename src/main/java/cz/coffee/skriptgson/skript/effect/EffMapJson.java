@@ -1,7 +1,9 @@
 package cz.coffee.skriptgson.skript.effect;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -14,8 +16,6 @@ import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import cz.coffee.skriptgson.utils.GsonUtils;
-import jdk.jfr.Description;
-import jdk.jfr.Name;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;

@@ -78,7 +78,7 @@ public class EffNewJsonFile extends Effect {
             newFile(fileExpression, force, null);
             JSON_HASHMAP.put(fileExpression, null);
         } else if (genericObjectExpression != null)
-            newFile(fileExpression, force, SimpleAdapter.adapter(genericObjectExpression));
+            newFile(fileExpression, force, SimpleAdapter.toJson(genericObjectExpression));
         else if (jsonExpression != null)
             newFile(fileExpression, force, jsonExpression);
         else

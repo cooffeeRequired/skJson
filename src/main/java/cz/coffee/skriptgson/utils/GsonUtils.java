@@ -96,9 +96,9 @@ public class GsonUtils {
                             else if (to instanceof Boolean bool)
                                 map.addProperty(m.getKey(), bool);
                             else
-                                map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(to)));
+                                map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(to)));
                         } else {
-                            map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(to)));
+                            map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(to)));
                         }
                     }
                 }
@@ -380,7 +380,6 @@ public class GsonUtils {
             } catch (IOException exception) {
                 if (!canCreate(file)) {
                     SkriptGson.warning(err.PARENT_DIRECTORY_NOT_EXIST);
-                    return;
                 } else {
                     SkriptGson.warning(exception.getMessage());
                 }
@@ -399,7 +398,7 @@ public class GsonUtils {
                     if (!file.exists())
                         SkriptGson.warning(err.FILE_NOT_EXIST + fileString);
                 } else {
-                    SkriptGson.warning(((JsonSyntaxException) exception).getMessage());
+                    SkriptGson.warning(exception.getMessage());
                 }
             }
             return element;
@@ -421,7 +420,6 @@ public class GsonUtils {
             } catch (IOException exception) {
                 if (!(new File(fileString).exists())) {
                     SkriptGson.warning(err.FILE_NOT_EXIST);
-                    return;
                 } else {
                     SkriptGson.warning(exception.getMessage());
                 }

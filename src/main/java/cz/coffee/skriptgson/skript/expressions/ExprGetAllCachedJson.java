@@ -23,8 +23,12 @@ import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
 import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 
 @Name("All cached Jsons")
-@Description({})
-@Examples({})
+@Description({"Print out all your saved json in the cache"})
+@Examples({"on load:",
+        "\tsend all cached json",
+        "",
+        "\tsend all cached json as json formatted"
+})
 @Since("2.0.0")
 
 public class ExprGetAllCachedJson extends SimpleExpression<JsonElement> {

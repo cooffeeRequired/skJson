@@ -82,15 +82,15 @@ public class EffChangeJsonElement extends Effect {
                 SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
                 return;
             }
-            JsonElement fromVar = hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(getVariable(e, variableName, isLocal)));
-            json = change(fromVar, from, hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(dataToChange)));
+            JsonElement fromVar = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(getVariable(e, variableName, isLocal)));
+            json = change(fromVar, from, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(dataToChange)));
 
         } else if (isCached) {
             String cachedID = String.valueOf(fromGeneric.getSingle(e));
             if (JSON_HASHMAP.containsKey(cachedID)) {
                 JsonElement fromCache = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(cachedID));
                 JSON_HASHMAP.remove(cachedID);
-                json = change(fromCache, from, hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(dataToChange)));
+                json = change(fromCache, from, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(dataToChange)));
                 JSON_HASHMAP.put(cachedID, json);
             } else {
                 SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);

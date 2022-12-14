@@ -99,7 +99,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
         if (pattern == 2) {
             Object objectExpression = this.toParse.getSingle(e);
-            JsonElement json = hierarchyAdapter().toJsonTree(SimpleAdapter.adapter(objectExpression));
+            JsonElement json = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(objectExpression));
             return new JsonElement[]{json};
         }
 

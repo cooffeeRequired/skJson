@@ -80,12 +80,12 @@ public class EffWriteJsonElement extends Effect {
                 SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
                 return;
             }
-            setVariable(variableName, SimpleAdapter.adapter(fromGeneric), e, isLocal);
+            setVariable(variableName, SimpleAdapter.toJson(fromGeneric), e, isLocal);
         } else if (isFile) {
             Object objectFilePath = dataExpression.getSingle(e);
             if (objectFilePath == null) return;
             String filepathString = objectFilePath.toString();
-            saveToFile(SimpleAdapter.adapter(fromGeneric), filepathString);
+            saveToFile(SimpleAdapter.toJson(fromGeneric), filepathString);
         } else if (isCached) {
             Object objectFilePath = dataExpression.getSingle(e);
             if (objectFilePath == null) return;
