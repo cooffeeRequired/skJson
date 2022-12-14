@@ -21,7 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 @Name("Mapping Json to List")
-@Description("")
+@Description("Mapping json to the List and get those values")
 @Examples({"on load:",
         "\tset {_json} to json from string \"{'test': 'test2': {}}\"",
         "\tmap {_json} to {_json::*}",

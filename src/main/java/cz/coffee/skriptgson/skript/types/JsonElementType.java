@@ -46,6 +46,7 @@ public class JsonElementType {
 
         @Override
         public @NotNull Fields serialize(JsonElement json) {
+            System.out.println("Parse?");
             Fields fields = new Fields();
             fields.putObject("json-element", json.toString());
             return fields;
@@ -53,12 +54,14 @@ public class JsonElementType {
 
         @Override
         public void deserialize(JsonElement o, @NotNull Fields f) {
+            System.out.println("parse ? - G");
             assert false;
         }
 
         @Override
         @SuppressWarnings("deprecation")
         public JsonElement deserialize(Fields fields) throws StreamCorruptedException {
+            System.out.println("Parse? - N");
             JsonElement fromField = null;
             Object fieldContent = fields.getObject("json-element");
             if (fieldContent != null) fromField = JsonParser.parseString(fieldContent.toString());
@@ -77,7 +80,7 @@ public class JsonElementType {
 
         @Override
         public boolean mustSyncDeserialization() {
-            return false;
+            return true;
         }
 
         @Override
