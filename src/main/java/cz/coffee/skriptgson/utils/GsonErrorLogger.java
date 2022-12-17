@@ -11,7 +11,7 @@ public class GsonErrorLogger {
     public final String ID_GENERIC_NOT_FOUND = "The inserted id isn't exist in the cached Json map";
     public final String VAR_NEED_TO_BE_SINGLE = "You can change only Single variable contains a JSON not a List!";
     public final String VAR_NEED_TO_BE_LIST = "You can map json only to List variable.";
-    public final String ONLY_VAR_IS_ALLOWED = "You can change only json variables.";
+    public final String ONLY_JSONVAR_IS_ALLOWED = "You can change only json variables.";
 
 
 }

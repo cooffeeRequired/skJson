@@ -27,7 +27,7 @@ import static cz.coffee.skriptgson.utils.Utils.isNumeric;
         "\tset {_json} to new json from text \"{'test': true}\"",
         "\tset {-e} to element \"test\" from json {_json}",
         "",
-        "\tset {-e} to element \"test\" from json-id \"your\""
+        "\tset {-e} to element \"test\" from json \"your\""
 })
 @Since("2.0.0")
 
@@ -35,8 +35,8 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(ExprGetElement.class, JsonElement.class, ExpressionType.COMBINED,
-                "element %string% from json %jsonelement%",
-                "element %string% from [cached] json-id %string%"
+                "element %string% from %jsonelement%",
+                "element %string% from [cached] json[(-| )id] %string%"
         );
     }
 
@@ -64,36 +64,25 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
 
         if (values[0] == null || json == null) return new JsonElement[0];
 
-        JsonElement element = new JsonObject();
+
+        JsonElement next = null, returnValue = null;
 
 
-        for (String iKey : values) {
-            if (json instanceof JsonObject object) {
-                element = object.get(iKey);
-                if (element instanceof JsonObject elementObject) {
-                    object = elementObject;
-                } else if (element instanceof JsonArray elementArray) {
-                    json = elementArray;
-                }
-            } else if (json instanceof JsonArray array) {
+        for (String key : values) {
+            if (json instanceof JsonArray array) {
                 int index = 0;
-                if (isNumeric(iKey))
-                    index = Integer.parseInt(iKey);
-                if (index <= array.size()) {
-                    try {
-                        element = array.get(index);
-                        if (element instanceof JsonObject elementObject) {
-                            json = elementObject;
-                        } else if (element instanceof JsonArray elementArray) {
-                            array = elementArray;
-                        }
-                    } catch (IndexOutOfBoundsException exception) {
-                        return new JsonElement[0];
-                    }
+                if (isNumeric(key)) {
+                    index = Integer.parseInt(key);
                 }
+                json = array.get(index);
+            } else if (json instanceof JsonObject object) {
+                json = object.get(key);
+            }
+            if (key.equals(values[values.length - 1])) {
+                return new JsonElement[]{json};
             }
         }
-        return new JsonElement[]{element};
+        return new JsonElement[0];
     }
 
     @Override

@@ -52,8 +52,8 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 public class EffAppendJsonElement extends Effect {
     static {
         Skript.registerEffect(EffAppendJsonElement.class,
-                "append [data] %object% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:cached json %-string%)",
-                "append item %itemstack% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:cached json %-string%)"
+                "append [data] %object% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)",
+                "append item %itemstack% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)"
         );
     }
 
@@ -92,7 +92,7 @@ public class EffAppendJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = dataExpression.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return;
             }
             JsonElement json;
@@ -137,7 +137,6 @@ public class EffAppendJsonElement extends Effect {
                     JsonElement fromCache = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(objectFilePath.toString()));
                     JsonElement json;
                     if (Nested == null) {
-                        System.out.println(fromCache);
                         if (fromCache instanceof JsonObject object) {
                             object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
                         } else if (fromCache instanceof JsonArray array) {
@@ -197,7 +196,7 @@ public class EffAppendJsonElement extends Effect {
                     return false;
                 }
             } else {
-                SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return false;
             }
         } else if (isFile) {

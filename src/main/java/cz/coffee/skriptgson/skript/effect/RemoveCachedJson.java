@@ -20,15 +20,15 @@ import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
 @Name("Remove cached json")
 @Description({"You can basically remove the generic Json from the cached Json Map."})
 @Examples({"on load:",
-        "\tremove [cached] json-id \"json5\"",
-        "\tsend [cached] json-id \"json5\""
+        "\tremove json \"json5\"",
+        "\tsend json \"json5\""
 })
 @Since("2.0.0")
 
 public class RemoveCachedJson extends Effect {
 
     static {
-        Skript.registerEffect(RemoveCachedJson.class, "remove json-id %string%");
+        Skript.registerEffect(RemoveCachedJson.class, "remove [cached] json[(-| )id] %string%");
     }
 
     private Expression<String> stringIdExpression;

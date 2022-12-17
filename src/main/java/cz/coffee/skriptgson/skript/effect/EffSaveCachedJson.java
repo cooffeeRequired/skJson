@@ -30,15 +30,14 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 @Name("Save Json content to cached Json")
 @Description({"Save changed content to cached json, and rewrite those values"})
 @Examples({"on script load:",
-        "\tset {_j} to new json from player's tool",
-        "\tsave {_j} to [cached] json-id \"your\""
+        "\tsave [cached] json-id \"your\""
 })
 @Since("2.0.0")
 
 public class EffSaveCachedJson extends Effect {
 
     static {
-        Skript.registerEffect(EffSaveCachedJson.class, "save [cached] [json-id] %string%");
+        Skript.registerEffect(EffSaveCachedJson.class, "save [cached] json[(-| )id] %string%");
     }
 
     private Expression<String> stringIdExpression;

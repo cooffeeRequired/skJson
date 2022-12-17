@@ -43,8 +43,8 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 public class EffChangeJsonElement extends Effect {
     static {
         Skript.registerEffect(EffChangeJsonElement.class,
-                "change (1:%-jsonelement%|2:cached json %-string%) [value] %string% to %-object% [and (:save) it to [json file] %-string%]",
-                "change (1:%-jsonelement%|2:cached json %-string%) [value] %string% to item %-itemstack% [and (:save) it to [json file] %-string%]"
+                "change (1:%-jsonelement%|2:[cached] json[(-| )id] %-string%) [value] %string% to %-object% [and (:save) it to [json file] %-string%]",
+                "change (1:%-jsonelement%|2:[cached] json[(-| )id] %-string%) [value] %string% to item %-itemstack% [and (:save) it to [json file] %-string%]"
         );
     }
 
@@ -79,7 +79,7 @@ public class EffChangeJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = fromGeneric.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return;
             }
             JsonElement fromVar = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(getVariable(e, variableName, isLocal)));
@@ -125,7 +125,7 @@ public class EffChangeJsonElement extends Effect {
                     variableString = variable.getName();
                 }
             } else {
-                SkriptGson.severe(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.severe(err.ONLY_JSONVAR_IS_ALLOWED);
                 return false;
             }
         } else {

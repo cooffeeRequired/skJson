@@ -10,19 +10,23 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.*;
+import cz.coffee.skriptgson.SkriptGson;
+import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 
 
 @Since("2.0.0")
 
-
-@SuppressWarnings("unused")
 public class JsonElementType {
+
+    private static final String KEY_PARSED_TAG = ";";
+    private static final String KEY_NESTED_TAG = ":";
+
     private static final Parser<JsonElement> parser = new Parser<>() {
 
         @Override
@@ -40,7 +44,6 @@ public class JsonElementType {
             return json.toString();
         }
     };
-
 
     private static final Serializer<JsonElement> serializer = new Serializer<>() {
 
@@ -86,65 +89,161 @@ public class JsonElementType {
         }
     };
 
-    private static final Changer<JsonElement> changer = new Changer<>() {
-        static {
-            Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")
-                    .user("json[[ ]element]")
-                    .name("Json Element")
-                    .description("Representing a JSON element")
-                    .examples("on script load:",
-                            "# Add",
-                            "   set {_e} to new json from text \"{'hello' : 'hi'}\"",
-                            "   add (new json from text \"{'bye': 'bb'}\") to {_e}",
-                            "# Remove",
-                            "   set {_e} to new json from text \"{'hello' : 'hi'}\"",
-                            "   remove \"hello\" from {_e}"
-                    )
-                    .since("1.0")
-                    .parser(parser)
-                    .changer(changer)
-                    .serializer(serializer)
-            );
+    private static final Changer<Object> changer = new Changer<>() {
+        @Override
+        public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
+            switch (mode) {
+                case ADD, SET, REMOVE ->
+                        CollectionUtils.array(Object.class, String.class, Boolean.class, Integer.class, JsonElement.class);
+            }
+            return CollectionUtils.array(Object.class);
         }
 
         @Override
-        public Class<?> @NotNull [] acceptChange(ChangeMode mode) {
-            return switch (mode) {
-                case ADD, SET, REMOVE -> CollectionUtils.array(JsonElement.class);
-                default -> CollectionUtils.array(Object.class);
-            };
-        }
+        public void change(Object @NotNull [] what, @Nullable Object @NotNull [] delta, @NotNull ChangeMode mode) {
+            GsonErrorLogger err = new GsonErrorLogger();
 
-        @Override
-        public void change(JsonElement @NotNull [] what, @Nullable Object @NotNull [] delta, @NotNull ChangeMode mode) {
+            JsonElement deltaJson;
+            String Key = null;
+            String[] nestedKeys = new String[0];
+            boolean isNested = false;
+
+
             switch (mode) {
                 case ADD -> {
-                    for (JsonElement varElement : what) {
-                        for (Object addElement : delta) {
-                            if (varElement.isJsonObject()) {
-                                String size = String.valueOf(varElement.getAsJsonObject().entrySet().size());
-                                varElement.getAsJsonObject().add(size, hierarchyAdapter().toJsonTree(addElement));
-                            } else if (varElement.isJsonArray()) {
-                                varElement.getAsJsonArray().add(hierarchyAdapter().toJsonTree(addElement));
+                    for (Object parsedDelta : delta) {
+                        /*
+                        setup of JsonElement witch contains a key and the value.
+                         */
+                        if (parsedDelta == null) return;
+                        if (parsedDelta.toString().contains(KEY_PARSED_TAG)) {
+                            /*
+                            being is object. cause delta contains a KEY_PARSED_TAG
+                             */
+                            String[] splitParsedDelta = ((String) parsedDelta).split(KEY_PARSED_TAG);
+                            deltaJson = JsonParser.parseString(splitParsedDelta[1]);
+                            if (splitParsedDelta[0].contains(KEY_NESTED_TAG)) {
+                                isNested = true;
+                                nestedKeys = splitParsedDelta[0].split(KEY_NESTED_TAG);
+                                Key = splitParsedDelta[splitParsedDelta.length - 1];
                             } else {
-                                return;
+                                Key = splitParsedDelta[0];
+                            }
+
+                            for (Object parsedWhat : what) {
+                                if (!(parsedWhat instanceof JsonElement)) {
+                                    SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                                    return;
+                                } else {
+                                    JsonElement value;
+                                    int index = 0;
+                                    if (isNested) {
+                                        for (String nestedKey : nestedKeys) {
+                                            boolean isLast = nestedKey.equals(nestedKeys[nestedKeys.length - 1]);
+
+                                            if (parsedWhat == null) return;
+
+                                            if (((JsonElement) parsedWhat).isJsonObject()) {
+                                                value = ((JsonElement) parsedWhat).getAsJsonObject().get(nestedKey);
+                                                if (!isLast) {
+                                                    parsedWhat = value;
+                                                } else {
+                                                    if (value != null) {
+                                                        if (value.isJsonArray()) {
+                                                            ((JsonElement) parsedWhat).getAsJsonObject().get(nestedKey).getAsJsonArray().add(deltaJson);
+                                                        } else {
+                                                            ((JsonElement) parsedWhat).getAsJsonObject().add(nestedKey, deltaJson);
+                                                        }
+                                                    } else {
+                                                        ((JsonElement) parsedWhat).getAsJsonObject().add(nestedKey, deltaJson);
+                                                    }
+                                                }
+                                            } else if (((JsonElement) parsedWhat).isJsonArray()) {
+                                                if (isNumeric(nestedKey)) {
+                                                    index = Integer.parseInt(nestedKey);
+                                                }
+                                                value = ((JsonElement) parsedWhat).getAsJsonArray().get(index);
+                                                if (!isLast) {
+                                                    parsedWhat = value;
+                                                } else {
+                                                    ((JsonElement) parsedWhat).getAsJsonArray().add(deltaJson);
+                                                }
+                                            } else {
+                                                return;
+                                            }
+                                        }
+                                    } else {
+                                        if (((JsonElement) parsedWhat).isJsonArray()) {
+                                            ((JsonElement) parsedWhat).getAsJsonArray().add(deltaJson);
+                                        } else if (((JsonElement) parsedWhat).isJsonObject()) {
+                                            ((JsonElement) parsedWhat).getAsJsonObject().add(Key, deltaJson);
+                                        } else {
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            for (Object parsedWhat : what) {
+                                deltaJson = JsonParser.parseString(parsedDelta.toString());
+                                ((JsonElement) parsedWhat).getAsJsonArray().add(deltaJson);
                             }
                         }
                     }
                 }
                 case REMOVE -> {
+                    for (Object parsedDelta : delta) {
+                        if (parsedDelta == null) return;
+                        if (parsedDelta.toString().contains(KEY_NESTED_TAG)) {
+                            isNested = true;
+                            String[] splitParsedDelta = ((String) parsedDelta).split(KEY_PARSED_TAG);
+                            nestedKeys = splitParsedDelta[0].split(KEY_NESTED_TAG);
+                        } else {
+                            Key = parsedDelta.toString();
+                        }
+                        for (Object parsedWhat : what) {
+                            if (!(parsedWhat instanceof JsonElement)) {
+                                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                                return;
+                            } else {
+                                if (!isNested) {
+                                    if (((JsonElement) parsedWhat).isJsonObject()) {
+                                        ((JsonElement) parsedWhat).getAsJsonObject().remove(Key);
+                                    } else if (((JsonElement) parsedWhat).isJsonArray()) {
+                                        if (isNumeric(Key)) {
+                                            ((JsonElement) parsedWhat).getAsJsonArray().remove(Integer.parseInt(Key));
+                                        }
+                                    } else {
+                                        return;
+                                    }
+                                } else {
+                                    int index = 0;
+                                    JsonElement value;
+                                    for (String nestedKey : nestedKeys) {
+                                        boolean isLast = nestedKey.equals(nestedKeys[nestedKeys.length - 1]);
+                                        if (((JsonElement) parsedWhat).isJsonObject()) {
+                                            value = ((JsonElement) parsedWhat).getAsJsonObject().get(nestedKey);
+                                            if (isLast) {
+                                                ((JsonElement) parsedWhat).getAsJsonObject().remove(nestedKey);
+                                            } else {
+                                                parsedWhat = value;
+                                            }
+                                        } else if (((JsonElement) parsedWhat).isJsonArray()) {
+                                            if (isNumeric(nestedKey)) {
+                                                index = Integer.parseInt(nestedKey);
+                                            }
+                                            value = ((JsonElement) parsedWhat).getAsJsonArray().get(index);
 
-                    for (JsonElement varElement : what) {
-                        for (Object removeElement : delta) {
-                            assert removeElement != null;
-                            String remove = removeElement.toString().replaceAll("\"", "");
-
-                            if (varElement instanceof JsonObject element) {
-                                if (element.has(remove)) {
-                                    element.remove(remove);
+                                            if (isLast) {
+                                                ((JsonElement) parsedWhat).getAsJsonArray().remove(index);
+                                            } else {
+                                                parsedWhat = value;
+                                            }
+                                        } else {
+                                            return;
+                                        }
+                                    }
                                 }
-                            } else if (varElement instanceof JsonArray elementA) {
-                                elementA.remove(Integer.parseInt(remove));
                             }
                         }
                     }
@@ -152,4 +251,31 @@ public class JsonElementType {
             }
         }
     };
+
+
+    static {
+        Classes.registerClass(new ClassInfo<>(JsonElement.class, "jsonelement")
+                .user("json[[ ]element]")
+                .name("Json Element")
+                .description("Representing a JSON element, You can add to them, remove from them.. Also you can remove from/add to nested object/arrays")
+                .examples(
+                        "on load:",
+                        "\tset {_e} to new json from text \"{'some': {'a': {}}\"",
+                        "",
+                        "# Adding",
+                        "\tadd \"some:bool;false\" to {_e}",
+                        "",
+                        "# Remove",
+                        "\tremove \"some:bool\" from {_e}",
+                        "",
+                        "# Result",
+                        "{\"some\": {\"a\": {}}"
+                )
+                .since("2.0.0")
+                .parser(parser)
+                .changer(changer)
+                .serializer(serializer)
+        );
+    }
+
 }

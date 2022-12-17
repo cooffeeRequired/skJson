@@ -28,9 +28,6 @@ import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
 
 public class CondJsonLoaded extends Condition {
 
-    private Expression<JsonElement> rawJson;
-    private int pattern;
-
     static {
         Skript.registerCondition(CondJsonLoaded.class,
                 "[cached] json %jsonelement% is loaded",
@@ -38,6 +35,8 @@ public class CondJsonLoaded extends Condition {
         );
     }
 
+    private Expression<JsonElement> rawJson;
+    private int pattern;
 
     @Override
     public boolean check(@NotNull Event e) {

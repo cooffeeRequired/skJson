@@ -67,7 +67,7 @@ public class EffMapJson extends Effect {
                 return false;
             }
         } else {
-            SkriptGson.severe(err.ONLY_VAR_IS_ALLOWED);
+            SkriptGson.severe(err.ONLY_JSONVAR_IS_ALLOWED);
             return false;
         }
         return LiteralUtils.canInitSafely(objectExpression);

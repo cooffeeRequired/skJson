@@ -69,7 +69,7 @@ public class GsonUtils {
     }
 
     public static JsonElement change(JsonElement json, String from, Object to) {
-        JsonElement next, n;
+        JsonElement next;
         ArrayDeque<JsonElement> elements = new ArrayDeque<>();
         boolean isMultiple = false;
         elements.add(json);
@@ -161,6 +161,8 @@ public class GsonUtils {
         return count;
     }
 
+
+    @SuppressWarnings("unused")
     public static Object fromPrimitive(JsonPrimitive primitive) {
         if (primitive.isBoolean()) {
             return primitive.getAsBoolean();
@@ -172,6 +174,7 @@ public class GsonUtils {
         return null;
     }
 
+    @SuppressWarnings("unused")
     public static Object toJsonPrimitive(Object Object) {
         if (Object instanceof Integer i)
             return i;
@@ -228,7 +231,7 @@ public class GsonUtils {
         public static void jsonToList(Event event, String name, JsonElement json, boolean isLocal) {
             JsonElement next;
             Deque<JsonElement> elements = new ArrayDeque<>();
-            if(json != null) elements.add(json);
+            if (json != null) elements.add(json);
 
             while ((next = elements.pollFirst()) != null) {
                 if (next instanceof JsonObject object) {
@@ -406,7 +409,7 @@ public class GsonUtils {
 
         public static void saveToFile(Object expressionData, String fileString) {
             GsonErrorLogger err = new GsonErrorLogger();
-            try (var protectedWriter = new JsonWriter(new OutputStreamWriter(new FileOutputStream(new File(fileString)), StandardCharsets.UTF_8))) {
+            try (var protectedWriter = new JsonWriter(new OutputStreamWriter(new FileOutputStream(fileString), StandardCharsets.UTF_8))) {
                 protectedWriter.setIndent("    ");
                 if (expressionData == null) {
                     protectedWriter.nullValue();

@@ -48,8 +48,8 @@ import static cz.coffee.skriptgson.utils.GsonUtils.setVariable;
 public class EffWriteJsonElement extends Effect {
     static {
         Skript.registerEffect(EffWriteJsonElement.class,
-                "write [data] %object% to (1:%-jsonelement%|2:file [path] %-string%|3:cached json %-string%)",
-                "write item %itemstack% to (1:%-jsonelement%|2:file [path] %-string%|3:cached json %-string%)"
+                "write [data] %object% to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)",
+                "write item %itemstack% to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)"
         );
     }
 
@@ -77,7 +77,7 @@ public class EffWriteJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = dataExpression.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return;
             }
             setVariable(variableName, SimpleAdapter.toJson(fromGeneric), e, isLocal);
@@ -131,7 +131,7 @@ public class EffWriteJsonElement extends Effect {
                     return false;
                 }
             } else {
-                SkriptGson.warning(err.ONLY_VAR_IS_ALLOWED);
+                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return false;
             }
         } else if (isFile) {

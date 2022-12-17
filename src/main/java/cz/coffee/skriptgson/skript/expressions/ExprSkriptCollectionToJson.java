@@ -54,7 +54,7 @@ public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
                 return false;
             }
         } else {
-            SkriptGson.severe(err.ONLY_VAR_IS_ALLOWED);
+            SkriptGson.severe(err.ONLY_JSONVAR_IS_ALLOWED);
             return false;
         }
         return true;
