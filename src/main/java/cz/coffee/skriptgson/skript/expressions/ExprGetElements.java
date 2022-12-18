@@ -26,7 +26,7 @@ import java.util.Map;
 import static cz.coffee.skriptgson.utils.GsonUtils.fromPrimitive;
 import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 
-@Name("Get elements from Json.")
+@Name("Get elements from Jsons.")
 @Description("You can get all elements from Object/Array")
 @Examples({"on load:",
         "\tset {_json} to new json from string \"{'testArray': [1,2,3,4,5,{'nested': [1,2,3,4,5]}]}\"",
