@@ -172,6 +172,7 @@ public class GsonUtils {
         } else if (primitive.isString()) {
             return primitive.getAsString();
         }
+
         return null;
     }
 

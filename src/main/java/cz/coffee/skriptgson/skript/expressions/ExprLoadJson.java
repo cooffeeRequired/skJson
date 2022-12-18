@@ -33,7 +33,7 @@ public class ExprLoadJson extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(ExprLoadJson.class, JsonElement.class, ExpressionType.COMBINED,
-                "[cached] [json-]id %string%"
+                "[cached] [json(-| )id] %string%"
         );
     }
 
