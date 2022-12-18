@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.FileReader;
 import java.io.IOException;
 
-import static cz.coffee.skriptgson.utils.GsonUtils.GsonMapping.parseVariable;
+import static cz.coffee.skriptgson.utils.GsonUtils.GsonVariables.parseVariable;
 import static cz.coffee.skriptgson.utils.GsonUtils.canCreate;
 import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 
@@ -68,7 +68,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         GsonErrorLogger err = new GsonErrorLogger();
         if (pattern == 0) {
             if (hasVariables) {
-                Object stringVariablesExpression = this.getSingle(e);
+                Object stringVariablesExpression = this.toParse.getSingle(e);
                 if (stringVariablesExpression == null) return new JsonElement[0];
                 JsonElement json = null;
                 try {

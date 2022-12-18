@@ -250,76 +250,6 @@ public class GsonUtils {
                 }
             }
         }
-
-
-        public static Object getSkriptVariable(Object input, Event e) {
-            boolean isLocal;
-            JsonElement newJsonElement;
-            JsonObject output = new JsonObject();
-            HashMap<String, Object> returnMap = new HashMap<>();
-            String name = input.toString().replaceAll("[{}$]", "");
-            if (name.startsWith("$_")) {
-                isLocal = true;
-                name = name.replaceAll("_", "").replaceAll("[$]", "Variable.");
-            } else if (name.startsWith("$-")) {
-                name = name.replaceAll("-", "").replaceAll("[$]", "Variable.");
-                isLocal = false;
-            } else {
-                name = name.replaceAll("[$]", "Variable.");
-                isLocal = false;
-            }
-
-            Object variable = Variables.getVariable(name.replaceAll("Variable.", ""), e, isLocal);
-
-            newJsonElement = hierarchyAdapter().toJsonTree(variable);
-            if (variable == null)
-                newJsonElement = new JsonPrimitive(false);
-
-            output.add("variable", newJsonElement);
-            returnMap.put(name, output);
-
-            return returnMap;
-        }
-
-
-        public static JsonElement parseVariable(String rawString, Event e) {
-            Matcher m = Pattern.compile("\\$\\{.+?}").matcher(rawString);
-            rawString = rawString.replaceAll("(?<!^)[_{}*](?!$)", "").replaceAll("[$]", "Variable.");
-
-            for (Iterator<Object> it = m.results().map(MatchResult::group).map(k -> getSkriptVariable(k, e)).iterator(); it.hasNext(); ) {
-                String Value;
-                JsonObject object = hierarchyAdapter().toJsonTree(it.next()).getAsJsonObject();
-                for (Map.Entry<String, JsonElement> map : object.entrySet()) {
-                    JsonObject json = map.getValue().getAsJsonObject();
-
-                    if (json.get("variable") instanceof JsonObject varObject) {
-                        Stream<String> keys = varObject.keySet().stream().filter(Objects::nonNull);
-                        if (varObject.keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
-                            JsonArray array = new JsonArray();
-                            keys.forEach(k -> array.add(json.get("variable").getAsJsonObject().get(k)));
-                            Value = array.toString();
-                        } else {
-                            Value = varObject.toString();
-                        }
-                    } else {
-                        Value = json.get("variable").toString();
-                    }
-                    rawString = rawString.replaceAll(map.getKey(), Value);
-                }
-            }
-            JsonElement raw = null;
-            try {
-                raw = JsonParser.parseString(rawString);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                SkriptGson.debug("rawString: " + rawString);
-            }
-            return raw;
-        }
-
-
-        // Initial of listToJson - MainTree
-
         public static JsonElement jsonToList(Event event, String name, boolean isLocal) {
             return jsonListMainTree(event, name, isLocal, false);
         }
@@ -457,6 +387,60 @@ public class GsonUtils {
                     SkriptGson.warning(exception.getMessage());
                 }
             }
+        }
+    }
+
+    public static class GsonVariables {
+
+        public static Object getSkriptVariable(Object input, Event e) {
+            boolean isLocal = false;
+            JsonElement newJsonElement;
+            JsonObject output = new JsonObject();
+            HashMap<String, Object> returnMap = new HashMap<>();
+            String name = input.toString().replaceAll("[{}]", "");
+            if (name.startsWith("$_")) {
+                isLocal = true;
+                name = name.replaceAll("_", "").replaceAll("[$]", "Variable.");
+            }
+            Object variable = Variables.getVariable(name.replaceAll("Variable.", ""), e, isLocal);
+
+            newJsonElement = hierarchyAdapter().toJsonTree(variable);
+            if (variable == null)
+                newJsonElement = new JsonPrimitive(false);
+
+            output.add("variable", newJsonElement);
+            returnMap.put(name, output);
+
+            return returnMap;
+        }
+
+
+        public static JsonElement parseVariable(String rawString, Event e) {
+            Matcher m = Pattern.compile("\\$\\{.+?}").matcher(rawString);
+            rawString = rawString.replaceAll("(?<!^)[_{}*](?!$)", "").replaceAll("[$]", "Variable.");
+
+            for (Iterator<Object> it = m.results().map(MatchResult::group).map(k -> getSkriptVariable(k, e)).iterator(); it.hasNext(); ) {
+                String Value;
+                JsonObject object = hierarchyAdapter().toJsonTree(it.next()).getAsJsonObject();
+                for (Map.Entry<String, JsonElement> map : object.entrySet()) {
+                    JsonObject json = map.getValue().getAsJsonObject();
+
+                    if (json.get("variable").isJsonObject()) {
+                        Stream<String> keys = json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull);
+                        if (json.get("variable").getAsJsonObject().keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
+                            JsonArray array = new JsonArray();
+                            keys.forEach(k -> array.getAsJsonArray().add(json.get("variable").getAsJsonObject().get(k)));
+                            Value = array.toString();
+                        } else {
+                            Value = json.getAsJsonObject().get("variable").toString();
+                        }
+                    } else {
+                        Value = json.get("variable").toString();
+                    }
+                    rawString = rawString.replaceAll(map.getKey(), Value);
+                }
+            }
+            return JsonParser.parseString(rawString);
         }
     }
 }
