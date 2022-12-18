@@ -162,7 +162,13 @@ public class JsonElementType {
                                                 if (isNumeric(nestedKey)) {
                                                     index = Integer.parseInt(nestedKey);
                                                 }
-                                                value = ((JsonElement) parsedWhat).getAsJsonArray().get(index);
+                                                if (((JsonElement) parsedWhat).getAsJsonArray().size() < index) return;
+                                                try {
+                                                    value = ((JsonElement) parsedWhat).getAsJsonArray().get(index);
+                                                } catch (IndexOutOfBoundsException indexOut) {
+                                                    return;
+                                                }
+
                                                 if (!isLast) {
                                                     parsedWhat = value;
                                                 } else {
