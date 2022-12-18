@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.utils.Utils.isIncrementing;
 
 public class GsonUtils {
 
@@ -220,7 +221,11 @@ public class GsonUtils {
 
         private static void extractNestedObjects(String name, Event event, JsonElement element, boolean isLocal) {
             if (element instanceof JsonObject object) {
-                object.keySet().forEach(key -> jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal));
+                object.keySet().forEach(key -> {
+                    if (!(key == null)) {
+                        jsonToList(event, name + SEPARATOR + key, object.get(key), isLocal);
+                    }
+                });
             } else if (element instanceof JsonArray array) {
                 for (int index = 0; array.size() > index; index++) {
                     jsonToList(event, name + SEPARATOR + (index + 1), array.get(index), isLocal);
@@ -235,10 +240,8 @@ public class GsonUtils {
 
             while ((next = elements.pollFirst()) != null) {
                 if (next instanceof JsonObject object) {
-                    setVariable(name, object, event, isLocal);
                     extractNestedObjects(name, event, object, isLocal);
                 } else if (next instanceof JsonArray array) {
-                    setVariable(name, array, event, isLocal);
                     extractNestedObjects(name, event, array, isLocal);
                 } else if (next instanceof JsonPrimitive primitive) {
                     setPrimitiveType(name, primitive, event, isLocal);
@@ -315,34 +318,61 @@ public class GsonUtils {
         }
 
 
-        public static JsonElement listToJson(Event event, String name, boolean isLocal) {
-            JsonElement json = null;
+        // Initial of listToJson - MainTree
 
-            Object next;
-            Deque<Object> objects = new ArrayDeque<>();
+        public static JsonElement jsonToList(Event event, String name, boolean isLocal) {
+            return jsonListMainTree(event, name, isLocal, false);
+        }
+
+        private static JsonElement jsonListMainTree(Event event, String name, boolean isLocal, boolean nullable) {
             Map<String, Object> variable = (Map<String, Object>) getVariable(event, name + "*", isLocal);
-            if (variable == null) return new JsonNull();
 
-            objects.add(variable);
-            while ((next = objects.pollFirst()) != null) {
-                Stream<String> keys = ((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull);
-                if (((Map<String, Object>) next).keySet().stream().filter(Objects::nonNull).allMatch(cz.coffee.skriptgson.utils.Utils::isNumeric)) {
-                    JsonArray array = new JsonArray();
+            if (variable == null) {
+                return nullable ? null : new JsonObject();
+            }
+
+            Stream<String> keys = variable.keySet().stream().filter(Objects::nonNull);
+
+            if (variable.keySet().stream().filter(Objects::nonNull).allMatch(Utils::isNumeric)) {
+                List<String> checkkeys = new ArrayList<>();
+                variable.keySet().stream().filter(Objects::nonNull).forEach(checkkeys::add);
+                if (isIncrementing(checkkeys.toArray())) {
+                    JsonArray jsonStruct = new JsonArray();
                     keys.forEach(key -> {
-                        Object nestedVar = getVariable(event, name + key, isLocal);
-                        array.add(hierarchyAdapter().toJsonTree(nestedVar));
+                        jsonStruct.add(hierarchyAdapter().toJson(jsonListSubTree(event, name + key, isLocal)));
                     });
-                    json = array;
+                    return jsonStruct;
                 } else {
-                    JsonObject object = new JsonObject();
+                    JsonObject jsonStruct = new JsonObject();
                     keys.forEach(key -> {
-                        Object nestedVar = getVariable(event, name + key, isLocal);
-                        object.add(key, hierarchyAdapter().toJsonTree(nestedVar));
+                        jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal)));
                     });
-                    json = object;
+                    return jsonStruct;
+                }
+            } else {
+                JsonObject jsonStruct = new JsonObject();
+                keys.forEach(key -> {
+                    jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal)));
+                });
+                return jsonStruct;
+            }
+        }
+
+        private static Object jsonListSubTree(Event event, String name, boolean isLocal) {
+            Object variable = getVariable(event, name, isLocal);
+            if (variable == null) {
+                variable = jsonListMainTree(event, name + SEPARATOR, isLocal, false);
+            } else if (variable == Boolean.TRUE) {
+                Object subVariable = jsonListMainTree(event, name + SEPARATOR, isLocal, true);
+                if (subVariable != null) {
+                    variable = subVariable;
                 }
             }
-            return json;
+
+            if (!(variable instanceof String || variable instanceof Integer || variable instanceof Double || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
+                variable = hierarchyAdapter().toJsonTree(variable);
+            }
+            return variable;
         }
     }
 

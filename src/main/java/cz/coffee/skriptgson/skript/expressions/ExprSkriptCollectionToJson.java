@@ -64,7 +64,7 @@ public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
         String variableName = variableString.toString(e);
-        JsonElement json = GsonUtils.GsonMapping.listToJson(e, variableName.substring(0, variableName.length() - 1), isLocal);
+        JsonElement json = GsonUtils.GsonMapping.jsonToList(e, variableName.substring(0, variableName.length() - 1), isLocal);
         return new JsonElement[]{json};
     }
 

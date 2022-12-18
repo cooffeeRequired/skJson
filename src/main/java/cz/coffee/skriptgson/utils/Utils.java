@@ -25,20 +25,23 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    public static String sanitizeString(Object stringObject) {
-        return String.valueOf(stringObject).replaceAll("[\"'][\\w\\s]+[\"']|\\w+[\"']\\w+", "").replaceAll("\"", "");
-    }
-
-    public static String sanitizeJson(Object stringObject) {
-        return String.valueOf(stringObject).replaceAll("^[{}$]", "");
-    }
-
-    public static String gsonText(Object StringifyElement) {
-        return new GsonBuilder().disableHtmlEscaping().create().toJson(StringifyElement);
-    }
-
     public static boolean isNumeric(String str) {
         return str != null && str.matches("[0-9.]+");
+    }
+
+    public static boolean isIncrementing(Object[] indexes) {
+        int step = 1;
+        int count = 1;
+        for (Object o : indexes) {
+            if (o instanceof String iStr) {
+                count = Integer.parseInt(iStr);
+            } else if (o instanceof Number number) {
+                count = number.intValue();
+            }
+            if (step != count) return false;
+            step++;
+        }
+        return true;
     }
 
     public static Gson hierarchyAdapter() {
