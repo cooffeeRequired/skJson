@@ -32,7 +32,7 @@ import static cz.coffee.skriptgson.utils.Utils.isNumeric;
         "\tset {_json} to new json from string \"{'testArray': [1,2,3,4,5,{'nested': [1,2,3,4,5]}]}\"",
         "\tloop all json elements \"5:nested\" from {_json}:",
         "\t\tsend loop-value",
-        "",
+        " ",
         "\tloop all json elements from {_json}:",
         "\t\tsend loop-value"
 })
