@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -9,20 +10,16 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '2.0.2'
+version = "2.0.2"
 
-shadowJar {
-    relocate ('com.google.gson', 'cz.coffee.skriptgson.gson')
-    mergeServiceFiles()
-}
-
-tasks.register('relocateShadowJar') {
-    ShadowJar target = tasks.shadowJar as ShadowJar
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
 }
 
 static configureRelocations(ShadowJar task) {
-    task.relocate('com.google.gson', 'cz.coffee.skriptgson.google.gson')
+    task.relocate('com.google.gson', 'cz.coffee.skriptgson.google')
 }
+
 
 tasks.withType(ShadowJar).configureEach {
     dependsOn relocateShadowJar
@@ -64,46 +61,6 @@ repositories {
     }
 }
 
-dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    compileOnly 'org.jetbrains:annotations:23.0.0'
-    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
-    compileOnly 'com.github.SkriptLang:Skript:2.6.3'
-    shadow('com.google.code.gson:gson:2.10')
-    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
-}
-
-
-
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["-source", "16", "-target", "16"]
-}
-
-
-tasks.register('clearOldVersion', Delete) {
-    ['A:/plugins/sk-gson/', 'A:/Bukkit-Core/purpur/dev-latest/plugins', 'A:/workspaces/latest//plugins'].each {
-        path ->
-            {
-                def treeOfPaths = fileTree(path)
-                treeOfPaths.include '**/skript-gson*.jar'
-                treeOfPaths.each { fileObject -> delete(fileObject) }
-            }
-    }
-}
-
-tasks.register('release', Copy) {
-    dependsOn([build, reload])
-    [
-            'A:/plugins/sk-gson/',
-            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-            'A:/workspaces/latest//plugins'].each { destination ->
-        copy {
-            from shadowJar
-            into destination
-        }
-    }
-}
-
 tasks.register('server', Exec) {
     commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "startServer"'
     return 1
@@ -117,6 +74,50 @@ tasks.register('reload', Exec) {
 tasks.register('reload_plus', Exec) {
     commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "reload_+"'
     return 1
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.jetbrains:annotations:23.1.0'
+    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
+    compileOnly 'com.github.SkriptLang:Skript:2.6.3'
+    shadow('com.google.code.gson:gson:2.10')
+    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+}
+
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ["-source", "16", "-target", "16"]
+}
+
+tasks.register('release') {
+    dependsOn(relocateShadowJar)
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        copy {
+            shadowJar
+            from jar
+            into destination
+        }
+    }
+}
+
+task cleanOlds {
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        def tree = fileTree(destination)
+        tree.include('**/skript-gson*.jar')
+        tree.each { it.delete() }
+    }
+}
+
+shadowJar {
+    relocate 'com.google.gson', 'cz.coffee.skriptgson.gson'
+    mergeServiceFiles()
 }
 
 processResources {
