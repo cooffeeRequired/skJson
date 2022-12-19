@@ -25,6 +25,7 @@ import static cz.coffee.skriptgson.utils.Utils.isIncrementing;
 
 public class GsonUtils {
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canCreate(Object stringFile) {
         File f = new File(stringFile.toString());
         return f.getParentFile().exists();
@@ -44,7 +45,7 @@ public class GsonUtils {
     public static boolean check(JsonElement json, String search, Type type) {
         JsonElement next;
         Deque<JsonElement> elements = new ArrayDeque<>();
-        elements.add(json);
+        if (json != null) elements.add(json);
         while ((next = elements.pollFirst()) != null) {
             if (next instanceof JsonArray array) {
                 for (JsonElement element : array) {
@@ -269,22 +270,16 @@ public class GsonUtils {
                 variable.keySet().stream().filter(Objects::nonNull).forEach(checkkeys::add);
                 if (isIncrementing(checkkeys.toArray())) {
                     JsonArray jsonStruct = new JsonArray();
-                    keys.forEach(key -> {
-                        jsonStruct.add(hierarchyAdapter().toJson(jsonListSubTree(event, name + key, isLocal)));
-                    });
+                    keys.forEach(key -> jsonStruct.add(hierarchyAdapter().toJson(jsonListSubTree(event, name + key, isLocal))));
                     return jsonStruct;
                 } else {
                     JsonObject jsonStruct = new JsonObject();
-                    keys.forEach(key -> {
-                        jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal)));
-                    });
+                    keys.forEach(key -> jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal))));
                     return jsonStruct;
                 }
             } else {
                 JsonObject jsonStruct = new JsonObject();
-                keys.forEach(key -> {
-                    jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal)));
-                });
+                keys.forEach(key -> jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal))));
                 return jsonStruct;
             }
         }
