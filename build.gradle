@@ -90,7 +90,7 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
-tasks.register('release') {
+task release {
     dependsOn(relocateShadowJar)
     [
             'A:/plugins/sk-gson/',
