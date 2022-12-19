@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -17,15 +16,15 @@ shadowJar {
     mergeServiceFiles()
 }
 
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
+tasks.register('relocateShadowJar') {
+    ShadowJar target = tasks.shadowJar as ShadowJar
 }
 
 static configureRelocations(ShadowJar task) {
     task.relocate('com.google.gson', 'cz.coffee.skriptgson.google.gson')
 }
 
-tasks.withType(ShadowJar) {
+tasks.withType(ShadowJar).configureEach {
     dependsOn relocateShadowJar
     configurations = [
             project.configurations.shadow
@@ -81,32 +80,42 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 
-task cleanPlugins(type: Delete) {
-    new File("A:/plugins/sk-gson").list().each {
-        delete "A:/plugins/sk-gson/" + it
+tasks.register('clearOldVersion', Delete) {
+    ['A:/plugins/sk-gson/', 'A:/Bukkit-Core/purpur/dev-latest/plugins', 'A:/workspaces/latest//plugins'].each {
+        path ->
+            {
+                def treeOfPaths = fileTree(path)
+                treeOfPaths.include '**/skript-gson*.jar'
+                treeOfPaths.each { fileObject -> delete(fileObject) }
+            }
     }
 }
 
-task release(type: Copy) {
-    cleanPlugins
-    shadowJar
-    from shadowJar
-    into "A:/plugins/sk-gson"
-    into "A:/Bukkit-Core/purpur/dev-latest/plugins"
+tasks.register('release', Copy) {
+    dependsOn([build, reload])
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        copy {
+            from shadowJar
+            into destination
+        }
+    }
 }
 
-task server(type: Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "startServer"'
+tasks.register('server', Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "startServer"'
     return 1
 }
 
-task reload(dependsOn: ['build', 'cleanPlugins'], type: Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "reload"'
+tasks.register('reload', Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "reload"'
     return 1
 }
 
-task reload_plus(dependsOn: ['build', 'cleanPlugins'], type: Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\buld.ps1 "reload_+"'
+tasks.register('reload_plus', Exec) {
+    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "reload_+"'
     return 1
 }
 
