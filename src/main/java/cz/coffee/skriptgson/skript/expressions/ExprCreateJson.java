@@ -20,6 +20,7 @@ import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.SimpleAdapter;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,6 +61,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
     private Expression<?> toParse;
     private Expression<ItemType> itemTypeExpression;
+    private Expression<Inventory> inventoryExpression;
     private int pattern;
     private boolean hasVariables;
 
@@ -89,7 +91,6 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                 return new JsonElement[]{json};
             }
         }
-
 
         if (pattern == 1) {
             Object itemTypeExpression = this.itemTypeExpression.getSingle(e);

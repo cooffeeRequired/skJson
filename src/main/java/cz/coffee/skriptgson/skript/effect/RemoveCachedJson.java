@@ -46,7 +46,7 @@ public class RemoveCachedJson extends Effect {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "remove json-id" + stringIdExpression.toString(e, debug);
+        return "remove json" + stringIdExpression.toString(e, debug);
     }
 
     @Override

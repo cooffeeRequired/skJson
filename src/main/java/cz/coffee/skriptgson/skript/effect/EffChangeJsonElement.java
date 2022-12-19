@@ -34,8 +34,8 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
         "\tchange {-json} value \"test:some\" to item (iron sword named \"The &acolored &fSword\") and save it to json file \"plugins/sk-gson/test.json\"",
         "\tbroadcast {-json}",
         "",
-        "\tchange cached json-id \"json5\" value \"test:some\" to item (iron sword named \"The &acolored &fSword\")",
-        "\tbroadcast cached json-id \"json5\"",
+        "\tchange cached json \"json5\" value \"test:some\" to item (iron sword named \"The &acolored &fSword\")",
+        "\tbroadcast cached json \"json5\"",
 })
 @Since("2.0.0")
 

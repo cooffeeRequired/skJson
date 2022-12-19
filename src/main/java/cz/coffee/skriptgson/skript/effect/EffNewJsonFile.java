@@ -55,7 +55,6 @@ public class EffNewJsonFile extends Effect {
     private int pattern;
     private boolean force;
     private boolean newArray, newObject;
-    private boolean isCwd;
 
     @Override
     protected void execute(@NotNull Event e) {

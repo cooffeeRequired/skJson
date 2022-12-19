@@ -24,8 +24,8 @@ import static cz.coffee.skriptgson.utils.Utils.getGitVersion;
 
 public class SkriptGson extends JavaPlugin {
 
-    public static HashMap<String, Object> JSON_HASHMAP = new HashMap<>();
-    public static HashMap<String, File> FILE_JSON_HASHMAP = new HashMap<>();
+    public static final HashMap<String, Object> JSON_HASHMAP = new HashMap<>();
+    public static final HashMap<String, File> FILE_JSON_HASHMAP = new HashMap<>();
 
     private static Logger logger;
     private static PluginManager pm;
@@ -81,7 +81,7 @@ public class SkriptGson extends JavaPlugin {
         githubChecker();
         // metrics
         loadMetrics();
-
+        info("Dev-version: &e@01e11");
         info("&aFinished loading.");
     }
 

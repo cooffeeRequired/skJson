@@ -65,9 +65,6 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
         if (values[0] == null || json == null) return new JsonElement[0];
 
 
-        JsonElement next = null, returnValue = null;
-
-
         for (String key : values) {
             if (json instanceof JsonArray array) {
                 int index = 0;
@@ -97,7 +94,7 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "element " + stringExpression.toString(e, debug) + " from " + (pattern == 0 ? "json " : " json-id") + jsonElementExpression.toString(e, debug);
+        return "element " + stringExpression.toString(e, debug) + " from " + (pattern == 0 ? "json " : " json") + jsonElementExpression.toString(e, debug);
     }
 
     @Override

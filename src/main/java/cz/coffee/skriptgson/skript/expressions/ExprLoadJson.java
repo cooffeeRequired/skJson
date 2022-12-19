@@ -23,7 +23,7 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 @Name("Load cached Json File as string iD")
 @Description({"You can load cached json as String id"})
 @Examples({"on script load:",
-        "\tset {_json} to [cached] json-id \"your\"",
+        "\tset {_json} to [cached] json \"your\"",
         "\tsend {_json} with pretty print"
 })
 @Since("2.0.0")
@@ -33,7 +33,7 @@ public class ExprLoadJson extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(ExprLoadJson.class, JsonElement.class, ExpressionType.COMBINED,
-                "[cached] [json(-| )id] %string%"
+                "[cached] json %string%"
         );
     }
 
@@ -65,7 +65,7 @@ public class ExprLoadJson extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "cached json-id " + stringExpression.toString(e, debug);
+        return "cached json " + stringExpression.toString(e, debug);
     }
 
     @Override

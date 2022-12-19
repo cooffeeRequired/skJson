@@ -30,7 +30,7 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 @Name("Save Json content to cached Json")
 @Description({"Save changed content to cached json, and rewrite those values"})
 @Examples({"on script load:",
-        "\tsave [cached] json-id \"your\""
+        "\tsave [cached] json \"your\""
 })
 @Since("2.0.0")
 
@@ -69,7 +69,7 @@ public class EffSaveCachedJson extends Effect {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "save cached json-id " + stringIdExpression.toString(e, debug);
+        return "save cached json " + stringIdExpression.toString(e, debug);
     }
 
     @Override

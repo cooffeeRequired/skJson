@@ -35,8 +35,8 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 @Description({"You can append the jsonelement or the cached json or the json file"})
 @Examples(value = {"command sk-example:",
         "\ttrigger:",
-        "\t\tappend player's location with key \"location\" to cached json-id \"your\"",
-        "\t\tsend cached json-id \"your\" with pretty print",
+        "\t\tappend player's location with key \"location\" to cached json \"your\"",
+        "\t\tsend cached json \"your\" with pretty print",
         "",
         "\t\tset {_json} to new json from player's world",
         "\t\tappend player's location with key \"location\" as new nested object \"player:data:0\" to {_json}",

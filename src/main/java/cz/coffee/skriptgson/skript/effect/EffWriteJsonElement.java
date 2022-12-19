@@ -31,8 +31,8 @@ import static cz.coffee.skriptgson.utils.GsonUtils.setVariable;
 @Description({"You can write/re-write the jsonelement or the cached json or the json file"})
 @Examples(value = {"command sk-example:",
         "\ttrigger:",
-        "\t\twrite player's location to cached json-id \"your\"",
-        "\t\tsend cached json-id \"your\" with pretty print",
+        "\t\twrite player's location to cached json \"your\"",
+        "\t\tsend cached json \"your\" with pretty print",
         "",
         "\t\tset {_json} to new json from player's world",
         "\t\twrite player's location to {_json}",

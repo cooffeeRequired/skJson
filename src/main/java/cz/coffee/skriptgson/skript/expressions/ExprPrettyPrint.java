@@ -10,13 +10,14 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.utils.Utils.color;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 
 @Name("Json outputting as pretty printed.")
 @Description("You can do colorize and smart output of your current json.")
@@ -29,6 +30,7 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 public class ExprPrettyPrint extends SimpleExpression<String> {
 
     private static final String RESET = "§r";
+    private static boolean with = false;
 
     static {
         Skript.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.COMBINED,
@@ -41,7 +43,10 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
     @Override
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
         JsonElement json = jsonElementExpression.getSingle(e);
-        String jsonString = hierarchyAdapter().toJson(json);
+        Gson pretty = new GsonBuilder().disableHtmlEscaping().setLenient().setPrettyPrinting().create();
+        String jsonString = pretty.toJson(json);
+
+
         String coloredJsonString = color(jsonString
                 .replaceAll("(true)", "§a$0" + RESET)
                 .replaceAll("(false)", "§c$0" + RESET)
@@ -73,6 +78,7 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        with = parseResult.hasTag("with indent");
         jsonElementExpression = (Expression<JsonElement>) exprs[0];
         return true;
     }

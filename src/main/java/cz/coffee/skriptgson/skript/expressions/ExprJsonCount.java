@@ -27,7 +27,7 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 @Examples({"on load:",
         "\tset {_json} to new json from string \"{'Hello': {'Hi': 'There'}}\"",
         "\tsend count of value \"There\" of {_json}",
-        "\tsend count of key \"There\" of json-id \"your\""
+        "\tsend count of key \"There\" of json \"your\""
 })
 @Since("2.0.0")
 
@@ -36,7 +36,7 @@ public class ExprJsonCount extends SimpleExpression<Integer> {
     static {
         Skript.registerExpression(ExprJsonCount.class, Integer.class, ExpressionType.COMBINED,
                 "(count|number) of (:value|:key) %string% of %jsonelement%",
-                "(count|number) of (:value|:key) %string% of [cached] json-id %string%"
+                "(count|number) of (:value|:key) %string% of [cached] json %string%"
         );
     }
 
