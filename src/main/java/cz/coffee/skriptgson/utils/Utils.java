@@ -8,8 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.BukkitClassAdapt;
-import cz.coffee.skriptgson.adapters.SkriptClassAdapt;
+import cz.coffee.skriptgson.adapters.hiearchyAdapters.BukkitClassAdapt;
+import cz.coffee.skriptgson.adapters.hiearchyAdapters.SkriptClassAdapt;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 

@@ -15,7 +15,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -82,15 +82,15 @@ public class EffChangeJsonElement extends Effect {
                 SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return;
             }
-            JsonElement fromVar = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(getVariable(e, variableName, isLocal)));
-            json = change(fromVar, from, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(dataToChange)));
+            JsonElement fromVar = hierarchyAdapter().toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
+            json = change(fromVar, from, hierarchyAdapter().toJsonTree(Adapters.toJson(dataToChange)));
 
         } else if (isCached) {
             String cachedID = String.valueOf(fromGeneric.getSingle(e));
             if (JSON_HASHMAP.containsKey(cachedID)) {
                 JsonElement fromCache = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(cachedID));
                 JSON_HASHMAP.remove(cachedID);
-                json = change(fromCache, from, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(dataToChange)));
+                json = change(fromCache, from, hierarchyAdapter().toJsonTree(Adapters.toJson(dataToChange)));
                 JSON_HASHMAP.put(cachedID, json);
             } else {
                 SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);

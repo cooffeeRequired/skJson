@@ -16,7 +16,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -80,12 +80,12 @@ public class EffWriteJsonElement extends Effect {
                 SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
                 return;
             }
-            setVariable(variableName, SimpleAdapter.toJson(fromGeneric), e, isLocal);
+            setVariable(variableName, Adapters.toJson(fromGeneric), e, isLocal);
         } else if (isFile) {
             Object objectFilePath = dataExpression.getSingle(e);
             if (objectFilePath == null) return;
             String filepathString = objectFilePath.toString();
-            saveToFile(SimpleAdapter.toJson(fromGeneric), filepathString);
+            saveToFile(Adapters.toJson(fromGeneric), filepathString);
         } else if (isCached) {
             Object objectFilePath = dataExpression.getSingle(e);
             if (objectFilePath == null) return;

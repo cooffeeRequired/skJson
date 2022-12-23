@@ -18,7 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import cz.coffee.skriptgson.utils.GsonUtils;
 import org.bukkit.event.Event;
@@ -96,16 +96,16 @@ public class EffAppendJsonElement extends Effect {
                 return;
             }
             JsonElement json;
-            JsonElement fromVar = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(getVariable(e, variableName, isLocal)));
+            JsonElement fromVar = hierarchyAdapter().toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
             if (Nested == null) {
                 if (fromVar instanceof JsonObject object) {
-                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                 } else if (fromVar instanceof JsonArray array) {
-                    array.add(hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                    array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                 }
                 json = fromVar;
             } else {
-                json = append(fromVar, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)), Key, Nested);
+                json = append(fromVar, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
             }
             setVariable(variableName, json, e, isLocal);
 
@@ -117,13 +117,13 @@ public class EffAppendJsonElement extends Effect {
             JsonElement json;
             if (Nested == null) {
                 if (fromFile instanceof JsonObject object) {
-                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                 } else if (fromFile instanceof JsonArray array) {
-                    array.add(hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                    array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                 }
                 json = fromFile;
             } else {
-                json = append(fromFile, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)), Key, Nested);
+                json = append(fromFile, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
             }
 
             saveToFile(json, filepathString);
@@ -138,13 +138,13 @@ public class EffAppendJsonElement extends Effect {
                     JsonElement json;
                     if (Nested == null) {
                         if (fromCache instanceof JsonObject object) {
-                            object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                            object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                         } else if (fromCache instanceof JsonArray array) {
-                            array.add(hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)));
+                            array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
                         }
                         json = fromCache;
                     } else {
-                        json = append(fromCache, hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(fromGeneric)), Key, Nested);
+                        json = append(fromCache, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
                     }
                     JSON_HASHMAP.remove(objectFilePath.toString());
                     JSON_HASHMAP.put(objectFilePath.toString(), json);

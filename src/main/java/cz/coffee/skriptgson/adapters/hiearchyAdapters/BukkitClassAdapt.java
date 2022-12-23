@@ -1,4 +1,4 @@
-package cz.coffee.skriptgson.adapters;
+package cz.coffee.skriptgson.adapters.hiearchyAdapters;
 
 import ch.njol.skript.doc.Since;
 import com.google.gson.*;

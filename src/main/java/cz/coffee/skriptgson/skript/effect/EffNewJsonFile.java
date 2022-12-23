@@ -14,7 +14,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +78,7 @@ public class EffNewJsonFile extends Effect {
             newFile(fileExpression, force, null);
             JSON_HASHMAP.put(fileExpression, null);
         } else if (genericObjectExpression != null)
-            newFile(fileExpression, force, SimpleAdapter.toJson(genericObjectExpression));
+            newFile(fileExpression, force, Adapters.toJson(genericObjectExpression));
         else if (jsonExpression != null)
             newFile(fileExpression, force, jsonExpression);
         else

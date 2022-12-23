@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -53,7 +53,7 @@ public class EffParse extends SimpleExpression<Object> {
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
         JsonElement bukkitObject = json.getSingle(e);
-        return new Object[]{SimpleAdapter.fromJson(bukkitObject)};
+        return new Object[]{Adapters.fromJson(bukkitObject)};
     }
 
     @Override

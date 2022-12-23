@@ -6,7 +6,7 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import org.bukkit.event.Event;
 
 import java.io.*;
@@ -98,9 +98,9 @@ public class GsonUtils {
                             else if (to instanceof Boolean bool)
                                 map.addProperty(m.getKey(), bool);
                             else
-                                map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(to)));
+                                map.add(m.getKey(), hierarchyAdapter().toJsonTree(Adapters.toJson(to)));
                         } else {
-                            map.add(m.getKey(), hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(to)));
+                            map.add(m.getKey(), hierarchyAdapter().toJsonTree(Adapters.toJson(to)));
                         }
                     }
                 }

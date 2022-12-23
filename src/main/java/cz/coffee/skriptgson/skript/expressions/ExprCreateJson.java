@@ -17,10 +17,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.SimpleAdapter;
+import cz.coffee.skriptgson.adapters.Adapters;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +60,6 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
     private Expression<?> toParse;
     private Expression<ItemType> itemTypeExpression;
-    private Expression<Inventory> inventoryExpression;
     private int pattern;
     private boolean hasVariables;
 
@@ -100,7 +98,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
         if (pattern == 2) {
             Object objectExpression = this.toParse.getSingle(e);
-            JsonElement json = hierarchyAdapter().toJsonTree(SimpleAdapter.toJson(objectExpression));
+            JsonElement json = hierarchyAdapter().toJsonTree(Adapters.toJson(objectExpression));
             return new JsonElement[]{json};
         }
 
