@@ -30,7 +30,6 @@ import static cz.coffee.skriptgson.utils.Utils.color;
 public class ExprPrettyPrint extends SimpleExpression<String> {
 
     private static final String RESET = "§r";
-    private static boolean with = false;
 
     static {
         Skript.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.COMBINED,
@@ -78,7 +77,6 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        with = parseResult.hasTag("with indent");
         jsonElementExpression = (Expression<JsonElement>) exprs[0];
         return true;
     }

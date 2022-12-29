@@ -14,18 +14,19 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.Adapters;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonFileHandler.saveToFile;
 import static cz.coffee.skriptgson.utils.GsonUtils.change;
 import static cz.coffee.skriptgson.utils.GsonUtils.getVariable;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 
 @Name("Change value of JsonElements.")
 @Description("You can handle a JsonElement or cached Jsons. and change their data as you want.")
@@ -60,7 +61,6 @@ public class EffChangeJsonElement extends Effect {
     protected void execute(@NotNull Event e) {
         String filePath = null;
         JsonElement json = null;
-        GsonErrorLogger err = new GsonErrorLogger();
         if (save) {
             filePath = this.filePath.getSingle(e);
         }
@@ -79,21 +79,21 @@ public class EffChangeJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = fromGeneric.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, ERROR);
                 return;
             }
-            JsonElement fromVar = hierarchyAdapter().toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
-            json = change(fromVar, from, hierarchyAdapter().toJsonTree(Adapters.toJson(dataToChange)));
+            JsonElement fromVar = gsonAdapter.toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
+            json = change(fromVar, from, gsonAdapter.toJsonTree(Adapters.toJson(dataToChange)));
 
         } else if (isCached) {
             String cachedID = String.valueOf(fromGeneric.getSingle(e));
             if (JSON_HASHMAP.containsKey(cachedID)) {
-                JsonElement fromCache = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(cachedID));
+                JsonElement fromCache = gsonAdapter.toJsonTree(JSON_HASHMAP.get(cachedID));
                 JSON_HASHMAP.remove(cachedID);
-                json = change(fromCache, from, hierarchyAdapter().toJsonTree(Adapters.toJson(dataToChange)));
+                json = change(fromCache, from, gsonAdapter.toJsonTree(Adapters.toJson(dataToChange)));
                 JSON_HASHMAP.put(cachedID, json);
             } else {
-                SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
+                sendErrorMessage(ID_GENERIC_NOT_FOUND, WARNING);
             }
         }
         if (save) {
@@ -104,7 +104,6 @@ public class EffChangeJsonElement extends Effect {
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        GsonErrorLogger err = new GsonErrorLogger();
         filePath = (Expression<String>) exprs[4];
         save = parseResult.hasTag("save");
 
@@ -118,14 +117,14 @@ public class EffChangeJsonElement extends Effect {
             fromGeneric = (Expression<Object>) exprs[0];
             if (fromGeneric instanceof Variable<Object> variable) {
                 if (!variable.isSingle()) {
-                    SkriptGson.severe(err.VAR_NEED_TO_BE_SINGLE);
+                   sendErrorMessage(VAR_NEED_TO_BE_SINGLE, WARNING);
                     return false;
                 } else {
                     isLocal = variable.isLocal();
                     variableString = variable.getName();
                 }
             } else {
-                SkriptGson.severe(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, WARNING);
                 return false;
             }
         } else {

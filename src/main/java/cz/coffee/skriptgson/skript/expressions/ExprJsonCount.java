@@ -12,15 +12,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import cz.coffee.skriptgson.utils.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 
 @Name("Count of values or keys in the JSON")
 @Description({"Return the result of count of keys/values are found in the Json."})
@@ -48,7 +46,6 @@ public class ExprJsonCount extends SimpleExpression<Integer> {
 
     @Override
     protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
-        GsonErrorLogger err = new GsonErrorLogger();
         String searchedPhrase = stringExpression.getSingle(e);
         String stringIDExpression;
 
@@ -58,10 +55,9 @@ public class ExprJsonCount extends SimpleExpression<Integer> {
         } else if (pattern == 1) {
             stringIDExpression = this.stringIDExpression.getSingle(e);
             if (!JSON_HASHMAP.containsKey(stringIDExpression)) {
-                SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
                 return new Integer[0];
             }
-            json = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(stringIDExpression)).getAsJsonObject();
+            json = gsonAdapter.toJsonTree(JSON_HASHMAP.get(stringIDExpression)).getAsJsonObject();
         }
 
         if (json == null) return new Integer[0];

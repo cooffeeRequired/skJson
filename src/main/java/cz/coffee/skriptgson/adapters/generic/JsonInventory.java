@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 import static cz.coffee.skriptgson.utils.GsonUtils.check;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 import static org.bukkit.Bukkit.createInventory;
 
 public class JsonInventory implements JsonGenericAdapter<Inventory> {
@@ -59,13 +59,13 @@ public class JsonInventory implements JsonGenericAdapter<Inventory> {
         }
 
         inventoryHolder.addProperty("Type", holder != null ? holder.getClass().getSimpleName() : null);
-        inventoryHolder.add("holder", hierarchyAdapter().toJsonTree(holder));
+        inventoryHolder.add("holder", gsonAdapter.toJsonTree(holder));
 
         inventoryMeta.addProperty("inventory-size", inv.getSize());
 
         deserializedInventory.addProperty(GSON_GENERIC_ADAPTER_KEY, inv.getClass().getName());
         for (ItemStack item : inv.getContents()) {
-            deserializedItems.add(hierarchyAdapter().toJsonTree(item));
+            deserializedItems.add(gsonAdapter.toJsonTree(item));
         }
 
         deserializedInventory.add(INVENTORY_META_KEY, inventoryMeta);
@@ -104,7 +104,7 @@ public class JsonInventory implements JsonGenericAdapter<Inventory> {
         );
 
         for (JsonElement itemFromJson : inventoryContents) {
-            ItemStack item = hierarchyAdapter().fromJson(itemFromJson, ItemStack.class);
+            ItemStack item = gsonAdapter.fromJson(itemFromJson, ItemStack.class);
 
             if (!(itemFromJson instanceof JsonNull)) {
                 if (itemFromJson.getAsJsonObject().has(CONTENTS_KEY_META)) {
@@ -133,7 +133,7 @@ public class JsonInventory implements JsonGenericAdapter<Inventory> {
                         for (Map.Entry<String, JsonElement> mapOfModifiers : jsonModifiers.entrySet()) {
                             Attribute attribute = Attribute.valueOf(mapOfModifiers.getKey());
                             for (JsonElement modifier : mapOfModifiers.getValue().getAsJsonArray()) {
-                                AttributeModifier attributeModifier = hierarchyAdapter().fromJson(modifier, AttributeModifier.class);
+                                AttributeModifier attributeModifier = gsonAdapter.fromJson(modifier, AttributeModifier.class);
                                 itemMeta.addAttributeModifier(attribute, attributeModifier);
                                 item.setItemMeta(itemMeta);
                             }

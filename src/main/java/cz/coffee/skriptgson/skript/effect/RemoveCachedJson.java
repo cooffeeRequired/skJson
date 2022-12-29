@@ -9,13 +9,16 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+
+
 
 @Name("Remove cached json")
 @Description({"You can basically remove the generic Json from the cached Json Map."})
@@ -35,12 +38,11 @@ public class RemoveCachedJson extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
-        GsonErrorLogger err = new GsonErrorLogger();
         String stringIdExpression = this.stringIdExpression.getSingle(e);
         if (JSON_HASHMAP.containsKey(stringIdExpression)) {
             JSON_HASHMAP.remove(stringIdExpression);
         } else {
-            SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
+            sendErrorMessage(ID_GENERIC_NOT_FOUND, WARNING);
         }
     }
 

@@ -3,20 +3,17 @@
  */
 package cz.coffee.skriptgson.utils;
 
-import ch.njol.yggdrasil.YggdrasilSerializable;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.adapters.hiearchyAdapters.BukkitClassAdapt;
-import cz.coffee.skriptgson.adapters.hiearchyAdapters.SkriptClassAdapt;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+
 
 @SuppressWarnings("unused")
 public class Utils {
@@ -45,15 +42,6 @@ public class Utils {
         return true;
     }
 
-    public static Gson hierarchyAdapter() {
-        GsonBuilder g = new GsonBuilder()
-                .enableComplexMapKeySerialization()
-                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt())
-                .registerTypeHierarchyAdapter(YggdrasilSerializable.YggdrasilExtendedSerializable.class, new SkriptClassAdapt())
-                .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new SkriptClassAdapt());
-        return g.disableHtmlEscaping().setPrettyPrinting().create();
-    }
-
     public static String getGitVersion() {
         try {
             URL url = new URL("https://api.github.com/repos/cooffeeRequired/skript-gson/releases/latest");
@@ -71,20 +59,19 @@ public class Utils {
                     while (scanner.hasNext())
                         inLine.append(scanner.nextLine());
                 } catch (IOException ex) {
-                    SkriptGson.warning("GitHubRelease response code " + response);
-                    SkriptGson.warning("We can't check the version, check your connection");
+                    sendErrorMessage("GitHubRelease response code " + response, ERROR);
+                    sendErrorMessage("We can't check the version, check your connection", WARNING);
                 } finally {
                     assert scanner != null;
                     scanner.close();
                 }
                 return JsonParser.parseString(inLine.toString()).getAsJsonObject().get("tag_name").toString().replaceAll("\"", "");
             } else if (response == 403) {
-                SkriptGson.warning("Tots of restart in a little while, GitHub API Unavailable, Code: " + response);
-                return "403";
+                sendErrorMessage("Lots of restart in a little while, GitHub API Unavailable, Code: " + response, WARNING);
             }
         } catch (IOException ex) {
-            SkriptGson.warning("Check updated &cFailed");
-            SkriptGson.warning("We can't check the version, check your connection");
+            sendErrorMessage("Check updated &cFailed", WARNING);
+            sendErrorMessage("We can't check the version, check your connection", WARNING);
         }
         return null;
     }

@@ -10,19 +10,22 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.*;
-import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ONLY_JSONVAR_IS_ALLOWED;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.sendErrorMessage;
 import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 
 
 @Since("2.0.0")
 
 public class JsonElementType {
+
+
 
     private static final String KEY_PARSED_TAG = ";";
     private static final String KEY_NESTED_TAG = ":";
@@ -94,14 +97,13 @@ public class JsonElementType {
         public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
             switch (mode) {
                 case ADD, SET, REMOVE ->
-                        CollectionUtils.array(Object.class, String.class, Boolean.class, Integer.class, JsonElement.class);
+                        CollectionUtils.array(Object.class, JsonElement.class);
             }
             return CollectionUtils.array(Object.class);
         }
 
         @Override
         public void change(Object @NotNull [] what, @Nullable Object @NotNull [] delta, @NotNull ChangeMode mode) {
-            GsonErrorLogger err = new GsonErrorLogger();
 
             JsonElement deltaJson;
             String Key = null;
@@ -132,7 +134,7 @@ public class JsonElementType {
 
                             for (Object parsedWhat : what) {
                                 if (!(parsedWhat instanceof JsonElement)) {
-                                    SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                                    sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, ERROR);
                                     return;
                                 } else {
                                     JsonElement value;
@@ -209,7 +211,7 @@ public class JsonElementType {
                         }
                         for (Object parsedWhat : what) {
                             if (!(parsedWhat instanceof JsonElement)) {
-                                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, ERROR);
                                 return;
                             } else {
                                 if (!isNested) {

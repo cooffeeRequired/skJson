@@ -12,12 +12,14 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.SkriptGson;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import cz.coffee.skriptgson.utils.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+
 
 
 @Name("Array or List formatted to JSON.")
@@ -43,18 +45,17 @@ public class ExprSkriptCollectionToJson extends SimpleExpression<JsonElement> {
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        GsonErrorLogger err = new GsonErrorLogger();
         Expression<?> objects = exprs[0];
         if (objects instanceof Variable<?> var) {
             if (var.isList()) {
                 isLocal = var.isLocal();
                 variableString = var.getName();
             } else {
-                SkriptGson.severe(err.VAR_NEED_TO_BE_LIST);
+                sendErrorMessage(VAR_NEED_TO_BE_LIST, ERROR);
                 return false;
             }
         } else {
-            SkriptGson.severe(err.ONLY_JSONVAR_IS_ALLOWED);
+            sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, ERROR);
             return false;
         }
         return true;

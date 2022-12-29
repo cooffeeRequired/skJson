@@ -16,9 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.Adapters;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -26,9 +24,12 @@ import org.jetbrains.annotations.NotNull;
 import java.io.FileReader;
 import java.io.IOException;
 
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonVariables.parseVariable;
 import static cz.coffee.skriptgson.utils.GsonUtils.canCreate;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+
 
 @Name("New JSON from bunch sources (Text/File/Request)")
 @Description({})
@@ -62,10 +63,8 @@ public class ExprCreateJson extends SimpleExpression<Object> {
     private Expression<ItemType> itemTypeExpression;
     private int pattern;
     private boolean hasVariables;
-
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-        GsonErrorLogger err = new GsonErrorLogger();
         if (pattern == 0) {
             if (hasVariables) {
                 Object stringVariablesExpression = this.toParse.getSingle(e);
@@ -74,7 +73,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                 try {
                     json = parseVariable(stringVariablesExpression.toString(), e);
                 } catch (JsonSyntaxException exception) {
-                    SkriptGson.warning(err.JSON_SYNTAX);
+                    sendErrorMessage(JSON_SYNTAX, WARNING);
                 }
                 return new JsonElement[]{json};
             } else {
@@ -84,7 +83,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                 try {
                     json = JsonParser.parseString(stringExpression.toString());
                 } catch (JsonSyntaxException exception) {
-                    SkriptGson.warning(err.JSON_SYNTAX);
+                    sendErrorMessage(JSON_SYNTAX, WARNING);
                 }
                 return new JsonElement[]{json};
             }
@@ -92,13 +91,13 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
         if (pattern == 1) {
             Object itemTypeExpression = this.itemTypeExpression.getSingle(e);
-            JsonElement json = hierarchyAdapter().toJsonTree(itemTypeExpression);
+            JsonElement json = gsonAdapter.toJsonTree(itemTypeExpression);
             return new JsonElement[]{json};
         }
 
         if (pattern == 2) {
             Object objectExpression = this.toParse.getSingle(e);
-            JsonElement json = hierarchyAdapter().toJsonTree(Adapters.toJson(objectExpression));
+            JsonElement json = gsonAdapter.toJsonTree(Adapters.toJson(objectExpression));
             return new JsonElement[]{json};
         }
 
@@ -111,12 +110,12 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             } catch (JsonSyntaxException | IOException exception) {
                 if (exception instanceof JsonSyntaxException) {
                     if (!canCreate(pathExpression)) {
-                        SkriptGson.warning(err.PARENT_DIRECTORY_NOT_EXIST + pathExpression);
+                       sendErrorMessage(PARENT_DIRECTORY_NOT_EXIST + pathExpression, WARNING);
                     } else {
-                        SkriptGson.warning(err.FILE_NOT_EXIST + pathExpression);
+                        sendErrorMessage(FILE_NOT_EXIST + pathExpression, WARNING);
                     }
                 } else {
-                    SkriptGson.warning(err.JSON_SYNTAX_FILE);
+                    sendErrorMessage(JSON_SYNTAX_FILE, WARNING);
                 }
             }
             return new JsonElement[]{json};
@@ -134,6 +133,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         return JsonElement.class;
     }
 
+
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
         if (pattern == 0)
@@ -150,7 +150,6 @@ public class ExprCreateJson extends SimpleExpression<Object> {
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        GsonErrorLogger err = new GsonErrorLogger();
         pattern = matchedPattern;
         hasVariables = parseResult.hasTag("with variables");
         if (pattern == 0 || pattern == 2 || pattern == 3) {
@@ -160,7 +159,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             itemTypeExpression = (Expression<ItemType>) exprs[0];
             return true;
         } else if (pattern == 4) {
-            SkriptGson.warning(err.ERROR_METHOD_IS_NOT_ALLOWED);
+            sendErrorMessage(ERROR_METHOD_IS_NOT_ALLOWED, WARNING);
             return false;
         }
         return false;

@@ -13,12 +13,15 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ID_GENERIC_NOT_FOUND;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.sendErrorMessage;
 import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 
 @Name("Get element from Json")
@@ -56,7 +59,10 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
             json = jsonElementExpression;
         } else {
             stringIdExpression = this.stringIdExpression.getSingle(e);
-            json = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(stringIdExpression));
+            json = gsonAdapter.toJsonTree(JSON_HASHMAP.get(stringIdExpression));
+            if (!JSON_HASHMAP.containsKey(stringIdExpression)) {
+                sendErrorMessage(ID_GENERIC_NOT_FOUND, GsonErrorLogger.ErrorLevel.WARNING);
+            }
         }
 
         if (stringExpression == null) return new JsonElement[0];

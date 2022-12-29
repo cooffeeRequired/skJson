@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import com.google.gson.stream.JsonWriter;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -22,10 +21,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-import static cz.coffee.skriptgson.SkriptGson.FILE_JSON_HASHMAP;
-import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+import static cz.coffee.skriptgson.SkriptGson.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.sendErrorMessage;
 import static cz.coffee.skriptgson.utils.GsonUtils.canCreate;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+
 
 @Name("Save Json content to cached Json")
 @Description({"Save changed content to cached json, and rewrite those values"})
@@ -44,26 +46,25 @@ public class EffSaveCachedJson extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
-        GsonErrorLogger err = new GsonErrorLogger();
         String stringIdExpression = this.stringIdExpression.getSingle(e);
 
         if (JSON_HASHMAP.containsKey(stringIdExpression)) {
             if (FILE_JSON_HASHMAP.containsKey(stringIdExpression)) {
                 File file = FILE_JSON_HASHMAP.get(stringIdExpression);
                 try (var protectedWriter = new JsonWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-                    protectedWriter.jsonValue(hierarchyAdapter().toJson(JSON_HASHMAP.get(stringIdExpression)));
+                    protectedWriter.jsonValue(gsonAdapter.toJson(JSON_HASHMAP.get(stringIdExpression)));
                     protectedWriter.flush();
                 } catch (IOException exception) {
                     if (!canCreate(file)) {
-                        SkriptGson.warning(err.PARENT_DIRECTORY_NOT_EXIST);
+                       sendErrorMessage(PARENT_DIRECTORY_NOT_EXIST, WARNING);
                     } else {
-                        SkriptGson.warning(exception.getMessage());
+                        sendErrorMessage(exception.getMessage(), GsonErrorLogger.ErrorLevel.WARNING);
                     }
                 }
             }
 
         } else {
-            SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
+            sendErrorMessage(ID_GENERIC_NOT_FOUND, WARNING);
         }
     }
 

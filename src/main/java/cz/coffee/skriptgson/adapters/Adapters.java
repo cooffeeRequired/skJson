@@ -11,7 +11,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+
 
 @Since("2.0.0")
 
@@ -22,7 +23,7 @@ public class Adapters {
         if (input != null) {
             boolean isSerializable = (input instanceof YggdrasilSerializable || input instanceof ConfigurationSerializable);
             if (isSerializable)
-                return hierarchyAdapter().toJsonTree(input);
+                return gsonAdapter.toJsonTree(input);
             else {
                 if (input instanceof World world) {
                     return new JsonWorld().toJson(world);
@@ -37,7 +38,6 @@ public class Adapters {
 
     public static Object fromJson(JsonElement json) {
         if (json instanceof JsonNull) return null;
-
         Class<?> clazz = new JsonGeneric().typeOf(json);
 
         if (Inventory.class.isAssignableFrom(clazz)) {
@@ -45,7 +45,7 @@ public class Adapters {
         } else if (World.class.isAssignableFrom(clazz)) {
             return new JsonWorld().fromJson(json);
         } else {
-            return hierarchyAdapter().fromJson(json, ConfigurationSerializable.class);
+            return gsonAdapter.fromJson(json, ConfigurationSerializable.class);
         }
     }
 }

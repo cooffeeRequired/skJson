@@ -5,7 +5,6 @@ import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.Adapters;
 import org.bukkit.event.Event;
 
@@ -20,7 +19,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+
+
 import static cz.coffee.skriptgson.utils.Utils.isIncrementing;
 
 public class GsonUtils {
@@ -98,9 +102,9 @@ public class GsonUtils {
                             else if (to instanceof Boolean bool)
                                 map.addProperty(m.getKey(), bool);
                             else
-                                map.add(m.getKey(), hierarchyAdapter().toJsonTree(Adapters.toJson(to)));
+                                map.add(m.getKey(), gsonAdapter.toJsonTree(Adapters.toJson(to)));
                         } else {
-                            map.add(m.getKey(), hierarchyAdapter().toJsonTree(Adapters.toJson(to)));
+                            map.add(m.getKey(), gsonAdapter.toJsonTree(Adapters.toJson(to)));
                         }
                     }
                 }
@@ -124,7 +128,7 @@ public class GsonUtils {
             for (String c : nest) {
                 if (isInt(c)) isArrayKey = true;
                 if (!check(jsonFromFile, c, Type.KEY)) {
-                    SkriptGson.severe("One of nested object doesn't exist in the JSON file");
+                    sendErrorMessage("One of nested object doesn't exist in the JSON file", GsonErrorLogger.ErrorLevel.WARNING);
                     return null;
                 }
                 if (next instanceof JsonArray array) next = array.get(isArrayKey ? Integer.parseInt(c) : 0);
@@ -270,16 +274,16 @@ public class GsonUtils {
                 variable.keySet().stream().filter(Objects::nonNull).forEach(checkkeys::add);
                 if (isIncrementing(checkkeys.toArray())) {
                     JsonArray jsonStruct = new JsonArray();
-                    keys.forEach(key -> jsonStruct.add(hierarchyAdapter().toJson(jsonListSubTree(event, name + key, isLocal))));
+                    keys.forEach(key -> jsonStruct.add(gsonAdapter.toJson(jsonListSubTree(event, name + key, isLocal))));
                     return jsonStruct;
                 } else {
                     JsonObject jsonStruct = new JsonObject();
-                    keys.forEach(key -> jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal))));
+                    keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(jsonListSubTree(event, name + key, isLocal))));
                     return jsonStruct;
                 }
             } else {
                 JsonObject jsonStruct = new JsonObject();
-                keys.forEach(key -> jsonStruct.add(key, hierarchyAdapter().toJsonTree(jsonListSubTree(event, name + key, isLocal))));
+                keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(jsonListSubTree(event, name + key, isLocal))));
                 return jsonStruct;
             }
         }
@@ -296,7 +300,7 @@ public class GsonUtils {
             }
 
             if (!(variable instanceof String || variable instanceof Integer || variable instanceof Double || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
-                variable = hierarchyAdapter().toJsonTree(variable);
+                variable = gsonAdapter.toJsonTree(variable);
             }
             return variable;
         }
@@ -304,25 +308,24 @@ public class GsonUtils {
 
     public static class GsonFileHandler {
         public static void newFile(String fileString, boolean forcing, Object expressionData) {
-            GsonErrorLogger err = new GsonErrorLogger();
             File file = new File(fileString);
 
             if (file.exists()) {
-                SkriptGson.warning(err.JSON_FILE_EXISTS);
+                sendErrorMessage(JSON_FILE_EXISTS, WARNING);
                 return;
             }
 
             if (forcing) {
                 Path fileParents = Paths.get(fileString);
                 if (Files.exists(fileParents.getParent())) {
-                    SkriptGson.warning(err.PARENT_DIRECTORY_EXISTS);
+                    sendErrorMessage(PARENT_DIRECTORY_EXISTS, WARNING);
                     return;
                 }
 
                 try {
                     Files.createDirectories(fileParents.getParent());
                 } catch (IOException exception) {
-                    SkriptGson.warning(err.PARENT_DIRECTORY_EXISTS);
+                    sendErrorMessage(PARENT_DIRECTORY_EXISTS, WARNING);
                     return;
                 }
             }
@@ -338,16 +341,15 @@ public class GsonUtils {
                 protectedWriter.flush();
             } catch (IOException exception) {
                 if (!canCreate(file)) {
-                    SkriptGson.warning(err.PARENT_DIRECTORY_NOT_EXIST);
+                    sendErrorMessage(PARENT_DIRECTORY_NOT_EXIST, WARNING);
                 } else {
-                    SkriptGson.warning(exception.getMessage());
+                    sendErrorMessage(exception.getMessage(), WARNING);
                 }
             }
 
         }
 
         public static JsonElement fromFile(String fileString) {
-            GsonErrorLogger err = new GsonErrorLogger();
             JsonElement element = null;
             File file = new File(fileString);
             try (var protectedReader = new JsonReader(new FileReader(file))) {
@@ -355,22 +357,21 @@ public class GsonUtils {
             } catch (IOException | JsonSyntaxException exception) {
                 if (exception instanceof IOException) {
                     if (!file.exists())
-                        SkriptGson.warning(err.FILE_NOT_EXIST + fileString);
+                        sendErrorMessage(FILE_NOT_EXIST + fileString, WARNING);
                 } else {
-                    SkriptGson.warning(exception.getMessage());
+                    sendErrorMessage(exception.getMessage(), WARNING);
                 }
             }
             return element;
         }
 
         public static void saveToFile(Object expressionData, String fileString) {
-            GsonErrorLogger err = new GsonErrorLogger();
             try (var protectedWriter = new JsonWriter(new OutputStreamWriter(new FileOutputStream(fileString), StandardCharsets.UTF_8))) {
                 protectedWriter.setIndent("    ");
                 if (expressionData == null) {
                     protectedWriter.nullValue();
                 } else if (expressionData instanceof JsonElement element) {
-                    String jsonString = hierarchyAdapter().toJson(element);
+                    String jsonString = gsonAdapter.toJson(element);
                     protectedWriter.jsonValue(jsonString);
                 } else {
                     protectedWriter.jsonValue(expressionData.toString());
@@ -378,9 +379,9 @@ public class GsonUtils {
                 protectedWriter.flush();
             } catch (IOException exception) {
                 if (!(new File(fileString).exists())) {
-                    SkriptGson.warning(err.FILE_NOT_EXIST);
+                    sendErrorMessage(FILE_NOT_EXIST, WARNING);
                 } else {
-                    SkriptGson.warning(exception.getMessage());
+                    sendErrorMessage(exception.getMessage(), WARNING);
                 }
             }
         }
@@ -400,7 +401,7 @@ public class GsonUtils {
             }
             Object variable = Variables.getVariable(name.replaceAll("Variable.", ""), e, isLocal);
 
-            newJsonElement = hierarchyAdapter().toJsonTree(variable);
+            newJsonElement = gsonAdapter.toJsonTree(variable);
             if (variable == null)
                 newJsonElement = new JsonPrimitive(false);
 
@@ -417,7 +418,7 @@ public class GsonUtils {
 
             for (Iterator<Object> it = m.results().map(MatchResult::group).map(k -> getSkriptVariable(k, e)).iterator(); it.hasNext(); ) {
                 String Value;
-                JsonObject object = hierarchyAdapter().toJsonTree(it.next()).getAsJsonObject();
+                JsonObject object = gsonAdapter.toJsonTree(it.next()).getAsJsonObject();
                 for (Map.Entry<String, JsonElement> map : object.entrySet()) {
                     JsonObject json = map.getValue().getAsJsonObject();
 

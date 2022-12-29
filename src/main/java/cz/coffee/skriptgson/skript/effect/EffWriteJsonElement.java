@@ -15,17 +15,18 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.Adapters;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.FILE_JSON_HASHMAP;
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonFileHandler.saveToFile;
 import static cz.coffee.skriptgson.utils.GsonUtils.setVariable;
+
 
 @Name("Write jsonelement/cached Json/Json file")
 @Description({"You can write/re-write the jsonelement or the cached json or the json file"})
@@ -63,7 +64,6 @@ public class EffWriteJsonElement extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
-        GsonErrorLogger err = new GsonErrorLogger();
         Object fromGeneric;
 
         if (!isItem) {
@@ -77,7 +77,7 @@ public class EffWriteJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = dataExpression.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, WARNING);
                 return;
             }
             setVariable(variableName, Adapters.toJson(fromGeneric), e, isLocal);
@@ -94,11 +94,7 @@ public class EffWriteJsonElement extends Effect {
                 if (JSON_HASHMAP.containsKey(objectFilePath.toString())) {
                     JSON_HASHMAP.remove(objectFilePath.toString());
                     JSON_HASHMAP.put(objectFilePath.toString(), fromGeneric);
-                } else {
-                    SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
                 }
-            } else {
-                SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
             }
         }
     }
@@ -114,7 +110,6 @@ public class EffWriteJsonElement extends Effect {
             fromGenericExpression = LiteralUtils.defendExpression(exprs[0]);
         }
 
-        GsonErrorLogger err = new GsonErrorLogger();
         // parser marks
         isJson = (parseResult.mark == 1);
         isFile = (parseResult.mark == 2);
@@ -127,11 +122,11 @@ public class EffWriteJsonElement extends Effect {
                     isLocal = variable.isLocal();
                     variableString = variable.getName();
                 } else {
-                    SkriptGson.warning(err.VAR_NEED_TO_BE_SINGLE);
+                    sendErrorMessage(VAR_NEED_TO_BE_SINGLE, WARNING);
                     return false;
                 }
             } else {
-                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, WARNING);
                 return false;
             }
         } else if (isFile) {

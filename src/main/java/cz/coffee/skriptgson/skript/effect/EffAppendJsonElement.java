@@ -17,19 +17,18 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skriptgson.SkriptGson;
 import cz.coffee.skriptgson.adapters.Adapters;
-import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import cz.coffee.skriptgson.utils.GsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.skriptgson.SkriptGson.FILE_JSON_HASHMAP;
-import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+import static cz.coffee.skriptgson.SkriptGson.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonFileHandler.saveToFile;
 import static cz.coffee.skriptgson.utils.GsonUtils.*;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 
 @Name("Append jsonelement/cached Json/Json file")
 @Description({"You can append the jsonelement or the cached json or the json file"})
@@ -52,8 +51,8 @@ import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
 public class EffAppendJsonElement extends Effect {
     static {
         Skript.registerEffect(EffAppendJsonElement.class,
-                "append [data] %object% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)",
-                "append item %itemstack% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[(-| )id] %-string%)"
+                "append [data] %object% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[-id] %-string%)",
+                "append item %itemstack% [(:with key) %-string%] [(:as nested) [object] %-string%] to (1:%-jsonelement%|2:file [path] %-string%|3:[cached] json[-id] %-string%)"
         );
     }
 
@@ -78,7 +77,6 @@ public class EffAppendJsonElement extends Effect {
             Nested = nestedExpression.getSingle(e);
         }
 
-        GsonErrorLogger err = new GsonErrorLogger();
         Object fromGeneric;
 
         if (!isItem) {
@@ -92,20 +90,20 @@ public class EffAppendJsonElement extends Effect {
             String variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object isJsonVar = dataExpression.getSingle(e);
             if (!(isJsonVar instanceof JsonElement)) {
-                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, ERROR);
                 return;
             }
             JsonElement json;
-            JsonElement fromVar = hierarchyAdapter().toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
+            JsonElement fromVar = gsonAdapter.toJsonTree(Adapters.toJson(getVariable(e, variableName, isLocal)));
             if (Nested == null) {
                 if (fromVar instanceof JsonObject object) {
-                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                 } else if (fromVar instanceof JsonArray array) {
-                    array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                    array.add(gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                 }
                 json = fromVar;
             } else {
-                json = append(fromVar, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
+                json = append(fromVar, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
             }
             setVariable(variableName, json, e, isLocal);
 
@@ -117,13 +115,13 @@ public class EffAppendJsonElement extends Effect {
             JsonElement json;
             if (Nested == null) {
                 if (fromFile instanceof JsonObject object) {
-                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                    object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                 } else if (fromFile instanceof JsonArray array) {
-                    array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                    array.add(gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                 }
                 json = fromFile;
             } else {
-                json = append(fromFile, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
+                json = append(fromFile, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
             }
 
             saveToFile(json, filepathString);
@@ -134,25 +132,25 @@ public class EffAppendJsonElement extends Effect {
 
             if (FILE_JSON_HASHMAP.containsKey(objectFilePath.toString())) {
                 if (JSON_HASHMAP.containsKey(objectFilePath.toString())) {
-                    JsonElement fromCache = hierarchyAdapter().toJsonTree(JSON_HASHMAP.get(objectFilePath.toString()));
+                    JsonElement fromCache = gsonAdapter.toJsonTree(JSON_HASHMAP.get(objectFilePath.toString()));
                     JsonElement json;
                     if (Nested == null) {
                         if (fromCache instanceof JsonObject object) {
-                            object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                            object.add(Key == null ? String.valueOf(object.entrySet().size()) : Key, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                         } else if (fromCache instanceof JsonArray array) {
-                            array.add(hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)));
+                            array.add(gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)));
                         }
                         json = fromCache;
                     } else {
-                        json = append(fromCache, hierarchyAdapter().toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
+                        json = append(fromCache, gsonAdapter.toJsonTree(Adapters.toJson(fromGeneric)), Key, Nested);
                     }
                     JSON_HASHMAP.remove(objectFilePath.toString());
                     JSON_HASHMAP.put(objectFilePath.toString(), json);
                 } else {
-                    SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
+                    sendErrorMessage(ID_GENERIC_NOT_FOUND, WARNING);
                 }
             } else {
-                SkriptGson.warning(err.ID_GENERIC_NOT_FOUND);
+                sendErrorMessage(ID_GENERIC_NOT_FOUND, WARNING);
             }
         }
     }
@@ -179,7 +177,6 @@ public class EffAppendJsonElement extends Effect {
             fromGenericExpression = LiteralUtils.defendExpression(exprs[0]);
         }
 
-        GsonErrorLogger err = new GsonErrorLogger();
         // parser marks
         isJson = (parseResult.mark == 1);
         isFile = (parseResult.mark == 2);
@@ -192,11 +189,11 @@ public class EffAppendJsonElement extends Effect {
                     isLocal = variable.isLocal();
                     variableString = variable.getName();
                 } else {
-                    SkriptGson.warning(err.VAR_NEED_TO_BE_SINGLE);
+                   sendErrorMessage(VAR_NEED_TO_BE_SINGLE, WARNING);
                     return false;
                 }
             } else {
-                SkriptGson.warning(err.ONLY_JSONVAR_IS_ALLOWED);
+                sendErrorMessage(ONLY_JSONVAR_IS_ALLOWED, WARNING);
                 return false;
             }
         } else if (isFile) {

@@ -20,8 +20,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonFileHandler.newFile;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+
 
 @Name("New JSON file.")
 @Description("Create a new json file with or without data.")
@@ -82,7 +83,7 @@ public class EffNewJsonFile extends Effect {
         else if (jsonExpression != null)
             newFile(fileExpression, force, jsonExpression);
         else
-            newFile(fileExpression, force, hierarchyAdapter().toJsonTree(itemTypeExpression));
+            newFile(fileExpression, force, gsonAdapter.toJsonTree(itemTypeExpression));
     }
 
     @Override

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
-import static cz.coffee.skriptgson.utils.Utils.hierarchyAdapter;
+import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 
 @Name("All cached Jsons")
 @Description({"Print out all your saved json in the cache"})
@@ -47,7 +47,7 @@ public class ExprGetAllCachedJson extends SimpleExpression<JsonElement> {
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
         Integer integerExpression = null;
-        JsonElement json = hierarchyAdapter().toJsonTree(JSON_HASHMAP).getAsJsonObject();
+        JsonElement json = gsonAdapter.toJsonTree(JSON_HASHMAP).getAsJsonObject();
         if (pattern == 1)
             integerExpression = this.integerExpression.getSingle(e);
 

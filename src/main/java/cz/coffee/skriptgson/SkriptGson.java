@@ -5,11 +5,18 @@ package cz.coffee.skriptgson;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.yggdrasil.YggdrasilSerializable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import cz.coffee.skriptgson.adapters.gsonAdapter.BukkitClassAdapt;
+import cz.coffee.skriptgson.adapters.gsonAdapter.SkriptClassAdapt;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,6 +33,14 @@ public class SkriptGson extends JavaPlugin {
 
     public static final HashMap<String, Object> JSON_HASHMAP = new HashMap<>();
     public static final HashMap<String, File> FILE_JSON_HASHMAP = new HashMap<>();
+    public static final Gson gsonAdapter = new GsonBuilder()
+            .setPrettyPrinting()
+            .enableComplexMapKeySerialization()
+            .disableHtmlEscaping()
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitClassAdapt())
+            .registerTypeHierarchyAdapter(YggdrasilSerializable.YggdrasilExtendedSerializable.class, new SkriptClassAdapt())
+            .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new SkriptClassAdapt())
+            .create();
 
     private static Logger logger;
     private static PluginManager pm;
@@ -40,6 +55,13 @@ public class SkriptGson extends JavaPlugin {
             throw new IllegalStateException();
         }
         return instance;
+    }
+
+    public static @NotNull Logger logger() {
+        if (logger == null) {
+            throw new RuntimeException("The logger is null or empty");
+        }
+        return logger;
     }
 
     public static void info(String string) {
@@ -81,7 +103,6 @@ public class SkriptGson extends JavaPlugin {
         githubChecker();
         // metrics
         loadMetrics();
-        info("Dev-version: &e@01e11");
         info("&aFinished loading.");
     }
 

@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 public class EffParse extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(EffParse.class, Object.class, ExpressionType.COMBINED, "[json] %jsonelement% parsed [as skript(type|-type)]");
+        Skript.registerExpression(EffParse.class, Object.class, ExpressionType.COMBINED, "[json] %jsonelement% parsed as [a] skript( type|-type)");
     }
 
     private Expression<JsonElement> json;
