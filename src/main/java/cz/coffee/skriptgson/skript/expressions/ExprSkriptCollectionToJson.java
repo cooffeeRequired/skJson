@@ -21,7 +21,6 @@ import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 
 
-
 @Name("Array or List formatted to JSON.")
 @Description({"It allows you to convert the sheet back to Json!",
         "Value changes don't work for nested objects, to change the values of a nested object use Change"})
