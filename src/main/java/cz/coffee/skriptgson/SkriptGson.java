@@ -136,9 +136,9 @@ public class SkriptGson extends JavaPlugin {
 
         String gitVersion = getGitVersion();
         if (!Objects.equals(localTag(readProperties("/local.properties")), getGitDevTag())) {
-            info("Your version is latest but the tag of the version is outdated, Check please GitHub");
-            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
+            bukkitOut("Your version is latest but the tag of the version is outdated, Check please GitHub");
             warning("You're running on outdated version &e" + pdf.getVersion() + " [" + localTag(readProperties("/local.properties")) + "] ");
+            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
         }
 
         if (Objects.equals(gitVersion, pdf.getVersion())) {
