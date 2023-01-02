@@ -131,9 +131,6 @@ public class SkriptGson extends JavaPlugin {
     }
 
     private void githubChecker() {
-
-        System.out.println(getGitDevTag());
-
         String gitVersion = getGitVersion();
         if (!Objects.equals(localTag(readProperties("/local.properties")), getGitDevTag())) {
             bukkitOut("Your version is latest but the tag of the version is outdated, Check please GitHub");
