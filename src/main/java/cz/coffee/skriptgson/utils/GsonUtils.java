@@ -20,11 +20,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
-
-import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
-
-
 import static cz.coffee.skriptgson.utils.Utils.isIncrementing;
 
 public class GsonUtils {
@@ -233,6 +230,7 @@ public class GsonUtils {
                     }
                 });
             } else if (element instanceof JsonArray array) {
+                JsonElement data;
                 for (int index = 0; array.size() > index; index++) {
                     jsonToList(event, name + SEPARATOR + (index + 1), array.get(index), isLocal);
                 }
@@ -274,16 +272,18 @@ public class GsonUtils {
                 variable.keySet().stream().filter(Objects::nonNull).forEach(checkkeys::add);
                 if (isIncrementing(checkkeys.toArray())) {
                     JsonArray jsonStruct = new JsonArray();
-                    keys.forEach(key -> jsonStruct.add(gsonAdapter.toJson(jsonListSubTree(event, name + key, isLocal))));
+                    keys.forEach(key -> jsonStruct.add(gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)))));
                     return jsonStruct;
                 } else {
                     JsonObject jsonStruct = new JsonObject();
-                    keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(jsonListSubTree(event, name + key, isLocal))));
+                    keys.forEach(key -> {
+                        jsonStruct.add(key, gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal))));
+                    });
                     return jsonStruct;
                 }
             } else {
                 JsonObject jsonStruct = new JsonObject();
-                keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(jsonListSubTree(event, name + key, isLocal))));
+                keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)))));
                 return jsonStruct;
             }
         }
@@ -300,7 +300,7 @@ public class GsonUtils {
             }
 
             if (!(variable instanceof String || variable instanceof Integer || variable instanceof Double || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
-                variable = gsonAdapter.toJsonTree(variable);
+                variable = gsonAdapter.toJson(variable);
             }
             return variable;
         }
