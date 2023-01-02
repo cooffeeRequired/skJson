@@ -25,6 +25,12 @@ public class JsonItemStack implements JsonGenericAdapter<ItemStack> {
         this.itemStack = i;
     }
 
+    /**
+     * This function will check if the enchants or Attributes in the Json ItemStack are not stacked, if so it is added to the deserialized ItemStack.
+     *
+     * @param element element = is a serialized ItemStack to Json.
+     */
+
     public void setOthers(JsonElement element) {
         if (itemStack != null) {
             if (element.getAsJsonObject().has(CONTENTS_KEY_META)) {
@@ -61,6 +67,12 @@ public class JsonItemStack implements JsonGenericAdapter<ItemStack> {
             }
         }
     }
+
+    /**
+     * Get ItemStack from JsonItemStack
+     *
+     * @return itemStack.
+     */
 
     public ItemStack getItemStack() {
         return this.itemStack;

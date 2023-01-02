@@ -23,8 +23,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import static cz.coffee.skriptgson.utils.Utils.color;
-import static cz.coffee.skriptgson.utils.Utils.getGitVersion;
+import static cz.coffee.skriptgson.utils.Utils.*;
 
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -133,6 +132,11 @@ public class SkriptGson extends JavaPlugin {
 
     private void githubChecker() {
         String gitVersion = getGitVersion();
+        if (!Objects.equals(localTag(readProperties("/local.properties")), getGitDevTag())) {
+            info("Your version is latest but the tag of the version is outdated, Check please GitHub");
+            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
+            warning("You're running on outdated version &e" + pdf.getVersion() + " [" + localTag(readProperties("/local.properties")) + "] ");
+        }
 
         if (Objects.equals(gitVersion, pdf.getVersion())) {
             bukkitOut("You're currently running the &flatest&r stable version of skript-gson");
