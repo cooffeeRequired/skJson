@@ -178,14 +178,13 @@ public class GsonUtils {
         return null;
     }
 
-    @SuppressWarnings("unused")
-    public static Object toJsonPrimitive(Object Object) {
-        if (Object instanceof Integer i)
-            return i;
-        else if (Object instanceof String str)
-            return str;
-        else if (Object instanceof Boolean bool)
-            return bool;
+    public static JsonElement fromStringToJsonElement(Object Object) {
+        if (Object instanceof Integer i) {
+            return new JsonPrimitive(i);
+        } else if (Object instanceof String str) {
+            return JsonParser.parseString(gsonAdapter.toJson(str));
+        } else if (Object instanceof Boolean bool)
+            return new JsonPrimitive(bool);
 
         return null;
     }
@@ -272,18 +271,37 @@ public class GsonUtils {
                 variable.keySet().stream().filter(Objects::nonNull).forEach(checkkeys::add);
                 if (isIncrementing(checkkeys.toArray())) {
                     JsonArray jsonStruct = new JsonArray();
-                    keys.forEach(key -> jsonStruct.add(gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)))));
+                    keys.forEach(key -> {
+                        JsonElement data = gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)));
+                        if (data instanceof JsonPrimitive primitive) {
+                            jsonStruct.add(fromStringToJsonElement(fromPrimitive(primitive)));
+                        } else {
+                            jsonStruct.add(data);
+                        }
+                    });
                     return jsonStruct;
                 } else {
                     JsonObject jsonStruct = new JsonObject();
                     keys.forEach(key -> {
-                        jsonStruct.add(key, gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal))));
+                        JsonElement data = gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)));
+                        if (data instanceof JsonPrimitive primitive) {
+                            jsonStruct.add(key, fromStringToJsonElement(fromPrimitive(primitive)));
+                        } else {
+                            jsonStruct.add(key, data);
+                        }
                     });
                     return jsonStruct;
                 }
             } else {
                 JsonObject jsonStruct = new JsonObject();
-                keys.forEach(key -> jsonStruct.add(key, gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)))));
+                keys.forEach(key -> {
+                    JsonElement data = gsonAdapter.toJsonTree(Adapters.toJson(jsonListSubTree(event, name + key, isLocal)));
+                    if (data instanceof JsonPrimitive primitive) {
+                        jsonStruct.add(key, fromStringToJsonElement(fromPrimitive(primitive)));
+                    } else {
+                        jsonStruct.add(key, data);
+                    }
+                });
                 return jsonStruct;
             }
         }
