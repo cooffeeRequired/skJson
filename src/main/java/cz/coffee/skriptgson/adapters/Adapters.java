@@ -6,10 +6,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffee.skriptgson.adapters.generic.JsonGeneric;
 import cz.coffee.skriptgson.adapters.generic.JsonInventory;
+import cz.coffee.skriptgson.adapters.generic.JsonItemStack;
 import cz.coffee.skriptgson.adapters.generic.JsonWorld;
 import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 
@@ -45,7 +47,13 @@ public class Adapters {
         } else if (World.class.isAssignableFrom(clazz)) {
             return new JsonWorld().fromJson(json);
         } else {
-            return gsonAdapter.fromJson(json, ConfigurationSerializable.class);
+            Object returnData = gsonAdapter.fromJson(json, ConfigurationSerializable.class);
+            if (returnData instanceof ItemStack itemStack) {
+                JsonItemStack jsonItem = new JsonItemStack(itemStack);
+                jsonItem.setOthers(json);
+                return jsonItem.getItemStack();
+            }
+            return returnData;
         }
     }
 }
