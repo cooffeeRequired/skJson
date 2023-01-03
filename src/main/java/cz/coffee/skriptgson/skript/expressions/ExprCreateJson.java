@@ -18,6 +18,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import cz.coffee.skriptgson.adapters.Adapters;
+import cz.coffee.skriptgson.filemanager.DefaultConfigFolder;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -174,9 +175,16 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             itemTypeExpression = (Expression<ItemType>) exprs[0];
             return true;
         } else if (pattern == 4) {
-            last = parseResult.hasTag("last request");
-            toParse = LiteralUtils.defendExpression(exprs[0]);
-            return LiteralUtils.canInitSafely(toParse);
+            Object output = DefaultConfigFolder.readConfigRecords("results-handler");
+            if (output.toString().equals("true")) {
+                last = parseResult.hasTag("last request");
+                toParse = LiteralUtils.defendExpression(exprs[0]);
+                return LiteralUtils.canInitSafely(toParse);
+            } else {
+                sendErrorMessage("You can't handle result, because your config for results-handler is false", WARNING);
+                sendErrorMessage("Try change the value 'results-handler' to &aTrue&r and restart server", WARNING);
+                return false;
+            }
         }
         return false;
     }

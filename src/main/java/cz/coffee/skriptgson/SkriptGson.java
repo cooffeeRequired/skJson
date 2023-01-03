@@ -10,6 +10,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import cz.coffee.skriptgson.adapters.gsonAdapter.BukkitClassAdapt;
 import cz.coffee.skriptgson.adapters.gsonAdapter.SkriptClassAdapt;
+import cz.coffee.skriptgson.filemanager.DefaultConfigFolder;
+import cz.coffee.skriptgson.github.AutoUpdate;
+import cz.coffee.skriptgson.github.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.plugin.Plugin;
@@ -20,10 +23,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.logging.Logger;
 
-import static cz.coffee.skriptgson.utils.Utils.*;
+import static cz.coffee.skriptgson.utils.Utils.color;
 
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -79,30 +81,9 @@ public class SkriptGson extends JavaPlugin {
         logger.severe(color("DEBUG! " + "&r" + str));
     }
 
-    @Override
-    public void onEnable() {
-        pm = getPluginManager();
-        pdf = this.getDescription();
-
-        if (!canLoadPlugin()) {
-            pm.disablePlugin(this);
-            return;
-        }
-        instance = this;
-        addon = Skript.registerAddon(this);
-        try {
-            addon.loadClasses("cz.coffee.skriptgson.skript");
-        } catch (Exception ex) {
-            severe("Unable to register " + getDescription().getName() + " syntaxes:\n- " + ex.getMessage());
-            ex.printStackTrace();
-            return;
-        }
-
-        // gitHub
-        githubChecker();
-        // metrics
-        loadMetrics();
-        info("&aFinished loading.");
+    // Simple loggers
+    public static void bukkitOut(String string) {
+        Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] " + string)));
     }
 
     // Plugins preload checks
@@ -130,23 +111,6 @@ public class SkriptGson extends JavaPlugin {
         bukkitOut("&fMetrics&r: Loaded metrics&a successfully!");
     }
 
-    private void githubChecker() {
-        String gitVersion = getGitVersion();
-        if (!Objects.equals(localTag(readProperties("/local.properties")), getGitDevTag())) {
-            bukkitOut("Your version is latest but the tag of the version is outdated, Check please GitHub");
-            warning("Jar present on web have news, please update your addon.");
-            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
-        }
-
-        if (Objects.equals(gitVersion, pdf.getVersion())) {
-            bukkitOut("You're currently running the &flatest&r stable version of skript-gson");
-        } else if (gitVersion != null) {
-            warning("You're running on outdated version&c " + pdf.getVersion() + "&e!");
-            warning("Download the latest version from Github");
-            warning("Link: " + pdf.getWebsite() + "releases/tag/" + gitVersion);
-        }
-    }
-
     public PluginManager getPluginManager() {
         return this.getServer().getPluginManager();
     }
@@ -156,9 +120,35 @@ public class SkriptGson extends JavaPlugin {
         info("&eDisabling... good bye!");
     }
 
-    // Simple loggers
-    public void bukkitOut(String string) {
-        Bukkit.getServer().getConsoleSender().sendMessage((color("[&askript-gson&r] " + string)));
+    @Override
+    public void onEnable() {
+        pm = getPluginManager();
+        pdf = this.getDescription();
+
+        if (!canLoadPlugin()) {
+            pm.disablePlugin(this);
+            return;
+        }
+        instance = this;
+        addon = Skript.registerAddon(this);
+        try {
+            addon.loadClasses("cz.coffee.skriptgson.skript");
+        } catch (Exception ex) {
+            severe("Unable to register " + getDescription().getName() + " syntaxes:\n- " + ex.getMessage());
+            ex.printStackTrace();
+            return;
+        }
+
+        // gitHub
+        Version.check();
+        AutoUpdate.update();
+
+        // data folder
+        DefaultConfigFolder.create();
+
+        // metrics
+        loadMetrics();
+        info("&aFinished loading.");
     }
 
 }
