@@ -62,7 +62,7 @@ public class DefaultConfigFolder {
         final Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("version", 1.0);
         dataMap.put("results-handler", true);
-        dataMap.put("auto-update", true);
+        dataMap.put("auto-update", false);
 
         try (PrintWriter pw = new PrintWriter(file)) {
             getYaml().dump(dataMap, pw);

@@ -11,7 +11,6 @@ import com.google.gson.GsonBuilder;
 import cz.coffee.skriptgson.adapters.gsonAdapter.BukkitClassAdapt;
 import cz.coffee.skriptgson.adapters.gsonAdapter.SkriptClassAdapt;
 import cz.coffee.skriptgson.filemanager.DefaultConfigFolder;
-import cz.coffee.skriptgson.github.AutoUpdate;
 import cz.coffee.skriptgson.github.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -141,7 +140,6 @@ public class SkriptGson extends JavaPlugin {
 
         // gitHub
         Version.check();
-        AutoUpdate.update();
 
         // data folder
         DefaultConfigFolder.create();

@@ -10,6 +10,7 @@ public class Version {
     private static final String userVersionTag = VersionHexTagChecker.currentVersionTag;
 
     public static void check() {
+        SkriptGson.bukkitOut("Auto-Updater status " + (AutoUpdate.updaterStatus ? "&aEnabled" : "&cDisabled"));
         if (!(userVersion.equals(gitVersion))) {
             SkriptGson.bukkitOut("You're running on outdated version &c " + userVersion + "&r!");
             SkriptGson.bukkitOut("You can download the latest from this web-page &e" + SkriptGson.getInstance().getDescription().getWebsite() + "releases/latest");
