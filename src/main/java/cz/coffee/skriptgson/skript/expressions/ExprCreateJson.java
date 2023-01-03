@@ -12,6 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.btk5h.reqn.HttpResponse;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -25,8 +26,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
-import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 import static cz.coffee.skriptgson.utils.GsonUtils.GsonVariables.parseVariable;
 import static cz.coffee.skriptgson.utils.GsonUtils.canCreate;
 
@@ -55,14 +57,15 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                 "[a] [new] json from %itemstack%",
                 "[a] [new] json from %object%",
                 "[a] [new] json from file [(:relative)] [path] %string%",
-                "[a] [new] json from request %object%"
+                "[a] [new] json from request %httpresponse%"
         );
     }
 
     private Expression<?> toParse;
     private Expression<ItemType> itemTypeExpression;
     private int pattern;
-    private boolean hasVariables;
+    private boolean hasVariables, last;
+
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
         if (pattern == 0) {
@@ -110,7 +113,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             } catch (JsonSyntaxException | IOException exception) {
                 if (exception instanceof JsonSyntaxException) {
                     if (!canCreate(pathExpression)) {
-                       sendErrorMessage(PARENT_DIRECTORY_NOT_EXIST + pathExpression, WARNING);
+                        sendErrorMessage(PARENT_DIRECTORY_NOT_EXIST + pathExpression, WARNING);
                     } else {
                         sendErrorMessage(FILE_NOT_EXIST + pathExpression, WARNING);
                     }
@@ -120,6 +123,18 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             }
             return new JsonElement[]{json};
         }
+
+        if (pattern == 4) {
+            Object httpResponse = this.toParse.getSingle(e);
+            if (httpResponse == null) return new JsonElement[0];
+            try {
+                JsonElement element = JsonParser.parseString(((HttpResponse) httpResponse).getBody());
+                return new JsonElement[]{element};
+            } catch (JsonSyntaxException exception) {
+                sendErrorMessage("response is not json", ERROR);
+            }
+        }
+
         return new JsonElement[0];
     }
 
@@ -159,8 +174,9 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             itemTypeExpression = (Expression<ItemType>) exprs[0];
             return true;
         } else if (pattern == 4) {
-            sendErrorMessage(ERROR_METHOD_IS_NOT_ALLOWED, WARNING);
-            return false;
+            last = parseResult.hasTag("last request");
+            toParse = LiteralUtils.defendExpression(exprs[0]);
+            return LiteralUtils.canInitSafely(toParse);
         }
         return false;
     }

@@ -83,6 +83,7 @@ dependencies {
     compileOnly 'com.github.SkriptLang:Skript:2.6.3'
     shadow('com.google.code.gson:gson:2.10')
     implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+    implementation files('libs/reqn.jar')
 }
 
 

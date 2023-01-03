@@ -182,7 +182,11 @@ public class GsonUtils {
         if (Object instanceof Integer i) {
             return new JsonPrimitive(i);
         } else if (Object instanceof String str) {
-            return JsonParser.parseString(gsonAdapter.toJson(str));
+            try {
+                return JsonParser.parseString(str);
+            } catch (JsonSyntaxException exception) {
+                return JsonParser.parseString(gsonAdapter.toJson(str));
+            }
         } else if (Object instanceof Boolean bool)
             return new JsonPrimitive(bool);
 

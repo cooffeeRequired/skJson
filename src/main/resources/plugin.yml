@@ -5,6 +5,7 @@ api-version: 1.13
 prefix: skript-gson
 load: POSTWORLD
 depend: [ Skript ]
+softdepend: [ reqn ]
 authors: [ coffee ]
 description: Skript Addon for using Json (SkriptGson) in Skript
 website: https://github.com/cooffeeRequired/skript-gson/
