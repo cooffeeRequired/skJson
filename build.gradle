@@ -92,30 +92,30 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
-//task release {
-//    dependsOn(relocateShadowJar)
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        copy {
-//            shadowJar
-//            from jar
-//            into destination
-//        }
-//    }
-//}
-//
-//task cleanOlds {
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        def tree = fileTree(destination)
-//        tree.include('**/skript-gson*.jar')
-//        tree.each { it.delete() }
-//    }
-//}
+task release {
+    dependsOn(relocateShadowJar)
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        copy {
+            shadowJar
+            from jar
+            into destination
+        }
+    }
+}
+
+task cleanOlds {
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        def tree = fileTree(destination)
+        tree.include('**/skript-gson*.jar')
+        tree.each { it.delete() }
+    }
+}
 
 shadowJar {
     relocate 'com.google.gson', 'cz.coffee.skriptgson.gson'
