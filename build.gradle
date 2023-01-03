@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = "2.0.4"
+version = "2.1.0"
 
 task relocateShadowJar(type: ConfigureShadowRelocation) {
     target = tasks.shadowJar
@@ -84,6 +84,7 @@ dependencies {
     shadow('com.google.code.gson:gson:2.10')
     implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
     implementation files('libs/reqn.jar')
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.8'
 }
 
 
@@ -91,30 +92,30 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "16", "-target", "16"]
 }
 
-//tasks.register('release') {
-//    dependsOn(relocateShadowJar)
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        copy {
-//            shadowJar
-//            from jar
-//            into destination
-//        }
-//    }
-//}
-//
-//task cleanOlds {
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        def tree = fileTree(destination)
-//        tree.include('**/skript-gson*.jar')
-//        tree.each { it.delete() }
-//    }
-//}
+task release {
+    dependsOn(relocateShadowJar)
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        copy {
+            shadowJar
+            from jar
+            into destination
+        }
+    }
+}
+
+task cleanOlds {
+    [
+            'A:/plugins/sk-gson/',
+            'A:/Bukkit-Core/purpur/dev-latest/plugins',
+            'A:/workspaces/latest//plugins'].each { destination ->
+        def tree = fileTree(destination)
+        tree.include('**/skript-gson*.jar')
+        tree.each { it.delete() }
+    }
+}
 
 shadowJar {
     relocate 'com.google.gson', 'cz.coffee.skriptgson.gson'
