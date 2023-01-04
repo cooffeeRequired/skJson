@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import cz.coffee.skriptgson.adapters.gsonAdapter.BukkitClassAdapt;
 import cz.coffee.skriptgson.adapters.gsonAdapter.SkriptClassAdapt;
+import cz.coffee.skriptgson.filemanager.GsonExamples;
 import cz.coffee.skriptgson.filemanager.StorageConfigurator;
 import cz.coffee.skriptgson.github.Version;
 import org.bukkit.Bukkit;
@@ -140,6 +141,7 @@ public class SkriptGson extends JavaPlugin {
 
         // data folder
         new StorageConfigurator().create();
+        new GsonExamples();
 
         // gitHub
         Version.check();

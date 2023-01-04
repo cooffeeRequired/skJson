@@ -25,13 +25,22 @@ public class StorageConfigurator extends GsonErrorLogger {
     private final YamlProcessor yamlProcessor = new YamlProcessor(configFilePath);
 
 
-
-
-
     public void create(File file) {
 
     }
 
+    public void setValue(String key, Object data) {
+        try (FileInputStream is = new FileInputStream(configFilePath)) {
+            Map<String, Object> map = yamlProcessor.process().load(is);
+            if (map.containsKey(key)) {
+                map.remove(key);
+                map.put(key, data);
+                processWrite(new Gson().toJsonTree(map).getAsJsonObject());
+            }
+        } catch (IOException exception) {
+            sendErrorMessage(exception.getMessage(), ErrorLevel.WARNING);
+        }
+    }
 
     public Object value(String key) {
         try (FileInputStream is = new FileInputStream(configFilePath)) {
@@ -111,6 +120,7 @@ public class StorageConfigurator extends GsonErrorLogger {
         write(responseHandler, true);
         write("response-type", List.of("Reqn", "SkriptWebApi", "skript-reflect"));
         write("auto-update", false);
+        write("create-examples", true);
     }
 
     public void writeComments(String ...comments) {
