@@ -19,7 +19,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import cz.coffee.skriptgson.adapters.Adapters;
-import cz.coffee.skriptgson.filemanager.DefaultConfigFolder;
+import cz.coffee.skriptgson.filemanager.StorageConfigurator;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
+import static cz.coffee.skriptgson.filemanager.StorageConfigurator.responseHandler;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.WARNING;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
@@ -188,14 +189,15 @@ public class ExprCreateJson extends SimpleExpression<Object> {
             itemTypeExpression = (Expression<ItemType>) exprs[0];
             return true;
         } else if (pattern == 4) {
-            Object output = DefaultConfigFolder.readConfigRecords("results-handler");
+            Object output = new StorageConfigurator().value(responseHandler);
+            if (output == null) return false;
             if (output.toString().equals("true")) {
                 boolean last = parseResult.hasTag("last request");
                 toParse = LiteralUtils.defendExpression(exprs[0]);
                 return LiteralUtils.canInitSafely(toParse);
             } else {
-                sendErrorMessage("You can't handle result, because your config for results-handler is false", WARNING);
-                sendErrorMessage("Try change the value 'results-handler' to &aTrue&r and restart server", WARNING);
+                sendErrorMessage("You can't handle result, because your config for "+responseHandler+" is false", WARNING);
+                sendErrorMessage("Try change the value '"+responseHandler+"' to &aTrue&r and restart server", WARNING);
                 return false;
             }
         }

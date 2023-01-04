@@ -26,7 +26,7 @@ public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer>
 
     static {
         register(ExprJsonSize.class, Integer.class,
-                "size", "jsonelements");
+                "[json] size", "jsonelements");
     }
 
     @Override

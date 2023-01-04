@@ -42,7 +42,7 @@ public class ExprGetElements extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(ExprGetElements.class, Object.class, ExpressionType.COMBINED,
-                "[all] json elements [%-string% ]from %jsonelement%"
+                "[all] [json] elements [%-string%] from %jsonelement%"
         );
     }
 
