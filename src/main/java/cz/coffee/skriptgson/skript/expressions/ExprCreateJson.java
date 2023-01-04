@@ -14,6 +14,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.btk5h.reqn.HttpResponse;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
@@ -23,6 +24,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -58,14 +60,14 @@ public class ExprCreateJson extends SimpleExpression<Object> {
                 "[a] [new] json from %itemstack%",
                 "[a] [new] json from %object%",
                 "[a] [new] json from file [(:relative)] [path] %string%",
-                "[a] [new] json from request %httpresponse%"
+                "[a] [new] json from request %object%"
         );
     }
 
     private Expression<?> toParse;
     private Expression<ItemType> itemTypeExpression;
     private int pattern;
-    private boolean hasVariables, last;
+    private boolean hasVariables;
 
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
@@ -126,10 +128,21 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         }
 
         if (pattern == 4) {
-            Object httpResponse = this.toParse.getSingle(e);
-            if (httpResponse == null) return new JsonElement[0];
+            Object response = this.toParse.getSingle(e);
+            if (response == null) return new JsonElement[0];
+            JsonElement element = new JsonObject();
             try {
-                JsonElement element = JsonParser.parseString(((HttpResponse) httpResponse).getBody());
+                if (response instanceof HttpResponse httpResponse) {
+                    element = JsonParser.parseString(httpResponse.getBody());
+                } else if (response instanceof HttpsURLConnection httpCon) {
+                    try {
+                        element = gsonAdapter.toJsonTree(httpCon.getContent());
+                    } catch (JsonSyntaxException | IOException exception) {
+                        sendErrorMessage("response is not json", ERROR);
+                    }
+                } else if (response instanceof String stringResponse) {
+                    element = JsonParser.parseString(stringResponse);
+                }
                 return new JsonElement[]{element};
             } catch (JsonSyntaxException exception) {
                 sendErrorMessage("response is not json", ERROR);
@@ -177,7 +190,7 @@ public class ExprCreateJson extends SimpleExpression<Object> {
         } else if (pattern == 4) {
             Object output = DefaultConfigFolder.readConfigRecords("results-handler");
             if (output.toString().equals("true")) {
-                last = parseResult.hasTag("last request");
+                boolean last = parseResult.hasTag("last request");
                 toParse = LiteralUtils.defendExpression(exprs[0]);
                 return LiteralUtils.canInitSafely(toParse);
             } else {

@@ -164,20 +164,6 @@ public class GsonUtils {
         return count;
     }
 
-
-    @SuppressWarnings("unused")
-    public static Object fromPrimitive(JsonPrimitive primitive) {
-        if (primitive.isBoolean()) {
-            return primitive.getAsBoolean();
-        } else if (primitive.isNumber()) {
-            return primitive.getAsNumber();
-        } else if (primitive.isString()) {
-            return primitive.getAsString();
-        }
-
-        return null;
-    }
-
     public static JsonElement fromStringToJsonElement(Object Object) {
         if (Object instanceof Integer i) {
             return new JsonPrimitive(i);
@@ -190,6 +176,19 @@ public class GsonUtils {
         } else if (Object instanceof Boolean bool)
             return new JsonPrimitive(bool);
 
+        return null;
+    }
+
+    public static Object fromPrimitive(JsonPrimitive primitive) {
+        if (primitive.isBoolean()) {
+            return primitive.getAsBoolean();
+        }
+        if (primitive.isNumber()) {
+            return primitive.getAsNumber();
+        }
+        if (primitive.isString()) {
+            return primitive.getAsString();
+        }
         return null;
     }
 

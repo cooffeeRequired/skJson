@@ -138,11 +138,11 @@ public class SkriptGson extends JavaPlugin {
             return;
         }
 
-        // gitHub
-        Version.check();
-
         // data folder
         DefaultConfigFolder.create();
+
+        // gitHub
+        Version.check();
 
         // metrics
         loadMetrics();

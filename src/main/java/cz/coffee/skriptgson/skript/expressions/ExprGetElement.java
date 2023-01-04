@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import cz.coffee.skriptgson.utils.GsonErrorLogger;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -22,6 +23,7 @@ import static cz.coffee.skriptgson.SkriptGson.JSON_HASHMAP;
 import static cz.coffee.skriptgson.SkriptGson.gsonAdapter;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.ID_GENERIC_NOT_FOUND;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.sendErrorMessage;
+import static cz.coffee.skriptgson.utils.GsonUtils.fromPrimitive;
 import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 
 @Name("Get element from Json")
@@ -34,10 +36,10 @@ import static cz.coffee.skriptgson.utils.Utils.isNumeric;
 })
 @Since("2.0.0")
 
-public class ExprGetElement extends SimpleExpression<JsonElement> {
+public class ExprGetElement extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(ExprGetElement.class, JsonElement.class, ExpressionType.COMBINED,
+        Skript.registerExpression(ExprGetElement.class, Object.class, ExpressionType.COMBINED,
                 "element %string% from %jsonelement%",
                 "element %string% from [cached] json[(-| )id] %string%"
         );
@@ -49,7 +51,7 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
     private int pattern;
 
     @Override
-    protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
+    protected @Nullable Object @NotNull [] get(@NotNull Event e) {
         String stringIdExpression, stringExpression;
         JsonElement jsonElementExpression, json;
 
@@ -77,11 +79,17 @@ public class ExprGetElement extends SimpleExpression<JsonElement> {
                 if (isNumeric(key)) {
                     index = Integer.parseInt(key);
                 }
-                json = array.get(index);
+                if (array.size() > index)
+                    json = array.get(index);
+                else
+                    return new JsonElement[0];
             } else if (json instanceof JsonObject object) {
                 json = object.get(key);
             }
             if (key.equals(values[values.length - 1])) {
+                if (json instanceof JsonPrimitive primitive) {
+                    return new Object[]{fromPrimitive(primitive)};
+                }
                 return new JsonElement[]{json};
             }
         }

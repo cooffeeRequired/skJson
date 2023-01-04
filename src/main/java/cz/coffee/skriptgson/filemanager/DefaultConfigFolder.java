@@ -28,30 +28,27 @@ public class DefaultConfigFolder {
     }
 
     public static void create() {
-        boolean created = false;
         File dataFolder = new File(SkriptGson.getInstance().getDataFolder().toURI());
         if (dataFolder.exists()) {
             try {
-                created = new File(dataFolder + File.separator + "config.yml").createNewFile();
-            } catch (IOException ignored) {
-            } finally {
-                if (writeConfigDefault()) {
-                    if (created) {
+                if (!(new File(dataFolder + File.separator + "config.yml").exists())) {
+                    new File(dataFolder + File.separator + "config.yml").createNewFile();
+                    if (writeConfigDefault()) {
                         sendErrorMessage("config.yml was created", GsonErrorLogger.ErrorLevel.INFO);
                     }
                 }
+            } catch (IOException ignored) {
             }
         } else {
             if (dataFolder.mkdir()) {
                 try {
-                    created = new File(dataFolder + File.separator + "config.yml").createNewFile();
-                } catch (IOException ignored) {
-                } finally {
-                    if (writeConfigDefault()) {
-                        if (created) {
+                    if (!(new File(dataFolder + File.separator + "config.yml").exists())) {
+                        new File(dataFolder + File.separator + "config.yml").createNewFile();
+                        if (writeConfigDefault()) {
                             sendErrorMessage("config.yml was created", GsonErrorLogger.ErrorLevel.INFO);
                         }
                     }
+                } catch (IOException ignored) {
                 }
             }
         }

@@ -18,7 +18,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.*;
+import static cz.coffee.skriptgson.utils.GsonErrorLogger.ErrorLevel.ERROR;
 import static cz.coffee.skriptgson.utils.GsonErrorLogger.*;
 
 @Name("Mapping Json to List")
