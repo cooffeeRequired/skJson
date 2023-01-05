@@ -118,6 +118,7 @@ public class AutoUpdate {
         } catch (IOException ignored) {
         } finally {
             final File folder = new File("plugins");
+
             final File[] files = folder.listFiles((file, name) -> name.matches("skript-gson.*\\.jar$"));
             File finalFile = null, oldFile = null;
             if (files != null) {

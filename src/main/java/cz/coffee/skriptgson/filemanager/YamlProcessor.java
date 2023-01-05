@@ -14,7 +14,6 @@ public class YamlProcessor
         options.setIndent(4);
         options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setProcessComments(true);
         options.setAllowUnicode(true);
         return new Yaml(options);
     }
