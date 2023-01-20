@@ -1,11 +1,11 @@
-name: skript-gson
-version: $version
-main: cz.coffee.skriptgson.SkriptGson
-api-version: 1.13
-prefix: skript-gson
+name: skJson
+version: '${version}'
+main: cz.coffee.SkJson
+api-version: 1.16
+prefix: skJson
 load: POSTWORLD
 depend: [ Skript ]
-softdepend: [ Reqn ]
-authors: [ coffee ]
-description: Skript Addon for using Json (SkriptGson) in Skript
-website: https://github.com/cooffeeRequired/skript-gson/
+softdepend: [ Vault, SkBee, Reqn ]
+authors: [ coffeeReuired ]
+description: A slightly modified version of skript-gson, but it was renamed to skJson, because the syntax works mainly with json and the word gson doesn't make much sense. because Gson is just a type of serialization/deserialization of Json
+website: https://github.com/cooffeeRequired/skript-gson

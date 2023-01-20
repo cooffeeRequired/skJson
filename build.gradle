@@ -5,39 +5,13 @@ plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
+compileJava.options.encoding = 'UTF-8'
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = "2.1.1"
-
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
-}
-
-static configureRelocations(ShadowJar task) {
-    task.relocate('com.google.gson', 'cz.coffee.skriptgson.google')
-}
-
-
-tasks.withType(ShadowJar).configureEach {
-    dependsOn relocateShadowJar
-    configurations = [
-            project.configurations.shadow
-    ]
-    relocate 'com.google.gson', 'cz.coffee.skriptgson.google.gson'
-    manifest {
-        attributes(
-                'Name': 'cz/coffee/skriptgson',
-                'Automatic-Module-Name': 'cz.coffee.skriptgson',
-                'Sealed': 'true'
-        )
-    }
-    configureRelocations(it)
-}
-
-compileJava.options.encoding = 'UTF-8'
+version = '2.5'
 
 repositories {
     mavenCentral()
@@ -59,67 +33,39 @@ repositories {
     maven {
         url 'https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation'
     }
-}
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
 
-tasks.register('server', Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "startServer"'
-    return 1
-}
-
-tasks.register('reload', Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "reload"'
-    return 1
-}
-
-tasks.register('reload_plus', Exec) {
-    commandLine 'cmd', '/c', 'start powershell A:\\psScripts\\build.ps1 "reload_+"'
-    return 1
+        // As of Gradle 5.1, you can limit this to only those
+        // dependencies you expect from it
+        content {
+            includeGroup 'org.bukkit'
+            includeGroup 'org.spigotmc'
+        }
+    }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/central' }
 }
 
 dependencies {
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.jetbrains:annotations:23.1.0'
-    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
     compileOnly 'com.github.SkriptLang:Skript:2.6.3'
-    shadow('com.google.code.gson:gson:2.10')
-    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
-    implementation files('libs/reqn.jar')
-    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.8'
-}
+    compileOnly 'commons-codec:commons-codec:1.15'
 
+    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+    implementation files('libs/reqn.jar')
+    implementation files('libs/skbee.jar')
+    //implementation files('libs/spigot.api.jar')
+    shadow 'com.google.code.gson:gson:2.10.1'
+    compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
+    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
+}
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["-source", "16", "-target", "16"]
-}
-
-//tasks.register("release") {
-//    dependsOn(relocateShadowJar)
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        copy {
-//            shadowJar
-//            from jar
-//            into destination
-//        }
-//    }
-//}
-//
-//task cleanOlds {
-//    [
-//            'A:/plugins/sk-gson/',
-//            'A:/Bukkit-Core/purpur/dev-latest/plugins',
-//            'A:/workspaces/latest//plugins'].each { destination ->
-//        def tree = fileTree(destination)
-//        tree.include('**/skript-gson*.jar')
-//        tree.each { it.delete() }
-//    }
-//}
-
-shadowJar {
-    relocate 'com.google.gson', 'cz.coffee.skriptgson.gson'
-    mergeServiceFiles()
+    options.compilerArgs += ["-source", "14", "-target", "14"]
 }
 
 processResources {
@@ -130,3 +76,70 @@ processResources {
         expand props
     }
 }
+
+// Shadowing
+
+shadowJar {
+    relocate 'com.google.gson', 'cz.coffee.gson'
+    relocate("de.tr7zw.changeme.nbtapi", "cz.coffee.nbtapi")
+    archiveBaseName.set('SkJson')
+    archiveClassifier.set('')
+    mergeServiceFiles()
+}
+
+static configureRelocations(ShadowJar task) {
+    task.relocate('com.google.gson', 'cz.coffee.gson')
+}
+
+//noinspection ConfigurationAvoidance
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+}
+
+tasks.withType(ShadowJar).configureEach {
+    dependsOn relocateShadowJar, build
+    configurations = [
+            project.configurations.shadow
+    ]
+    relocate 'com.google.gson', 'cz.coffee.gson'
+    manifest {
+        attributes(
+                'Name': 'cz/coffee/gson',
+                'Automatic-Module-Name': 'cz.coffee.gson',
+                'Sealed': 'true'
+        )
+    }
+    configureRelocations(it)
+}
+
+
+//noinspection ConfigurationAvoidance
+task release(type:Copy) {
+    from shadowJar
+    [
+            'A:\\workspaces\\latest\\plugins'
+    ]
+            .each {destination ->
+                into destination
+            }
+    def styler = 'black red green yellow blue magenta cyan white'
+            .split().toList().withIndex(30)
+            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
+
+    doLast {
+        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
+    }
+}
+
+//noinspection ConfigurationAvoidance
+task cleanOld() {
+    [
+            'A:/plugins/'
+    ]
+    .each {destination -> {
+        def tree = fileTree(destination)
+        tree.include('**/skJson*.jar')
+        tree.each {it.delete()}
+    }}
+}
+
