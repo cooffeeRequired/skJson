@@ -60,8 +60,8 @@ dependencies {
     implementation files('libs/skbee.jar')
     //implementation files('libs/spigot.api.jar')
     shadow 'com.google.code.gson:gson:2.10.1'
-    compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
-    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
+    // compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
+    // compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
 }
 
 tasks.withType(JavaCompile).configureEach {
