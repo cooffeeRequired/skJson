@@ -36,7 +36,7 @@ import java.util.Map;
 
 import static cz.coffee.utils.ErrorHandler.sendMessage;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "unchecked"})
 public class Config {
     private static final File configFile = new File("plugins" + File.separator + SkJson.getInstance().getDescription().getName() + File.separator + "config.yml");
 

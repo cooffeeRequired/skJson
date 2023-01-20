@@ -81,7 +81,6 @@ processResources {
 
 shadowJar {
     relocate 'com.google.gson', 'cz.coffee.gson'
-    relocate("de.tr7zw.changeme.nbtapi", "cz.coffee.nbtapi")
     archiveBaseName.set('SkJson')
     archiveClassifier.set('')
     mergeServiceFiles()
@@ -114,32 +113,32 @@ tasks.withType(ShadowJar).configureEach {
 
 
 //noinspection ConfigurationAvoidance
-task release(type:Copy) {
-    from shadowJar
-    [
-            'A:\\workspaces\\latest\\plugins'
-    ]
-            .each {destination ->
-                into destination
-            }
-    def styler = 'black red green yellow blue magenta cyan white'
-            .split().toList().withIndex(30)
-            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
-
-    doLast {
-        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
-    }
-}
+//task release(type:Copy) {
+//    from shadowJar
+//    [
+//            'A:\\workspaces\\latest\\plugins'
+//    ]
+//            .each {destination ->
+//                into destination
+//            }
+//    def styler = 'black red green yellow blue magenta cyan white'
+//            .split().toList().withIndex(30)
+//            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
+//
+//    doLast {
+//        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
+//    }
+//}
 
 //noinspection ConfigurationAvoidance
-task cleanOld() {
-    [
-            'A:/plugins/'
-    ]
-    .each {destination -> {
-        def tree = fileTree(destination)
-        tree.include('**/skJson*.jar')
-        tree.each {it.delete()}
-    }}
-}
+//task cleanOld() {
+//    [
+//            'A:/plugins/'
+//    ]
+//    .each {destination -> {
+//        def tree = fileTree(destination)
+//        tree.include('**/skJson*.jar')
+//        tree.each {it.delete()}
+//    }}
+//}
 

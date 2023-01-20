@@ -56,7 +56,7 @@ import static cz.coffee.utils.json.JsonUtils.parseVariable;
         "\t\tsend json from arg-1",
         "\t\tsend json from player's location",
         "\t\tsend json from player's tool",
-        "\t\tsend json from text \"{'title': 'skript-gson', 'number': 2.0}\"",
+        "\t\tsend json from text \"{'title': 'skJson', 'number': 2.0}\"",
         "",
         "on load:",
         "\tset {_n} to 9.12",
