@@ -6,7 +6,13 @@
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)
 ![License](https://img.shields.io/github/license/cooffeeRequired/skript-gson?style=for-the-badge)
 
-![Git](https://user-images.githubusercontent.com/106232282/200173734-9a309996-c06a-4172-9eef-c3df82be8284.png)
+
+**Align center:**
+<p align="center" width="100%">
+    <img width="33%" src="https://user-images.githubusercontent.com/106232282/213727670-e9412127-c51e-495b-ba04-c1c2f64bb2b1.png"> 
+</p>
+
+
 
 #### This addon uses Google Json (Gson) API to work with Json in Script, allowing users to edit Json files or even directly Variables that contain json
 
