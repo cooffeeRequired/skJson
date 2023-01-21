@@ -41,17 +41,17 @@ import static cz.coffee.utils.json.JsonVariables.setVariable;
         "set {-data::*} to 1,false,2,true",
         "set {-single} to location(0,10,10)",
         "",
-        "set values \"list\" of {_json} to {-data::*}",
-        "set value \"list\" of {_json} to {-single}",
-        "set value \"list[0]\" of {_json} to cached json \"your.input\"",
+        "set json values \"list\" of {_json} to {-data::*}",
+        "set json value \"list\" of {_json} to {-single}",
+        "set json value \"list[0]\" of {_json} to cached json \"your.input\"",
         "",
-        "add value {-single} to {-json}",
-        "add values {-data::*} to {-json}",
-        "add value {-single} to to cached json \"your.input\"",
+        "add json value {-single} to {-json}",
+        "add json values {-data::*} to {-json}",
+        "add json value {-single} to to cached json \"your.input\"",
         "",
-        "remove \"list[1]\" from {-json}",
-        "remove \"list\" from {-json}",
-        "remove \"list[1]\" from cached json \"your.input\"",
+        "remove json value \"list[1]\" from {-json}",
+        "remove json value \"list\" from {-json}",
+        "remove json value \"list[1]\" from cached json \"your.input\"",
 })
 @Since("2.5.1")
 
@@ -82,7 +82,6 @@ public class EffCustomChanger extends Effect {
         JsonElement element;
         String lastKey = null;
         Deque<JsonElement> elements = new ArrayDeque<>();
-        System.out.println(outputJson);
         elements.add(outputJson);
 
         // prepare variable for nested keys.
