@@ -11,7 +11,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '2.5'
+version = '2.5.9'
 
 repositories {
     mavenCentral()
@@ -58,7 +58,6 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
     implementation files('libs/reqn.jar')
     implementation files('libs/skbee.jar')
-    //implementation files('libs/spigot.api.jar')
     shadow 'com.google.code.gson:gson:2.10.1'
     // compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
     // compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
@@ -113,32 +112,32 @@ tasks.withType(ShadowJar).configureEach {
 
 
 //noinspection ConfigurationAvoidance
-//task release(type:Copy) {
-//    from shadowJar
-//    [
-//            'A:\\workspaces\\latest\\plugins'
-//    ]
-//            .each {destination ->
-//                into destination
-//            }
-//    def styler = 'black red green yellow blue magenta cyan white'
-//            .split().toList().withIndex(30)
-//            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
-//
-//    doLast {
-//        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
-//    }
-//}
+task release(type:Copy) {
+    from shadowJar
+    [
+            'A:\\workspaces\\latest\\plugins'
+    ]
+            .each {destination ->
+                into destination
+            }
+    def styler = 'black red green yellow blue magenta cyan white'
+            .split().toList().withIndex(30)
+            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
+
+    doLast {
+        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
+    }
+}
 
 //noinspection ConfigurationAvoidance
-//task cleanOld() {
-//    [
-//            'A:/plugins/'
-//    ]
-//    .each {destination -> {
-//        def tree = fileTree(destination)
-//        tree.include('**/skJson*.jar')
-//        tree.each {it.delete()}
-//    }}
-//}
+task cleanOld() {
+    [
+            'A:/plugins/'
+    ]
+    .each {destination -> {
+        def tree = fileTree(destination)
+        tree.include('**/skJson*.jar')
+        tree.each {it.delete()}
+    }}
+}
 
