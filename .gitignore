@@ -32,3 +32,4 @@ replay_pid*
 *.lock
 *.bin
 build.gradle
+build.gradle

@@ -46,22 +46,7 @@ public class Type {
                 new ClassInfo<>(JsonElement.class, "json")
                         .user("json")
                         .name("json")
-                        .description("Represents a json element and its class `JsonElement.class`.",
-                                "You can convert string to json or json to string",
-                                "You can remove or add elements to json"
-                        )
-                        .examples(
-                                "on load:",
-                                "\nset {_e} to \"{'Test object': true}\" parsed as json",
-                                "\nsend \"%{_e}%\"",
-                                "add \"something;false\" to {_e}",
-                                "remove \"something\" from {_e}",
-                                "\nset {_e} to \"[1,2,3]\" parsed as json",
-                                "\nsend \"%{_e}%\"",
-                                "add \"4\" to {_e}",
-                                "remove \"1\" from {_e}",
-                                ""
-                        )
+                        .description("Represents a json element and its class `JsonElement.class`.")
                         .since("2.5.0")
                         .parser(
                                 new Parser<>() {

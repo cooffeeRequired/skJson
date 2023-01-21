@@ -48,7 +48,7 @@ import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
         "\t\twrite player's location to cached json \"your\"",
         "\t\tsend cached json \"your\" with pretty print",
         "",
-        "\t\tset {_json} to new json from player's world",
+        "\t\tset {_json} to json from player's world",
         "\t\twrite {_json} to json file \"*.json\"",
 })
 @Since("2.0.0")

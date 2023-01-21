@@ -44,7 +44,7 @@ import java.util.Objects;
 @Name("JSON Has Key/Value's")
 @Description({"Used to get information if the key or value exists in the JSON"})
 @Examples({"on script load:",
-        "\tset {_j} to new json from string \"{'Hello': {'Hi': 'There'}}\"",
+        "\tset {_j} to json from string \"{'Hello': {'Hi': 'There'}}\"",
         "\tif {_j} has keys \"Hello\", \"Hi\":",
         "\t\tsend true"
 })

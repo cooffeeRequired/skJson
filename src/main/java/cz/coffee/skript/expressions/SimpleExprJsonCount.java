@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 @Name("Count of values or keys in the JSON")
 @Description({"Return the result of count of keys/values are found in the Json."})
 @Examples({"on load:",
-        "\tset {_json} to new json from string \"{'Hello': {'Hi': 'There'}}\"",
+        "\tset {_json} to json from string \"{'Hello': {'Hi': 'There'}}\"",
         "\tsend count of value \"There\" of {_json}",
         "\tsend count of key \"There\" of json \"your\""
 })
