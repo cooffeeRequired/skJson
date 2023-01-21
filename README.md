@@ -1,10 +1,10 @@
 
-![GitHub release](https://img.shields.io/github/release/cooffeeRequired/skript-gson?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues-raw/cooffeeRequired/skript-gson?style=for-the-badge)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/cooffeeRequired/skript-gson.svg?style=for-the-badge)
-![GitHub All Downloads](https://img.shields.io/github/downloads/cooffeeRequired/skript-gson/total.svg?style=for-the-badge)
+![GitHub release](https://img.shields.io/github/release/cooffeeRequired/skJson?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/cooffeeRequired/skJson?style=for-the-badge)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/cooffeeRequired/skJson.svg?style=for-the-badge)
+![GitHub All Downloads](https://img.shields.io/github/downloads/cooffeeRequired/skJson/total?style=for-the-badge)
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)
-![License](https://img.shields.io/github/license/cooffeeRequired/skript-gson?style=for-the-badge)
+![License](https://img.shields.io/github/license/cooffeeRequired/skJson?style=for-the-badge)
 
 
 **Align center:**
