@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -36,44 +36,54 @@ import static cz.coffee.utils.ErrorHandler.sendMessage;
 @SuppressWarnings("unused")
 public class HTTPHandler {
 
+    final Map<String, String> connectionProperty = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    public enum METHOD {
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        CONNECT,
-        HEAD,
-        PATCH
-    }
-    enum STATUS {
-        OK(200),
-        NOT_OK(505),
-        REDIRECTED(301),
-        NOT_FOUND(404),
-        SERVER_ERROR(500),
-        UNKNOWN(0);
-
-        STATUS(int code) {}
-
-    }
-
     boolean doOutput = true;
     boolean doInput = true;
     int responseCode;
     int timeout = 5500;
-
     STATUS status = STATUS.UNKNOWN;
     METHOD method = METHOD.GET;
-
-
-    final Map<String, String> connectionProperty = new HashMap<>();
     HttpsURLConnection currentConnection;
     InputStream inputStream;
     URL currentUrl;
     URL inputURL;
+    /**
+     * Constructor for HTTPHandler
+     * @param url URL what to be executed
+     * @param requestMethod Methods like GET,POST...
+     */
+    public HTTPHandler(URL url, String requestMethod) {
+        this.inputURL = url;
+        this.method = METHOD.valueOf(requestMethod);
+    }
+    /**
+     * Constructor for HTTPHandler
+     * @param stringURL StringURL what to be executed
+     * @param requestMethod Methods like GET,POST...
+     */
+    public HTTPHandler(String stringURL, String requestMethod) {
+        try {
+            this.inputURL = new URL(stringURL);
+            this.method = METHOD.valueOf(requestMethod);
+        } catch (MalformedURLException malformedURLException) {
+            sendMessage(malformedURLException.getCause(), WARNING);
+        }
+    }
 
+
+    /**
+     * Constructor for HTTPHandler without Request Methods settings.
+     * @param stringURL StringURL what to be executed
+     */
+    public HTTPHandler(String stringURL) {
+        try {
+            this.inputURL = new URL(stringURL);
+            this.method = METHOD.GET;
+        } catch (MalformedURLException malformedURLException) {
+            malformedURLException.printStackTrace();
+        }
+    }
 
     private STATUS parseCode(int i) {
         if (i >= 200 && i <= 299) {
@@ -88,43 +98,6 @@ public class HTTPHandler {
             return STATUS.NOT_OK;
         }
     }
-
-    /**
-     * Constructor for HTTPHandler
-     * @param url URL what to be executed
-     * @param requestMethod Methods like GET,POST...
-     */
-    public HTTPHandler(URL url, String requestMethod) {
-        this.inputURL = url;
-        this.method = METHOD.valueOf(requestMethod);
-    }
-
-    /**
-     * Constructor for HTTPHandler
-     * @param stringURL StringURL what to be executed
-     * @param requestMethod Methods like GET,POST...
-     */
-    public HTTPHandler(String stringURL, String requestMethod) {
-        try {
-            this.inputURL = new URL(stringURL);
-            this.method = METHOD.valueOf(requestMethod);
-        } catch (MalformedURLException malformedURLException) {
-            sendMessage(malformedURLException.getCause(), WARNING);
-        }
-    }
-    /**
-     * Constructor for HTTPHandler without Request Methods settings.
-     * @param stringURL StringURL what to be executed
-     */
-    public HTTPHandler(String stringURL) {
-        try {
-            this.inputURL = new URL(stringURL);
-            this.method = METHOD.GET;
-        } catch (MalformedURLException malformedURLException) {
-            malformedURLException.printStackTrace();
-        }
-    }
-
 
     /**
      * This is function what allows you to set the input Header data. for example
@@ -208,7 +181,7 @@ public class HTTPHandler {
      * @param doOutput you can enable or disable output data from the connection
      * @return {@link HTTPHandler}
      */
-    public HTTPHandler allowOutput(boolean doOutput){
+    public HTTPHandler allowOutput(boolean doOutput) {
         this.doOutput = doOutput;
         return this;
     }
@@ -247,7 +220,7 @@ public class HTTPHandler {
      * @param jsonEncoded true/false depends on website response content.
      * @return the content of body of given URL
      */
-    public Object getContents(boolean ...jsonEncoded) {
+    public Object getContents(boolean... jsonEncoded) {
         boolean jsonEncoded_ = false;
         if (jsonEncoded != null && jsonEncoded.length > 0) {
             if (jsonEncoded[0]) {
@@ -282,14 +255,14 @@ public class HTTPHandler {
      * @param jsonEncode true/false depends on you, basically what type of Headers you need.
      * @return website response Headers.
      */
-    public Object getHeaders(boolean ...jsonEncode) {
+    public Object getHeaders(boolean... jsonEncode) {
         boolean jsonEncoded_ = false;
         if (jsonEncode != null && jsonEncode.length > 0) {
             if (jsonEncode[0]) {
                 jsonEncoded_ = true;
             }
         }
-        if (currentConnection !=null && currentUrl != null) {
+        if (currentConnection != null && currentUrl != null) {
             Map<String, List<String>> headersMap = currentConnection.getHeaderFields();
             Set<String> headersKey = headersMap.keySet();
             HashMap<String, String> headers = new HashMap<>();
@@ -318,6 +291,7 @@ public class HTTPHandler {
     public int getResponse() {
         return responseCode;
     }
+
     /**
      * Given InputStream of the given and connected URL
      * @return {@link InputStream}
@@ -335,6 +309,28 @@ public class HTTPHandler {
         this.timeout = timeout;
     }
 
+    public enum METHOD {
+        GET,
+        POST,
+        PUT,
+        DELETE,
+        CONNECT,
+        HEAD,
+        PATCH
+    }
+
+    enum STATUS {
+        OK(200),
+        NOT_OK(505),
+        REDIRECTED(301),
+        NOT_FOUND(404),
+        SERVER_ERROR(500),
+        UNKNOWN(0);
+
+        STATUS(int code) {
+        }
+
+    }
 
 
 }

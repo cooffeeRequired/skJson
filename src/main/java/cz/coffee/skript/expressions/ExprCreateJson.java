@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -37,16 +37,19 @@ import com.google.gson.JsonSyntaxException;
 import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static cz.coffee.utils.ErrorHandler.Level.ERROR;
 import static cz.coffee.utils.ErrorHandler.Level.WARNING;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
+import static cz.coffee.utils.config.Config._REQUEST_HANDLER;
 import static cz.coffee.utils.json.JsonUtils.parseVariable;
 
 @Name("New json from bunch sources (Text/File/Request)")
@@ -69,19 +72,9 @@ import static cz.coffee.utils.json.JsonUtils.parseVariable;
 
 public class ExprCreateJson extends SimpleExpression<JsonElement> {
 
-    private Expression<String> patternFromString;
-    private Expression<?> patternFromAnyBukkitType;
-    private Expression<String> patternFromFile;
-    private Expression<Object> patternFromRequest;
-    private int pattern;
-
-    private final Pattern PATTERN_VAR_LIST = Pattern.compile("\\$\\{[A-Za-z0-9_]+::\\*}");
-    private final Pattern PATTERN_VAR = Pattern.compile("\\$\\{[\\-A-z_].?}");
-
     static {
         Skript.registerExpression(ExprCreateJson.class, JsonElement.class, ExpressionType.COMBINED,
                 "[a] json from (text|string) %string%",
-                "[a] json from %itemstack%",
                 "[a] json from %object%",
                 "[a] json from file [path] %string%",
                 "[a] json from request %object%",
@@ -89,18 +82,22 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
         );
     }
 
+    private final Pattern PATTERN_VAR_LIST = Pattern.compile("\\$\\{[A-Za-z0-9_]+::\\*}");
+    private final Pattern PATTERN_VAR = Pattern.compile("\\$\\{[\\-A-z_].?}");
+    private Expression<?> exprToSerialize;
+    private int pattern;
 
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event event) {
         Object assignedValue;
         if (pattern == 0) {
-            assignedValue = patternFromString.getSingle(event);
+            assignedValue = exprToSerialize.getSingle(event);
             if (assignedValue == null) return new JsonElement[0];
             boolean hasVariables = PATTERN_VAR_LIST.matcher(assignedValue.toString()).find() || PATTERN_VAR.matcher(assignedValue.toString()).find();
 
             if (hasVariables) {
                 try {
-                   return new JsonElement[]{parseVariable(assignedValue.toString(), event)};
+                    return new JsonElement[]{parseVariable(assignedValue.toString(), event)};
                 } catch (JsonSyntaxException syntax) {
                     sendMessage(syntax.getCause(), WARNING);
                 }
@@ -112,16 +109,16 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
                 }
             }
         } else if (pattern == 1 || pattern == 2) {
-            assignedValue = patternFromAnyBukkitType.getSingle(event);
+            assignedValue = exprToSerialize.getSingle(event);
             return new JsonElement[]{JsonAdapter.toJson(assignedValue)};
         } else if (pattern == 3) {
             JsonFilesHandler jfh = new JsonFilesHandler();
-            assignedValue = patternFromFile.getSingle(event);
+            assignedValue = exprToSerialize.getSingle(event);
             assert assignedValue != null;
             return new JsonElement[]{jfh.readFile(assignedValue.toString())};
 
         } else if (pattern == 4) {
-            assignedValue = patternFromRequest.getSingle(event);
+            assignedValue = exprToSerialize.getSingle(event);
             assert assignedValue != null;
             if (assignedValue instanceof HttpResponse) {
                 return new JsonElement[]{JsonParser.parseString(((HttpResponse) assignedValue).getBody())};
@@ -134,7 +131,7 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             } else if (assignedValue instanceof String) {
                 try {
                     return new JsonElement[]{JsonParser.parseString(assignedValue.toString())};
-                } catch (JsonSyntaxException syntaxException){
+                } catch (JsonSyntaxException syntaxException) {
                     return new JsonElement[]{};
                 }
             }
@@ -155,10 +152,10 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
         String main = "json from ";
-        if (pattern == 0) return main + "string/text " + patternFromString.toString(event, b);
-        if (pattern == 1 || pattern == 2) return main + patternFromAnyBukkitType.toString(event, b);
-        if (pattern == 3) return main + "file path" + patternFromFile.toString(event, b);
-        if (pattern == 4) return main + "request" + patternFromRequest.toString(event, b);
+        if (pattern == 0) return main + "string/text " + exprToSerialize.toString(event, b);
+        if (pattern == 1 || pattern == 2) return main + exprToSerialize.toString(event, b);
+        if (pattern == 3) return main + "file path" + exprToSerialize.toString(event, b);
+        if (pattern == 4) return main + "request" + exprToSerialize.toString(event, b);
         return "@Deprecated -> [a] new json from ...";
     }
 
@@ -166,23 +163,20 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
         pattern = i;
-
-        if (pattern == 0) {
-            patternFromString = (Expression<String>) expressions[0];
-            return true;
-        } else if (pattern == 1 || pattern == 2) {
-            patternFromAnyBukkitType = LiteralUtils.defendExpression(expressions[0]);
-            return LiteralUtils.canInitSafely(patternFromAnyBukkitType);
-        } else if (pattern == 3) {
-            patternFromFile = (Expression<String>) expressions[0];
-            return true;
+        if (pattern == 3) {
+            if (_REQUEST_HANDLER) {
+                exprToSerialize = LiteralUtils.defendExpression(expressions[0]);
+                return LiteralUtils.canInitSafely(exprToSerialize);
+            }
+            return false;
         } else if (pattern == 4) {
-            patternFromRequest = LiteralUtils.defendExpression(expressions[0]);
-            return LiteralUtils.canInitSafely(patternFromRequest);
-        } else if (pattern == 5) {
             sendMessage("This is a deprecated syntax, &f&lTry that expression without &c&7'&f... &cnew&f json from text ...", ERROR);
             return false;
+        } else {
+            exprToSerialize = LiteralUtils.defendExpression(expressions[0]);
+            Expression<?> isItem = exprToSerialize.getConvertedExpression(ItemStack.class);
+            exprToSerialize = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(expressions[0]));
+            return LiteralUtils.canInitSafely(exprToSerialize);
         }
-        return false;
     }
 }

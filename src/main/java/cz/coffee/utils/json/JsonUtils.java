@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -44,6 +44,7 @@ import static cz.coffee.utils.Type.VALUE;
 
 @SuppressWarnings("unused")
 public class JsonUtils {
+
     /**
      * @param input        any {@link JsonElement}
      * @param searchedTerm The expression we are looking for in the json object.
@@ -77,86 +78,6 @@ public class JsonUtils {
             }
         }
         return false;
-    }
-
-    /**
-     * @param input any {@link JsonElement}
-     * @param from  searched expression for its fundamental value.
-     * @param to    the final data that will be changed for the given key.
-     * @return will return the changed {@link JsonElement}
-     */
-    public JsonElement changeJson(@NotNull JsonElement input, @NotNull String from, Object to) {
-        Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
-        JsonElement element;
-        Deque<JsonElement> elements = new ArrayDeque<>();
-        elements.add(input);
-
-        // prepare variable for nested keys.
-        boolean isNested = false;
-        String[] fromAsList = new String[0];
-
-        if (from.contains(":")) {
-            isNested = true;
-            fromAsList = from.split(":");
-        }
-
-        while ((element = elements.pollFirst()) != null) {
-            if (element instanceof JsonObject) {
-                JsonObject elementObject = element.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : elementObject.entrySet()) {
-                    if (!entry.getKey().equals(isNested ? fromAsList[fromAsList.length - 1] : from)) {
-                        elements.offerLast(entry.getValue());
-                    } else {
-                        if (entry.getValue() instanceof JsonPrimitive) {
-                            if (to instanceof Number) elementObject.addProperty(entry.getKey(), ((Number) to));
-                            else if (to instanceof String) elementObject.addProperty(entry.getKey(), ((String) to));
-                            else if (to instanceof Boolean) elementObject.addProperty(entry.getKey(), ((Boolean) to));
-                            else
-                                elementObject.add(entry.getKey(), gson.toJsonTree(to));
-                        } else {
-                            elementObject.add(entry.getKey(), gson.toJsonTree(to));
-                        }
-                    }
-                }
-            } else if (element instanceof JsonArray) {
-                for (JsonElement data : element.getAsJsonArray()) {
-                    elements.offerLast(data);
-                }
-            }
-        }
-        return input;
-    }
-
-
-    /**
-     *
-     * @param search equivalent parameter of the search term
-     * @param fromSourceInput {@link JsonElement} input
-     * @param type {@link Type}
-     * @return count of {@link Integer}
-     */
-    public int count(@NotNull String search, @NotNull JsonElement fromSourceInput, Type type) {
-        int count = 0;
-        JsonElement value;
-        Deque<JsonElement> elements = new ArrayDeque<>();
-        elements.add(fromSourceInput);
-
-        while ((value = elements.pollFirst()) != null) {
-            if (value instanceof JsonArray) {
-                for (JsonElement l : value.getAsJsonArray()) elements.offerLast(l);
-            } else if (value instanceof JsonObject) {
-                for (Map.Entry<String, JsonElement> entry : value.getAsJsonObject().entrySet()) {
-                    if (type == KEY) {
-                        if (entry.getKey().equals(search)) count++;
-                        if (!entry.getValue().isJsonPrimitive()) elements.offerLast(entry.getValue());
-                    } else if (type == VALUE) {
-                        JsonElement parsedValue = JsonParser.parseString(search);
-                        if (entry.getValue().equals(parsedValue)) count++; elements.offerLast(entry.getValue());
-                    }
-                }
-            }
-        }
-        return count;
     }
 
     /**
@@ -206,7 +127,6 @@ public class JsonUtils {
         return returnMap;
     }
 
-
     public static JsonElement parseVariable(String rawString, Event e) {
         String value;
         Matcher m = Pattern.compile("\\$\\{.+?}").matcher(rawString);
@@ -227,65 +147,10 @@ public class JsonUtils {
                     value = json.getAsString();
                 }
                 assert value != null;
-                rawString = rawString.replaceAll("Variable."+map.getKey(), value);
+                rawString = rawString.replaceAll("Variable." + map.getKey(), value);
             }
         }
         return JsonParser.parseString(rawString);
-    }
-
-    /**
-     * @param fromInput  {@link NotNull} {@link JsonElement} loaded directly from json file / variable / json map
-     * @param appendData {@link NotNull} {@link JsonElement} customer input's json
-     * @param key        searched expression from value:key pair..
-     * @param nested     expression what contains a nested path
-     * @return changed {@link JsonElement}
-     */
-
-    public JsonElement appendJson(@NotNull JsonElement fromInput, @NotNull JsonElement appendData, String key, String nested, boolean debug) {
-        String[] nests = parseNestedPattern(nested);
-        JsonElement next;
-        boolean isArrayKey, isExist = false;
-        Deque<JsonElement> elements = new ArrayDeque<>();
-        elements.add(fromInput);
-        while ((next = elements.pollFirst()) != null) {
-            int parsedNumber = 0;
-            int n =0;
-            for (String nKey : nests) {
-                n++;
-                if (isNumeric(nKey)) parsedNumber = Integer.parseInt(nKey);
-                // creating section
-                if (next.isJsonArray()) {
-                    JsonArray array = next.getAsJsonArray();
-                    next = createMissing(array, nKey, parsedNumber, debug);
-                } else if (next.isJsonObject()) {
-                    JsonObject object = next.getAsJsonObject();
-                    next = createMissing(object, parsedNumber, nKey,debug);
-                }
-
-                // Modding/looping section
-                String sanitizeKey = nKey.replaceAll(".list", "");
-                if (next.isJsonArray()) {
-                    JsonArray array = next.getAsJsonArray();
-                    if (array.isEmpty()) {
-                        next = array;
-                    } else {
-                        next = array.get(parsedNumber);
-                    }
-                } else if (next.isJsonObject()){
-                    JsonObject object = next.getAsJsonObject();
-                    next = object.get(sanitizeKey);
-                }
-
-            }
-
-            if (next.isJsonObject()) {
-                next.getAsJsonObject().add(key, appendData);
-            } else if (next.isJsonArray()){
-                next.getAsJsonArray().add(appendData);
-            }
-        }
-
-        return fromInput;
     }
 
     private static JsonObject createMissing(JsonObject input, int number, String nKey, boolean debug) {
@@ -302,9 +167,9 @@ public class JsonUtils {
 
     private static JsonArray createMissing(JsonArray input, String nKey, int parsedNumber, boolean debug) {
         JsonElement el = input.deepCopy();
-        boolean sizeOverflow = parsedNumber > (input.size() -1);
+        boolean sizeOverflow = parsedNumber > (input.size() - 1);
         if (input.isEmpty() || sizeOverflow) {
-            if (nKey.endsWith(".list")){
+            if (nKey.endsWith(".list")) {
                 input.add(new JsonArray());
             } else {
                 input.add(new JsonObject());
@@ -313,18 +178,18 @@ public class JsonUtils {
         return input;
     }
 
-
-    private static String[] parseNestedPattern(String string) {
+    public static String[] parseNestedPattern(String string, boolean append) {
         final String arrayRegex = ".*\\[((\\d+|)])";
         final Pattern subPattern = Pattern.compile("^([^\\[.*]+)");
         final Pattern internalPattern = Pattern.compile("\\[(.*?)]");
+        final Pattern multiSquares = Pattern.compile(".\\[\\d+]");
 
         ArrayList<String> parsed = new ArrayList<>();
         String[] nests = string.split(":");
         String nKey = "";
         String nInt = "";
         int index = 0;
-        for (String n : nests){
+        for (String n : nests) {
             index++;
             if (n.matches(arrayRegex)) {
                 Matcher m = subPattern.matcher(n);
@@ -332,19 +197,19 @@ public class JsonUtils {
                     nKey = m.group(1);
                 }
                 Matcher in = internalPattern.matcher(n);
-                if (in.find()){
+                if (in.find()) {
                     nInt = Objects.equals(in.group(1), "") ? "0" : in.group(1);
                 }
                 if (index == 1) {
                     boolean assigned = false;
                     if (nKey != null) {
-                        if (!nKey.startsWith("[")){
+                        if (!nKey.startsWith("[")) {
                             assigned = true;
-                            parsed.add(nKey+".list");
+                            parsed.add(nKey + ".list");
                             parsed.add(nInt);
                         } else {
                             if (nInt.equals("0")) {
-                                parsed.add(nInt+".list");
+                                parsed.add(nInt + ".list");
                             }
                         }
                     }
@@ -355,7 +220,7 @@ public class JsonUtils {
                     if (nKey == null) {
                         parsed.add("0.list");
                     } else {
-                        parsed.add(nKey+".list");
+                        if (append) parsed.add(nKey + ".list");
                     }
                     parsed.add(nInt);
                 }
@@ -365,5 +230,151 @@ public class JsonUtils {
             }
         }
         return parsed.toArray(new String[0]);
+    }
+
+    /**
+     * @param input any {@link JsonElement}
+     * @param from  searched expression for its fundamental value.
+     * @param to    the final data that will be changed for the given key.
+     * @return will return the changed {@link JsonElement}
+     */
+    public JsonElement changeJson(@NotNull JsonElement input, @NotNull String from, Object to) {
+        Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
+        JsonElement element;
+        String lastKey = null;
+        Deque<JsonElement> elements = new ArrayDeque<>();
+        elements.add(input);
+
+        // prepare variable for nested keys.
+        boolean isNested = false;
+        String[] fromAsList = new String[0];
+
+        if (from.contains(":")) {
+            isNested = true;
+            fromAsList = from.split(":");
+            lastKey = fromAsList[fromAsList.length - 1];
+        }
+
+        while ((element = elements.pollFirst()) != null) {
+            if (element instanceof JsonObject) {
+                JsonObject elementObject = element.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : elementObject.entrySet()) {
+                    if (!entry.getKey().equals(isNested ? lastKey : from)) {
+                        elements.offerLast(entry.getValue());
+                    } else {
+                        if (entry.getValue() instanceof JsonPrimitive) {
+                            if (to instanceof Number) elementObject.addProperty(entry.getKey(), ((Number) to));
+                            else if (to instanceof String) elementObject.addProperty(entry.getKey(), ((String) to));
+                            else if (to instanceof Boolean) elementObject.addProperty(entry.getKey(), ((Boolean) to));
+                            else
+                                elementObject.add(entry.getKey(), gson.toJsonTree(to));
+                        } else {
+                            elementObject.add(entry.getKey(), gson.toJsonTree(to));
+                        }
+                    }
+                }
+            } else if (element instanceof JsonArray) {
+                int index = 0;
+                if (isNumeric(lastKey)) index = Integer.parseInt(lastKey);
+                JsonArray array = element.getAsJsonArray();
+                for (int i = 0; i < array.size(); i++) {
+                    JsonElement value = array.get(i);
+                    if (i == (isNested ? index : Integer.parseInt(from))){
+                        array.set(index , gson.toJsonTree(to));
+                        break;
+                    } else {
+                        if (!(value instanceof JsonPrimitive || value == null || value instanceof JsonNull)) elements.offerLast(value);
+                    }
+                }
+            }
+        }
+        return input;
+    }
+
+    /**
+     *
+     * @param search equivalent parameter of the search term
+     * @param fromSourceInput {@link JsonElement} input
+     * @param type {@link Type}
+     * @return count of {@link Integer}
+     */
+    public int count(@NotNull String search, @NotNull JsonElement fromSourceInput, Type type) {
+        int count = 0;
+        JsonElement value;
+        Deque<JsonElement> elements = new ArrayDeque<>();
+        elements.add(fromSourceInput);
+
+        while ((value = elements.pollFirst()) != null) {
+            if (value instanceof JsonArray) {
+                for (JsonElement l : value.getAsJsonArray()) elements.offerLast(l);
+            } else if (value instanceof JsonObject) {
+                for (Map.Entry<String, JsonElement> entry : value.getAsJsonObject().entrySet()) {
+                    if (type == KEY) {
+                        if (entry.getKey().equals(search)) count++;
+                        if (!entry.getValue().isJsonPrimitive()) elements.offerLast(entry.getValue());
+                    } else if (type == VALUE) {
+                        JsonElement parsedValue = JsonParser.parseString(search);
+                        if (entry.getValue().equals(parsedValue)) count++;
+                        elements.offerLast(entry.getValue());
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @param fromInput  {@link NotNull} {@link JsonElement} loaded directly from json file / variable / json map
+     * @param appendData {@link NotNull} {@link JsonElement} customer input's json
+     * @param key        searched expression from value:key pair..
+     * @param nested     expression what contains a nested path
+     * @return changed {@link JsonElement}
+     */
+
+    public JsonElement appendJson(@NotNull JsonElement fromInput, @NotNull JsonElement appendData, String key, String nested, boolean debug) {
+        String[] nests = parseNestedPattern(nested, true);
+        JsonElement next;
+        boolean isArrayKey, isExist = false;
+        Deque<JsonElement> elements = new ArrayDeque<>();
+        elements.add(fromInput);
+        while ((next = elements.pollFirst()) != null) {
+            int parsedNumber = 0;
+            int n = 0;
+            for (String nKey : nests) {
+                n++;
+                if (isNumeric(nKey)) parsedNumber = Integer.parseInt(nKey);
+                // creating section
+                if (next.isJsonArray()) {
+                    JsonArray array = next.getAsJsonArray();
+                    next = createMissing(array, nKey, parsedNumber, debug);
+                } else if (next.isJsonObject()) {
+                    JsonObject object = next.getAsJsonObject();
+                    next = createMissing(object, parsedNumber, nKey, debug);
+                }
+
+                // Modding/looping section
+                String sanitizeKey = nKey.replaceAll(".list", "");
+                if (next.isJsonArray()) {
+                    JsonArray array = next.getAsJsonArray();
+                    if (array.isEmpty()) {
+                        next = array;
+                    } else {
+                        next = array.get(parsedNumber);
+                    }
+                } else if (next.isJsonObject()) {
+                    JsonObject object = next.getAsJsonObject();
+                    next = object.get(sanitizeKey);
+                }
+
+            }
+
+            if (next.isJsonObject()) {
+                next.getAsJsonObject().add(key, appendData);
+            } else if (next.isJsonArray()) {
+                next.getAsJsonArray().add(appendData);
+            }
+        }
+
+        return fromInput;
     }
 }

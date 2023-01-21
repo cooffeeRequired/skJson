@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import static cz.coffee.utils.SimpleUtil.hex;
+import static cz.coffee.utils.config.Config._NBT_SUPPORTED;
+import static cz.coffee.utils.config.Config._REQUEST_HANDLER;
 
 public final class SkJson extends JavaPlugin {
 
@@ -125,12 +127,22 @@ public final class SkJson extends JavaPlugin {
 
         //metrics
         loadMetrics();
+        // Config folder
+        Config.init();
+        if (!_NBT_SUPPORTED) {
+            SkJson.console("NBT-serialize is &cdisabled&8, Missing dependency skBee");
+        } else {
+            SkJson.console("NBT-serialize is loaded and &aenabled &8(&7skBee&8)");
+        }
+
+        if (!_REQUEST_HANDLER) {
+            SkJson.console("Request-serialize is &cdisabled&8, Missing dependency (skript-reflect or SkriptWebAPI or Reqn)");
+        } else {
+            SkJson.console("Request-serialize is loaded and &aenabled");
+        }
 
         // github version checker
         new Updater(version);
-
-        // Config folder
-        Config.init();
         console("&aFinished loading.");
     }
     // Logging

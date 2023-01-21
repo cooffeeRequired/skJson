@@ -11,7 +11,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.adapters.JsonAdapter;
-import cz.coffee.utils.ErrorHandler;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -19,8 +18,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-
-import static cz.coffee.utils.ErrorHandler.sendMessage;
 
 
 @Since("2.5.0")
@@ -46,21 +43,16 @@ public class EffNewJsonFile extends Effect {
         if (inputToFile != null) {
             assignedValue = inputToFile.getSingle(event);
         }
-        if (pattern == 0) {
-            if (hasObject) {
-                jfh.newFile(strPathToFile, new JsonObject(), true, false);
-            } else if (hasArray) {
-                jfh.newFile(strPathToFile, new JsonArray(), true, false);
-            } if (assignedValue instanceof JsonElement) {
-                jfh.newFile(strPathToFile, assignedValue, true, async);
-            } else if (assignedValue instanceof String){
-                jfh.newFile(strPathToFile, assignedValue, true, async);
-            } else {
-                jfh.newFile(strPathToFile, assignedValue,true, async);
-            }
-        } else if (pattern == 1) {
-            sendMessage(assignedValue, ErrorHandler.Level.INFO);
-            jfh.newFile(strPathToFile, JsonAdapter.toJson(assignedValue), true, true);
+        if (hasObject) {
+            jfh.newFile(strPathToFile, new JsonObject(), true, false);
+        } else if (hasArray) {
+            jfh.newFile(strPathToFile, new JsonArray(), true, false);
+        } if (assignedValue instanceof JsonElement) {
+            jfh.newFile(strPathToFile, assignedValue, true, async);
+        } else if (assignedValue instanceof String){
+            jfh.newFile(strPathToFile, assignedValue, true, async);
+        } else {
+            jfh.newFile(strPathToFile, JsonAdapter.toJson(assignedValue),true, true);
         }
     }
 

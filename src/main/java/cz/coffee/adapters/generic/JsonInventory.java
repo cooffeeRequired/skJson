@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -41,10 +41,10 @@ import static org.bukkit.Bukkit.createInventory;
 
 public class JsonInventory implements JsonGenericAdapter<Inventory> {
 
-    private final static String INVENTORY_META_KEY = "__inventory-meta__";
     final static String CONTENTS_KEY_META = "meta";
     final static String CONTENTS_KEY_ENCHANTS = "enchants";
     final static String CONTENTS_KEY_MODIFIERS = "attribute-modifiers";
+    private final static String INVENTORY_META_KEY = "__inventory-meta__";
 
     @Override
     public @NotNull JsonElement toJson(Inventory inv) {
@@ -65,7 +65,7 @@ public class JsonInventory implements JsonGenericAdapter<Inventory> {
         InventoryHolder nonClassifiedHolder = inv.getHolder(true);
         if (nonClassifiedHolder instanceof Player) {
             holder = nonClassifiedHolder;
-            invTitle = "Inventory of "+((Player) nonClassifiedHolder).getName();
+            invTitle = "Inventory of " + ((Player) nonClassifiedHolder).getName();
         }
         inventoryMeta.addProperty("inventory-title", invTitle);
 

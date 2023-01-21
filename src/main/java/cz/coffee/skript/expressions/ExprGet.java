@@ -43,14 +43,18 @@ import java.util.Map;
 
 import static cz.coffee.utils.SimpleUtil.isNumeric;
 import static cz.coffee.utils.json.JsonUtils.fromPrimitive2Object;
+import static cz.coffee.utils.json.JsonUtils.parseNestedPattern;
 
 
 @Name("Get element/elements from Json")
 @Description({"Get single value or values from the json"})
 @Examples({"on load:",
         "\tset {_json} to json from text \"{'test': true}\"",
-        "\tset {-e} to element \"test\" from json {_json}",
+        "\tset {-e} to element \"test\" of {_json}",
         "\tsend {-e}",
+        "\tset {_json} to json from text \"{'test': [1,2,3,4,false]}\"",
+        "\tset {-e::*} to elements \"test\" from {_json} to player",
+        "\tsend {-e::*}",
 })
 @Since("2.5.0")
 
@@ -59,8 +63,8 @@ public class ExprGet extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(ExprGet.class, Object.class, ExpressionType.COMBINED,
-                "element %string% from %json%",
-                "elements [%-string%] from %json%"
+                "(element|value) %string% (of|from) %object%",
+                "(elements|values) [%-string%] (of|from) %object%"
         );
     }
 
@@ -104,7 +108,7 @@ public class ExprGet extends SimpleExpression<Object> {
         if (exprKey != null) {
             key = exprKey.getSingle(e);
         }
-   
+
         JsonElement json = exprJson.getSingle(e);
 
         if (pattern == 1 && key == null) {
@@ -115,16 +119,16 @@ public class ExprGet extends SimpleExpression<Object> {
 
         if (key != null || json != null){
             assert key != null;
-            String[] keys = key.split(":");
+            String[] keys = parseNestedPattern(key, false);
             if (keys[0] != null) {
                 if (pattern == 0) {
-                    for (String nKey : keys) {
+                    for (String nKey0 : keys) {
+                        String nKey = nKey0.endsWith(".list") ? nKey0.substring(0, nKey0.length() - 5) : nKey0;
+                        if (nKey.length() < 1) continue;
                         if (json instanceof JsonArray) {
                             JsonArray array = (JsonArray) json;
                             int index = 0;
-                            if (isNumeric(nKey))
-                                index = Integer.parseInt(nKey);
-
+                            if (isNumeric(nKey)) index = Integer.parseInt(nKey);
                             if (array.size() > index) {
                                 json = array.get(index);
                             }
@@ -141,15 +145,17 @@ public class ExprGet extends SimpleExpression<Object> {
                         }
                     }
                 } else if (pattern == 1) {
-                    for (String nKey : keys) {
+                    for (String nKey0 : keys) {
+                        String nKey = nKey0.endsWith(".list") ? nKey0.substring(0, nKey0.length() - 5) : nKey0;
+                        if (nKey.length() < 1) continue;
                         if (json instanceof JsonObject) {
                             JsonObject object = (JsonObject) json;
-                            json = object.get(key);
+                            json = object.get(nKey);
                         } else if (json instanceof JsonArray) {
                             JsonArray array = (JsonArray) json;
                             int index = 0;
-                            if (isNumeric(key)) {
-                                index = Integer.parseInt(key);
+                            if (isNumeric(nKey)) {
+                                index = Integer.parseInt(nKey);
                             }
                             try {
                                 json = array.get(index);
@@ -171,7 +177,6 @@ public class ExprGet extends SimpleExpression<Object> {
     @Override
     public boolean isSingle() {
         return pattern == 0;
-
     }
 
     @Override

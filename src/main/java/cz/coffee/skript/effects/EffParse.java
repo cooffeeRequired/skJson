@@ -126,6 +126,7 @@ public class EffParse extends SimpleExpression<Object> {
             }
         } catch (Exception exception){
             sendMessage("Inserted json isn't type of &e" + tags.get(0), ErrorHandler.Level.INFO);
+            sendMessage("Inserted json " + bukkitObject, ErrorHandler.Level.INFO);
             return new Object[0];
         }
         return new Object[0];

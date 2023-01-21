@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -42,10 +42,25 @@ public class JsonFilesHandler {
         this.canBeForced = canBeForced;
     }
 
-    public JsonFilesHandler() {}
+    public JsonFilesHandler() {
+    }
 
     public static boolean canBeCreated(@NotNull File file) {
         return !file.getParentFile().exists();
+    }
+
+    public static void asyncWriting(Object dataJson, String strFile) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Files.writeString(new File(strFile).toPath(), gson.toJson(dataJson));
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    return null;
+                }
+        );
     }
 
     /**
@@ -72,7 +87,8 @@ public class JsonFilesHandler {
                         return;
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         if (inputData == null || inputData instanceof JsonNull) {
@@ -98,26 +114,12 @@ public class JsonFilesHandler {
             element = JsonParser.parseReader(ptr);
         } catch (IOException | JsonSyntaxException exception) {
             if (exception instanceof IOException) {
-                if(!file.exists()) sendMessage(FILE_NOT_EXIST + inputString, WARNING);
+                if (!file.exists()) sendMessage(FILE_NOT_EXIST + inputString, WARNING);
             } else {
                 sendMessage((exception).getMessage(), WARNING);
             }
         }
         return element;
-    }
-
-    public static void asyncWriting(Object dataJson, String strFile) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
-        CompletableFuture.supplyAsync(
-                () -> {
-                    try {
-                        Files.writeString(new File(strFile).toPath(),gson.toJson(dataJson));
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    return null;
-                }
-        );
     }
 
     public void writeFile(File file, Object data, boolean async) {
