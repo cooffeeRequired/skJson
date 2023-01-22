@@ -110,6 +110,9 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             }
         } else if (pattern == 1) {
             assignedValue = exprToSerialize.getSingle(event);
+            if (assignedValue instanceof String) {
+                return new JsonElement[0];
+            }
             return new JsonElement[]{JsonAdapter.toJson(assignedValue)};
         } else if (pattern == 2) {
             JsonFilesHandler jfh = new JsonFilesHandler();

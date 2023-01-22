@@ -30,6 +30,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.adapters.generic.JsonChunk;
 import cz.coffee.adapters.generic.JsonEntity;
@@ -65,11 +66,11 @@ public class EffParse extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(EffParse.class, Object.class, ExpressionType.SIMPLE,
-                "%json% parsed as [a] [skript] (:inv[entory]|:chunk|:world|:nbt|:entity|:loc[ation]|(unknown|) :type)"
+                "%object% parsed as [a] [skript] (:inv[entory]|:chunk|:world|:nbt|:entity|:loc[ation]|(unknown|) :type)"
         );
     }
 
-    private Expression<JsonElement> json;
+    private Expression<Object> json;
     private int patternType;
     private List<String> tags;
 
@@ -105,10 +106,18 @@ public class EffParse extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
-        JsonElement bukkitObject = json.getSingle(e);
-        assert bukkitObject != null;
+        Object object = json.getSingle(e);
+        assert object != null;
+        JsonElement bukkitObject = JsonNull.INSTANCE;
+
 
         try {
+            if (!(object instanceof JsonElement))
+                return new Object[0];
+            else {
+                bukkitObject = (JsonElement) object;
+            }
+
             if (patternType == 0) {
                 return new Object[]{JsonAdapter.fromJson(bukkitObject)};
             } else if (patternType == 1) {

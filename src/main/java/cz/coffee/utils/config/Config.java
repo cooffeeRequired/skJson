@@ -169,7 +169,7 @@ public class Config {
             _REQUEST_HANDLER = supportedHandler;
             //noinspection unchecked
             _HANDLERS_REQUEST = (ArrayList<Object>) map.get("handlers");
-            _NBT_SUPPORTED = skBee != null ? skBee.isEnabled() : Boolean.parseBoolean(map.get("nbt-enabled").toString());
+            _NBT_SUPPORTED = skBee != null && skBee.isEnabled();
             fis.close();
         } catch (Exception exception) {
             if (exception instanceof NullPointerException) {
