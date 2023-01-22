@@ -34,6 +34,7 @@ public class EffNewJsonFile extends Effect {
                 "[:async] new json file %string% [with %-object%]"
         );
     }
+
     @Override
     protected void execute(@NotNull Event event) {
         JsonFilesHandler jfh = new JsonFilesHandler();
@@ -47,12 +48,13 @@ public class EffNewJsonFile extends Effect {
             jfh.newFile(strPathToFile, new JsonObject(), true, false);
         } else if (hasArray) {
             jfh.newFile(strPathToFile, new JsonArray(), true, false);
-        } if (assignedValue instanceof JsonElement) {
+        }
+        if (assignedValue instanceof JsonElement) {
             jfh.newFile(strPathToFile, assignedValue, true, async);
-        } else if (assignedValue instanceof String){
+        } else if (assignedValue instanceof String) {
             jfh.newFile(strPathToFile, assignedValue, true, async);
         } else {
-            jfh.newFile(strPathToFile, JsonAdapter.toJson(assignedValue),true, true);
+            jfh.newFile(strPathToFile, JsonAdapter.toJson(assignedValue), true, true);
         }
     }
 
@@ -64,9 +66,9 @@ public class EffNewJsonFile extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        async = parseResult.hasTag("async");
-        hasObject = parseResult.hasTag("object");
-        hasArray = parseResult.hasTag("array");
+        async = parseResult.hasTag(("async"));
+        hasObject = parseResult.hasTag(("object"));
+        hasArray = parseResult.hasTag(("array"));
         pattern = matchedPattern;
 
         pathToFileExpr = (Expression<String>) expressions[0];

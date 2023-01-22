@@ -108,16 +108,16 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
                     return new JsonElement[0];
                 }
             }
-        } else if (pattern == 1 || pattern == 2) {
+        } else if (pattern == 1) {
             assignedValue = exprToSerialize.getSingle(event);
             return new JsonElement[]{JsonAdapter.toJson(assignedValue)};
-        } else if (pattern == 3) {
+        } else if (pattern == 2) {
             JsonFilesHandler jfh = new JsonFilesHandler();
             assignedValue = exprToSerialize.getSingle(event);
             assert assignedValue != null;
             return new JsonElement[]{jfh.readFile(assignedValue.toString())};
 
-        } else if (pattern == 4) {
+        } else if (pattern == 3) {
             assignedValue = exprToSerialize.getSingle(event);
             assert assignedValue != null;
             if (assignedValue instanceof HttpResponse) {

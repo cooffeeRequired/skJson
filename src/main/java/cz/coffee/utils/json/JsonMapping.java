@@ -37,11 +37,10 @@ public class JsonMapping {
     private static final String SEPARATOR = Variable.SEPARATOR;
 
     /**
-     *
-     * @param name Variable name {@link NotNull} {@link String}
-     * @param isLocal value contain if variable is local or nah
+     * @param name     Variable name {@link NotNull} {@link String}
+     * @param isLocal  value contain if variable is local or nah
      * @param nullable can it be nullable?
-     * @param event {@link Event}
+     * @param event    {@link Event}
      * @return {@link JsonElement}
      */
     @SuppressWarnings("unchecked")
@@ -99,12 +98,11 @@ public class JsonMapping {
     }
 
     /**
-     *
      * This function is entry point for map {@link JsonElement} to Variable
      *
-     * @param name Variable name {@link NotNull} {@link String}
+     * @param name    Variable name {@link NotNull} {@link String}
      * @param isLocal value contain if variable is local or nah
-     * @param event {@link Event}
+     * @param event   {@link Event}
      * @return {@link JsonElement}
      */
     public static JsonElement jsonToList(@NotNull String name, boolean isLocal, Event event) {
@@ -112,12 +110,11 @@ public class JsonMapping {
     }
 
     /**
-     *
      * This function is processing function for mapping
      *
-     * @param name Variable name {@link NotNull} {@link String}
+     * @param name    Variable name {@link NotNull} {@link String}
      * @param isLocal value contain if variable is local or nah
-     * @param event {@link Event}
+     * @param event   {@link Event}
      */
     public static void jsonToList(@NotNull String name, JsonElement json, boolean isLocal, Event event) {
         JsonElement next;
@@ -138,12 +135,11 @@ public class JsonMapping {
     }
 
     /**
-     *
      * This function do extract subTree from MainTree
      *
-     * @param name Variable name {@link NotNull} {@link String}
+     * @param name    Variable name {@link NotNull} {@link String}
      * @param isLocal value contain if variable is local or nah
-     * @param event {@link Event}
+     * @param event   {@link Event}
      * @return {@link JsonElement}
      */
     private static Object jsonListSubTree(String name, boolean isLocal, Event event) {
@@ -164,12 +160,11 @@ public class JsonMapping {
     }
 
     /**
-     *
      * This function extraction data from {@link JsonObject} or {@link JsonArray}
      *
      * @param variableName Variable name {@link NotNull} {@link String}
-     * @param isLocal value contain if variable is local or nah
-     * @param event {@link Event}
+     * @param isLocal      value contain if variable is local or nah
+     * @param event        {@link Event}
      */
     private static void extractNestedObjects(@NotNull String variableName, @NotNull JsonElement input, boolean isLocal, Event event) {
         if (input instanceof JsonObject) {

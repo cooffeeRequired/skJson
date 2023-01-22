@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -39,7 +39,7 @@ import java.util.Objects;
 
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
-import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
+import static cz.coffee.utils.json.JsonUtils.*;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
 import static cz.coffee.utils.json.JsonVariables.setVariable;
 
@@ -72,7 +72,7 @@ public class EffChange extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
-        JsonUtils ju =  new JsonUtils();
+        JsonUtils ju = new JsonUtils();
         Object inputSource = exprInputSource.getSingle(e);
         String key = keyExpr.getSingle(e);
         Object changedData = exprChangedData.getSingle(e);
@@ -94,12 +94,12 @@ public class EffChange extends Effect {
         if (isCached) {
             if (JSON_STORAGE.containsKey(inputSource.toString()) && FILE_JSON_MAP.containsKey(inputSource.toString())) {
                 jsonInput = JSON_STORAGE.get(inputSource.toString());
-                JsonElement changedJson = ju.changeJson(jsonInput, key, json);
+                JsonElement changedJson = changeJson(jsonInput, extractKeys(key), json);
                 JSON_STORAGE.remove(key);
                 JSON_STORAGE.put(key, changedJson);
             }
         } else {
-            variableName  = variableString.getDefaultVariableName().replaceAll("_", "");
+            variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             if (inputSource instanceof JsonElement) {
                 Object v = getVariable(e, variableName, isLocal);
                 if (v instanceof JsonElement) {
@@ -107,7 +107,7 @@ public class EffChange extends Effect {
                 } else {
                     jsonInput = JsonAdapter.toJson(v);
                 }
-                JsonElement o = ju.changeJson(jsonInput, key, json);
+                JsonElement o = changeJson(jsonInput, extractKeys(key), json);
                 setVariable(variableName, o, e, isLocal);
             }
         }
@@ -122,7 +122,7 @@ public class EffChange extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        isCached = parseResult.hasTag("cached json");
+        isCached = parseResult.hasTag(("cached json"));
         exprInputSource = LiteralUtils.defendExpression(exprs[0]);
         if (!isCached) {
             if (exprInputSource instanceof Variable<?>) {

@@ -48,18 +48,22 @@ public class HTTPHandler {
     InputStream inputStream;
     URL currentUrl;
     URL inputURL;
+
     /**
      * Constructor for HTTPHandler
-     * @param url URL what to be executed
+     *
+     * @param url           URL what to be executed
      * @param requestMethod Methods like GET,POST...
      */
     public HTTPHandler(URL url, String requestMethod) {
         this.inputURL = url;
         this.method = METHOD.valueOf(requestMethod);
     }
+
     /**
      * Constructor for HTTPHandler
-     * @param stringURL StringURL what to be executed
+     *
+     * @param stringURL     StringURL what to be executed
      * @param requestMethod Methods like GET,POST...
      */
     public HTTPHandler(String stringURL, String requestMethod) {
@@ -74,6 +78,7 @@ public class HTTPHandler {
 
     /**
      * Constructor for HTTPHandler without Request Methods settings.
+     *
      * @param stringURL StringURL what to be executed
      */
     public HTTPHandler(String stringURL) {
@@ -105,7 +110,7 @@ public class HTTPHandler {
      *
      * <code>setProperty("Authorization", "Token ....")</code>
      *
-     * @param key Key
+     * @param key   Key
      * @param value Value
      * @return self
      */
@@ -126,7 +131,7 @@ public class HTTPHandler {
      *      </code>
      * </pre>
      *
-     * @param keys List of String {@link List} of keys
+     * @param keys   List of String {@link List} of keys
      * @param values List of String {@link List} of values
      * @return self
      */
@@ -168,6 +173,7 @@ public class HTTPHandler {
 
     /**
      * Setter for inputData
+     *
      * @param doInput you can enable or disable input to the connection
      * @return {@link HTTPHandler}
      */
@@ -178,6 +184,7 @@ public class HTTPHandler {
 
     /**
      * Setter for outputData
+     *
      * @param doOutput you can enable or disable output data from the connection
      * @return {@link HTTPHandler}
      */
@@ -188,6 +195,7 @@ public class HTTPHandler {
 
     /**
      * Getter for Status of connection
+     *
      * @return connection status converted to {@link String}
      */
     public String getStatus() {
@@ -197,6 +205,7 @@ public class HTTPHandler {
     /**
      * You can download the file by passing the new File inside a params.
      * You can use this function only when you're a connected to the given URL/server.
+     *
      * @param file specified input location and extension of your download file
      * @return returned true/false depends on download status
      */
@@ -217,6 +226,7 @@ public class HTTPHandler {
 
     /**
      * Website response's body
+     *
      * @param jsonEncoded true/false depends on website response content.
      * @return the content of body of given URL
      */
@@ -252,6 +262,7 @@ public class HTTPHandler {
 
     /**
      * Website response's headers
+     *
      * @param jsonEncode true/false depends on you, basically what type of Headers you need.
      * @return website response Headers.
      */
@@ -286,6 +297,7 @@ public class HTTPHandler {
 
     /**
      * Returning the {@link Integer} response code of the website
+     *
      * @return {@link Integer} response code
      */
     public int getResponse() {
@@ -294,6 +306,7 @@ public class HTTPHandler {
 
     /**
      * Given InputStream of the given and connected URL
+     *
      * @return {@link InputStream}
      */
     public InputStream getInputStream() {

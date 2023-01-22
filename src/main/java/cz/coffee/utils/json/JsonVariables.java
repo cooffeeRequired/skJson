@@ -26,12 +26,11 @@ import org.bukkit.event.Event;
 public class JsonVariables {
 
     /**
-     *
      * This function convert from JsonPrimitive to Object and then set it to Variable.
      *
-     * @param name Variable name
+     * @param name    Variable name
      * @param element Any {@link JsonPrimitive}
-     * @param event {@link Event}
+     * @param event   {@link Event}
      * @param isLocal {@link Boolean} if a variable is local or nah
      */
     public static void setPrimitiveType(String name, JsonPrimitive element, Event event, boolean isLocal) {
@@ -45,12 +44,11 @@ public class JsonVariables {
     }
 
     /**
-     *
      * This function setting the value to variable
      *
-     * @param name Variable name
+     * @param name    Variable name
      * @param element Any {@link JsonPrimitive}
-     * @param event {@link Event}
+     * @param event   {@link Event}
      * @param isLocal {@link Boolean} if a variable is local or nah
      */
     public static void setVariable(String name, Object element, Event event, boolean isLocal) {
@@ -58,10 +56,9 @@ public class JsonVariables {
     }
 
     /**
-     *
      * This function will get data from variable.
      *
-     * @param name Variable name
+     * @param name    Variable name
      * @param isLocal {@link Boolean} if a variable is local or nah
      * @return {@link Object}
      */

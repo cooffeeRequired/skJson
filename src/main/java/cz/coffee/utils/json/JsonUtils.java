@@ -81,7 +81,6 @@ public class JsonUtils {
     }
 
     /**
-     *
      * @param Object {@link String} Any expression on which .toString() can be performed
      * @return {@link JsonPrimitive}
      */
@@ -101,7 +100,6 @@ public class JsonUtils {
     }
 
     /**
-     *
      * @param primitive any {@link JsonPrimitive} value
      * @return Object.
      */
@@ -238,38 +236,23 @@ public class JsonUtils {
      * @param to    the final data that will be changed for the given key.
      * @return will return the changed {@link JsonElement}
      */
-    public JsonElement changeJson(@NotNull JsonElement input, @NotNull String from, Object to) {
+    public static JsonElement changeJson(@NotNull JsonElement input, @NotNull String from[], Object to) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
         JsonElement element;
-        String lastKey = null;
+        String lastKey = from[from.length-1];
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(input);
-
-        // prepare variable for nested keys.
-        boolean isNested = false;
-        String[] fromAsList = new String[0];
-
-        if (from.contains(":")) {
-            isNested = true;
-            fromAsList = from.split(":");
-            lastKey = fromAsList[fromAsList.length - 1];
-        }
 
         while ((element = elements.pollFirst()) != null) {
             if (element instanceof JsonObject) {
                 JsonObject elementObject = element.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : elementObject.entrySet()) {
-                    if (!entry.getKey().equals(isNested ? lastKey : from)) {
-                        elements.offerLast(entry.getValue());
-                    } else {
-                        if (entry.getValue() instanceof JsonPrimitive) {
-                            if (to instanceof Number) elementObject.addProperty(entry.getKey(), ((Number) to));
-                            else if (to instanceof String) elementObject.addProperty(entry.getKey(), ((String) to));
-                            else if (to instanceof Boolean) elementObject.addProperty(entry.getKey(), ((Boolean) to));
-                            else
-                                elementObject.add(entry.getKey(), gson.toJsonTree(to));
+                for (String mapKey : from) {
+                    JsonElement value = elementObject.get(mapKey);
+                    if (!(value == null || value instanceof JsonNull)) {
+                        if (mapKey.equals(lastKey)) {
+                            elementObject.remove(mapKey);
                         } else {
-                            elementObject.add(entry.getKey(), gson.toJsonTree(to));
+                            if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
                         }
                     }
                 }
@@ -279,11 +262,12 @@ public class JsonUtils {
                 JsonArray array = element.getAsJsonArray();
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement value = array.get(i);
-                    if (i == (isNested ? index : Integer.parseInt(from))){
-                        array.set(index , gson.toJsonTree(to));
+                    if (i == (index = Integer.parseInt(lastKey))) {
+                        array.set(index, gson.toJsonTree(to));
                         break;
                     } else {
-                        if (!(value instanceof JsonPrimitive || value == null || value instanceof JsonNull)) elements.offerLast(value);
+                        if (!(value instanceof JsonPrimitive || value == null || value instanceof JsonNull))
+                            elements.offerLast(value);
                     }
                 }
             }
@@ -292,10 +276,9 @@ public class JsonUtils {
     }
 
     /**
-     *
-     * @param search equivalent parameter of the search term
+     * @param search          equivalent parameter of the search term
      * @param fromSourceInput {@link JsonElement} input
-     * @param type {@link Type}
+     * @param type            {@link Type}
      * @return count of {@link Integer}
      */
     public int count(@NotNull String search, @NotNull JsonElement fromSourceInput, Type type) {
@@ -342,7 +325,11 @@ public class JsonUtils {
             int n = 0;
             for (String nKey : nests) {
                 n++;
-                if (isNumeric(nKey)) parsedNumber = Integer.parseInt(nKey);
+                System.out.println(nKey);
+                if (isNumeric(nKey)) {
+                    double lValue = Double.parseDouble(nKey);
+                    parsedNumber = (int) lValue;
+                }
                 // creating section
                 if (next.isJsonArray()) {
                     JsonArray array = next.getAsJsonArray();
@@ -376,5 +363,82 @@ public class JsonUtils {
         }
 
         return fromInput;
+    }
+
+    /**
+     * <p>
+     * json -> "{'A': false, 'B': [1,false,true]}"
+     * </p>
+     *
+     * @param StringInput any string input for example "B[0]"
+     * @return new array extract from the given String [B, 0]
+     */
+    public static String[] extractKeys(String StringInput) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        String nestedKey = null, nestedIndex = null;
+
+        final Pattern isSquared = Pattern.compile(".*\\[((\\d+|)])");
+        final Pattern subPattern = Pattern.compile("^([^\\[.*]+)");
+        final Pattern internalPattern = Pattern.compile("\\[(.*?)]");
+
+
+        for (String string : StringInput.split(":")) {
+            Matcher squares = subPattern.matcher(string);
+            Matcher number = internalPattern.matcher(string);
+            if (isSquared.matcher(string).find()) {
+                while (squares.find()) if (squares.group(1) != null) nestedKey = squares.group(1);
+                while (number.find()) if (number.group() != null) nestedIndex = number.group(1);
+                else nestedIndex = "0";
+                arrayList.add(nestedKey);
+                arrayList.add(nestedIndex);
+            } else {
+                arrayList.add(string);
+            }
+        }
+        return arrayList.toArray(new String[0]);
+    }
+
+    public static boolean isClassicType(Object o) {
+        return o instanceof String || o instanceof Number || o instanceof Boolean;
+    }
+
+    public static JsonElement deleteNested(String[] nest, JsonElement input) {
+        JsonElement element;
+        Deque<JsonElement> elements = new ArrayDeque<>();
+        elements.add(input);
+
+        while ((element = elements.pollFirst()) != null) {
+            if (element instanceof JsonObject) {
+                JsonObject map = element.getAsJsonObject();
+                String[] mapKeys = map.keySet().toArray(new String[0]);
+                for (String mapKey : nest) {
+                    JsonElement value = map.get(mapKey);
+                    if (!(value == null || value instanceof JsonNull)) {
+                        if (mapKey.equals(nest[nest.length - 1])) {
+                            map.remove(mapKey);
+                        } else {
+                            if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                        }
+                    }
+                }
+            } else if (element instanceof JsonArray) {
+                JsonArray list = element.getAsJsonArray();
+                for (int j = 0; j < list.size(); j++) {
+                    JsonElement value = list.get(j);
+                    if (!(value == null || value instanceof JsonNull)) {
+                        int lastIndex = -1;
+                        if (isNumeric(nest[nest.length - 1])) {
+                            lastIndex = Integer.parseInt(nest[nest.length - 1]);
+                        }
+                        if (j == lastIndex) {
+                            list.remove(j);
+                        } else {
+                            if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                        }
+                    }
+                }
+            }
+        }
+        return input;
     }
 }

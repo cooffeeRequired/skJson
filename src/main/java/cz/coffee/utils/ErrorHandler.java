@@ -43,7 +43,7 @@ public class ErrorHandler {
     static final SimpleUtil su = new SimpleUtil();
 
     /**
-     *  sendMessage with certain error level.
+     * sendMessage with certain error level.
      *
      * @param input {@link Object} anything.toString()
      * @param level {@link Level}
@@ -58,8 +58,9 @@ public class ErrorHandler {
             logger.warning(su.color(WARNING + "" + input));
         }
     }
+
     /**
-     *  enum class for Error Level
+     * enum class for Error Level
      */
     public enum Level {
         INFO(su.color("&bINFO&r ")),

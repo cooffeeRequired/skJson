@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -61,17 +61,17 @@ public class EffMap extends Effect {
         Object jsonObject = jsonElementExpression.getSingle(e);
         if (jsonObject instanceof String) {
             try {
-                jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() -3), JsonParser.parseString(jsonObject.toString()), isLocal, e);
+                jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() - 3), JsonParser.parseString(jsonObject.toString()), isLocal, e);
             } catch (JsonSyntaxException exception) {
             }
         } else if (jsonObject instanceof JsonElement) {
-            jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() -3), (JsonElement) jsonObject, isLocal, e);
+            jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() - 3), (JsonElement) jsonObject, isLocal, e);
         }
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "map "+jsonElementExpression.toString(e, debug)+" to " + variableString.toString(e);
+        return "map " + jsonElementExpression.toString(e, debug) + " to " + variableString.toString(e);
     }
 
     @Override

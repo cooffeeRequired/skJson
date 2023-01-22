@@ -31,13 +31,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.coffee.utils.ErrorHandler.sendMessage;
+
 @Since("2.2.0")
 
 public class SimpleUtil {
 
     /**
      * <p>
-     *     This constant will return the new Gson() with a registerTypeHierarchyAdapter.
+     * This constant will return the new Gson() with a registerTypeHierarchyAdapter.
      * </p>
      */
     public static final Gson gsonAdapter = new GsonBuilder()
@@ -51,9 +53,10 @@ public class SimpleUtil {
 
     /**
      * <p>
-     *     This function will return true if input is any Number.
+     * This function will return true if input is any Number.
      * </p>
-     * @param t  will take any {@link Object} and convert it to {@link String}
+     *
+     * @param t will take any {@link Object} and convert it to {@link String}
      * @return {@link Boolean}.
      */
     public static boolean isNumeric(Object t) {
@@ -63,9 +66,10 @@ public class SimpleUtil {
 
     /**
      * <p>
-     *     This function will return true the number is continuously increasing.
+     * This function will return true the number is continuously increasing.
      * </p>
-     * @param inputs  will take any objects {@link Object}
+     *
+     * @param inputs will take any objects {@link Object}
      * @return {@link Boolean}.
      */
     public static boolean isIncrementNumber(Object @NotNull [] inputs) {
@@ -102,12 +106,26 @@ public class SimpleUtil {
 
     /**
      * <p>
-     *     This function will translate alternative color code to actually colors.
+     * This function will translate alternative color code to actually colors.
      * </p>
+     *
      * @param input will take {@link Object}
      * @return will return transformed {@link String}.
      */
     public String color(Object input) {
         return ChatColor.translateAlternateColorCodes('&', String.valueOf(input));
+    }
+
+    public static void printPrettyStackTrace(Exception exception, int max) {
+        final int maxST = (Math.min(exception.getStackTrace().length, max));
+        sendMessage("&c[skJson] Exception Handler", ErrorHandler.Level.ERROR);
+        sendMessage("&c[skJson] Exception type: " + exception.getClass(), ErrorHandler.Level.ERROR);
+        for (int n = 0; maxST > n; n++) {
+            sendMessage("&c   -" + exception.getStackTrace()[n], ErrorHandler.Level.ERROR);
+            /*
+            TODO will be replaced by sendMessage() with error level, also will be added option for set max size of stacktrace
+            TODO in config.yml (min = 5), (default = 9)
+             */
+        }
     }
 }

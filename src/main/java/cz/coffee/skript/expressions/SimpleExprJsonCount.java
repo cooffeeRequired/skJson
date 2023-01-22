@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -58,6 +58,7 @@ public class SimpleExprJsonCount extends SimpleExpression<Integer> {
     private Expression<JsonElement> exprJson;
     private Expression<Object> exprSearch;
     private boolean isKey;
+
     @Override
     protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
         JsonUtils ju = new JsonUtils();
@@ -67,7 +68,6 @@ public class SimpleExprJsonCount extends SimpleExpression<Integer> {
         assert search != null;
         return new Integer[]{ju.count(search.toString(), json, isKey ? Type.KEY : Type.VALUE)};
     }
-
 
 
     @Override
@@ -82,13 +82,13 @@ public class SimpleExprJsonCount extends SimpleExpression<Integer> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "count of "+(isKey ? " key " : " value ") + exprSearch.toString(e, debug) + " of " + exprJson.toString(e, debug);
+        return "count of " + (isKey ? " key " : " value ") + exprSearch.toString(e, debug) + " of " + exprJson.toString(e, debug);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        isKey = parseResult.hasTag("key");
+        isKey = parseResult.hasTag(("key"));
         exprJson = (Expression<JsonElement>) exprs[1];
         exprSearch = LiteralUtils.defendExpression(exprs[0]);
         return LiteralUtils.canInitSafely(exprSearch);

@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -120,7 +120,7 @@ public class EffAppend extends Effect {
             jfh.writeFile(file, parseNotes(jsonInput, key, nested, json), false);
 
         } else {
-            variableName  = variableString.getDefaultVariableName().replaceAll("_", "");
+            variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object v = getVariable(e, variableName, isLocal);
             if (v instanceof JsonElement) {
                 jsonInput = new Gson().toJsonTree(v);
@@ -149,7 +149,7 @@ public class EffAppend extends Effect {
                     inputJson = ju.appendJson(inputJson, json, key, Nested, debug);
                     return inputJson;
                 }
-            } else if (inputJson instanceof JsonArray){
+            } else if (inputJson instanceof JsonArray) {
                 JsonArray array = (JsonArray) inputJson;
                 key = Key != null ? Key : String.valueOf(array.size());
                 if (Nested == null) {
@@ -166,20 +166,20 @@ public class EffAppend extends Effect {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "append " + dataToAppendExpr.toString(e, debug) + (hasKey ? " with key " + keyExpr.toString(e, debug) : "") + (isNested ? " as nested object " + nestedExpr.toString(e, debug) : " ") + "to" + (isFile ? " json file " + exprInputSource.toString(e, debug) : (isCached ? " cached json " + exprInputSource.toString(e, debug) : " "+variableString.toString(e, debug)));
+        return "append " + dataToAppendExpr.toString(e, debug) + (hasKey ? " with key " + keyExpr.toString(e, debug) : "") + (isNested ? " as nested object " + nestedExpr.toString(e, debug) : " ") + "to" + (isFile ? " json file " + exprInputSource.toString(e, debug) : (isCached ? " cached json " + exprInputSource.toString(e, debug) : " " + variableString.toString(e, debug)));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        isCached = parseResult.hasTag("cached json");
+        isCached = parseResult.hasTag(("cached json"));
         isFile = matchedPattern == 0;
         dataToAppendExpr = LiteralUtils.defendExpression(exprs[0]);
         keyExpr = (Expression<String>) exprs[1];
         nestedExpr = (Expression<String>) exprs[2];
         exprInputSource = LiteralUtils.defendExpression(exprs[3]);
-        isNested = parseResult.hasTag("as nested object");
-        hasKey = parseResult.hasTag("with key");
+        isNested = parseResult.hasTag(("as nested object"));
+        hasKey = parseResult.hasTag(("with key"));
         dataToAppendExpr = LiteralUtils.defendExpression(exprs[0]);
         Expression<?> isItem = dataToAppendExpr.getConvertedExpression(ItemStack.class);
         dataToAppendExpr = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(exprs[0]));

@@ -34,9 +34,11 @@ import static cz.coffee.utils.ErrorHandler.sendMessage;
 
 public class Updater {
     private static final PluginDescriptionFile pdf;
+
     static {
         pdf = SkJson.getInstance().getDescription();
     }
+
     private static final String latestLink = "https://api.github.com/repos/cooffeeRequired/" + pdf.getName() + "/releases/latest";
     private static final String userVer = pdf.getVersion();
     private static String latestVersion;

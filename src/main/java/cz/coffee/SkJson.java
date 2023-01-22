@@ -1,18 +1,18 @@
 /**
- *   This file is part of skJson.
+ * This file is part of skJson.
  * <p>
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * <p>
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * <p>
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  * <p>
  * Copyright coffeeRequired nd contributors
  */
@@ -105,7 +105,6 @@ public final class SkJson extends JavaPlugin {
     }
 
 
-
     @Override
     public void onEnable() {
         pm = getPluginManager();
@@ -145,6 +144,7 @@ public final class SkJson extends JavaPlugin {
         new Updater(version);
         console("&aFinished loading.");
     }
+
     // Logging
     public static void info(String string) {
         logger.info(util.color(string));
@@ -164,7 +164,7 @@ public final class SkJson extends JavaPlugin {
 
     // Simple loggers
     public static void console(String string) {
-        String prefix =  version.isLegacy() ? util.color("&7[&ask&2Json&7]") : "&7["+hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n")+"&7]";
+        String prefix = version.isLegacy() ? util.color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
         Bukkit.getServer().getConsoleSender().sendMessage(util.color(prefix + " " + (version.isLegacy() ? util.color(string) : hex(string))));
     }
 }

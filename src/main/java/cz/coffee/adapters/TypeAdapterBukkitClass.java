@@ -9,8 +9,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TypeAdapterBukkitClass implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable>
-{
+public class TypeAdapterBukkitClass implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
     final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
     }.getType();
 
