@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 import static cz.coffee.utils.SimpleUtil.isNumeric;
+import static cz.coffee.utils.json.JsonUtils.extractKeys;
 import static cz.coffee.utils.json.JsonUtils.fromPrimitive2Object;
-import static cz.coffee.utils.json.JsonUtils.parseNestedPattern;
 
 
 @Name("Get element/elements from Json")
@@ -104,6 +104,10 @@ public class ExprGet extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
+
+        // TODO will be remake, similarly like *deleteNested()*
+
+
         String key = null;
         if (exprKey != null) {
             key = exprKey.getSingle(e);
@@ -119,12 +123,10 @@ public class ExprGet extends SimpleExpression<Object> {
 
         if (key != null || json != null) {
             assert key != null;
-            String[] keys = parseNestedPattern(key, false);
+            String[] keys = extractKeys(key);
             if (keys[0] != null) {
                 if (pattern == 0) {
-                    for (String nKey0 : keys) {
-                        String nKey = nKey0.endsWith(".list") ? nKey0.substring(0, nKey0.length() - 5) : nKey0;
-                        if (nKey.length() < 1) continue;
+                    for (String nKey : keys) {
                         if (json instanceof JsonArray) {
                             JsonArray array = (JsonArray) json;
                             int index = 0;

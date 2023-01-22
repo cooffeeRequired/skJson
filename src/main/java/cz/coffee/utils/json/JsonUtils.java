@@ -325,7 +325,6 @@ public class JsonUtils {
             int n = 0;
             for (String nKey : nests) {
                 n++;
-                System.out.println(nKey);
                 if (isNumeric(nKey)) {
                     double lValue = Double.parseDouble(nKey);
                     parsedNumber = (int) lValue;

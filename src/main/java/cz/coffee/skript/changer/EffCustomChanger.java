@@ -147,7 +147,7 @@ public class EffCustomChanger extends Effect {
 
     private void process(Object what, Object[] delta, boolean isCached, String keyString, int mode, Event event) {
         final String LOCAL_ = "_";
-        final String[] extractedKeys = extractKeys(keyString);
+        final String[] extractedKeys = (keyString == null ? new String[0] : extractKeys(keyString));
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
 
@@ -168,13 +168,12 @@ public class EffCustomChanger extends Effect {
                 Object fromVar = getVariable(event, variableName, isLocal);
                 if (fromVar instanceof JsonElement) {
                     STORAGE = (JsonElement) fromVar;
-                    JsonElement outputJson = deleteNested(extractedKeys, STORAGE);
-                    setVariable(variableName, outputJson, event, isLocal);
+                    deleteNested(extractedKeys, STORAGE);
+                    setVariable(variableName, STORAGE, event, isLocal);
                 }
             }
 
-        } else if (mode == 1) {
-            // SET
+        } else if (mode == 1 || mode == 2) {
             JsonElement inputJson = JsonNull.INSTANCE;
             if (delta != null) {
                 for (Object object : delta) {
@@ -184,27 +183,50 @@ public class EffCustomChanger extends Effect {
                 }
             }
 
-            if (isCached) {
-                if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
-                    STORAGE = JSON_STORAGE.get(key);
-                    changeJson(STORAGE, extractedKeys, inputJson);
-                    JSON_STORAGE.remove(key);
-                    JSON_STORAGE.put(key, STORAGE);
+            if (mode == 1) {
+                // SET
+                if (isCached) {
+                    if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
+                        STORAGE = JSON_STORAGE.get(key);
+                        changeJson(STORAGE, extractedKeys, inputJson);
+                        JSON_STORAGE.remove(key);
+                        JSON_STORAGE.put(key, STORAGE);
+                    }
+                } else {
+                    String variableName = variableString.getDefaultVariableName().replaceFirst(LOCAL_, "");
+                    Object fromVar = getVariable(event, variableName, isLocal);
+                    if (fromVar instanceof JsonElement) {
+                        STORAGE = (JsonElement) fromVar;
+                        changeJson(STORAGE, extractedKeys, inputJson);
+                        setVariable(variableName, STORAGE, event, isLocal);
+                    }
                 }
             } else {
-                String variableName = variableString.getDefaultVariableName().replaceFirst(LOCAL_, "");
-                Object fromVar = getVariable(event, variableName, isLocal);
-                if (fromVar instanceof JsonElement) {
-                    STORAGE = (JsonElement) fromVar;
-                    System.out.println(keyString);
-                    JsonElement CHANGED_STORAGE = changeJson(STORAGE, extractedKeys, inputJson);
-                    setVariable(variableName, CHANGED_STORAGE, event, isLocal);
+                // ADD
+                if (isCached) {
+                    if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
+                        STORAGE = JSON_STORAGE.get(key);
+                        if (STORAGE.isJsonObject())
+                            STORAGE.getAsJsonObject().add(String.valueOf(STORAGE.getAsJsonObject().size()), inputJson);
+                        else if (STORAGE.isJsonArray())
+                            STORAGE.getAsJsonArray().add(inputJson);
+                        JSON_STORAGE.remove(key);
+                        JSON_STORAGE.put(key, STORAGE);
+                    }
+                } else {
+                    String variableName = variableString.getDefaultVariableName().replaceFirst(LOCAL_, "");
+                    Object fromVar = getVariable(event, variableName, isLocal);
+                    if (fromVar instanceof JsonElement) {
+                        STORAGE = (JsonElement) fromVar;
+                        if (STORAGE.isJsonObject())
+                            STORAGE.getAsJsonObject().add(String.valueOf(STORAGE.getAsJsonObject().size()), inputJson);
+                        else if (STORAGE.isJsonArray())
+                            STORAGE.getAsJsonArray().add(inputJson);
+
+                        setVariable(variableName, STORAGE, event, isLocal);
+                    }
                 }
-
             }
-        } else if (mode == 2) {
-            // ADD
         }
-
     }
 }
