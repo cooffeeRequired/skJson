@@ -45,6 +45,7 @@ import static cz.coffee.utils.Type.VALUE;
 @SuppressWarnings("unused")
 public class JsonUtils {
 
+
     /**
      * @param input        any {@link JsonElement}
      * @param searchedTerm The expression we are looking for in the json object.
@@ -151,7 +152,7 @@ public class JsonUtils {
         return JsonParser.parseString(rawString);
     }
 
-    private static JsonObject createMissing(JsonObject input, int number, String nKey, boolean debug) {
+    private static JsonObject createMissing(JsonObject input, int number, String nKey) {
         String sanitizeKey = nKey.replaceAll(".list", "");
         if (!check(input, sanitizeKey, KEY)) {
             if (nKey.endsWith(".list")) {
@@ -163,8 +164,7 @@ public class JsonUtils {
         return input;
     }
 
-    private static JsonArray createMissing(JsonArray input, String nKey, int parsedNumber, boolean debug) {
-        JsonElement el = input.deepCopy();
+    private static JsonArray createMissing(JsonArray input, String nKey, int parsedNumber) {
         boolean sizeOverflow = parsedNumber > (input.size() - 1);
         if (input.isEmpty() || sizeOverflow) {
             if (nKey.endsWith(".list")) {
@@ -236,7 +236,7 @@ public class JsonUtils {
      * @param to    the final data that will be changed for the given key.
      * @return will return the changed {@link JsonElement}
      */
-    public static JsonElement changeJson(@NotNull JsonElement input, @NotNull String from[], Object to) {
+    public static JsonElement changeJson(@NotNull JsonElement input, @NotNull String[] from, Object to) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
         JsonElement element;
         String lastKey = from[from.length-1];
@@ -257,8 +257,7 @@ public class JsonUtils {
                     }
                 }
             } else if (element instanceof JsonArray) {
-                int index = 0;
-                if (isNumeric(lastKey)) index = Integer.parseInt(lastKey);
+                int index;
                 JsonArray array = element.getAsJsonArray();
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement value = array.get(i);
@@ -314,12 +313,13 @@ public class JsonUtils {
      * @return changed {@link JsonElement}
      */
 
-    public JsonElement appendJson(@NotNull JsonElement fromInput, @NotNull JsonElement appendData, String key, String nested, boolean debug) {
+    public static JsonElement appendJson(@NotNull JsonElement fromInput, @NotNull JsonElement appendData, String key, String nested) {
         String[] nests = parseNestedPattern(nested, true);
         JsonElement next;
         boolean isArrayKey, isExist = false;
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(fromInput);
+
         while ((next = elements.pollFirst()) != null) {
             int parsedNumber = 0;
             int n = 0;
@@ -332,10 +332,10 @@ public class JsonUtils {
                 // creating section
                 if (next.isJsonArray()) {
                     JsonArray array = next.getAsJsonArray();
-                    next = createMissing(array, nKey, parsedNumber, debug);
+                    next = createMissing(array, nKey, parsedNumber);
                 } else if (next.isJsonObject()) {
                     JsonObject object = next.getAsJsonObject();
-                    next = createMissing(object, parsedNumber, nKey, debug);
+                    next = createMissing(object, parsedNumber, nKey);
                 }
 
                 // Modding/looping section
@@ -349,13 +349,13 @@ public class JsonUtils {
                     }
                 } else if (next.isJsonObject()) {
                     JsonObject object = next.getAsJsonObject();
-                    next = object.get(sanitizeKey);
+                    JsonElement value = object.get(sanitizeKey);
+                    if (!(value instanceof JsonPrimitive || value instanceof JsonNull)) next = value;
                 }
 
             }
-
             if (next.isJsonObject()) {
-                next.getAsJsonObject().add(key, appendData);
+                next.getAsJsonObject().add(key == null ? String.valueOf(next.getAsJsonObject().size()) : key, appendData);
             } else if (next.isJsonArray()) {
                 next.getAsJsonArray().add(appendData);
             }
@@ -440,4 +440,11 @@ public class JsonUtils {
         }
         return input;
     }
+
+
+
+
+
+
+
 }

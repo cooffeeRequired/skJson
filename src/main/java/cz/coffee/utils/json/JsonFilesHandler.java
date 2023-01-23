@@ -26,12 +26,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.utils.ErrorHandler.*;
+import static cz.coffee.utils.ErrorHandler.FILE_NOT_EXIST;
 import static cz.coffee.utils.ErrorHandler.Level.WARNING;
+import static cz.coffee.utils.ErrorHandler.sendMessage;
+import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 
 @SuppressWarnings("unused")
 public class JsonFilesHandler {
@@ -62,51 +62,6 @@ public class JsonFilesHandler {
                 }
         );
     }
-
-    /**
-     * Create new json file with data, otherwise without as empty object
-     *
-     * @param inputString {@link String}
-     * @param inputData   {@link JsonElement}
-     * @param forcing     {@link Boolean}
-     */
-    public void newFile(@NotNull String inputString, Object inputData, boolean forcing, boolean async) {
-        File file = new File(inputString);
-        if (file.exists()) {
-            if (file.length() < 0x01) sendMessage(JSON_FILE_EXISTS, WARNING);
-            return;
-        }
-        if (forcing) {
-            try {
-                Path fileParents = Paths.get(inputString);
-                if (!Files.exists(fileParents.getParent())) {
-                    try {
-                        Files.createDirectories(fileParents.getParent());
-                    } catch (IOException ioException) {
-                        sendMessage(PARENT_DIRECTORY_EXISTS, WARNING);
-                        return;
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        if (inputData == null || inputData instanceof JsonNull) {
-            inputData = new JsonObject();
-        }
-
-        if (async) {
-            asyncWriting(inputData, inputString);
-        } else {
-            try {
-                Files.writeString(file.toPath(), new Gson().toJson(inputData));
-            } catch (IOException exception) {
-                if (canBeCreated(file)) sendMessage(PARENT_DIRECTORY_NOT_EXIST, WARNING);
-                sendMessage(exception.getMessage(), WARNING);
-            }
-        }
-    }
-
     public JsonElement readFile(@NotNull String inputString) {
         JsonElement element = null;
         File file = new File(inputString);
@@ -114,7 +69,7 @@ public class JsonFilesHandler {
             element = JsonParser.parseReader(ptr);
         } catch (IOException | JsonSyntaxException exception) {
             if (exception instanceof IOException) {
-                if (!file.exists()) sendMessage(FILE_NOT_EXIST + inputString, WARNING);
+                if (!file.exists()) sendMessage(FILE_NOT_EXIST + " ... " + inputString, WARNING);
             } else {
                 sendMessage((exception).getMessage(), WARNING);
             }
@@ -124,14 +79,23 @@ public class JsonFilesHandler {
 
     public void writeFile(File file, Object data, boolean async) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().serializeNulls().enableComplexMapKeySerialization().create();
+        boolean isExist = file.exists(), isCreated = false;
+
         try {
+            if (!file.getParentFile().exists()) {
+                if (file.getParentFile().mkdirs()) isCreated = file.createNewFile();
+            } else {
+                isCreated = file.createNewFile();
+            }
+            if (!(isCreated || isExist)) return;
+            if (data == null || data instanceof JsonNull) data = new JsonObject();
             if (async) {
                 asyncWriting(data, file.toString());
             } else {
                 Files.writeString(file.toPath(), gson.toJson(data));
             }
         } catch (IOException exception) {
-            sendMessage(exception.getMessage(), WARNING);
+            printPrettyStackTrace(exception, 5);
         }
     }
 }

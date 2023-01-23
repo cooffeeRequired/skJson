@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Objects;
 
 
@@ -40,21 +41,23 @@ public class EffNewJsonFile extends Effect {
         JsonFilesHandler jfh = new JsonFilesHandler();
         String strPathToFile = (pathToFileExpr.getSingle(event));
         Object assignedValue = null;
-        assert strPathToFile != null;
+        if (strPathToFile == null) return;
+        File file = new File(strPathToFile);
+
         if (inputToFile != null) {
             assignedValue = inputToFile.getSingle(event);
         }
         if (hasObject) {
-            jfh.newFile(strPathToFile, new JsonObject(), true, false);
+            jfh.writeFile(file, new JsonObject(), false);
         } else if (hasArray) {
-            jfh.newFile(strPathToFile, new JsonArray(), true, false);
+            jfh.writeFile(file, new JsonArray(), false);
         }
         if (assignedValue instanceof JsonElement) {
-            jfh.newFile(strPathToFile, assignedValue, true, async);
+            jfh.writeFile(file, assignedValue, async);
         } else if (assignedValue instanceof String) {
-            jfh.newFile(strPathToFile, assignedValue, true, async);
+            jfh.writeFile(file, assignedValue, async);
         } else {
-            jfh.newFile(strPathToFile, JsonAdapter.toJson(assignedValue), true, true);
+            jfh.writeFile(file, JsonAdapter.toJson(assignedValue), async);
         }
     }
 

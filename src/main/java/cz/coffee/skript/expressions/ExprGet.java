@@ -28,6 +28,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -47,9 +48,12 @@ import static cz.coffee.utils.json.JsonUtils.fromPrimitive2Object;
 
 
 @Name("Get element/elements from Json")
-@Description({"Get single value or values from the json"})
+@Description({"Get single value or values from the json",
+        "<p>",
+        "{\"test\": {\"player\": \"_F0cus__\"}, \"list\":[1,2,3,{\"some\":1}]}",
+        "</p>"
+})
 @Examples({"on load:",
-        "\tset {_json} to json from text \"{'test': true}\"",
         "\tset {-e} to element \"test\" of {_json}",
         "\tsend {-e}",
         "\tset {_json} to json from text \"{'test': [1,2,3,4,false]}\"",
@@ -104,21 +108,17 @@ public class ExprGet extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
-
+        JsonElement json = exprJson.getSingle(e);
         // TODO will be remake, similarly like *deleteNested()*
 
-
         String key = null;
-        if (exprKey != null) {
-            key = exprKey.getSingle(e);
-        }
-
-        JsonElement json = exprJson.getSingle(e);
+        if (exprKey != null) key = exprKey.getSingle(e);
 
         if (pattern == 1 && key == null) {
             Object[] data = getElements(json);
-            assert data != null;
-            return data;
+            if (data != null) {
+                return data;
+            }
         }
 
         if (key != null || json != null) {
@@ -147,9 +147,7 @@ public class ExprGet extends SimpleExpression<Object> {
                         }
                     }
                 } else if (pattern == 1) {
-                    for (String nKey0 : keys) {
-                        String nKey = nKey0.endsWith(".list") ? nKey0.substring(0, nKey0.length() - 5) : nKey0;
-                        if (nKey.length() < 1) continue;
+                    for (String nKey : keys) {
                         if (json instanceof JsonObject) {
                             JsonObject object = (JsonObject) json;
                             json = object.get(nKey);
@@ -188,15 +186,17 @@ public class ExprGet extends SimpleExpression<Object> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return (pattern == 1 ? "elements" + (exprKey == null ? "" : exprKey.toString(e, debug)) : "element" + exprKey.toString(e, debug)) + " from " + exprJson.toString(e, debug);
+        return (pattern == 1 ? "elements " + (exprKey == null ? "" : exprKey.toString(e, debug)) : "element " + exprKey.toString(e, debug)) + " from " + exprJson.toString(e, debug);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         pattern = matchedPattern;
-        exprKey = (Expression<String>) exprs[0];
-        exprJson = (Expression<JsonElement>) exprs[1];
-        return true;
+        exprKey = LiteralUtils.defendExpression(exprs[0]);
+        if (LiteralUtils.canInitSafely(exprKey)) {
+            exprJson = LiteralUtils.defendExpression(exprs[1]);
+            return LiteralUtils.canInitSafely(exprJson);
+        }
+        return false;
     }
 }

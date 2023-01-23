@@ -34,18 +34,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 import static cz.coffee.utils.ErrorHandler.Level.ERROR;
 import static cz.coffee.utils.ErrorHandler.Level.WARNING;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
@@ -113,7 +111,7 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             if (assignedValue instanceof String) {
                 return new JsonElement[0];
             }
-            return new JsonElement[]{JsonAdapter.toJson(assignedValue)};
+            return new JsonElement[]{parseObject(assignedValue, exprToSerialize, event)};
         } else if (pattern == 2) {
             JsonFilesHandler jfh = new JsonFilesHandler();
             assignedValue = exprToSerialize.getSingle(event);
@@ -163,7 +161,6 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
         pattern = i;
         if (pattern == 3) {
@@ -177,8 +174,6 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             return false;
         } else {
             exprToSerialize = LiteralUtils.defendExpression(expressions[0]);
-            Expression<?> isItem = exprToSerialize.getConvertedExpression(ItemStack.class);
-            exprToSerialize = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(expressions[0]));
             return LiteralUtils.canInitSafely(exprToSerialize);
         }
     }

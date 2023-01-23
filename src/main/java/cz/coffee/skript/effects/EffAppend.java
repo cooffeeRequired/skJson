@@ -27,22 +27,20 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.json.JsonFilesHandler;
-import cz.coffee.utils.json.JsonUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.Objects;
 
-import static cz.coffee.SkJson.*;
-import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
+import static cz.coffee.SkJson.FILE_JSON_MAP;
+import static cz.coffee.SkJson.JSON_STORAGE;
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
+import static cz.coffee.utils.json.JsonUtils.appendJson;
+import static cz.coffee.utils.json.JsonUtils.isClassicType;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
 import static cz.coffee.utils.json.JsonVariables.setVariable;
 
@@ -68,7 +66,7 @@ public class EffAppend extends Effect {
 
     static {
         Skript.registerEffect(EffAppend.class,
-                "append %object% [:with key %-string%] [:as nested object %-string%] to json file %string%",
+                "append %object/json% [:with key %-string%] [:as nested object %-string%] to json file %string%",
                 "append %object% [:with key %-string%] [:as nested object %-string%] to (:cached json) %string%",
                 "append %object% [:with key %-string%] [:as nested object %-string%] to %json%"
         );
@@ -84,9 +82,11 @@ public class EffAppend extends Effect {
     @Override
     protected void execute(@NotNull Event e) {
         Object inputSource = exprInputSource.getSingle(e); // last expr.
-        Object dataToAppend = dataToAppendExpr.getSingle(e); // first
+        Object dataToAppend = dataToAppendExpr.getSingle(e);
+
         String key = null; // key expr (with key)
         String nested = null; //nested expr (as nested)
+
 
         if (hasKey)
             key = keyExpr.getSingle(e);
@@ -96,13 +96,7 @@ public class EffAppend extends Effect {
         JsonElement json, jsonInput;
         String variableName;
 
-        if (dataToAppend instanceof JsonElement) {
-            json = (JsonElement) dataToAppend;
-        } else if (dataToAppend instanceof String || dataToAppend instanceof Boolean || dataToAppend instanceof Number) {
-            json = fromString2JsonElement(dataToAppend.toString());
-        } else {
-            json = JsonAdapter.toJson(dataToAppend);
-        }
+        json = parseObject(dataToAppend, dataToAppendExpr, e);
 
         assert json != null;
         assert inputSource != null;
@@ -111,57 +105,28 @@ public class EffAppend extends Effect {
             if (JSON_STORAGE.containsKey(inputSource.toString()) && FILE_JSON_MAP.containsKey(inputSource.toString())) {
                 jsonInput = JSON_STORAGE.get(inputSource.toString());
                 JSON_STORAGE.remove(inputSource.toString());
-                JSON_STORAGE.put(inputSource.toString(), parseNotes(jsonInput, key, nested, json));
+                JSON_STORAGE.put(inputSource.toString(), appendJson(jsonInput, json, key, nested));
             }
         } else if (isFile) {
             JsonFilesHandler jfh = new JsonFilesHandler(false);
             File file = new File(inputSource.toString());
             jsonInput = jfh.readFile(file.toString());
-            jfh.writeFile(file, parseNotes(jsonInput, key, nested, json), false);
+            jfh.writeFile(file, appendJson(jsonInput, json, key, nested), false);
 
         } else {
             variableName = variableString.getDefaultVariableName().replaceAll("_", "");
             Object v = getVariable(e, variableName, isLocal);
             if (v instanceof JsonElement) {
+                jsonInput = (JsonElement) v;
+            } else if (isClassicType(v)) {
                 jsonInput = new Gson().toJsonTree(v);
             } else {
                 jsonInput = JsonAdapter.toJson(v);
             }
-            JsonElement o = parseNotes(jsonInput, key, nested, json);
-            setVariable(variableName, o, e, isLocal);
-        }
-    }
 
-    // processing the nested and keys.
-
-    private JsonElement parseNotes(JsonElement inputJson, String Key, String Nested, JsonElement json) {
-        JsonUtils ju = new JsonUtils();
-        String key;
-        if (inputJson != null) {
-            boolean debug = PROJECT_DEBUG;
-            if (inputJson instanceof JsonObject) {
-                JsonObject object = (JsonObject) inputJson;
-                key = Key != null ? Key : String.valueOf(object.size());
-                if (Nested == null) {
-                    object.add(key, json);
-                    return object;
-                } else {
-                    inputJson = ju.appendJson(inputJson, json, key, Nested, debug);
-                    return inputJson;
-                }
-            } else if (inputJson instanceof JsonArray) {
-                JsonArray array = (JsonArray) inputJson;
-                key = Key != null ? Key : String.valueOf(array.size());
-                if (Nested == null) {
-                    array.add(json);
-                    return array;
-                } else {
-                    inputJson = ju.appendJson(inputJson, json, key, Nested, debug);
-                    return inputJson;
-                }
-            }
+            if (jsonInput == null) return;
+            setVariable(variableName, appendJson(jsonInput, json, key, nested), e, isLocal);
         }
-        return null;
     }
 
     @Override
@@ -172,17 +137,14 @@ public class EffAppend extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        isCached = parseResult.hasTag(("cached json"));
         isFile = matchedPattern == 0;
-        dataToAppendExpr = LiteralUtils.defendExpression(exprs[0]);
-        keyExpr = (Expression<String>) exprs[1];
-        nestedExpr = (Expression<String>) exprs[2];
-        exprInputSource = LiteralUtils.defendExpression(exprs[3]);
+
+        isCached = parseResult.hasTag(("cached json"));
         isNested = parseResult.hasTag(("as nested object"));
         hasKey = parseResult.hasTag(("with key"));
+
         dataToAppendExpr = LiteralUtils.defendExpression(exprs[0]);
-        Expression<?> isItem = dataToAppendExpr.getConvertedExpression(ItemStack.class);
-        dataToAppendExpr = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(exprs[0]));
+
         keyExpr = (Expression<String>) exprs[1];
         nestedExpr = (Expression<String>) exprs[2];
         exprInputSource = LiteralUtils.defendExpression(exprs[3]);

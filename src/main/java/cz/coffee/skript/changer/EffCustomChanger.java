@@ -12,20 +12,15 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import cz.coffee.adapters.JsonAdapter;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 import static cz.coffee.utils.json.JsonUtils.*;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
 import static cz.coffee.utils.json.JsonVariables.setVariable;
@@ -56,8 +51,6 @@ import static cz.coffee.utils.json.JsonVariables.setVariable;
 
 
 public class EffCustomChanger extends Effect {
-
-    private static final String NESTED_PATTERN = ":";
     private int mode;
     private Expression<Object> expressionWhat; // inputted Json.
     private Expression<?> expressionDelta; // object to set instead of current object.
@@ -82,7 +75,7 @@ public class EffCustomChanger extends Effect {
             keyValue = expressionKeyValue.getSingle(event);
         }
         if (mode != 0) delta = expressionDelta.getAll(event);
-        process(what, delta, isCached, keyValue, mode, event);
+        process(what, delta, isCached, keyValue, mode, event, expressionDelta);
     }
 
     @Override
@@ -108,15 +101,11 @@ public class EffCustomChanger extends Effect {
             expressionWhat = LiteralUtils.defendExpression(expressions[1]);
             expressionKeyValue = (Expression<String>) expressions[0];
             expressionDelta = LiteralUtils.defendExpression(expressions[2]);
-            Expression<?> isItem = expressionDelta.getConvertedExpression(ItemStack.class);
-            expressionDelta = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(expressions[2]));
         } else if (i == 1) {
             // Case ADD
             mode = 2;
             expressionWhat = LiteralUtils.defendExpression(expressions[1]);
             expressionDelta = LiteralUtils.defendExpression(expressions[0]);
-            Expression<?> isItem = expressionDelta.getConvertedExpression(ItemStack.class);
-            expressionDelta = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(expressions[0]));
         } else if (i == 2) {
             // Case REMOVE
             mode = 0;
@@ -145,14 +134,11 @@ public class EffCustomChanger extends Effect {
     }
 
 
-    private void process(Object what, Object[] delta, boolean isCached, String keyString, int mode, Event event) {
-        final String LOCAL_ = "_";
+    private void process(Object what, Object[] delta, boolean isCached, String keyString, int mode, Event event, Expression<?> expression) {
+        final String LOCAL_ = '_'+"";
         final String[] extractedKeys = (keyString == null ? new String[0] : extractKeys(keyString));
-
-        Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().enableComplexMapKeySerialization().create();
-
         JsonElement STORAGE;
-        String key = what.toString();
+        String key = what+"";
 
         if (mode == 0) {
             // DELETE
@@ -177,9 +163,7 @@ public class EffCustomChanger extends Effect {
             JsonElement inputJson = JsonNull.INSTANCE;
             if (delta != null) {
                 for (Object object : delta) {
-                    if (object instanceof JsonElement) inputJson = (JsonElement) object;
-                    else if (isClassicType(object)) inputJson = gson.toJsonTree(object);
-                    else inputJson = JsonAdapter.toJson(object);
+                    inputJson = parseObject(object, expression, event);
                 }
             }
 

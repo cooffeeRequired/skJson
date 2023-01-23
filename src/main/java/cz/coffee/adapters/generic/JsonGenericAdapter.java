@@ -18,8 +18,17 @@
  */
 package cz.coffee.adapters.generic;
 
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.util.slot.Slot;
 import com.google.gson.JsonElement;
+import cz.coffee.adapters.JsonAdapter;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
+import static cz.coffee.utils.json.JsonUtils.isClassicType;
 
 
 /**
@@ -30,6 +39,47 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 
 public interface JsonGenericAdapter<T> {
+
+    @SuppressWarnings("unchecked")
+    static ItemStack parseItem(Object skriptItem, Expression<?> expression, Event e) {
+        if (skriptItem instanceof ItemStack) {
+            Expression<?> expr = expression.getConvertedExpression(ItemStack.class);
+            if (expr != null) {
+                return (ItemStack) expr.getSingle(e);
+            }
+        } else if (skriptItem instanceof Slot) {
+            Expression<?> expr = expression.getConvertedExpression(Slot.class);
+            if (expr != null) {
+                Slot s = (Slot) expr.getSingle(e);
+                if (s != null) {
+                    return s.getItem();
+                }
+            }
+        } else if (skriptItem instanceof ItemType) {
+            Expression<?> expr = expression.getConvertedExpression(ItemType.class);
+            if (expr != null) {
+                ItemType s = (ItemType) expr.getSingle(e);
+                if (s != null) {
+                    return s.getRandom();
+                }
+            }
+        }
+        return null;
+    }
+
+    static JsonElement parseObject(Object skriptItem, Expression<?> expression, Event e) {
+        if (skriptItem instanceof JsonElement) {
+            return  (JsonElement) skriptItem;
+        } else if (isClassicType(skriptItem)) {
+            return fromString2JsonElement(skriptItem.toString());
+        } else {
+            if (skriptItem instanceof ItemType || skriptItem instanceof Slot || skriptItem instanceof ItemStack) {
+                return JsonAdapter.toJson(parseItem(skriptItem, expression, e));
+            } else {
+                return JsonAdapter.toJson(skriptItem);
+            }
+        }
+    }
 
     String GSON_GENERIC_ADAPTER_KEY = "??";
 

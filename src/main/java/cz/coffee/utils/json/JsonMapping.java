@@ -153,7 +153,7 @@ public class JsonMapping {
             }
         }
 
-        if (!(variable instanceof String || variable instanceof Integer || variable instanceof Double || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
+        if (!(variable instanceof String || variable instanceof Number || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
             variable = gsonAdapter.toJson(variable);
         }
         return variable;

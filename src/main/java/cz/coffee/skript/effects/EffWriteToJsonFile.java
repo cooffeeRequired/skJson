@@ -28,18 +28,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
-import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.Objects;
 
-import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 
 @Name("Write json/json file")
 @Description({"You can write/re-write to jsons"})
@@ -68,19 +64,11 @@ public class EffWriteToJsonFile extends Effect {
     protected void execute(@NotNull Event e) {
         JsonFilesHandler jfh = new JsonFilesHandler();
         Object inputData = inputExpr.getSingle(e);
-        Object jsonOutput = jsonOutputExpr.getSingle(e);
+        String jsonOutput = jsonOutputExpr.getSingle(e);
         assert jsonOutput != null;
-        File file = new File(jsonOutput.toString());
+        File file = new File(jsonOutput);
 
-        if (inputData instanceof JsonElement) {
-            jfh.writeFile(file, inputData, false);
-        } else if (inputData instanceof String || inputData instanceof Boolean || inputData instanceof Number) {
-            JsonElement json = fromString2JsonElement(inputData.toString());
-            jfh.writeFile(file, json, false);
-        } else {
-            JsonElement json = JsonAdapter.toJson(inputData);
-            jfh.writeFile(file, json, true);
-        }
+        jfh.writeFile(file, parseObject(inputData, inputExpr, e), false);
 
     }
 
@@ -92,10 +80,8 @@ public class EffWriteToJsonFile extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        inputExpr = LiteralUtils.defendExpression(exprs[0]);
-        Expression<?> isItem = inputExpr.getConvertedExpression(ItemStack.class);
-        inputExpr = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(exprs[0]));
         jsonOutputExpr = (Expression<String>) exprs[1];
+        inputExpr = LiteralUtils.defendExpression(exprs[0]);
         return LiteralUtils.canInitSafely(inputExpr);
     }
 }
