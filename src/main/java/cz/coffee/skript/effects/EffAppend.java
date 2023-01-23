@@ -55,9 +55,9 @@ import static cz.coffee.utils.json.JsonVariables.setVariable;
         "\t\tappend player's location with key \"location\" as nested object \"player:data[0]\" to {_json}",
         "\t\tsend {_json} with pretty print",
         "",
-        "\t\tset {_fileJson} to json from file \"sk-gson\\test.json\"",
-        "\t\tappend player's location to file \"sk-gson\\test.json\"",
-        "\t\tset {_fileJson} to json from file \"sk-gson\\test.json\"",
+        "\t\tset {_fileJson} to json from file \"skJson\\test.json\"",
+        "\t\tappend player's location to file \"skJson\\test.json\"",
+        "\t\tset {_fileJson} to json from file \"skJson\\test.json\"",
         "\t\tsend {_fileJson} with pretty print",
 })
 @Since("2.5.0")

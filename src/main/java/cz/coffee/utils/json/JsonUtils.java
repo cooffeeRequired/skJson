@@ -176,59 +176,6 @@ public class JsonUtils {
         return input;
     }
 
-    public static String[] parseNestedPattern(String string, boolean append) {
-        final String arrayRegex = ".*\\[((\\d+|)])";
-        final Pattern subPattern = Pattern.compile("^([^\\[.*]+)");
-        final Pattern internalPattern = Pattern.compile("\\[(.*?)]");
-        final Pattern multiSquares = Pattern.compile(".\\[\\d+]");
-
-        ArrayList<String> parsed = new ArrayList<>();
-        String[] nests = string.split(":");
-        String nKey = "";
-        String nInt = "";
-        int index = 0;
-        for (String n : nests) {
-            index++;
-            if (n.matches(arrayRegex)) {
-                Matcher m = subPattern.matcher(n);
-                if (m.find()) {
-                    nKey = m.group(1);
-                }
-                Matcher in = internalPattern.matcher(n);
-                if (in.find()) {
-                    nInt = Objects.equals(in.group(1), "") ? "0" : in.group(1);
-                }
-                if (index == 1) {
-                    boolean assigned = false;
-                    if (nKey != null) {
-                        if (!nKey.startsWith("[")) {
-                            assigned = true;
-                            parsed.add(nKey + ".list");
-                            parsed.add(nInt);
-                        } else {
-                            if (nInt.equals("0")) {
-                                parsed.add(nInt + ".list");
-                            }
-                        }
-                    }
-                    if (nInt.equals("0") && (!assigned)) {
-                        parsed.add("0.list");
-                    }
-                } else {
-                    if (nKey == null) {
-                        parsed.add("0.list");
-                    } else {
-                        if (append) parsed.add(nKey + ".list");
-                    }
-                    parsed.add(nInt);
-                }
-
-            } else {
-                parsed.add(n);
-            }
-        }
-        return parsed.toArray(new String[0]);
-    }
 
     /**
      * @param input any {@link JsonElement}
@@ -314,32 +261,30 @@ public class JsonUtils {
      */
 
     public static JsonElement appendJson(@NotNull JsonElement fromInput, @NotNull JsonElement appendData, String key, String nested) {
-        String[] nests = parseNestedPattern(nested, true);
+        String[] nests = extractKeys(nested, true);
         JsonElement next;
         boolean isArrayKey, isExist = false;
+        double lValue = 0;
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(fromInput);
 
         while ((next = elements.pollFirst()) != null) {
-            int parsedNumber = 0;
-            int n = 0;
-            for (String nKey : nests) {
-                n++;
-                if (isNumeric(nKey)) {
-                    double lValue = Double.parseDouble(nKey);
-                    parsedNumber = (int) lValue;
-                }
+            int parsedNumber;
+            for (String nestedKey : nests) {
+                if (nestedKey.isEmpty()) continue;
+                if (isNumeric(nestedKey)) lValue = Double.parseDouble(nestedKey); parsedNumber = (int) lValue;
+                
                 // creating section
                 if (next.isJsonArray()) {
                     JsonArray array = next.getAsJsonArray();
-                    next = createMissing(array, nKey, parsedNumber);
+                    next = createMissing(array, nestedKey, parsedNumber);
                 } else if (next.isJsonObject()) {
                     JsonObject object = next.getAsJsonObject();
-                    next = createMissing(object, parsedNumber, nKey);
+                    next = createMissing(object, parsedNumber, nestedKey);
                 }
 
                 // Modding/looping section
-                String sanitizeKey = nKey.replaceAll(".list", "");
+                String sanitizeKey = nestedKey.replaceAll(".list", "");
                 if (next.isJsonArray()) {
                     JsonArray array = next.getAsJsonArray();
                     if (array.isEmpty()) {
@@ -372,7 +317,8 @@ public class JsonUtils {
      * @param StringInput any string input for example "B[0]"
      * @return new array extract from the given String [B, 0]
      */
-    public static String[] extractKeys(String StringInput) {
+    public static String[] extractKeys(String StringInput, boolean ...append) {
+        boolean isAppend = (append != null && append.length > 0 && append[0]);
         ArrayList<String> arrayList = new ArrayList<>();
         String nestedKey = null, nestedIndex = null;
 
@@ -388,7 +334,7 @@ public class JsonUtils {
                 while (squares.find()) if (squares.group(1) != null) nestedKey = squares.group(1);
                 while (number.find()) if (number.group() != null) nestedIndex = number.group(1);
                 else nestedIndex = "0";
-                arrayList.add(nestedKey);
+                arrayList.add((isAppend ? nestedKey + ".list" : nestedKey));
                 arrayList.add(nestedIndex);
             } else {
                 arrayList.add(string);
@@ -401,6 +347,8 @@ public class JsonUtils {
         return o instanceof String || o instanceof Number || o instanceof Boolean;
     }
 
+
+    @SuppressWarnings("UnusedReturnValue")
     public static JsonElement deleteNested(String[] nest, JsonElement input) {
         JsonElement element;
         Deque<JsonElement> elements = new ArrayDeque<>();
@@ -440,11 +388,5 @@ public class JsonUtils {
         }
         return input;
     }
-
-
-
-
-
-
 
 }

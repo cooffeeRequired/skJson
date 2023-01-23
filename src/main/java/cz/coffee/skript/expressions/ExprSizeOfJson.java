@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 @Name("Size of JSON")
 @Description("Return size of JSON")
 @Examples({"on load:",
-        "   set {-e} to new json from string \"{'anything': [1,2,false]}\"",
+        "   set {-e} to json from string \"{'anything': [1,2,false]}\"",
         "   broadcast {-e}'s json size",
         "   broadcast json size of {-e}"
 })

@@ -51,7 +51,10 @@ import static cz.coffee.utils.config.Config._REQUEST_HANDLER;
 import static cz.coffee.utils.json.JsonUtils.parseVariable;
 
 @Name("New json from bunch sources (Text/File/Request)")
-@Description({})
+@Description({
+        "You are able a create new json from bunch of sources",
+        "String/text any Skript object, and from Web/Url request"
+})
 @Examples({"command example [<string>]:",
         "\ttrigger:",
         "\t\tsend json from arg-1",

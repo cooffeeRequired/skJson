@@ -29,17 +29,15 @@ import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import cz.coffee.adapters.JsonAdapter;
-import cz.coffee.utils.json.JsonUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
-import static cz.coffee.utils.json.JsonUtils.*;
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
+import static cz.coffee.utils.json.JsonUtils.changeJson;
+import static cz.coffee.utils.json.JsonUtils.extractKeys;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
 import static cz.coffee.utils.json.JsonVariables.setVariable;
 
@@ -59,7 +57,7 @@ public class EffChange extends Effect {
 
     static {
         Skript.registerEffect(EffChange.class,
-                "change [:cached json] %json/string%'s value %string% to %object%"
+                "change [:cached json] %json/string%['s] value %string% to %object%"
         );
     }
 
@@ -72,20 +70,13 @@ public class EffChange extends Effect {
 
     @Override
     protected void execute(@NotNull Event e) {
-        JsonUtils ju = new JsonUtils();
         Object inputSource = exprInputSource.getSingle(e);
         String key = keyExpr.getSingle(e);
         Object changedData = exprChangedData.getSingle(e);
         JsonElement json, jsonInput;
         String variableName;
 
-        if (changedData instanceof JsonElement) {
-            json = (JsonElement) changedData;
-        } else if (changedData instanceof String || changedData instanceof Boolean || changedData instanceof Number) {
-            json = fromString2JsonElement(changedData.toString());
-        } else {
-            json = JsonAdapter.toJson(changedData);
-        }
+        json = parseObject(changedData, exprChangedData, e);
 
         assert json != null;
         assert key != null;
@@ -137,8 +128,6 @@ public class EffChange extends Effect {
         }
         keyExpr = (Expression<String>) exprs[1];
         exprChangedData = LiteralUtils.defendExpression(exprs[2]);
-        Expression<?> isItem = exprChangedData.getConvertedExpression(ItemStack.class);
-        exprChangedData = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(exprs[2]));
         if (LiteralUtils.canInitSafely(exprInputSource)) {
             return LiteralUtils.canInitSafely(exprChangedData);
         }

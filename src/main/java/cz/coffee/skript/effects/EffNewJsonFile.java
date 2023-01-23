@@ -1,6 +1,9 @@
 package cz.coffee.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -10,7 +13,6 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +22,20 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.Objects;
 
+import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 
+
+@Name("New json file with given path")
+@Description({
+        "New json file with given path, with or without user data.",
+        "When the data was null, parser will automatically create a jsonobject inside the file",
+        "When you will handle big json payload i recommend you use 'async new json file ....' "
+})
+@Examples({
+        "on script load:",
+        "\tif json file \"...\" does not exists:",
+        "\t\tnew json file \"...\""
+})
 @Since("2.5.0")
 
 public class EffNewJsonFile extends Effect {
@@ -40,24 +55,22 @@ public class EffNewJsonFile extends Effect {
     protected void execute(@NotNull Event event) {
         JsonFilesHandler jfh = new JsonFilesHandler();
         String strPathToFile = (pathToFileExpr.getSingle(event));
-        Object assignedValue = null;
+        Object assignedValue;
         if (strPathToFile == null) return;
         File file = new File(strPathToFile);
 
+        JsonElement json = null;
         if (inputToFile != null) {
             assignedValue = inputToFile.getSingle(event);
+            json = parseObject(assignedValue, inputToFile, event);
         }
+
         if (hasObject) {
             jfh.writeFile(file, new JsonObject(), false);
         } else if (hasArray) {
             jfh.writeFile(file, new JsonArray(), false);
-        }
-        if (assignedValue instanceof JsonElement) {
-            jfh.writeFile(file, assignedValue, async);
-        } else if (assignedValue instanceof String) {
-            jfh.writeFile(file, assignedValue, async);
         } else {
-            jfh.writeFile(file, JsonAdapter.toJson(assignedValue), async);
+            jfh.writeFile(file, json, async);
         }
     }
 

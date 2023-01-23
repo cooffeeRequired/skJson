@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 @Description("You can simply check if the file is empty.")
 @Examples({"on script load:",
         "\tset {_j} to json from string \"{'Hello': 'There'}\"",
-        "\t{_j} is empty: ",
+        "\tjson {_j} is empty: ",
         "\t\tbroadcast \"is empty\"",
 })
 public class CondJsonEmpty extends Condition {

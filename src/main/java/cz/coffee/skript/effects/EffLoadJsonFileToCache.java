@@ -41,7 +41,7 @@ import static cz.coffee.SkJson.JSON_STORAGE;
 @Name("Load json-file to internal cache")
 @Description("You can load the json-file to cache with your defined string id")
 @Examples({"on script load:",
-        "\tload json file \"plugins/skript-gson/test.json\" as \"gson-test\""
+        "\tload json file \"plugins/skJson/test.json\" as \"skJson\""
 })
 @Since("2.5.0")
 
