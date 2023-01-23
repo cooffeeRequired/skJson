@@ -28,6 +28,8 @@ import cz.coffee.utils.github.Hash;
 import cz.coffee.utils.github.Updater;
 import cz.coffee.utils.github.Version;
 import org.bukkit.Bukkit;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -107,6 +109,7 @@ public final class SkJson extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        ConfigurationSerialization.registerClass(Pattern.class);
         pm = getPluginManager();
         pdf = this.getDescription();
         if (!canLoad()) {

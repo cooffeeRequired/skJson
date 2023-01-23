@@ -34,13 +34,13 @@ public class JsonNBT implements JsonGenericAdapter<NBTCompound> {
     public @NotNull JsonElement toJson(NBTCompound object) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("??", object.getClass().getName());
-        jsonObject.addProperty("nbt", NBTInternalConventor.nbtToJson(object));
+        jsonObject.addProperty("nbt", NBTInternalConvertor.nbtToJson(object));
         return jsonObject;
     }
 
     @Override
     public NBTCompound fromJson(JsonElement json) {
-        return NBTInternalConventor.toNBT(json);
+        return NBTInternalConvertor.toNBT(json);
     }
 
     @Override

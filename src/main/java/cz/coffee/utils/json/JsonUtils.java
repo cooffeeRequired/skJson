@@ -318,6 +318,12 @@ public class JsonUtils {
      * @return new array extract from the given String [B, 0]
      */
     public static String[] extractKeys(String StringInput, boolean ...append) {
+
+        if (StringInput == null) {
+            return new String[]{};
+        }
+
+
         boolean isAppend = (append != null && append.length > 0 && append[0]);
         ArrayList<String> arrayList = new ArrayList<>();
         String nestedKey = null, nestedIndex = null;

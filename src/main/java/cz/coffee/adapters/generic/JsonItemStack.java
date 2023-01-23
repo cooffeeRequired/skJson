@@ -18,18 +18,24 @@
  */
 package cz.coffee.adapters.generic;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.adapters.JsonAdapter;
 import cz.coffee.utils.Type;
+import org.bukkit.DyeColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import static cz.coffee.adapters.generic.JsonInventory.*;
 import static cz.coffee.utils.SimpleUtil.gsonAdapter;
@@ -38,17 +44,56 @@ import static cz.coffee.utils.json.JsonUtils.check;
 
 public class JsonItemStack implements JsonGenericAdapter<ItemStack> {
 
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
 
-    public JsonItemStack(ItemStack i) {
-        this.itemStack = i;
+    @Override
+    public @NotNull JsonElement toJson(ItemStack object) {
+        return gsonAdapter.toJsonTree(object, ItemStack.class);
     }
 
-    /**
-     * This function will check if the enchants or Attributes in the Json ItemStack are not stacked, if so it is added to the deserialized ItemStack.
-     *
-     * @param element element = is a serialized ItemStack to Json.
-     */
+    @Override
+    public ItemStack fromJson(JsonElement json) {
+        return analyse(json.getAsJsonObject());
+    }
+
+
+    private ItemStack analyse(JsonObject json) {
+        final String _META = "meta";
+        final String _META_TYPE = "meta-type";
+        final String _BANNER_PATTERNS = "patterns";
+
+        if (json.has(_META)) {
+            JsonObject jsonMeta = json.getAsJsonObject(_META);
+            if (jsonMeta.get(_META_TYPE).getAsString().contains("BANNER")) {
+                if (jsonMeta.has(_BANNER_PATTERNS)) {
+                    JsonArray patternsArray = jsonMeta.getAsJsonArray(_BANNER_PATTERNS);
+                    jsonMeta.remove(_BANNER_PATTERNS);
+                    ArrayList<Pattern> patterns = new ArrayList<>();
+
+                    for (JsonElement p : patternsArray) {
+                        JsonObject pattern = p.getAsJsonObject();
+                        patterns.add(new Pattern(
+                                DyeColor.valueOf(p.getAsJsonObject().get("color").getAsString()),
+                                Objects.requireNonNull(PatternType.getByIdentifier(p.getAsJsonObject().get("pattern").getAsString()))
+                        ));
+                    }
+
+                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                    BannerMeta newMeta = ((BannerMeta) itemStack.getItemMeta());
+                    newMeta.setPatterns(patterns);
+                    itemStack.setItemMeta(newMeta);
+                } else {
+                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                }
+            } else {
+                itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+            }
+            setOthers(json);
+            return getItemStack();
+        } else {
+            return gsonAdapter.fromJson(json, ItemStack.class);
+        }
+    }
 
 
     @SuppressWarnings("deprecation")
@@ -97,16 +142,6 @@ public class JsonItemStack implements JsonGenericAdapter<ItemStack> {
 
     public ItemStack getItemStack() {
         return this.itemStack;
-    }
-
-    @Override
-    public @NotNull JsonElement toJson(ItemStack object) {
-        return gsonAdapter.toJsonTree(JsonAdapter.toJson(object));
-    }
-
-    @Override
-    public ItemStack fromJson(JsonElement json) {
-        return (ItemStack) JsonAdapter.fromJson(json);
     }
 
     @Override

@@ -48,10 +48,10 @@ public class Config {
     public static List<Object> _HANDLERS_REQUEST;
     public static boolean _NBT_SUPPORTED;
 
-    static Plugin skBee = SkJson.getInstance().getPluginManager().getPlugin("SkBee");
-    static Plugin Reqn = SkJson.getInstance().getPluginManager().getPlugin("Reqn");
-    static Plugin SkWebAPI = SkJson.getInstance().getPluginManager().getPlugin("SkriptWebAPI");
-    static Plugin skReflect = SkJson.getInstance().getPluginManager().getPlugin("skript-reflect");
+    static final Plugin skBee = SkJson.getInstance().getPluginManager().getPlugin("SkBee");
+    static final Plugin Reqn = SkJson.getInstance().getPluginManager().getPlugin("Reqn");
+    static final Plugin SkWebAPI = SkJson.getInstance().getPluginManager().getPlugin("SkriptWebAPI");
+    static final Plugin skReflect = SkJson.getInstance().getPluginManager().getPlugin("skript-reflect");
 
     private static DumperOptions dumperOptions() {
         DumperOptions o = new DumperOptions();

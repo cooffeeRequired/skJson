@@ -127,6 +127,7 @@ public class ExprGet extends SimpleExpression<Object> {
             if (keys[0] != null) {
                 if (pattern == 0) {
                     for (String nKey : keys) {
+                        if (nKey.isEmpty()) continue;
                         if (json instanceof JsonArray) {
                             JsonArray array = (JsonArray) json;
                             int index = 0;
@@ -148,6 +149,7 @@ public class ExprGet extends SimpleExpression<Object> {
                     }
                 } else if (pattern == 1) {
                     for (String nKey : keys) {
+                        if (nKey.isEmpty()) continue;
                         if (json instanceof JsonObject) {
                             JsonObject object = (JsonObject) json;
                             json = object.get(nKey);

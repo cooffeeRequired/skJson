@@ -63,9 +63,13 @@ public class Updater {
             } else {
                 if (getStatus().equals("OUTDATED")) {
                     SkJson.console("&cskJson is not up to date!");
+                    if (userVer.equals(latestVersion)) {
+                        SkJson.console("&8 > &7GitTag: &c@e0291c");
+                        SkJson.console("&8 > &7Please download the same release from github...");
+                    }
                     SkJson.console("&8 > &7Current version: &cv" + userVer);
                     SkJson.console("&8 > &7Available version: &av" + latestVersion);
-                    SkJson.console("&8 > &7Download available at link: &b" + latestLink);
+                    SkJson.console("&8 > &7Download available at link: &bhttps://github.com/cooffeeRequired/skJson/releases/latest");
                 } else {
                     SkJson.console("You're running on &alatest stable &fversion!");
                 }

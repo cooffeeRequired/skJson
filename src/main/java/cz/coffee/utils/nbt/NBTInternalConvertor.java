@@ -23,11 +23,11 @@ import com.shanebeestudios.skbee.api.NBT.NBTCompound;
 import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 
 
-public class NBTInternalConventor {
+public class NBTInternalConvertor {
 
     private final Object nbt;
 
-    public NBTInternalConventor(Object nbt) {
+    public NBTInternalConvertor(Object nbt) {
         this.nbt = nbt;
     }
 

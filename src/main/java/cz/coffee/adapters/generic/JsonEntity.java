@@ -13,7 +13,7 @@ import java.util.UUID;
 import static cz.coffee.utils.SimpleUtil.gsonAdapter;
 import static cz.coffee.utils.json.JsonUtils.check;
 
-
+@SuppressWarnings("deprecation")
 public class JsonEntity implements JsonGenericAdapter<Entity> {
     @Override
     public @NotNull JsonElement toJson(Entity object) {

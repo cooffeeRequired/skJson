@@ -32,12 +32,9 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffee.adapters.JsonAdapter;
-import cz.coffee.adapters.generic.JsonChunk;
-import cz.coffee.adapters.generic.JsonEntity;
-import cz.coffee.adapters.generic.JsonInventory;
-import cz.coffee.adapters.generic.JsonWorld;
+import cz.coffee.adapters.generic.*;
 import cz.coffee.utils.ErrorHandler;
-import cz.coffee.utils.nbt.NBTInternalConventor;
+import cz.coffee.utils.nbt.NBTInternalConvertor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -66,7 +63,7 @@ public class EffParse extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(EffParse.class, Object.class, ExpressionType.SIMPLE,
-                "%object% parsed as [a] [skript] (:inv[entory]|:chunk|:world|:nbt|:entity|:loc[ation]|(unknown|) :type)"
+                "%object% parsed as [a] [skript] (:inv[entory]|:chunk|:world|:nbt|:entity|:loc[ation]|:item[type|stack]|(unknown |):type)"
         );
     }
 
@@ -95,6 +92,8 @@ public class EffParse extends SimpleExpression<Object> {
             patternType = 5;
         } else if (tags.contains("loc")) {
             patternType = 100;
+        } else if (tags.contains("item")) {
+            patternType = 6;
         } else {
             patternType = 0;
         }
@@ -127,10 +126,13 @@ public class EffParse extends SimpleExpression<Object> {
             } else if (patternType == 3) {
                 return new Object[]{new JsonWorld().fromJson(bukkitObject)};
             } else if (patternType == 4) {
-                return new Object[]{NBTInternalConventor.toNBT(bukkitObject)};
+                return new Object[]{NBTInternalConvertor.toNBT(bukkitObject)};
             } else if (patternType == 5) {
                 return new Object[]{new JsonEntity().fromJson(bukkitObject)};
+            } else if (patternType == 6) {
+                return new Object[]{new JsonItemStack().fromJson(bukkitObject)};
             } else if (patternType == 100) {
+                System.out.println("here");
                 return new Object[]{gsonAdapter.fromJson(bukkitObject, ConfigurationSerializable.class)};
             }
         } catch (Exception exception) {
@@ -147,7 +149,7 @@ public class EffParse extends SimpleExpression<Object> {
     }
 
     @Override
-    public @NotNull Class<? extends ConfigurationSerializable> getReturnType() {
-        return ConfigurationSerializable.class;
+    public @NotNull Class<?> getReturnType() {
+        return Object.class;
     }
 }
