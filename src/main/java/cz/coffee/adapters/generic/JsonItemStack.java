@@ -54,10 +54,10 @@ public class JsonItemStack implements JsonGenericAdapter<ItemStack> {
             "KnowledgeBookMeta",
             "LeatherArmorMeta",
             "MusicInstrumentMeta", // musicInstrumental -> Version depend.
-            "PotionMeta", // Already Fully-serialized by Bukkit.
-            "Repairable", // Already Fully-serialized by Bukkit.
-            "SkullMeta", // Already Fully-serialized by Bukkit.
-            "SpawnEggMeta", // Paper deprecated, Already Fully-serialized by Bukkit.
+            "PotionMeta", // Already Fully serialized by Bukkit.
+            "Repairable", // Already Fully serialized by Bukkit.
+            "SkullMeta", // Already Fully serialized by Bukkit.
+            "SpawnEggMeta", // Paper deprecated, Already Fully serialized by Bukkit.
     };
 
     private ItemStack itemStack;
