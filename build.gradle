@@ -58,7 +58,11 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
     implementation files('libs/reqn.jar')
     implementation files('libs/skbee.jar')
+
     shadow 'com.google.code.gson:gson:2.10.1'
+    shadow 'net.kyori:adventure-api:4.5.0'
+
+
     // compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
     // compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
 }
@@ -79,16 +83,12 @@ processResources {
 // Shadowing
 
 shadowJar {
-    relocate 'com.google.gson', 'cz.coffee.gson'
+    configurations = [project.configurations.shadow]
     archiveBaseName.set('SkJson')
     archiveClassifier.set('')
     mergeServiceFiles()
+    minimize()
 }
-
-static configureRelocations(ShadowJar task) {
-    task.relocate('com.google.gson', 'cz.coffee.gson')
-}
-
 //noinspection ConfigurationAvoidance
 task relocateShadowJar(type: ConfigureShadowRelocation) {
     target = tasks.shadowJar
@@ -107,15 +107,13 @@ tasks.withType(ShadowJar).configureEach {
                 'Sealed': 'true'
         )
     }
-    configureRelocations(it)
 }
 
 //noinspection ConfigurationAvoidance
 task release(type:Copy) {
     from shadowJar
     [
-            'A:\\workspaces\\latest\\plugins',
-            'A\\releases\\skJson'
+            'A:\\workspaces\\1.8.8\\plugins',
     ]
             .each { destination ->
                 into destination

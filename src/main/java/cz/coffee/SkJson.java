@@ -131,8 +131,12 @@ public final class SkJson extends JavaPlugin {
         loadMetrics();
         // Config folder
         Config.init();
-        if (!_NBT_SUPPORTED) {
-            SkJson.console("NBT-serialize is &cdisabled&8, Missing dependency skBee");
+        if (!_NBT_SUPPORTED || version.isLegacy()) {
+            if (version.isLegacy()) {
+                SkJson.console("NBT-serialize is &cdisabled&8, Legacy version");
+            } else {
+                SkJson.console("NBT-serialize is &cdisabled&8, Missing dependency skBee");
+            }
         } else {
             SkJson.console("NBT-serialize is loaded and &aenabled &8(&7skBee&8)");
         }

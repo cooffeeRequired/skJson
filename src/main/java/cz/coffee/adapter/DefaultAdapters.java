@@ -8,6 +8,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import cz.coffee.SkJson;
 import cz.coffee.utils.Type;
+import cz.coffee.utils.github.Version;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -503,6 +504,7 @@ public class DefaultAdapters {
 
         final static String CONTENTS_KEY_META = "meta";
 
+        @SuppressWarnings("deprecation")
         @Override
         public @NotNull JsonElement toJson(Inventory source) {
             final JsonObject o = new JsonObject();
@@ -545,21 +547,32 @@ public class DefaultAdapters {
             final String TITLE_KEY = "title";
             final String SIZE_KEY = "size";
 
-            InventoryData inventoryData = new InventoryData();
+            Version version = new Version(Bukkit.getBukkitVersion());
+            InventoryData inventoryData = new InventoryData(version);
             inventoryData.setType(InventoryType.valueOf(json.getAsJsonObject(INVENTORY_KEY).get(TYPE_KEY).getAsString().toUpperCase()));
             inventoryData.setHolder(inventoryData.getType().equals(InventoryType.PLAYER) ? Bukkit.getPlayer(json.getAsJsonObject(INVENTORY_KEY).get(HOLDER_KEY).getAsString()) : null);
 
             inventoryData.setSize(json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY) != null ? json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY).getAsInt() : 0);
-            inventoryData.setTitle(Component.text(json.getAsJsonObject(INVENTORY_KEY).get(TITLE_KEY).getAsString()));
+            inventoryData.setTitle(json.getAsJsonObject(INVENTORY_KEY).get(TITLE_KEY).getAsString());
             inventoryData.setContents(json.getAsJsonObject(INVENTORY_KEY).getAsJsonObject(CONTENTS_KEY).asMap());
 
 
+            Inventory _INV;
+
             final ArrayList<ItemStack> _ITEMS = new ArrayList<>();
-            final Inventory _INV = inventoryData.getType() == InventoryType.PLAYER ?
-                    createInventory
-                            (inventoryData.getHolder(), inventoryData.getType(), inventoryData.getTitle()):
-                    createInventory
-                            (null, inventoryData.getSize(), inventoryData.getTitle());
+            if (version.isLegacy()) {
+                _INV = inventoryData.getType() == InventoryType.PLAYER ?
+                        createInventory
+                                (null, inventoryData.getType(), inventoryData.getTitle_old()):
+                        createInventory
+                                (null, inventoryData.getSize(), inventoryData.getTitle());
+            } else {
+                _INV = inventoryData.getType() == InventoryType.PLAYER ?
+                        createInventory
+                                (inventoryData.getHolder(), inventoryData.getType(), inventoryData.getTitle()):
+                        createInventory
+                                (null, inventoryData.getSize(), inventoryData.getTitle());
+            }
 
             inventoryData.getContents().forEach((key, value) -> _ITEMS.add(
                     value == JsonNull.INSTANCE ? new ItemStack(Material.AIR) : ITEMSTACK_ADAPTER.fromJson(value.getAsJsonObject())));
@@ -578,52 +591,65 @@ public class DefaultAdapters {
             private InventoryType type;
             private int size;
             private Component title;
-            private Map<String, JsonElement> contents;
-
             /**
              *
              * Setters / Getters
              */
 
-            public void setHolder(InventoryHolder holder) {
-                this.holder = holder;
+            private final Version version;
+            private Map<String, JsonElement> contents;
+            private String old_title;
+
+            protected InventoryData(Version version) {
+                this.version = version;
             }
 
-            public void setType(InventoryType type) {
-                this.type = type;
-            }
-
-            public void setSize(int size) {
-                this.size = size;
-            }
-
-            public void setTitle(Component title) {
-                this.title = title;
-            }
-
-            public void setContents(Map<String, JsonElement> contents) {
-                this.contents = contents;
-            }
-
-
-            public InventoryHolder getHolder() {
+            protected InventoryHolder getHolder() {
                 return holder;
             }
 
-            public InventoryType getType() {
+            protected void setHolder(InventoryHolder holder) {
+                this.holder = holder;
+            }
+
+            protected InventoryType getType() {
                 return type;
             }
 
-            public int getSize() {
+            protected void setType(InventoryType type) {
+                this.type = type;
+            }
+
+            protected int getSize() {
                 return size;
             }
 
-            public Component getTitle() {
+            protected void setSize(int size) {
+                this.size = size;
+            }
+
+            protected Component getTitle() {
                 return title;
             }
 
-            public Map<String, JsonElement> getContents() {
+            protected void setTitle(String title) {
+                if (version.isLegacy()) {
+                    this.old_title = title;
+                } else {
+                    this.title = Component.text(title);
+                }
+            }
+
+            protected String getTitle_old() {
+                return old_title;
+            }
+
+            protected Map<String, JsonElement> getContents() {
                 return contents;
+            }
+
+            protected void setContents(Map<String, JsonElement> contents) {
+                this.contents = contents;
             }
         }
     };
