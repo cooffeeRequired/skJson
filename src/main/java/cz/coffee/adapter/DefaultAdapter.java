@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>
- * The class represent a serializer/deserializer for another object than @ConfigurationSerializable
+ * The class represent a serializer/deserializer for another object than @ConfigurationSerializablee
  * the {@link DefaultAdapter} interface javadocs.
  */
 public interface DefaultAdapter<T> {

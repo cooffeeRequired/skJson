@@ -37,6 +37,7 @@ import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 import static cz.coffee.utils.json.JsonUtils.*;
 import static org.bukkit.Bukkit.createInventory;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
+//
 
 @SuppressWarnings("unused")
 public class DefaultAdapters {
