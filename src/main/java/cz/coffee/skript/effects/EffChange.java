@@ -117,7 +117,8 @@ public class EffChange extends Effect {
         isCached = parseResult.hasTag(("cached json"));
         exprInputSource = LiteralUtils.defendExpression(exprs[0]);
         if (!isCached) {
-            if (exprInputSource instanceof Variable<?> var) {
+            if (exprInputSource instanceof Variable<?>) {
+                Variable<?> var = (Variable<?>) exprInputSource;
                 if (var.isSingle()) {
                     isLocal = var.isLocal();
                     variableString = var.getName();

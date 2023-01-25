@@ -151,7 +151,8 @@ public class EffAppend extends Effect {
 
 
         if (!isCached || !isFile) {
-            if (exprInputSource instanceof Variable<?> var) {
+            if (exprInputSource instanceof Variable<?>) {
+                Variable<?> var = (Variable<?>) exprInputSource;
                 if (var.isSingle()) {
                     isLocal = var.isLocal();
                     variableString = var.getName();

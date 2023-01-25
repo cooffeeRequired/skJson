@@ -114,7 +114,8 @@ public class EffCustomChanger extends Effect {
         }
 
         if (!isCached) {
-            if (expressionWhat instanceof Variable<?> var) {
+            if (expressionWhat instanceof Variable<?>) {
+                Variable<?> var = (Variable<?>) expressionWhat;
                 if (var.isSingle()) isLocal = var.isLocal();
                 variableString = var.getName();
             } else {
