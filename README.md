@@ -26,5 +26,5 @@
 > * Skript
 
 [![SkriptHubViewTheDocs](http://skripthub.net/static/addon/ViewTheDocsButton.png)](http://skripthub.net/docs/?addon=Skript-Gson)
-[![Get on skUnity](https://skunity.com/branding/buttons/get_on_docs_4.png)](https://docs.skunity.com/syntax/search/addon:skript-gson)
-[![Spigot](https://static.spigotmc.org/img/spigot.png)](https://www.spigotmc.org/resources/skript-gson.106019/)
+[![Get on skUnity](https://skunity.com/branding/buttons/get_on_docs_4.png)](https://docs.skunity.com/syntax/search/addon:skjson)
+[![Spigot](https://static.spigotmc.org/img/spigot.png)](https://www.spigotmc.org/resources/skjson.106019/)
