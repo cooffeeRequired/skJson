@@ -11,7 +11,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '2.6.1'
+version = '2.6.2'
 
 repositories {
     mavenCentral()
@@ -108,4 +108,22 @@ tasks.withType(ShadowJar).configureEach {
         )
     }
     configureRelocations(it)
+}
+
+//noinspection ConfigurationAvoidance
+task release(type:Copy) {
+    from shadowJar
+    [
+            'A:\\workspaces\\latest\\plugins',
+            'A\\releases\\skJson'
+    ]
+            .each { destination ->
+                into destination
+            }
+    def styler = 'black red green yellow blue magenta cyan white'
+            .split().toList().withIndex(30)
+            .collectEntries { key, val -> [(key): { "\033[${val}m${it}\033[0m" }] }
+    doLast {
+        println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
+    }
 }
