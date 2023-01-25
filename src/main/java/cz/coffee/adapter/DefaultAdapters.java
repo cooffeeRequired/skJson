@@ -9,7 +9,6 @@ import com.google.gson.reflect.TypeToken;
 import cz.coffee.SkJson;
 import cz.coffee.utils.Type;
 import cz.coffee.utils.github.Version;
-import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -557,23 +556,15 @@ public class DefaultAdapters {
             inventoryData.setContents(json.getAsJsonObject(INVENTORY_KEY).getAsJsonObject(CONTENTS_KEY).asMap());
 
 
-            Inventory _INV;
+
 
             final ArrayList<ItemStack> _ITEMS = new ArrayList<>();
-            if (version.isLegacy()) {
-                //noinspection deprecation
-                _INV = inventoryData.getType() == InventoryType.PLAYER ?
-                        createInventory
-                                (null, inventoryData.getType(), inventoryData.getTitle_old()):
-                        createInventory
-                                (null, inventoryData.getSize(), inventoryData.getTitle());
-            } else {
-                _INV = inventoryData.getType() == InventoryType.PLAYER ?
-                        createInventory
-                                (inventoryData.getHolder(), inventoryData.getType(), inventoryData.getTitle()):
-                        createInventory
-                                (null, inventoryData.getSize(), inventoryData.getTitle());
-            }
+            //noinspection deprecation
+            final Inventory _INV = inventoryData.getType() == InventoryType.PLAYER ?
+                    createInventory
+                            (inventoryData.getHolder(), inventoryData.getType(), inventoryData.getTitle()):
+                    createInventory
+                            (null, inventoryData.getSize(), inventoryData.getTitle());
 
             inventoryData.getContents().forEach((key, value) -> _ITEMS.add(
                     value == JsonNull.INSTANCE ? new ItemStack(Material.AIR) : ITEMSTACK_ADAPTER.fromJson(value.getAsJsonObject())));
@@ -591,7 +582,7 @@ public class DefaultAdapters {
             private InventoryHolder holder;
             private InventoryType type;
             private int size;
-            private Component title;
+            private String title;
             /**
              *
              * Setters / Getters
@@ -599,7 +590,6 @@ public class DefaultAdapters {
 
             private final Version version;
             private Map<String, JsonElement> contents;
-            private String old_title;
 
             protected InventoryData(Version version) {
                 this.version = version;
@@ -629,20 +619,12 @@ public class DefaultAdapters {
                 this.size = size;
             }
 
-            protected Component getTitle() {
+            protected String getTitle() {
                 return title;
             }
 
             protected void setTitle(String title) {
-                if (version.isLegacy()) {
-                    this.old_title = title;
-                } else {
-                    this.title = Component.text(title);
-                }
-            }
-
-            protected String getTitle_old() {
-                return old_title;
+                this.title = title;
             }
 
             protected Map<String, JsonElement> getContents() {

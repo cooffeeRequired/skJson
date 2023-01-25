@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 public class ExprRawJson extends SimpleExpression<JsonElement> {
 
     static {
-        Skript.registerExpression(ExprRawJson.class, JsonElement.class, ExpressionType.SIMPLE, "raw [json] %json%");
+        Skript.registerExpression(ExprRawJson.class, JsonElement.class, ExpressionType.SIMPLE, "raw json %json%");
     }
 
     private Expression<JsonElement> json;

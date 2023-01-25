@@ -60,7 +60,7 @@ dependencies {
     implementation files('libs/skbee.jar')
 
     shadow 'com.google.code.gson:gson:2.10.1'
-    shadow 'net.kyori:adventure-api:4.5.0'
+    //shadow 'net.kyori:adventure-api:4.5.0'
 
 
     // compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.

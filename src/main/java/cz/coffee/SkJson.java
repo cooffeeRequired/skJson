@@ -130,8 +130,6 @@ public final class SkJson extends JavaPlugin {
     public void onEnable() {
         instance = this;
         CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
-        new Updater(version);
-        ConfigurationSerialization.registerClass(Pattern.class);
         pm = getPluginManager();
         pdf = this.getDescription();
         if (!canLoad()) {
@@ -167,6 +165,8 @@ public final class SkJson extends JavaPlugin {
             SkJson.console("Request-serialize is loaded and &aenabled");
         }
 
+        ConfigurationSerialization.registerClass(Pattern.class);
+        new Updater(version);
         // github version checker
         console("&aFinished loading.");
     }
