@@ -21,7 +21,7 @@
 > **Discord:** https://discord.gg/trwWpUkmQp \
 > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \
 > **Requirements**
-> * Java 14 +
+> * Java 11 +
 > * Minecraft 1.8.8+
 > * Skript
 
