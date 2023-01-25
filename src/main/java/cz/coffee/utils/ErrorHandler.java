@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import static cz.coffee.utils.ErrorHandler.Level.*;
 
 @Since(2.0)
+@SuppressWarnings("unused")
 public class ErrorHandler {
     public static final String PARENT_DIRECTORY_NOT_EXIST = "Any of parent directories doesn't exist for your current input, try &f'with force'&e at the end.";
     public static final String PARENT_DIRECTORY_EXISTS = "This file path already exists. Try creating a file without the 'with force'";

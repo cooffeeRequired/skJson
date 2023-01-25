@@ -68,7 +68,7 @@ dependencies {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["-source", "14", "-target", "14"]
+    options.compilerArgs += ["-source", "11", "-target", "11"]
 }
 
 processResources {
@@ -113,7 +113,7 @@ tasks.withType(ShadowJar).configureEach {
 task release(type:Copy) {
     from shadowJar
     [
-            'A:\\workspaces\\1.8.8\\plugins',
+            'A:\\workspaces\\latest\\plugins',
     ]
             .each { destination ->
                 into destination

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>
- * The class represent a serializer/deserializer for another object than @ConfigurationSerializablee
+ * The class represent a serializer/deserializer for another object than @ConfigurationSerializable
  * the {@link DefaultAdapter} interface javadocs.
  */
 public interface DefaultAdapter<T> {
@@ -38,6 +38,7 @@ public interface DefaultAdapter<T> {
      * @return Clazz
      * </p>
      */
+    @SuppressWarnings("unused")
     Class<? extends T> typeOf(JsonObject json);
 }
 

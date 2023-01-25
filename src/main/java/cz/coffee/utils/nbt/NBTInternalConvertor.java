@@ -23,6 +23,7 @@ import com.shanebeestudios.skbee.api.NBT.NBTCompound;
 import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 
 
+@SuppressWarnings("unused")
 public class NBTInternalConvertor {
 
     private final Object nbt;
@@ -35,6 +36,7 @@ public class NBTInternalConvertor {
         return container.toString();
     }
 
+    @SuppressWarnings("unused")
     public static NBTCompound toNBT(JsonElement json) {
         String nbtString = json.getAsJsonObject().get("nbt").getAsString();
         return new NBTContainer(nbtString);

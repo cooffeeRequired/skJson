@@ -69,6 +69,8 @@ public class SimpleUtil {
      * @return {@link Boolean}.
      */
     public static boolean isIncrementNumber(Object @NotNull [] inputs) {
+
+
         int step = 1;
         int count = 1;
         for (Object k : inputs) {

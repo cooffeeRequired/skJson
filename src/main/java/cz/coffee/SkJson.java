@@ -48,6 +48,7 @@ public final class SkJson extends JavaPlugin {
 
     public static final HashMap<String, JsonElement> JSON_STORAGE = new HashMap<>();
     public static final HashMap<String, File> FILE_JSON_MAP = new HashMap<>();
+    @SuppressWarnings("unused")
     public static final boolean PROJECT_DEBUG = true;
     public static Hash CURRENT_HASH;
     private static Logger logger;
@@ -106,9 +107,30 @@ public final class SkJson extends JavaPlugin {
         info("&eDisabling... good bye!");
     }
 
+    @SuppressWarnings("unused")
+    public static void warning(String string) {
+        logger.warning(util.color("&e" + string));
+    }
+
+    // Logging
+    public static void info(String string) {
+        logger.info(util.color(string));
+    }
+
+    @SuppressWarnings("unused")
+    public static void debug(Object str) {
+        logger.severe(util.color("DEBUG! " + "&r" + str));
+    }
+
+    public static void severe(String string) {
+        logger.severe(util.color("&c" + string));
+    }
 
     @Override
     public void onEnable() {
+        instance = this;
+        CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
+        new Updater(version);
         ConfigurationSerialization.registerClass(Pattern.class);
         pm = getPluginManager();
         pdf = this.getDescription();
@@ -116,9 +138,7 @@ public final class SkJson extends JavaPlugin {
             pm.disablePlugin(this);
             return;
         }
-        instance = this;
         SkriptAddon addon = Skript.registerAddon(this);
-        CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
         try {
             addon.loadClasses("cz.coffee.skript");
         } catch (Exception ex) {
@@ -148,25 +168,7 @@ public final class SkJson extends JavaPlugin {
         }
 
         // github version checker
-        new Updater(version);
         console("&aFinished loading.");
-    }
-
-    // Logging
-    public static void info(String string) {
-        logger.info(util.color(string));
-    }
-
-    public static void warning(String string) {
-        logger.warning(util.color("&e" + string));
-    }
-
-    public static void severe(String string) {
-        logger.severe(util.color("&c" + string));
-    }
-
-    public static void debug(Object str) {
-        logger.severe(util.color("DEBUG! " + "&r" + str));
     }
 
     // Simple loggers

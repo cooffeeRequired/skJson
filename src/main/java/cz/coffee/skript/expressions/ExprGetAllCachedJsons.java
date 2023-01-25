@@ -28,7 +28,9 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -59,8 +61,6 @@ public class ExprGetAllCachedJsons extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
-        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
-
         if (pattern == 0) {
             if (!JSON_STORAGE.isEmpty()) {
                 JsonElement finalOutput = new JsonArray();

@@ -45,7 +45,6 @@ import static org.bukkit.configuration.serialization.ConfigurationSerialization.
 
 @SuppressWarnings("unused")
 public class DefaultAdapters {
-    public void DefaultAdapter(){}
 
     /**
      * <p>
@@ -504,7 +503,6 @@ public class DefaultAdapters {
 
         final static String CONTENTS_KEY_META = "meta";
 
-        @SuppressWarnings("deprecation")
         @Override
         public @NotNull JsonElement toJson(Inventory source) {
             final JsonObject o = new JsonObject();
@@ -561,6 +559,7 @@ public class DefaultAdapters {
 
             final ArrayList<ItemStack> _ITEMS = new ArrayList<>();
             if (version.isLegacy()) {
+                //noinspection deprecation
                 _INV = inventoryData.getType() == InventoryType.PLAYER ?
                         createInventory
                                 (null, inventoryData.getType(), inventoryData.getTitle_old()):
@@ -733,7 +732,6 @@ public class DefaultAdapters {
         else return null;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static JsonElement parse(Object skriptItem, Expression<?> expression, Event event) {
         if (skriptItem instanceof JsonElement) {
             return (JsonElement) skriptItem;

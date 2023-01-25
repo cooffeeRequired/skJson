@@ -28,6 +28,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static cz.coffee.SkJson.CURRENT_HASH;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
@@ -56,7 +58,11 @@ public class Updater {
             if (version.isLegacy()) {
                 SkJson.console("&eYou're running on Legacy minecraft version &6 " + Bukkit.getServer().getVersion());
             }
-            init();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            if (executor.submit(this::init).isDone())
+                Thread.currentThread().setName("skJson-Updater");{
+                executor.shutdown();
+            }
             if (responseCode != 200) {
                 SkJson.console("Do you have internet connection?");
                 SkJson.console("Version check &cfailed");
@@ -66,10 +72,14 @@ public class Updater {
                     if (userVer.equals(latestVersion)) {
                         SkJson.console("&8 > &7GitTag: &c@e0291c");
                         SkJson.console("&8 > &7Please download the same release from github...");
+                    } if (Integer.parseInt(userVer.replaceAll("[.]", "")) > Integer.parseInt(latestVersion.replaceAll("[.]", ""))) {
+                        SkJson.console("&7You are running on non-publish version!");
+                        SkJson.console("&8 > &7Current version: #19b0e3v" + userVer);
+                    } else {
+                        SkJson.console("&8 > &7Current version: &cv" + userVer);
+                        SkJson.console("&8 > &7Available version: &av" + latestVersion);
+                        SkJson.console("&8 > &7Download available at link: &bhttps://github.com/cooffeeRequired/skJson/releases/latest");
                     }
-                    SkJson.console("&8 > &7Current version: &cv" + userVer);
-                    SkJson.console("&8 > &7Available version: &av" + latestVersion);
-                    SkJson.console("&8 > &7Download available at link: &bhttps://github.com/cooffeeRequired/skJson/releases/latest");
                 } else {
                     SkJson.console("You're running on &alatest stable &fversion!");
                 }
