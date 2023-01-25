@@ -32,6 +32,7 @@ import static cz.coffee.utils.ErrorHandler.FILE_NOT_EXIST;
 import static cz.coffee.utils.ErrorHandler.Level.WARNING;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
 import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
+import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 
 @SuppressWarnings("unused")
 public class JsonFilesHandler {
@@ -95,7 +96,7 @@ public class JsonFilesHandler {
                 Files.writeString(file.toPath(), gson.toJson(data));
             }
         } catch (IOException exception) {
-            printPrettyStackTrace(exception, 5);
+            printPrettyStackTrace(exception, _STACKTRACE_LENGTH);
         }
     }
 }

@@ -14,13 +14,13 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 import static cz.coffee.utils.json.JsonUtils.*;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
 import static cz.coffee.utils.json.JsonVariables.setVariable;
@@ -114,8 +114,7 @@ public class EffCustomChanger extends Effect {
         }
 
         if (!isCached) {
-            if (expressionWhat instanceof Variable<?>) {
-                Variable<?> var = (Variable<?>) expressionWhat;
+            if (expressionWhat instanceof Variable<?> var) {
                 if (var.isSingle()) isLocal = var.isLocal();
                 variableString = var.getName();
             } else {
@@ -163,7 +162,7 @@ public class EffCustomChanger extends Effect {
             JsonElement inputJson = JsonNull.INSTANCE;
             if (delta != null) {
                 for (Object object : delta) {
-                    inputJson = parseObject(object, expression, event);
+                    inputJson = DefaultAdapters.parse(object, expression, event);
                 }
             }
 

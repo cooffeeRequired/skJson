@@ -28,7 +28,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import cz.coffee.adapters.JsonAdapter;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -38,7 +38,7 @@ import java.io.File;
 
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
+import static cz.coffee.adapter.DefaultAdapters.assignTo;
 import static cz.coffee.utils.json.JsonUtils.appendJson;
 import static cz.coffee.utils.json.JsonUtils.isClassicType;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
@@ -96,7 +96,7 @@ public class EffAppend extends Effect {
         JsonElement json, jsonInput;
         String variableName;
 
-        json = parseObject(dataToAppend, dataToAppendExpr, e);
+        json = DefaultAdapters.parse(dataToAppend, dataToAppendExpr, e);
 
         assert json != null;
         assert inputSource != null;
@@ -121,7 +121,7 @@ public class EffAppend extends Effect {
             } else if (isClassicType(v)) {
                 jsonInput = new Gson().toJsonTree(v);
             } else {
-                jsonInput = JsonAdapter.toJson(v);
+                jsonInput = assignTo(v);
             }
 
             if (jsonInput == null) return;
@@ -151,8 +151,7 @@ public class EffAppend extends Effect {
 
 
         if (!isCached || !isFile) {
-            if (exprInputSource instanceof Variable<?>) {
-                Variable<?> var = (Variable<?>) exprInputSource;
+            if (exprInputSource instanceof Variable<?> var) {
                 if (var.isSingle()) {
                     isLocal = var.isLocal();
                     variableString = var.getName();

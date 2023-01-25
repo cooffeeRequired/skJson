@@ -28,6 +28,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 
 @Name("Write json/json file")
 @Description({"You can write/re-write to jsons"})
@@ -68,7 +68,7 @@ public class EffWriteToJsonFile extends Effect {
         assert jsonOutput != null;
         File file = new File(jsonOutput);
 
-        jfh.writeFile(file, parseObject(inputData, inputExpr, e), false);
+        jfh.writeFile(file, DefaultAdapters.parse(inputData, inputExpr, e), false);
 
     }
 

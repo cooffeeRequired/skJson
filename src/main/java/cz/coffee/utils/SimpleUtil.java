@@ -19,11 +19,9 @@
 package cz.coffee.utils;
 
 import ch.njol.skript.doc.Since;
-import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import cz.coffee.adapters.TypeAdapterBukkitClass;
-import cz.coffee.adapters.TypeAdapterSkriptClass;
+import cz.coffee.adapter.DefaultAdapters.TypeAdapter.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.NotNull;
@@ -46,9 +44,7 @@ public class SimpleUtil {
             .setPrettyPrinting()
             .enableComplexMapKeySerialization()
             .disableHtmlEscaping()
-            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new TypeAdapterBukkitClass())
-            .registerTypeHierarchyAdapter(YggdrasilSerializable.YggdrasilExtendedSerializable.class, new TypeAdapterSkriptClass())
-            .registerTypeHierarchyAdapter(YggdrasilSerializable.class, new TypeAdapterSkriptClass())
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Bukkit())
             .create();
 
     /**

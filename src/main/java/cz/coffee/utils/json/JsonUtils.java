@@ -82,22 +82,28 @@ public class JsonUtils {
     }
 
     /**
-     * @param Object {@link String} Any expression on which .toString() can be performed
+     * @param object {@link String} Any expression can be performed
      * @return {@link JsonPrimitive}
      */
-    public static JsonElement fromString2JsonElement(Object Object) {
-        if (Object instanceof Integer) {
-            return new JsonPrimitive((Integer) Object);
-        } else if (Object instanceof String) {
-            try {
-                return JsonParser.parseString((String) Object);
-            } catch (JsonSyntaxException exception) {
-                return JsonParser.parseString(gsonAdapter.toJson(Object));
-            }
-        } else if (Object instanceof Boolean)
-            return new JsonPrimitive(((Boolean) Object));
 
-        return null;
+    public static JsonElement convert(Object object) {
+        if (object instanceof Number) {
+            return new JsonPrimitive((Number) object);
+        } else if (object instanceof Boolean) {
+            return new JsonPrimitive((Boolean) object);
+        } else if (object instanceof String){
+            try {
+                return JsonParser.parseString((String) object);
+            } catch (JsonSyntaxException exception) {
+                return JsonParser.parseString(gsonAdapter.toJson(object));
+            }
+        } else {
+            if (object instanceof JsonElement) {
+                return (JsonElement) object;
+            } else {
+                return null;
+            }
+        }
     }
 
     /**
@@ -198,6 +204,7 @@ public class JsonUtils {
                     if (!(value == null || value instanceof JsonNull)) {
                         if (mapKey.equals(lastKey)) {
                             elementObject.remove(mapKey);
+                            elementObject.add(lastKey, to instanceof JsonElement ? (JsonElement) to : gson.toJsonTree(to));
                         } else {
                             if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
                         }
