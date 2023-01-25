@@ -27,11 +27,11 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 import static cz.coffee.utils.json.JsonMapping.jsonToList;
 
 
@@ -58,7 +58,7 @@ public class EffMap extends Effect {
     @Override
     protected void execute(@NotNull Event e) {
         Object jsonObject = jsonElementExpression.getSingle(e);
-        JsonElement json = parseObject(jsonObject, jsonElementExpression, e);
+        JsonElement json = DefaultAdapters.parse(jsonObject, jsonElementExpression, e);
         jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() - 3), json, isLocal, e);
     }
 

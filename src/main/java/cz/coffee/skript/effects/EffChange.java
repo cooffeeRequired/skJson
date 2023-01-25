@@ -28,14 +28,14 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import cz.coffee.adapters.JsonAdapter;
+import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
+import static cz.coffee.adapter.DefaultAdapters.assignTo;
 import static cz.coffee.utils.json.JsonUtils.changeJson;
 import static cz.coffee.utils.json.JsonUtils.extractKeys;
 import static cz.coffee.utils.json.JsonVariables.getVariable;
@@ -76,7 +76,7 @@ public class EffChange extends Effect {
         JsonElement json, jsonInput;
         String variableName;
 
-        json = parseObject(changedData, exprChangedData, e);
+        json = DefaultAdapters.parse(changedData, exprChangedData, e);
 
         assert json != null;
         assert key != null;
@@ -96,8 +96,9 @@ public class EffChange extends Effect {
                 if (v instanceof JsonElement) {
                     jsonInput = new Gson().toJsonTree(v);
                 } else {
-                    jsonInput = JsonAdapter.toJson(v);
+                    jsonInput = assignTo(v);
                 }
+                assert jsonInput != null;
                 JsonElement o = changeJson(jsonInput, extractKeys(key), json);
                 setVariable(variableName, o, e, isLocal);
             }

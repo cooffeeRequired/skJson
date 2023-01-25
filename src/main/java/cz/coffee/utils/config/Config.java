@@ -47,11 +47,13 @@ public class Config {
     public static boolean _REQUEST_HANDLER;
     public static List<Object> _HANDLERS_REQUEST;
     public static boolean _NBT_SUPPORTED;
+    static final int stacktraceLengthDefault = 9;
 
     static final Plugin skBee = SkJson.getInstance().getPluginManager().getPlugin("SkBee");
     static final Plugin Reqn = SkJson.getInstance().getPluginManager().getPlugin("Reqn");
     static final Plugin SkWebAPI = SkJson.getInstance().getPluginManager().getPlugin("SkriptWebAPI");
     static final Plugin skReflect = SkJson.getInstance().getPluginManager().getPlugin("skript-reflect");
+    public static int _STACKTRACE_LENGTH;
 
     private static DumperOptions dumperOptions() {
         DumperOptions o = new DumperOptions();
@@ -107,6 +109,7 @@ public class Config {
                 } else {
                     map.put("nbt-enabled", skBee.isEnabled());
                 }
+                map.put("length-stacktrace", stacktraceLengthDefault);
             } catch (IOException exception) {
                 sendMessage(exception.getMessage(), ErrorHandler.Level.ERROR);
             }
@@ -126,6 +129,7 @@ public class Config {
             } else {
                 map.put("nbt-enabled", skBee.isEnabled());
             }
+            map.put("length-stacktrace", stacktraceLengthDefault);
         }
         try (PrintWriter pw = new PrintWriter(configFile)) {
             yml.dump(map, pw);
@@ -170,6 +174,7 @@ public class Config {
             //noinspection unchecked
             _HANDLERS_REQUEST = (ArrayList<Object>) map.get("handlers");
             _NBT_SUPPORTED = skBee != null && skBee.isEnabled();
+            _STACKTRACE_LENGTH = Integer.parseInt(map.get("length-stacktrace").toString());
             fis.close();
         } catch (Exception exception) {
             if (exception instanceof NullPointerException) {

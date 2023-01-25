@@ -34,6 +34,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -43,7 +44,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 import static cz.coffee.utils.ErrorHandler.Level.ERROR;
 import static cz.coffee.utils.ErrorHandler.Level.WARNING;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
@@ -114,7 +114,7 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             if (assignedValue instanceof String) {
                 return new JsonElement[0];
             }
-            return new JsonElement[]{parseObject(assignedValue, exprToSerialize, event)};
+            return new JsonElement[]{DefaultAdapters.parse(assignedValue, exprToSerialize, event)};
         } else if (pattern == 2) {
             JsonFilesHandler jfh = new JsonFilesHandler();
             assignedValue = exprToSerialize.getSingle(event);

@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.json.JsonFilesHandler;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.Objects;
 
-import static cz.coffee.adapters.generic.JsonGenericAdapter.parseObject;
 
 
 @Name("New json file with given path")
@@ -62,7 +62,7 @@ public class EffNewJsonFile extends Effect {
         JsonElement json = null;
         if (inputToFile != null) {
             assignedValue = inputToFile.getSingle(event);
-            json = parseObject(assignedValue, inputToFile, event);
+            json = DefaultAdapters.parse(assignedValue, inputToFile, event);
         }
 
         if (hasObject) {

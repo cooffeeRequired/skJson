@@ -28,11 +28,12 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import cz.coffee.adapter.DefaultAdapters;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
-import static cz.coffee.utils.json.JsonUtils.fromString2JsonElement;
+import static cz.coffee.utils.json.JsonUtils.convert;
 
 
 @SuppressWarnings("unused")
@@ -40,7 +41,8 @@ public class Type {
     private static final String KEY_PARSED_TAG = ";";
 
     static {
-        Converters.registerConverter(JsonElement.class, String.class, JsonElement::toString);
+
+        Converters.registerConverter(JsonElement.class, Object.class, DefaultAdapters::assignFrom);
 
         Classes.registerClass(
                 new ClassInfo<>(JsonElement.class, "json")
@@ -87,7 +89,7 @@ public class Type {
                                         Object fieldContent = fields.getObject("json");
                                         if (fieldContent == null) return JsonNull.INSTANCE;
                                         fields.removeField("json");
-                                        return fromString2JsonElement(fieldContent);
+                                        return convert(fieldContent);
                                     }
 
                                     @Override
