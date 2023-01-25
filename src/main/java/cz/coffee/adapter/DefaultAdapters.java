@@ -536,6 +536,8 @@ public class DefaultAdapters {
             return !o.isEmpty() ? o : JsonNull.INSTANCE;
         }
 
+
+        @SuppressWarnings("deprecation")
         @Override
         public Inventory fromJson(JsonObject json) {
             final String INVENTORY_KEY = "inventory";
