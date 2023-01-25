@@ -7,7 +7,6 @@
 ![License](https://img.shields.io/github/license/cooffeeRequired/skJson?style=for-the-badge)
 
 
-**Align center:**
 <p align="center" width="100%">
     <img width="33%" src="https://user-images.githubusercontent.com/106232282/213727670-e9412127-c51e-495b-ba04-c1c2f64bb2b1.png"> 
 </p>
