@@ -176,6 +176,9 @@ public class DefaultAdapters {
 
         @Override
         public @NotNull JsonElement toJson(ItemStack source) {
+            if (source.getItemMeta() == null) {
+                return gsonAdapter.toJsonTree(source, ItemStack.class);
+            }
             JsonObject o = new JsonObject();
             o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
             if (source.getItemMeta().getClass().getSimpleName().equals("CraftMetaTropicalFishBucket")) {
@@ -669,8 +672,9 @@ public class DefaultAdapters {
         String potentialClass = null;
         if (json.getAsJsonObject().has(SERIALIZED_JSON_TYPE_KEY))
             potentialClass = json.getAsJsonObject().get("..").getAsString();
-        else if (json.getAsJsonObject().has(SERIALIZED_TYPE_KEY))
+        else if (json.getAsJsonObject().has(SERIALIZED_TYPE_KEY)) {
             potentialClass = json.getAsJsonObject().get(SERIALIZED_TYPE_KEY).getAsString();
+        }
 
         try {
             clazz = Class.forName(potentialClass);
@@ -684,8 +688,9 @@ public class DefaultAdapters {
                     return (T) WORLD_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (Chunk.class.isAssignableFrom(clazz))
                     return (T) CHUNK_ADAPTER.fromJson(json.getAsJsonObject());
-                else if (ItemStack.class.isAssignableFrom(clazz))
-                    return (T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject());
+                else if (ItemStack.class.isAssignableFrom(clazz)) {
+                    return ((T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject()));
+                }
                 else if (Inventory.class.isAssignableFrom(clazz))
                     return (T) INVENTORY_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
