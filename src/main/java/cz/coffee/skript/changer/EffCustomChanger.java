@@ -116,6 +116,7 @@ public class EffCustomChanger extends Effect {
             expressionWhat = LiteralUtils.defendExpression(expressions[1]);
         }
 
+        // Cached think
         if (!isCached) {
             if (expressionWhat instanceof Variable<?> var) {
                 if (var.isSingle()) isLocal = var.isLocal();
