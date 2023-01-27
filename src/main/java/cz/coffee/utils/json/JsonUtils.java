@@ -362,7 +362,8 @@ public class JsonUtils {
 
 
     @SuppressWarnings("UnusedReturnValue")
-    public static JsonElement deleteNested(String[] nest, JsonElement input) {
+    public static JsonElement deleteNested(String[] nest, JsonElement input, boolean ...valueS) {
+        boolean getValue = valueS != null && valueS.length > 0 && valueS[0];
         JsonElement element;
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(input);
@@ -382,18 +383,28 @@ public class JsonUtils {
                     }
                 }
             } else if (element instanceof JsonArray) {
+                System.out.println("array");
                 JsonArray list = element.getAsJsonArray();
                 for (int j = 0; j < list.size(); j++) {
                     JsonElement value = list.get(j);
                     if (!(value == null || value instanceof JsonNull)) {
-                        int lastIndex = -1;
-                        if (isNumeric(nest[nest.length - 1])) {
-                            lastIndex = Integer.parseInt(nest[nest.length - 1]);
-                        }
-                        if (j == lastIndex) {
-                            list.remove(j);
+                        if (getValue) {
+                            if (value.getAsString().equals(nest[nest.length - 1])){
+                                list.remove(j);
+                            } else {
+                                if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                            }
                         } else {
-                            if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                            int lastIndex = -1;
+                            if (isNumeric(nest[nest.length - 1]))
+                                lastIndex = Integer.parseInt(nest[nest.length - 1]);
+
+
+                            if (j == lastIndex) {
+                                list.remove(j);
+                            } else {
+                                if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                            }
                         }
                     }
                 }

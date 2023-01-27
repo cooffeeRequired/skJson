@@ -29,6 +29,12 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffee.adapter.DefaultAdapters;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
@@ -41,15 +47,19 @@ public class Type {
     private static final String KEY_PARSED_TAG = ";";
 
     static {
-
-        Converters.registerConverter(JsonElement.class, Object.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, ItemStack.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, Location.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, World.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, Chunk.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, Inventory.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, ConfigurationSerializable.class, DefaultAdapters::assignFrom);
 
         Classes.registerClass(
                 new ClassInfo<>(JsonElement.class, "json")
                         .user("json")
                         .name("json")
                         .description("Represents a json element and its class `JsonElement.class`.")
-                        .since("2.5.0")
+                        .since("2.5.0, 2.6.2 - Fix ItemStack Converter")
                         .parser(
                                 new Parser<>() {
                                     @Override

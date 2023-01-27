@@ -19,6 +19,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 import static cz.coffee.SkJson.FILE_JSON_MAP;
 import static cz.coffee.SkJson.JSON_STORAGE;
 import static cz.coffee.utils.json.JsonUtils.*;
@@ -55,16 +57,16 @@ public class EffCustomChanger extends Effect {
     private Expression<Object> expressionWhat; // inputted Json.
     private Expression<?> expressionDelta; // object to set instead of current object.
     private Expression<String> expressionKeyValue; // key navigate to correct nested object
-    private boolean isCached, isLocal;
-    private VariableString variableString;
-
     static {
         Skript.registerEffect(EffCustomChanger.class,
                 "set json value[s] %string% of [(:cached json)] %string/json% to %objects%",
                 "add json value[s] %objects% to [(:cached json)] %string/json%",
-                "remove json('s| )[value] %string% from [(:cached json)] %string/json%"
+                "remove json [[list]( |-)[:value]] %string% from [(:cached json)] %string/json%"
         );
     }
+    private VariableString variableString;
+
+    private boolean isCached, isLocal, value;
 
     @Override
     protected void execute(@NotNull Event event) {
@@ -108,14 +110,14 @@ public class EffCustomChanger extends Effect {
             expressionDelta = LiteralUtils.defendExpression(expressions[0]);
         } else if (i == 2) {
             // Case REMOVE
+            value = parseResult.hasTag("value");
             mode = 0;
             expressionKeyValue = (Expression<String>) expressions[0];
             expressionWhat = LiteralUtils.defendExpression(expressions[1]);
         }
 
         if (!isCached) {
-            if (expressionWhat instanceof Variable<?>) {
-                Variable<?> var = (Variable<?>) expressionWhat;
+            if (expressionWhat instanceof Variable<?> var) {
                 if (var.isSingle()) isLocal = var.isLocal();
                 variableString = var.getName();
             } else {
@@ -137,6 +139,7 @@ public class EffCustomChanger extends Effect {
     private void process(Object what, Object[] delta, boolean isCached, String keyString, int mode, Event event, Expression<?> expression) {
         final String LOCAL_ = '_'+"";
         final String[] extractedKeys = (keyString == null ? new String[0] : extractKeys(keyString));
+        System.out.println(Arrays.toString(extractedKeys));
         JsonElement STORAGE;
         String key = what+"";
 
@@ -145,7 +148,11 @@ public class EffCustomChanger extends Effect {
             if (isCached) {
                 if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
                     STORAGE = JSON_STORAGE.get(key);
-                    deleteNested(extractedKeys,STORAGE);
+                    if (!value){
+                        deleteNested(extractedKeys,STORAGE);
+                    } else {
+                        deleteNested(extractedKeys,STORAGE, true);
+                    }
                     JSON_STORAGE.remove(key);
                     JSON_STORAGE.put(key, STORAGE);
                 }
@@ -154,7 +161,11 @@ public class EffCustomChanger extends Effect {
                 Object fromVar = getVariable(event, variableName, isLocal);
                 if (fromVar instanceof JsonElement) {
                     STORAGE = (JsonElement) fromVar;
-                    deleteNested(extractedKeys, STORAGE);
+                    if (!value){
+                        deleteNested(extractedKeys,STORAGE);
+                    } else {
+                        deleteNested(extractedKeys,STORAGE,true);
+                    }
                     setVariable(variableName, STORAGE, event, isLocal);
                 }
             }

@@ -129,7 +129,6 @@ public final class SkJson extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
         pm = getPluginManager();
         pdf = this.getDescription();
         if (!canLoad()) {
@@ -144,6 +143,7 @@ public final class SkJson extends JavaPlugin {
             ex.printStackTrace();
             return;
         }
+        CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
 
         //metrics
         loadMetrics();
