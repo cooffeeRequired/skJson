@@ -39,10 +39,13 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 import static cz.coffee.adapter.DefaultAdapters.assignFrom;
 import static cz.coffee.utils.ErrorHandler.sendMessage;
 import static cz.coffee.utils.SimpleUtil.gsonAdapter;
+import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
+import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 
 @Name("Json to Inventory, Chunk, World, NBT, Entity, Location, Unknown-Type")
 @Description({"You can deserialize correct json to skript-type, for example a tool a location, etc."})
@@ -70,9 +73,19 @@ public class EffParse extends SimpleExpression<Object> {
     private int patternType;
     private List<String> tags;
 
+    private String[] types = {
+            "inventory",
+            "chunk",
+            "world",
+            "nbt",
+            "location",
+            "item",
+            "others"
+    };
+
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return json.toString(e, debug) + " parsed as skript-type";
+        return json.toString(e, debug) + " parsed as " + types[patternType];
     }
 
     @Override
@@ -95,7 +108,6 @@ public class EffParse extends SimpleExpression<Object> {
             patternType = 0;
         }
 
-
         json = LiteralUtils.defendExpression(exprs[0]);
         return LiteralUtils.canInitSafely(json);
     }
@@ -103,38 +115,12 @@ public class EffParse extends SimpleExpression<Object> {
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
         Object object = json.getSingle(e);
-        assert object != null;
-        JsonElement bukkitObject = JsonNull.INSTANCE;
-
 
         try {
-            if (!(object instanceof JsonElement))
-                return new Object[0];
-            else {
-                bukkitObject = (JsonElement) object;
-            }
-
-            if (patternType == 0) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 1) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 2) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 3) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 4) {
-                return new Object[]{NBTInternalConvertor.toNBT(bukkitObject)};
-            } else if (patternType == 5) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 6) {
-                return new Object[]{assignFrom(bukkitObject)};
-            } else if (patternType == 100) {
-                return new Object[]{gsonAdapter.fromJson(bukkitObject, ConfigurationSerializable.class)};
-            }
-        } catch (Exception exception) {
-            sendMessage("Inserted json isn't type of &e" + tags.get(0), ErrorHandler.Level.INFO);
-            sendMessage("Inserted json " + bukkitObject, ErrorHandler.Level.INFO);
-            return new Object[0];
+            if (object instanceof JsonElement)
+                return new Object[]{assignFrom((JsonElement) object)};
+        } catch (Exception ex) {
+            printPrettyStackTrace(ex, _STACKTRACE_LENGTH);
         }
         return new Object[0];
     }

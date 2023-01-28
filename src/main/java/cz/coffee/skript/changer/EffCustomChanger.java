@@ -141,7 +141,6 @@ public class EffCustomChanger extends Effect {
     private void process(Object what, Object[] delta, boolean isCached, String keyString, int mode, Event event, Expression<?> expression) {
         final String LOCAL_ = '_'+"";
         final String[] extractedKeys = (keyString == null ? new String[0] : extractKeys(keyString));
-        System.out.println(Arrays.toString(extractedKeys));
         JsonElement STORAGE;
         String key = what+"";
 

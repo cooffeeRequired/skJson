@@ -1,6 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
@@ -12,61 +11,44 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
 version = '2.6.2'
+def testVersion = '1.12.5'
+
 
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-        name = 'papermc-repo'
-        url = 'https://repo.papermc.io/repository/maven-public/'
-    }
-    maven {
-        name = 'sonatype'
-        url = 'https://oss.sonatype.org/content/groups/public/'
-    }
-    maven {
-        url 'https://repo.skriptlang.org/releases'
-    }
-    maven {
-        url 'https://mvnrepository.com/artifact/com.google.code.gson/gson'
-    }
-    maven {
-        url 'https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation'
-    }
-    maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-
-        // As of Gradle 5.1, you can limit this to only those
-        // dependencies you expect from it
-        content {
-            includeGroup 'org.bukkit'
-            includeGroup 'org.spigotmc'
-        }
-    }
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+    maven { url 'https://repo.skriptlang.org/releases' }
+    maven { url 'https://mvnrepository.com/artifact/com.google.code.gson/gson' }
+    maven { url 'https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation' }
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url = 'https://oss.sonatype.org/content/repositories/central' }
 }
-
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+    // Compile Only
+    compileOnly "io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT"
     compileOnly 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.jetbrains:annotations:23.1.0'
     compileOnly 'com.github.SkriptLang:Skript:2.6.3'
     compileOnly 'commons-codec:commons-codec:1.15'
-    //
+
+    /*
+    net.minecraft.server
+    compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
+    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
+     */
+
+
+    //Implementation
     implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
     implementation files('libs/reqn.jar')
     implementation files('libs/skbee.jar')
 
+    //Shadowing
     shadow 'com.google.code.gson:gson:2.10.1'
-    //shadow 'net.kyori:adventure-api:4.5.0'
-
-
-    // compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
-    // compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
 }
-
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "11", "-target", "11"]
 }
@@ -80,47 +62,47 @@ processResources {
     }
 }
 
-// Shadowing
-
 shadowJar {
-    configurations = [project.configurations.shadow]
     archiveBaseName.set('SkJson')
     archiveClassifier.set('')
     mergeServiceFiles()
     minimize()
+}
+
+// Shadowing
+
+// Shadow Google.Gson
+static configureRelocations(ShadowJar task) {
+    task.relocate('com.google.gson', 'ext.google.gson')
 }
 //noinspection ConfigurationAvoidance
 task relocateShadowJar(type: ConfigureShadowRelocation) {
     target = tasks.shadowJar
 }
 
+
 tasks.withType(ShadowJar).configureEach {
-    dependsOn relocateShadowJar, build
+    dependsOn build
     configurations = [
             project.configurations.shadow
     ]
-    relocate 'com.google.gson', 'cz.coffee.gson'
-    manifest {
-        attributes(
-                'Name': 'cz/coffee/gson',
-                'Automatic-Module-Name': 'cz.coffee.gson',
-                'Sealed': 'true'
-        )
-    }
+    configureRelocations(it)
 }
+
 
 //noinspection ConfigurationAvoidance
 task release(type:Copy) {
     from shadowJar
     [
-            'A:\\workspaces\\latest\\plugins',
+            'H:/workspaces/'+testVersion+'/plugins'
     ]
-            .each { destination ->
+            .each {destination ->
                 into destination
             }
     def styler = 'black red green yellow blue magenta cyan white'
             .split().toList().withIndex(30)
-            .collectEntries { key, val -> [(key): { "\033[${val}m${it}\033[0m" }] }
+            .collectEntries { key, val -> [(key) : { "\033[${val}m${it}\033[0m" }] }
+
     doLast {
         println "Message: ${styler['green']('new release was out of')} ${styler['blue']('skJson')}"
     }
