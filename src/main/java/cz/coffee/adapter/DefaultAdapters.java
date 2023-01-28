@@ -77,7 +77,7 @@ public class DefaultAdapters {
                 if ((world = getWorld(json.get("world").getAsString())) != null) {
                     return world.getChunkAt(
                             json.get("x").getAsInt(),
-                            json.get("y").getAsInt()
+                            json.get("z").getAsInt()
                     );
                 }
             }
@@ -686,17 +686,18 @@ public class DefaultAdapters {
             try {
                 if (World.class.isAssignableFrom(clazz))
                     return (T) WORLD_ADAPTER.fromJson(json.getAsJsonObject());
-                else if (Chunk.class.isAssignableFrom(clazz))
+                else if (Chunk.class.isAssignableFrom(clazz)) {
                     return (T) CHUNK_ADAPTER.fromJson(json.getAsJsonObject());
-                else if (ItemStack.class.isAssignableFrom(clazz)) {
-                    return ((T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject()));
                 }
+                else if (ItemStack.class.isAssignableFrom(clazz))
+                    return ((T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject()));
                 else if (Inventory.class.isAssignableFrom(clazz))
                     return (T) INVENTORY_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
                     return (T) gsonAdapter.fromJson(json, clazz);
-                else
+                else {
                     return null;
+                }
             } catch (Exception ex) {
                 printPrettyStackTrace(ex, _STACKTRACE_LENGTH);
             }
