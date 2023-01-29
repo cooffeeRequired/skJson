@@ -33,3 +33,4 @@ replay_pid*
 *.bin
 build.___gradle
 build.___gradle
+*.lang
