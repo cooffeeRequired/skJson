@@ -159,7 +159,7 @@ public class JsonUtils {
     }
 
     private static JsonObject createMissing(JsonObject input, int number, String nKey) {
-        String sanitizeKey = nKey.replaceAll(".list", "");
+        String sanitizeKey = removeLast(nKey, ".list");
         if (!check(input, sanitizeKey, KEY)) {
             if (nKey.endsWith(".list")) {
                 input.add(sanitizeKey, new JsonArray());
@@ -259,6 +259,17 @@ public class JsonUtils {
         return count;
     }
 
+    public static String removeLast(String s, String search) {
+        int pos = s.lastIndexOf(search);
+
+        if (pos > -1) {
+            return s.substring(0, pos)
+                    + s.substring(pos + search.length(), s.length());
+        }
+
+        return s;
+    }
+
     /**
      * @param fromInput  {@link NotNull} {@link JsonElement} loaded directly from json file / variable / json map
      * @param appendData {@link NotNull} {@link JsonElement} customer input's json
@@ -291,8 +302,9 @@ public class JsonUtils {
                 }
 
                 // Modding/looping section
-                String sanitizeKey = nestedKey.replaceAll(".list", "");
+                String sanitizeKey = removeLast(nestedKey, ".list");
                 if (next.isJsonArray()) {
+                    System.out.println("array");
                     JsonArray array = next.getAsJsonArray();
                     if (array.isEmpty()) {
                         next = array;
