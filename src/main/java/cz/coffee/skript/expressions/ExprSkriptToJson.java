@@ -30,13 +30,14 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffee.utils.json.JsonMapping;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.utils.ErrorHandler.Level.ERROR;
 import static cz.coffee.utils.ErrorHandler.*;
-import static cz.coffee.utils.json.JsonMapping.jsonToList;
+import static cz.coffee.utils.json.JsonMapping.listToJson;
 
 @Name("Array or List formatted to JSON.")
 @Description({"It allows you to convert the sheet back to Json!",
@@ -60,7 +61,7 @@ public class ExprSkriptToJson extends SimpleExpression<JsonElement> {
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
         String variableName = variableString.toString(e);
-        return new JsonElement[]{jsonToList(variableName.substring(0, variableName.length() - 1), isLocal, e)};
+        return new JsonElement[]{JsonMapping.listToJson(variableName.substring(0, variableName.length() - 1), isLocal, e)};
     }
 
     @Override

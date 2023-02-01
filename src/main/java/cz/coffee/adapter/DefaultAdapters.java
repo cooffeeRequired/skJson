@@ -738,6 +738,27 @@ public class DefaultAdapters {
         }
     }
 
+    public static JsonElement parse(Object item, Event e) {
+        Object finalI = null;
+        if (item instanceof JsonElement) {
+            return (JsonElement) item;
+        } else if (isClassicType(item)){
+            return convert(item);
+        }else{
+            if (item instanceof ItemType) {
+                ItemType i = (ItemType) item;
+                finalI = i.getRandom();
+            } else if (item instanceof ItemStack) {
+                finalI = ((ItemStack) item);
+            } else if (item instanceof Slot) {
+                finalI = ((Slot) item).getItem();
+            } else {
+                finalI = item;
+            }
+        }
+        return DefaultAdapters.assignTo(finalI);
+    }
+
     /**
      * <p>
      * Serializer / Deserializer for any Bukkit/Skript Type. {@link JsonElement}

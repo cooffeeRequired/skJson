@@ -21,6 +21,7 @@ package cz.coffee.utils.json;
 
 import ch.njol.skript.lang.Variable;
 import com.google.gson.*;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.SimpleUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +56,8 @@ public class JsonMapping {
             if (isIncrementNumber(checkKeys.toArray())) {
                 JsonArray jsonStructure = new JsonArray();
                 keys.forEach(key -> {
-                    JsonElement valueData = gson.toJsonTree(jsonListSubTree(name + key, isLocal, event));
+                    Object rawValue = jsonListSubTree(name + key, isLocal, event);
+                    JsonElement valueData = gson.toJsonTree(rawValue);
                     if (valueData instanceof JsonPrimitive) {
                         JsonPrimitive primitive = valueData.getAsJsonPrimitive();
                         if (isNumeric(fromPrimitive2Object(primitive))) {
@@ -105,7 +107,7 @@ public class JsonMapping {
      * @param event   {@link Event}
      * @return {@link JsonElement}
      */
-    public static JsonElement jsonToList(@NotNull String name, boolean isLocal, Event event) {
+    public static JsonElement listToJson(@NotNull String name, boolean isLocal, Event event) {
         return jsonMainTree(name, isLocal, false, event);
     }
 
@@ -116,7 +118,7 @@ public class JsonMapping {
      * @param isLocal value contain if variable is local or nah
      * @param event   {@link Event}
      */
-    public static void jsonToList(@NotNull String name, JsonElement json, boolean isLocal, Event event) {
+    public static void listToJson(@NotNull String name, JsonElement json, boolean isLocal, Event event) {
         JsonElement next;
         Deque<JsonElement> elements = new ArrayDeque<>();
         if (json != null) elements.add(json);
@@ -154,7 +156,7 @@ public class JsonMapping {
         }
 
         if (!(variable instanceof String || variable instanceof Number || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
-            variable = gsonAdapter.toJson(variable);
+            variable = DefaultAdapters.parse(variable, event);
         }
         return variable;
     }
@@ -170,11 +172,11 @@ public class JsonMapping {
         if (input instanceof JsonObject) {
             input.getAsJsonObject().keySet().forEach(key -> {
                 if (!(key == null))
-                    jsonToList(variableName + SEPARATOR + key, input.getAsJsonObject().get(key), isLocal, event);
+                    listToJson(variableName + SEPARATOR + key, input.getAsJsonObject().get(key), isLocal, event);
             });
         } else if (input instanceof JsonArray) {
             for (int index = 0; input.getAsJsonArray().size() > index; index++)
-                jsonToList(variableName + SEPARATOR + (index + 1), input.getAsJsonArray().get(index), isLocal, event);
+                listToJson(variableName + SEPARATOR + (index + 1), input.getAsJsonArray().get(index), isLocal, event);
         }
     }
 }

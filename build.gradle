@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '2.6.2'
+version = '2.6.21'
 def testVersion = 'latest'
 
 
@@ -94,7 +94,7 @@ tasks.withType(ShadowJar).configureEach {
 task release(type:Copy) {
     from shadowJar
     [
-            'H:/workspaces/'+testVersion+'/plugins'
+            'C:/Users/nexti/Documents/workspaces/'+testVersion+'/plugins'
     ]
             .each {destination ->
                 into destination

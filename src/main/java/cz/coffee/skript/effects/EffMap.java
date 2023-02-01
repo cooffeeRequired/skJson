@@ -32,7 +32,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.utils.json.JsonMapping.jsonToList;
+import static cz.coffee.utils.json.JsonMapping.listToJson;
 
 
 @Name("Mapping Json to List")
@@ -59,7 +59,7 @@ public class EffMap extends Effect {
     protected void execute(@NotNull Event e) {
         Object jsonObject = jsonElementExpression.getSingle(e);
         JsonElement json = DefaultAdapters.parse(jsonObject, jsonElementExpression, e);
-        jsonToList(variableString.toString(e).substring(0, variableString.toString(e).length() - 3), json, isLocal, e);
+        listToJson(variableString.toString(e).substring(0, variableString.toString(e).length() - 3), json, isLocal, e);
     }
 
     @Override
