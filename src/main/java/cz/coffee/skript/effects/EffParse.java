@@ -117,8 +117,9 @@ public class EffParse extends SimpleExpression<Object> {
         Object object = json.getSingle(e);
 
         try {
-            if (object instanceof JsonElement)
+            if (object instanceof JsonElement) {
                 return new Object[]{assignFrom((JsonElement) object)};
+            }
         } catch (Exception ex) {
             printPrettyStackTrace(ex, _STACKTRACE_LENGTH);
         }

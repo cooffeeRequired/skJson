@@ -432,10 +432,8 @@ public class DefaultAdapters {
                         meta.setBodyColor(DyeColor.legacyValueOf(fishModel.get(_FISH_B_COLOR).getAsString()));
                         itemStack.setItemMeta(meta);
                     }
-
-                } else {
+                } else
                     itemStack = gsonAdapter.fromJson(json, ItemStack.class);
-                }
                 setOthers(json);
                 return getItemStack();
             }
@@ -458,14 +456,8 @@ public class DefaultAdapters {
                 if (_JSON_META.has(_ENCHANTS)) {
                     final Set<Map.Entry<String, JsonElement>> _JSON_ENCHANTS = _JSON_META.getAsJsonObject(_ENCHANTS).entrySet();
                     for (Map.Entry<String, JsonElement> mapOfEnchantments : _JSON_ENCHANTS) {
-                        NamespacedKey key;
-                        if (mapOfEnchantments.getKey().equalsIgnoreCase("damage_all")) {
-                            key = new NamespacedKey("minecraft", "sharpness");
-                        } else {
-                            key = new NamespacedKey("minecraft", mapOfEnchantments.getKey().toLowerCase());
-                        }
                         itemStack.addUnsafeEnchantment(
-                                Objects.requireNonNull(Enchantment.getByKey(key)),
+                                Objects.requireNonNull(Enchantment.getByName(mapOfEnchantments.getKey().toUpperCase())),
                                 mapOfEnchantments.getValue().getAsInt()
                         );
                     }
@@ -675,6 +667,7 @@ public class DefaultAdapters {
         else if (json.getAsJsonObject().has(SERIALIZED_TYPE_KEY)) {
             potentialClass = json.getAsJsonObject().get(SERIALIZED_TYPE_KEY).getAsString();
         }
+
 
         try {
             clazz = Class.forName(potentialClass);
