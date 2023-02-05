@@ -30,84 +30,48 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import cz.coffee.utils.ErrorHandler;
-import cz.coffee.utils.nbt.NBTInternalConvertor;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Objects;
-
 import static cz.coffee.adapter.DefaultAdapters.assignFrom;
-import static cz.coffee.utils.ErrorHandler.sendMessage;
-import static cz.coffee.utils.SimpleUtil.gsonAdapter;
 import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 
-@Name("Json to Inventory, Chunk, World, NBT, Entity, Location, Unknown-Type")
-@Description({"You can deserialize correct json to skript-type, for example a tool a location, etc."})
-@Examples({"command saveLocToJson:",
+@Name("Basic Json Converter, from Json to any object for i.e. (Location, ItemStack, Inventory)")
+@Description({
+        "You can deserialize correct json to skript-type, for example a tool a location, etc.",
+        "<p><code> Also you don't need use the converter, cause the json is converted automatically, use that only in some case.</code></p>"
+})
+@Examples({"command save_location",
         "\ttrigger:",
-        "\t\tset {-json} to new json from sender's location",
+        "\t\tset {-json} to json from sender's location",
         "\t\tsend \"Saved location as JSON &e%{-json}%\"",
         "",
-        "command teleporttoJson:",
+        "command jsonTeleport:",
         "\ttrigger",
-        "\t\tset {-loc} to {-json} parsed as a location",
-        "\t\tsend \"You will be tp to &b%{-loc}%&r from Json\"",
-        "\t\tteleport sender to {-loc}"
+        "\t\t set {_location} to parsed {-json}",
+        "\t\tsend \"You will be tp to &b%{_location}%&r from Json\"",
+        "\t\tteleport sender to {_location}"
 })
-@Since("2.0.0")
-public class EffParse extends SimpleExpression<Object> {
+@Since("2.6.21 - CleanUp code")
+public class EffSimpleParse extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(EffParse.class, Object.class, ExpressionType.SIMPLE,
-                "%object% parsed as [a] [skript] (:inv[entory]|:chunk|:world|:nbt|:loc[ation]|:item[type|stack]|(unknown |):type)"
+        Skript.registerExpression(EffSimpleParse.class, Object.class, ExpressionType.SIMPLE,
+                "parsed %json%"
         );
     }
 
     private Expression<Object> json;
-    private int patternType;
-    private List<String> tags;
-
-    private String[] types = {
-            "inventory",
-            "chunk",
-            "world",
-            "nbt",
-            "location",
-            "item",
-            "others"
-    };
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return json.toString(e, debug) + " parsed as " + types[patternType];
+        return "parsed " + json.toString(e, debug);
     }
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        tags = parseResult.tags;
-
-        if (tags.contains("inv")) {
-            patternType = 1;
-        } else if (tags.contains("chunk")) {
-            patternType = 2;
-        } else if (tags.contains("world")) {
-            patternType = 3;
-        } else if (tags.contains("nbt")) {
-            patternType = 4;
-        } else if (tags.contains("loc")) {
-            patternType = 100;
-        } else if (tags.contains("item")) {
-            patternType = 6;
-        } else {
-            patternType = 0;
-        }
-
         json = LiteralUtils.defendExpression(exprs[0]);
         return LiteralUtils.canInitSafely(json);
     }
