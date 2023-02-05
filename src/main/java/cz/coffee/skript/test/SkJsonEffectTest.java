@@ -19,7 +19,6 @@
 package cz.coffee.skript.test;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -27,14 +26,24 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 import cz.coffee.utils.ErrorHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.utils.ErrorHandler.sendMessage;
+import java.util.Objects;
 
-@Since("2.5.0")
+import static cz.coffee.adapter.DefaultAdapters.assignFrom;
+import static cz.coffee.adapter.DefaultAdapters.assignTo;
+import static cz.coffee.utils.ErrorHandler.sendMessage;
+import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
+import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
+
+
 public class SkJsonEffectTest extends SimpleExpression<Boolean> {
 
     static {
@@ -42,18 +51,42 @@ public class SkJsonEffectTest extends SimpleExpression<Boolean> {
                 "[skJson] version check");
     }
 
+
+    private JsonElement np(String str) {
+        return JsonParser.parseString(str);
+    }
+
+    protected boolean testElements() {
+        JsonElement e;
+        sendMessage("Debug mode", ErrorHandler.Level.WARNING);
+        sendMessage("Server Information", ErrorHandler.Level.INFO);
+        sendMessage("", ErrorHandler.Level.INFO);
+        sendMessage("Version: " + Bukkit.getVersion(), ErrorHandler.Level.INFO);
+        sendMessage("Bukkit Version: " + Bukkit.getBukkitVersion(), ErrorHandler.Level.INFO);
+        sendMessage("Minecraft Version: " + Bukkit.getMinecraftVersion(), ErrorHandler.Level.INFO);
+
+        try {
+            e = np("{'A':'n'}");
+            sendMessage("&eskJson &fTest -> String parsing - &aPassed", ErrorHandler.Level.INFO);
+            JsonElement e1 = np("{'A': 'N'}");
+            if (e==e1) return false;
+            sendMessage("&eskJson &fTest -> String case Equals - &aPassed", ErrorHandler.Level.INFO);
+            ItemStack i = new ItemStack(Material.MAGENTA_DYE);
+            e = assignTo(i);
+            if (!(Objects.equals(assignFrom(e), i))) return false;
+            sendMessage("&eskJson &fTest -> Converter parsing From/To - &aPassed", ErrorHandler.Level.INFO);
+
+        } catch (Exception exception) {
+            printPrettyStackTrace(exception, _STACKTRACE_LENGTH);
+            return false;
+        }
+        return true;
+    }
+
+
     @Override
     protected Boolean @NotNull [] get(@NotNull Event e) {
-        JsonElement element = null;
-        try {
-            element = JsonParser.parseString("{'A':'n'}");
-        } catch (Exception exception) {
-            sendMessage(exception.getMessage(), ErrorHandler.Level.ERROR);
-        }
-        if (element != null) {
-            return new Boolean[]{true};
-        }
-        return new Boolean[]{false};
+        return new Boolean[]{testElements()};
     }
 
     @Override
@@ -68,7 +101,7 @@ public class SkJsonEffectTest extends SimpleExpression<Boolean> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "";
+        return "skJson debug mode - Test";
     }
 
     @Override

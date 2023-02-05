@@ -25,6 +25,7 @@ import cz.coffee.SkJson;
 import java.util.logging.Logger;
 
 import static cz.coffee.utils.ErrorHandler.Level.*;
+import static cz.coffee.utils.SimpleUtil.hex;
 
 @Since(2.0)
 @SuppressWarnings("unused")
@@ -46,10 +47,14 @@ public class ErrorHandler {
     /**
      * sendMessage with certain error level.
      *
-     * @param input {@link Object} anything.toString()
+     * @param i {@link Object} anything.toString()
      * @param level {@link Level}
      */
-    public static void sendMessage(Object input, Level level) {
+    public static void sendMessage(Object i, Level level) {
+
+        Object input = hex(i.toString());
+
+
         Logger logger = SkJson.logger();
         if (level.equals(INFO)) {
             logger.info(su.color(INFO + "" + input));
@@ -57,6 +62,8 @@ public class ErrorHandler {
             logger.severe(su.color(ERROR + "" + input));
         } else if (level.equals(WARNING)) {
             logger.warning(su.color(WARNING + "" + input));
+        } else if (level.equals(EMPTY)){
+            logger.severe(su.color(input));
         }
     }
 
@@ -66,7 +73,8 @@ public class ErrorHandler {
     public enum Level {
         INFO(su.color("&bINFO&r ")),
         ERROR(su.color("&cERROR&r ")),
-        WARNING(su.color("&eWARNING&r "));
+        WARNING(su.color("&eWARNING&r ")),
+        EMPTY(su.color(""));
         public final String label;
 
         Level(String label) {

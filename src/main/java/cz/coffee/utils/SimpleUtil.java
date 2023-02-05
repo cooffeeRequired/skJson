@@ -119,11 +119,7 @@ public class SimpleUtil {
         sendMessage("&c[skJson] Exception Handler", ErrorHandler.Level.ERROR);
         sendMessage("&c[skJson] Exception type: " + exception.getClass(), ErrorHandler.Level.ERROR);
         for (int n = 0; maxST > n; n++) {
-            sendMessage("&c   -" + exception.getStackTrace()[n], ErrorHandler.Level.ERROR);
-            /*
-            TODO will be replaced by sendMessage() with error level, also will be added option for set max size of stacktrace
-            TODO in config.yml (min = 5), (default = 9)
-             */
+            sendMessage("#b55048   -" + exception.getStackTrace()[n], ErrorHandler.Level.EMPTY);
         }
     }
 }

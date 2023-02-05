@@ -6,6 +6,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.shanebeestudios.skbee.api.NBT.*;
 import cz.coffee.SkJson;
 import cz.coffee.utils.Type;
 import cz.coffee.utils.github.Version;
@@ -35,6 +36,7 @@ import java.util.*;
 import static cz.coffee.adapter.DefaultAdapter.SERIALIZED_JSON_TYPE_KEY;
 import static cz.coffee.utils.SimpleUtil.gsonAdapter;
 import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
+import static cz.coffee.utils.config.Config._NBT_SUPPORTED;
 import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 import static cz.coffee.utils.json.JsonUtils.*;
 import static org.bukkit.Bukkit.createInventory;
@@ -634,6 +636,41 @@ public class DefaultAdapters {
 
     /**
      * <p>
+     * Serializer / Deserializer for NBT. {@link JsonElement}
+     * </p>
+     * <p>
+     * <b>Example</b>
+     * </p>
+     *
+     * <p> <code> * Serialize     -> json from nbt compound of player's inventory </code> </p>
+     * <p> <code> * Deserialize   -> send raw {_} (Represent a element of json) </code> </p>
+     *
+     * </p>
+     */
+
+    private static final DefaultAdapter<NBTContainer> NBT_ADAPTER = new DefaultAdapter<>() {
+        @Override
+        public @NotNull JsonElement toJson(NBTContainer source) {
+            JsonObject o = new JsonObject();
+            o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            o.addProperty("nbt", source.toString());
+            return !o.isEmpty() ? o : JsonNull.INSTANCE;
+        }
+
+        @Override
+        public NBTContainer fromJson(JsonObject json) {
+            return new NBTContainer(json.get("nbt").getAsString());
+        }
+
+        @Override
+        public Class<? extends NBTContainer> typeOf(JsonObject json) {
+            if (check(json, NBTContainer.class.getName(), Type.KEY)) return NBTContainer.class;
+            return null;
+        }
+    };
+
+    /**
+     * <p>
      * Parser for ItemStack
      * </p>
      */
@@ -668,26 +705,28 @@ public class DefaultAdapters {
             potentialClass = json.getAsJsonObject().get(SERIALIZED_TYPE_KEY).getAsString();
         }
 
-
         try {
             clazz = Class.forName(potentialClass);
         } catch (ClassNotFoundException notFoundException) {
             printPrettyStackTrace(notFoundException, _STACKTRACE_LENGTH);
         }
-
         if (clazz != null) {
             try {
                 if (World.class.isAssignableFrom(clazz))
                     return (T) WORLD_ADAPTER.fromJson(json.getAsJsonObject());
-                else if (Chunk.class.isAssignableFrom(clazz)) {
+                else if (Chunk.class.isAssignableFrom(clazz))
                     return (T) CHUNK_ADAPTER.fromJson(json.getAsJsonObject());
-                }
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject()));
                 else if (Inventory.class.isAssignableFrom(clazz))
                     return (T) INVENTORY_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
                     return (T) gsonAdapter.fromJson(json, clazz);
+                else if (NBTContainer.class.isAssignableFrom(clazz)) {
+                    if (_NBT_SUPPORTED) {
+                        return (T) NBT_ADAPTER.fromJson(json.getAsJsonObject());
+                    }
+                }
                 else {
                     return null;
                 }
@@ -702,14 +741,14 @@ public class DefaultAdapters {
         if (object == null) return JsonNull.INSTANCE;
         boolean isSerializable = (object instanceof YggdrasilSerializable || object instanceof ConfigurationSerializable);
         boolean isNBT = false;
-        /*
-        if (_NBT_SUPPORTED) {
-            isNBT = (object instanceof NBTCustomEntity || object instanceof NBTCustomBlock || object instanceof NBTCustomSlot || object instanceof NBTCustomItemType || object instanceof NBTCustomTileEntity)
-         */
+
         if (object instanceof World) return WORLD_ADAPTER.toJson((World) object);
         else if (object instanceof ItemStack) return ITEMSTACK_ADAPTER.toJson((ItemStack) object);
         else if (object instanceof Chunk) return CHUNK_ADAPTER.toJson((Chunk) object);
-        //else if (isNBT) return new JsonNBT().toJson(new NBTInternalConvertor(object).getCompound());
+        else if (object instanceof NBTCompound) {
+            if (_NBT_SUPPORTED) return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
+            return null;
+        }
         else if (object instanceof Inventory) return INVENTORY_ADAPTER.toJson((Inventory) object);
         else if (isSerializable) return gsonAdapter.toJsonTree(object, ConfigurationSerializable.class);
         else return null;

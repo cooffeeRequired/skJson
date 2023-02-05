@@ -28,6 +28,7 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -52,6 +53,7 @@ public class Type {
         Converters.registerConverter(JsonElement.class, World.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, Chunk.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, Inventory.class, DefaultAdapters::assignFrom);
+        Converters.registerConverter(JsonElement.class, NBTContainer.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, ConfigurationSerializable.class, DefaultAdapters::assignFrom);
 
         Classes.registerClass(
