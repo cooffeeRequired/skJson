@@ -8,21 +8,26 @@
 
 
 <p align="center" width="100%">
-    <img width="33%" src="https://user-images.githubusercontent.com/106232282/213727670-e9412127-c51e-495b-ba04-c1c2f64bb2b1.png"> 
+    <img width="33%" size="64" src="https://user-images.githubusercontent.com/106232282/213727670-e9412127-c51e-495b-ba04-c1c2f64bb2b1.png"> 
 </p>
 
 
 
-#### This addon uses Google Json (Gson) API to work with Json in Script, allowing users to edit Json files or even directly Variables that contain json
+#### This addon uses Google Json (Gson) API to work with Json in Skript, allowing users to edit Json files or even directly Variables that contain json
 
 
-> **Download**: Here or Spigot\
-> **Discord:** https://discord.gg/trwWpUkmQp \
-> **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \
+> **Discord:** https://discord.gg/trwWpUkmQp
+<!-- > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \ -->
 > **Requirements**
 > * Java 11 +
 > * Minecraft 1.8.8+
 > * Skript
+
+> **Recommended**
+> * VSCode = [Download link](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)
+> * Externsion = [Download link](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)
+> * The Extension will help you with coding and debugging skJson
+
 
 [![SkriptHubViewTheDocs](http://skripthub.net/static/addon/ViewTheDocsButton.png)](http://skripthub.net/docs/?addon=Skript-Gson)
 [![Get on skUnity](https://skunity.com/branding/buttons/get_on_docs_4.png)](https://docs.skunity.com/syntax/search/addon:skjson)
