@@ -375,7 +375,7 @@ public class JsonUtils {
 
 
     @SuppressWarnings("UnusedReturnValue")
-    public static JsonElement deleteNested(String[] nest, JsonElement input, boolean edited, Event event, Object ...data) {
+    public static JsonElement deleteNested(String[] nest, JsonElement input, boolean edited, Event event, boolean isObject, Object ...data) {
         Object unparsedData = (data != null && data.length > 0 && data[0] != null) ? data[0] : null;
         boolean unparsedJson = data != null && data.length > 0 && data[0] != null;
 
@@ -409,10 +409,12 @@ public class JsonUtils {
                     JsonElement value = list.get(j);
                     if (!(value == null || value instanceof JsonNull)) {
                         if (unparsedJson) {
-                            if (unparsedData instanceof Number) {
-                                Number w = (Number) unparsedData;
-                                if (w.intValue() <= list.size()) {
-                                    list.remove(w.intValue());
+                            if (!isObject) {
+                                if (unparsedData instanceof Number) {
+                                    Number w = (Number) unparsedData;
+                                    if (w.intValue() <= list.size()) {
+                                        list.remove(w.intValue());
+                                    }
                                 }
                             } else {
                                 if (DefaultAdapters.parse(unparsedData, event).equals(value))

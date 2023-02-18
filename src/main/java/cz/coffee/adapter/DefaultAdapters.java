@@ -134,6 +134,7 @@ public class DefaultAdapters {
         }
     };
     /**
+     *
      * <p>
      * Serializer / Deserializer for ItemStack. {@link JsonElement}
      * </p>
@@ -146,7 +147,8 @@ public class DefaultAdapters {
      *
      * </p>
      */
-    private static final DefaultAdapter<ItemStack> ITEM_ADAPTER = new DefaultAdapter<ItemStack>() {
+    @SuppressWarnings({"UnstableApiUsage", "deprecation"})
+    private static final DefaultAdapter<ItemStack> ITEM_ADAPTER = new DefaultAdapter<>() {
 
         private ItemStack itemStack;
 
@@ -195,10 +197,6 @@ public class DefaultAdapters {
         }
 
 
-
-
-
-        @SuppressWarnings({"UnstableApiUsage", "unchecked", "deprecation"})
         @Override
         public ItemStack fromJson(JsonObject json) {
             if (json.has("meta")) {
@@ -321,16 +319,10 @@ public class DefaultAdapters {
             private InventoryType type;
             private int size;
             private String title;
-            /**
-             *
-             * Setters / Getters
-             */
 
-            private final Version version;
             private Map<String, JsonElement> contents;
 
             protected InventoryData(Version version) {
-                this.version = version;
             }
 
             protected InventoryHolder getHolder() {
@@ -385,6 +377,7 @@ public class DefaultAdapters {
      *  Seperated ItemMeta
      * </p>
      */
+    @SuppressWarnings({"UnstableApiUsage", "unchecked", "deprecation"})
     private static final DefaultAdapter<ItemMeta> META_ADAPTER = new DefaultAdapter<>() {
 
         final private String META_ = "meta";
@@ -489,9 +482,7 @@ public class DefaultAdapters {
                     final JsonArray JSON_ITEMS_ = JSON_META.getAsJsonArray(_BUNDLE_ITEMS);
                     JSON_META.remove(_BUNDLE_ITEMS);
                     final ArrayList<ItemStack> items = new ArrayList<>();
-                    JSON_ITEMS_.forEach(item -> {
-                        items.add(ITEM_ADAPTER.fromJson(item.getAsJsonObject()));
-                    });
+                    JSON_ITEMS_.forEach(item -> items.add(ITEM_ADAPTER.fromJson(item.getAsJsonObject())));
 
                     meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
                     BundleMeta bundleMeta = ((BundleMeta) meta);
@@ -674,7 +665,7 @@ public class DefaultAdapters {
 
         @Override
         public @NotNull JsonElement toJson(ItemMeta source) {
-            return null;
+            return JsonNull.INSTANCE;
         }
 
         @Override
@@ -826,7 +817,7 @@ public class DefaultAdapters {
         }
     }
     public static JsonElement parse(Object item, Event e) {
-        Object finalI = null;
+        Object finalI;
         if (item instanceof JsonElement) {
             return (JsonElement) item;
         } else if (isClassicType(item)){
@@ -836,7 +827,7 @@ public class DefaultAdapters {
                 ItemType i = (ItemType) item;
                 finalI = i.getRandom();
             } else if (item instanceof ItemStack) {
-                finalI = ((ItemStack) item);
+                finalI = item;
             } else if (item instanceof Slot) {
                 finalI = ((Slot) item).getItem();
             } else {

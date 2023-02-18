@@ -28,7 +28,6 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 import cz.coffee.SkJson;
 import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.Chunk;

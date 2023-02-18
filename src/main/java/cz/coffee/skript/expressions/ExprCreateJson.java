@@ -84,7 +84,7 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
     }
 
     private final Pattern PATTERN_VAR_LIST = Pattern.compile("\\$\\{[A-Za-z0-9_]+::\\*}");
-    private final Pattern PATTERN_VAR = Pattern.compile("\\$\\{[\\-A-z_].?}");
+    private final Pattern PATTERN_VAR = Pattern.compile("\\$\\{[A-Za-z0-9_]+}");
     private Expression<?> exprToSerialize;
     private int pattern;
 

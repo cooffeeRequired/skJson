@@ -76,7 +76,7 @@ public class EffNewJsonFile extends Effect {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return (async ? "async" : "") + " new json file" + pathToFileExpr.toString(e, debug) + " with " + (pattern == 1 ? inputToFile.toString(e, debug) : "item " + inputToFile.toString(e, debug));
+        return (async ? "async" : "") + " new json file" + pathToFileExpr.toString(e, debug) + " with " + inputToFile.toString(e, debug);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,8 +90,6 @@ public class EffNewJsonFile extends Effect {
         pathToFileExpr = (Expression<String>) expressions[0];
         if (expressions[1] != null) {
             inputToFile = LiteralUtils.defendExpression(expressions[1]);
-            Expression<?> isItem = inputToFile.getConvertedExpression(ItemStack.class);
-            inputToFile = Objects.requireNonNullElseGet(isItem, () -> LiteralUtils.defendExpression(expressions[1]));
             return LiteralUtils.canInitSafely(inputToFile);
         }
         return true;

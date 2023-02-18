@@ -73,6 +73,7 @@ public class SkJsonEffectTest extends SimpleExpression<Boolean> {
             sendMessage("&eskJson &fTest -> String case Equals - &aPassed", ErrorHandler.Level.INFO);
             ItemStack i = new ItemStack(Material.MAGENTA_DYE);
             e = assignTo(i);
+            assert e != null;
             if (!(Objects.equals(assignFrom(e), i))) return false;
             sendMessage("&eskJson &fTest -> Converter parsing From/To - &aPassed", ErrorHandler.Level.INFO);
 

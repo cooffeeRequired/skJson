@@ -45,7 +45,7 @@ import static cz.coffee.utils.json.JsonVariables.setVariable;
 @Description("You can handle a JsonElement or cached Jsons. and change their data as you want.")
 @Examples({"on load:",
         "\tset {-json} to json from text \"{'test': {'some': false}\"",
-        "\tchange {-json} value \"test:some\" to item (iron sword named \"The &acolored &fSword\") and save it to json file \"plugins/sk-gson/test.json\"",
+        "\tchange {-json} value \"test:some\" to item (iron sword named \"The &acolored &fSword\")",
         "\tbroadcast {-json}",
         "",
         "\tchange cached json \"json5\" value \"test:some\" to item (iron sword named \"The &acolored &fSword\")",

@@ -172,10 +172,14 @@ public class EffCustomChanger extends Effect {
             if (isCached) {
                 if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
                     STORAGE = JSON_STORAGE.get(key);
-                    if (!value){
-                        deleteNested(extractedKeys,STORAGE, false, event);
+                    if (parsedCase) {
+                        if (isObject) {
+                            deleteNested(extractedKeys, STORAGE, false, event, true,  delta);
+                        } else if (isIndex) {
+                            deleteNested(extractedKeys, STORAGE, false, event, false, delta);
+                        }
                     } else {
-                        deleteNested(extractedKeys,STORAGE, true, event);
+                        deleteNested(extractedKeys,STORAGE, false, event, false);
                     }
                     JSON_STORAGE.remove(key);
                     JSON_STORAGE.put(key, STORAGE);
@@ -185,26 +189,14 @@ public class EffCustomChanger extends Effect {
                 Object fromVar = getVariable(event, variableName, isLocal);
                 if (fromVar instanceof JsonElement) {
                     STORAGE = (JsonElement) fromVar;
-                    if (!value){
-                        if (parsedCase) {
-                            if (isObject) {
-                                deleteNested(extractedKeys, STORAGE, false, event, delta);
-                            } else if (isIndex) {
-                                deleteNested(extractedKeys, STORAGE, false, event, delta);
-                            }
-                        } else {
-                            deleteNested(extractedKeys,STORAGE, false, event);
+                    if (parsedCase) {
+                        if (isObject) {
+                            deleteNested(extractedKeys, STORAGE, false, event, true,  delta);
+                        } else if (isIndex) {
+                            deleteNested(extractedKeys, STORAGE, false, event, false, delta);
                         }
                     } else {
-                        if (parsedCase) {
-                            if (isObject) {
-                                deleteNested(extractedKeys, STORAGE, false, event, delta);
-                            } else if (isIndex) {
-                                deleteNested(extractedKeys, STORAGE, false, event, delta);
-                            }
-                        } else {
-                            deleteNested(extractedKeys,STORAGE, false, event);
-                        }
+                        deleteNested(extractedKeys,STORAGE, false, event, false);
                     }
                     setVariable(variableName, STORAGE, event, isLocal);
                 }
