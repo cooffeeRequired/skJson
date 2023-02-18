@@ -198,12 +198,12 @@ public class EffCustomChanger extends Effect {
                     } else {
                         if (parsedCase) {
                             if (isObject) {
-                                System.out.println("object");
+                                deleteNested(extractedKeys, STORAGE, false, event, delta);
                             } else if (isIndex) {
-                                System.out.println("index");
-                            } else {
-                                deleteNested(extractedKeys, STORAGE, true, event);
+                                deleteNested(extractedKeys, STORAGE, false, event, delta);
                             }
+                        } else {
+                            deleteNested(extractedKeys,STORAGE, false, event);
                         }
                     }
                     setVariable(variableName, STORAGE, event, isLocal);

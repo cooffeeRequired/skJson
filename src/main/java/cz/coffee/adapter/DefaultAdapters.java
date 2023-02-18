@@ -39,8 +39,7 @@ import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 import static cz.coffee.utils.config.Config._NBT_SUPPORTED;
 import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 import static cz.coffee.utils.json.JsonUtils.*;
-import static org.bukkit.Bukkit.createInventory;
-import static org.bukkit.Bukkit.getWorld;
+import static org.bukkit.Bukkit.*;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 //
 
@@ -147,40 +146,28 @@ public class DefaultAdapters {
      *
      * </p>
      */
-    private static final DefaultAdapter<ItemStack> ITEMSTACK_ADAPTER = new DefaultAdapter<ItemStack>() {
-        final private String[] IGNORED_CLASSES = {
-                "KnowledgeBookMeta",
-                "LeatherArmorMeta",
-                "MusicInstrumentMeta",
-                "PotionMeta",
-                "Repairable",
-                "SkullMeta",
-                "SpawnEggMeta"
-        };
-
-        final HashMap<Integer, String> metaTypes = new HashMap<>() {{
-            put(0, "BANNER");
-            put(1, "AXOLOTL_BUCKET");
-            put(2, "BUNDLE");
-            put(3, "COMPASS");
-            put(4, "CROSSBOW");
-            put(5, "DAMAGEABLE");
-            put(6, "FIREWORK");
-            put(7, "Map");
-            put(8, "SUSPICIOUS_STEW");
-            put(9, "TropicalFishBucketMeta");
-        }};
-
-        final private String META_ = "meta";
-        final private String META_TYPE = "meta-type";
-
-        private boolean hasCustomModel = false;
+    private static final DefaultAdapter<ItemStack> ITEM_ADAPTER = new DefaultAdapter<ItemStack>() {
 
         private ItemStack itemStack;
 
+        private ItemStack setEnchants(final ItemStack i, final JsonObject META) {
+            final String _ENCHANTS = "enchants";
+            if (i == null) return null;
+            if (META.has(_ENCHANTS)) {
+                final Set<Map.Entry<String, JsonElement>> _JSON_ENCHANTS = META.getAsJsonObject(_ENCHANTS).entrySet();
+                for (Map.Entry<String, JsonElement> mapOfEnchantments : _JSON_ENCHANTS) {
+                    i.addUnsafeEnchantment(
+                            Objects.requireNonNull(Enchantment.getByName(mapOfEnchantments.getKey().toUpperCase())),
+                            mapOfEnchantments.getValue().getAsInt()
+                    );
+                }
+            }
+            return i;
+        }
+
+
         @Override
         public @NotNull JsonElement toJson(ItemStack source) {
-
             if (source.getItemMeta() == null) {
                 return gsonAdapter.toJsonTree(source, ItemStack.class);
             }
@@ -189,7 +176,7 @@ public class DefaultAdapters {
             if (source.getItemMeta().getClass().getSimpleName().equals("CraftMetaTropicalFishBucket")) {
                 final JsonObject fishMeta = new JsonObject();
                 final JsonObject metaJson = gsonAdapter.toJsonTree(source, ItemStack.class).getAsJsonObject();
-                if(metaJson.has("meta")) {
+                if (metaJson.has("meta")) {
                     TropicalFishBucketMeta tropicalFishBucketMeta = (TropicalFishBucketMeta) source.getItemMeta();
                     fishMeta.addProperty("pattern", tropicalFishBucketMeta.getPattern().name());
                     fishMeta.addProperty("pattern-color", tropicalFishBucketMeta.getPatternColor().name());
@@ -197,6 +184,10 @@ public class DefaultAdapters {
                     metaJson.add("fish-model", fishMeta);
                     return metaJson;
                 }
+            } else if (source.hasItemMeta() && source.getItemMeta().hasCustomModelData()) {
+                final JsonObject metaJson = gsonAdapter.toJsonTree(source, ItemStack.class).getAsJsonObject();
+                metaJson.getAsJsonObject("meta").addProperty("custom-model-data", source.getItemMeta().getCustomModelData());
+                return metaJson;
             } else {
                 return gsonAdapter.toJsonTree(source, ItemStack.class);
             }
@@ -204,266 +195,24 @@ public class DefaultAdapters {
         }
 
 
-        private ItemStack hasModel(JsonObject itemMeta, JsonElement mainJson) {
-            ItemStack TempitemStack = null;
-            if (itemMeta.has("custom-model-data")) {
-                hasCustomModel = true;
-                int customModelData = itemMeta.get("custom-model-data").getAsInt();
-                itemMeta.remove("custom-model-data");
-                TempitemStack = gsonAdapter.fromJson(mainJson, ItemStack.class);
-                ItemMeta im = TempitemStack.getItemMeta();
-                im.setCustomModelData(customModelData);
-                TempitemStack.setItemMeta(im);
-                return TempitemStack;
-            }
-            return gsonAdapter.fromJson(mainJson, ItemStack.class);
-        }
+
+
 
         @SuppressWarnings({"UnstableApiUsage", "unchecked", "deprecation"})
         @Override
         public ItemStack fromJson(JsonObject json) {
+            if (json.has("meta")) {
+                /*
+                Get ItemMeta of Json
+                 */
+                ItemMeta im = META_ADAPTER.fromJson(json);
+                JsonObject JSON_META = json.getAsJsonObject("meta");
+                json.remove("meta");
 
-            if (json.has(META_)) {
-                final JsonObject JSON_META = json.getAsJsonObject(META_);
-                boolean isIgnored = Arrays.stream(IGNORED_CLASSES).anyMatch(ignored -> JSON_META.get(META_TYPE).getAsString().equals(ignored));
-
-                if (isIgnored) {
-                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
-                    setOthers(json);
-                    return getItemStack();
-                }
-                itemStack = hasModel(JSON_META, json);
-
-                if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(0))) {
-                    final String _BANNER_PATTERNS = "patterns";
-
-                    if (JSON_META.has(_BANNER_PATTERNS)) {
-                        JsonArray _PATTERN_ARRAY = JSON_META.getAsJsonArray(_BANNER_PATTERNS);
-                        JSON_META.remove(_BANNER_PATTERNS);
-                        ArrayList<Pattern> _PATTERNS = new ArrayList<>();
-
-                        for (JsonElement pattern : _PATTERN_ARRAY) {
-                            _PATTERNS.add(new org.bukkit.block.banner.Pattern(
-                                    DyeColor.valueOf(pattern.getAsJsonObject().get("color").getAsString()),
-                                    Objects.requireNonNull(PatternType.getByIdentifier(pattern.getAsJsonObject().get("pattern").getAsString()))
-                            ));
-                        }
-                        itemStack = hasModel(JSON_META, json);
-                        BannerMeta meta = (BannerMeta) itemStack.getItemMeta();
-                        meta.setPatterns(_PATTERNS);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(1))) {
-                    final String _AXOLOTL_B_VARIANT = "axolotl-variant";
-                    final HashMap<Integer, Axolotl.Variant> axolotlVariants = new HashMap<>() {{
-                        put(0, Axolotl.Variant.LUCY);
-                        put(1, Axolotl.Variant.WILD);
-                        put(2, Axolotl.Variant.GOLD);
-                        put(3, Axolotl.Variant.CYAN);
-                        put(4, Axolotl.Variant.BLUE);
-                    }};
-
-                    if (JSON_META.has(_AXOLOTL_B_VARIANT)) {
-                        Integer variant = JSON_META.get(_AXOLOTL_B_VARIANT).getAsInt();
-                        JSON_META.remove(_AXOLOTL_B_VARIANT);
-
-                        itemStack = hasModel(JSON_META, json);
-                        AxolotlBucketMeta meta = ((AxolotlBucketMeta) itemStack.getItemMeta());
-                        meta.setVariant(axolotlVariants.get(variant));
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(2))) {
-                    final String _BUNDLE_ITEMS = "items";
-
-                    if (JSON_META.has(_BUNDLE_ITEMS)) {
-                        final JsonArray JSON_ITEMS_ = JSON_META.getAsJsonArray(_BUNDLE_ITEMS);
-                        JSON_META.remove(_BUNDLE_ITEMS);
-                        final ArrayList<ItemStack> items = new ArrayList<>();
-                        itemStack = hasModel(JSON_META, json);
-                        for (JsonElement jsonItem : JSON_ITEMS_) {
-                            items.add(gsonAdapter.fromJson(jsonItem, ItemStack.class));
-                        }
-
-                        BundleMeta meta = ((BundleMeta) itemStack.getItemMeta());
-                        meta.setItems(items);
-                        itemStack.setItemMeta(meta);
-
-
-                        System.out.println(itemStack);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(3))) {
-                    final String _COMPASS_P_WORLD = "LodestonePosWorld";
-                    final String _COMPASS_P_X = "LodestonePosX";
-                    final String _COMPASS_P_Y = "LodestonePosY";
-                    final String _COMPASS_P_Z = "LodestonePosZ";
-                    final String _COMPASS_P_TRACKED = "LodestoneTracked";
-
-                    if(JSON_META.has(_COMPASS_P_WORLD) && JSON_META.has(_COMPASS_P_TRACKED)) {
-                        Location loc = new Location(
-                                SkJson.getInstance().getServer().getWorlds().get(0),
-                                JSON_META.get(_COMPASS_P_X).getAsDouble(),
-                                JSON_META.get(_COMPASS_P_Y).getAsDouble(),
-                                JSON_META.get(_COMPASS_P_Z).getAsDouble()
-                        );
-                        boolean tracked = JSON_META.get(_COMPASS_P_TRACKED).getAsBoolean();
-                        JSON_META.remove(_COMPASS_P_X);
-                        JSON_META.remove(_COMPASS_P_Y);
-                        JSON_META.remove(_COMPASS_P_Z);
-                        JSON_META.remove(_COMPASS_P_WORLD);
-                        JSON_META.remove(_COMPASS_P_TRACKED);
-
-                        itemStack = hasModel(JSON_META, json);
-
-                        CompassMeta meta = ((CompassMeta) itemStack.getItemMeta());
-                        meta.setLodestone(loc);
-                        meta.setLodestoneTracked(tracked);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(4))) {
-                    final String _CROSSBOW_PROJECTILES = "charged-projectiles";
-
-                    if (JSON_META.has(_CROSSBOW_PROJECTILES)) {
-                        ArrayList<ItemStack> _PROJECTILES = new ArrayList<>();
-                        JSON_META.get(_CROSSBOW_PROJECTILES).getAsJsonArray().forEach(p -> _PROJECTILES.add(gsonAdapter.fromJson(p, ItemStack.class)));
-
-                        itemStack = hasModel(JSON_META, json);
-
-                        CrossbowMeta meta = ((CrossbowMeta) itemStack.getItemMeta());
-                        meta.setChargedProjectiles(_PROJECTILES);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(5))) {
-                    final String _DMG_DAMAGE = "Damage";
-
-                    if (JSON_META.has(_DMG_DAMAGE)) {
-                        int damage = JSON_META.get(_DMG_DAMAGE).getAsInt();
-                        JSON_META.remove(_DMG_DAMAGE);
-
-                        itemStack = hasModel(JSON_META, json);
-
-                        Damageable meta = ((Damageable) itemStack.getItemMeta());
-                        meta.setDamage(damage);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(6))) {
-                    final String _FIREWORK_EFFECTS = "firework-effects";
-                    final String _FIREWORK_POWER = "power";
-
-                    if (JSON_META.has(_FIREWORK_EFFECTS)) {
-                        int power = JSON_META.get(_FIREWORK_POWER).getAsInt();
-                        JsonArray effects = JSON_META.getAsJsonArray(_FIREWORK_EFFECTS);
-                        JSON_META.remove(_FIREWORK_POWER);
-                        JSON_META.remove(_FIREWORK_EFFECTS);
-
-
-                        ArrayList<FireworkEffect> fireworkEffectList = new ArrayList<>();
-
-                        for (JsonElement effect : effects) {
-                            ArrayList<Color> colorList = new ArrayList<>();
-                            ArrayList<Color> fadeColorList = new ArrayList<>();
-                            FireworkEffect.Type fType = null;
-                            boolean fTrail = false;
-                            boolean fFlicker = false;
-
-                            for (Map.Entry<String, JsonElement> map : effect.getAsJsonObject().entrySet()) {
-                                if (!map.getKey().equals("==")) {
-                                    if (map.getKey().equals("colors"))
-                                        map.getValue().getAsJsonArray().forEach(c -> colorList.add(Color.deserialize(gsonAdapter.fromJson(c, HashMap.class))));
-                                    if (map.getKey().equals("type"))
-                                        fType = FireworkEffect.Type.valueOf(map.getValue().getAsString());
-                                    if (map.getKey().equals("flicker"))
-                                        fFlicker = map.getValue().getAsBoolean();
-                                    if (map.getKey().equals("trail"))
-                                        fTrail = map.getValue().getAsBoolean();
-                                    if (map.getKey().equals("fade-colors"))
-                                        map.getValue().getAsJsonArray().forEach(c -> fadeColorList.add(Color.deserialize(gsonAdapter.fromJson(c, HashMap.class))));
-                                }
-                            }
-                            assert fType != null;
-                            FireworkEffect fireworkEffect = FireworkEffect.builder()
-                                    .with(fType)
-                                    .withColor(colorList)
-                                    .withFade(fadeColorList)
-                                    .trail(fTrail)
-                                    .flicker(fFlicker)
-                                    .build();
-
-                            fireworkEffectList.add(fireworkEffect);
-                        }
-                        itemStack = hasModel(JSON_META, json);
-
-                        FireworkMeta meta = ((FireworkMeta) itemStack.getItemMeta());
-                        meta.addEffects(fireworkEffectList);
-                        meta.setPower(power);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(7))) {
-                    final String _MAP_ID = "map-id";
-
-                    if (JSON_META.has(_MAP_ID)) {
-                        int mapID = JSON_META.get(_MAP_ID).getAsInt();
-                        JSON_META.remove(_MAP_ID);
-                        itemStack = hasModel(JSON_META, json);
-
-                        MapMeta meta = ((MapMeta) itemStack.getItemMeta());
-                        meta.setMapId(mapID);
-                        itemStack.setItemMeta(meta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(8))) {
-                    final String _S_STEW_EFFECTS = "effects";
-
-                    if (JSON_META.has(_S_STEW_EFFECTS)) {
-                        JsonArray jsonEffects = JSON_META.getAsJsonArray(_S_STEW_EFFECTS);
-                        ArrayList<PotionEffect> potionEffects = new ArrayList<>();
-                        jsonEffects.forEach(e -> potionEffects.add(new PotionEffect(
-                                Objects.requireNonNull(PotionEffectType.getById(e.getAsJsonObject().get("effect").getAsInt())),
-                                e.getAsJsonObject().get("duration").getAsInt(),
-                                e.getAsJsonObject().get("amplifier").getAsInt(),
-                                e.getAsJsonObject().get("ambient").getAsBoolean(),
-                                e.getAsJsonObject().get("has-particles").getAsBoolean(),
-                                e.getAsJsonObject().get("has-icon").getAsBoolean()
-                        )));
-
-                        JSON_META.remove(_S_STEW_EFFECTS);
-                        itemStack = hasModel(JSON_META, json);
-
-                        SuspiciousStewMeta newMeta = ((SuspiciousStewMeta) itemStack.getItemMeta());
-                        potionEffects.forEach(e -> newMeta.addCustomEffect(e, true));
-                        itemStack.setItemMeta(newMeta);
-                    }
-
-                } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(9))) {
-                    final String _FISH_MODEL = "custom-fish";
-                    final String _FISH_PATTERN = "pattern";
-                    final String _FISH_PATTERN_COLOR = "pattern-color";
-                    final String _FISH_B_COLOR = "body-color";
-
-                    if (JSON_META.has(_FISH_MODEL)) {
-                        final JsonObject fishModel = JSON_META.get(_FISH_MODEL).getAsJsonObject();
-                        JSON_META.remove(_FISH_MODEL);
-                        JSON_META.remove("fish-variant");
-
-                        itemStack = hasModel(JSON_META, json);
-                        TropicalFishBucketMeta meta = ((TropicalFishBucketMeta) itemStack.getItemMeta());
-                        meta.setPattern(TropicalFish.Pattern.valueOf(fishModel.get(_FISH_PATTERN).getAsString()));
-                        meta.setPatternColor(DyeColor.legacyValueOf(fishModel.get(_FISH_PATTERN_COLOR).getAsString()));
-                        meta.setBodyColor(DyeColor.legacyValueOf(fishModel.get(_FISH_B_COLOR).getAsString()));
-                        itemStack.setItemMeta(meta);
-                    }
-                } else
-                    if (!hasCustomModel) {
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
-                    }
-                setOthers(json);
-                return getItemStack();
+                ItemStack i = gsonAdapter.fromJson(json, ItemStack.class);
+                i.setItemMeta(im);
+                i = setEnchants(i, JSON_META);
+                return i;
             }
             return gsonAdapter.fromJson(json, ItemStack.class);
         }
@@ -472,40 +221,6 @@ public class DefaultAdapters {
         public Class<? extends ItemStack> typeOf(JsonObject json) {
             if (check(json, ItemStack.class.getName(), Type.KEY)) return ItemStack.class;
             return null;
-        }
-        private void setOthers(JsonObject element) {
-            final String _ENCHANTS = "enchants";
-            final String _MODIFIERS = "attribute-modifiers";
-
-
-            if (itemStack == null) return;
-            if (element.has(META_)) {
-                final JsonObject _JSON_META = element.getAsJsonObject(META_);
-                if (_JSON_META.has(_ENCHANTS)) {
-                    final Set<Map.Entry<String, JsonElement>> _JSON_ENCHANTS = _JSON_META.getAsJsonObject(_ENCHANTS).entrySet();
-                    for (Map.Entry<String, JsonElement> mapOfEnchantments : _JSON_ENCHANTS) {
-                        itemStack.addUnsafeEnchantment(
-                                Objects.requireNonNull(Enchantment.getByName(mapOfEnchantments.getKey().toUpperCase())),
-                                mapOfEnchantments.getValue().getAsInt()
-                        );
-                    }
-                }
-                if (_JSON_META.has(_MODIFIERS)) {
-                    final Set<Map.Entry<String, JsonElement>> _JSON_MODIFIERS = _JSON_META.getAsJsonObject(_MODIFIERS).entrySet();
-                    final ItemMeta i = itemStack.getItemMeta();
-                    for (Map.Entry<String, JsonElement> mapOfModifiers : _JSON_MODIFIERS) {
-                        Attribute attr = Attribute.valueOf(mapOfModifiers.getKey().toUpperCase());
-                        for (JsonElement modifier : mapOfModifiers.getValue().getAsJsonArray()) {
-                            AttributeModifier attrModifier = gsonAdapter.fromJson(modifier, AttributeModifier.class);
-                            i.addAttributeModifier(attr, attrModifier);
-                            itemStack.setItemMeta(i);
-                        }
-                    }
-                }
-            }
-        }
-        public ItemStack getItemStack() {
-            return this.itemStack;
         }
     };
     /**
@@ -548,7 +263,7 @@ public class DefaultAdapters {
             for (ItemStack i : source.getContents()) {
                 String slot = "Slot "+_SERIALIZED_ITEMS.size();
                 if (i != null) {
-                    _SERIALIZED_ITEMS.add(slot, ITEMSTACK_ADAPTER.toJson(i));
+                    _SERIALIZED_ITEMS.add(slot, ITEM_ADAPTER.toJson(i));
                 } else {
                     _SERIALIZED_ITEMS.add(slot, JsonNull.INSTANCE);
                 }
@@ -590,7 +305,7 @@ public class DefaultAdapters {
                             (null, inventoryData.getSize(), inventoryData.getTitle());
 
             inventoryData.getContents().forEach((key, value) -> _ITEMS.add(
-                    value == JsonNull.INSTANCE ? new ItemStack(Material.AIR) : ITEMSTACK_ADAPTER.fromJson(value.getAsJsonObject())));
+                    value == JsonNull.INSTANCE ? new ItemStack(Material.AIR) : ITEM_ADAPTER.fromJson(value.getAsJsonObject())));
             _INV.setContents(_ITEMS.toArray(new ItemStack[0]));
             return _INV;
         }
@@ -657,6 +372,319 @@ public class DefaultAdapters {
             protected void setContents(Map<String, JsonElement> contents) {
                 this.contents = contents;
             }
+        }
+    };
+
+    /**
+     * <p>
+     * Serializer / Deserializer for ItemMeta. {@link JsonElement}
+     * </p>
+     * <p>
+     * <b>Example</b>
+     * </p>
+     *
+     * </p>
+     */
+    private static final DefaultAdapter<ItemMeta> META_ADAPTER = new DefaultAdapter<>() {
+
+        final private String META_ = "meta";
+
+        final private String[] IGNORED_CLASSES = {
+                "KnowledgeBookMeta",
+                "LeatherArmorMeta",
+                "MusicInstrumentMeta",
+                "PotionMeta",
+                "Repairable",
+                "SkullMeta",
+                "SpawnEggMeta"
+        };
+
+
+        final HashMap<Integer, String> metaTypes = new HashMap<>() {{
+            put(0, "BANNER");
+            put(1, "AXOLOTL_BUCKET");
+            put(2, "BUNDLE");
+            put(3, "COMPASS");
+            put(4, "CROSSBOW");
+            put(5, "DAMAGEABLE");
+            put(6, "FIREWORK");
+            put(7, "Map");
+            put(8, "SUSPICIOUS_STEW");
+            put(9, "TropicalFishBucketMeta");
+        }};
+
+
+        private void setModel(int model, ItemMeta meta) {
+            if (model != -999) {
+                meta.setCustomModelData(model);
+            }
+        }
+
+        private void setModifiers(JsonObject JSON_META, final ItemMeta i) {
+            final String _MODIFIERS = "attribute-modifiers";
+            if (JSON_META.has(_MODIFIERS)) {
+                final Set<Map.Entry<String, JsonElement>> _JSON_MODIFIERS = JSON_META.getAsJsonObject(_MODIFIERS).entrySet();
+                for (Map.Entry<String, JsonElement> mapOfModifiers : _JSON_MODIFIERS) {
+                    Attribute attr = Attribute.valueOf(mapOfModifiers.getKey().toUpperCase());
+                    for (JsonElement modifier : mapOfModifiers.getValue().getAsJsonArray()) {
+                        AttributeModifier attrModifier = gsonAdapter.fromJson(modifier, AttributeModifier.class);
+                        i.addAttributeModifier(attr, attrModifier);
+                    }
+                }
+            }
+        }
+
+        private ItemMeta convert(JsonObject JSON) {
+            JsonObject JSON_META = JSON.getAsJsonObject("meta");
+            ItemMeta meta = null;
+            int CustomModelData = -999;
+
+            if (JSON_META.has("custom-model-data")) {
+                CustomModelData = JSON_META.get("custom-model-data").getAsInt();
+                JSON_META.remove("custom-model-data");
+            }
+
+
+            String META_TYPE = "meta-type";
+            if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(0))) {
+                final String _BANNER_PATTERNS = "patterns";
+
+                if (JSON_META.has(_BANNER_PATTERNS)) {
+                    JsonArray _PATTERN_ARRAY = JSON_META.getAsJsonArray(_BANNER_PATTERNS);
+                    JSON_META.remove(_BANNER_PATTERNS);
+                    ArrayList<Pattern> _PATTERNS = new ArrayList<>();
+
+                    for (JsonElement pattern : _PATTERN_ARRAY) {
+                        _PATTERNS.add(new org.bukkit.block.banner.Pattern(
+                                DyeColor.valueOf(pattern.getAsJsonObject().get("color").getAsString()),
+                                Objects.requireNonNull(PatternType.getByIdentifier(pattern.getAsJsonObject().get("pattern").getAsString()))
+                        ));
+                    }
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    BannerMeta bannerMeta = (BannerMeta) meta;
+                    bannerMeta.setPatterns(_PATTERNS);
+                }
+            }
+            else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(1))) {
+                final String _AXOLOTL_B_VARIANT = "axolotl-variant";
+                final HashMap<Integer, Axolotl.Variant> axolotlVariants = new HashMap<>() {{
+                    put(0, Axolotl.Variant.LUCY);
+                    put(1, Axolotl.Variant.WILD);
+                    put(2, Axolotl.Variant.GOLD);
+                    put(3, Axolotl.Variant.CYAN);
+                    put(4, Axolotl.Variant.BLUE);
+                }};
+                if (JSON_META.has(_AXOLOTL_B_VARIANT)) {
+                    Integer variant = JSON_META.get(_AXOLOTL_B_VARIANT).getAsInt();
+                    JSON_META.remove(_AXOLOTL_B_VARIANT);
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    AxolotlBucketMeta Axolotlmeta = ((AxolotlBucketMeta) meta);
+                    Axolotlmeta.setVariant(axolotlVariants.get(variant));
+                }
+            }
+            else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(2))) {
+                final String _BUNDLE_ITEMS = "items";
+                if (JSON_META.has(_BUNDLE_ITEMS)) {
+                    final JsonArray JSON_ITEMS_ = JSON_META.getAsJsonArray(_BUNDLE_ITEMS);
+                    JSON_META.remove(_BUNDLE_ITEMS);
+                    final ArrayList<ItemStack> items = new ArrayList<>();
+                    JSON_ITEMS_.forEach(item -> {
+                        items.add(ITEM_ADAPTER.fromJson(item.getAsJsonObject()));
+                    });
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    BundleMeta bundleMeta = ((BundleMeta) meta);
+                    bundleMeta.setItems(items);
+                }
+            }
+            else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(3))) {
+                final String _COMPASS_P_WORLD = "LodestonePosWorld";
+                final String _COMPASS_P_X = "LodestonePosX";
+                final String _COMPASS_P_Y = "LodestonePosY";
+                final String _COMPASS_P_Z = "LodestonePosZ";
+                final String _COMPASS_P_TRACKED = "LodestoneTracked";
+
+                if(JSON_META.has(_COMPASS_P_WORLD) && JSON_META.has(_COMPASS_P_TRACKED)) {
+                    Location loc = new Location(
+                            SkJson.getInstance().getServer().getWorlds().get(0),
+                            JSON_META.get(_COMPASS_P_X).getAsDouble(),
+                            JSON_META.get(_COMPASS_P_Y).getAsDouble(),
+                            JSON_META.get(_COMPASS_P_Z).getAsDouble()
+                    );
+                    boolean tracked = JSON_META.get(_COMPASS_P_TRACKED).getAsBoolean();
+                    JSON_META.remove(_COMPASS_P_X);
+                    JSON_META.remove(_COMPASS_P_Y);
+                    JSON_META.remove(_COMPASS_P_Z);
+                    JSON_META.remove(_COMPASS_P_WORLD);
+                    JSON_META.remove(_COMPASS_P_TRACKED);
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    CompassMeta CompassMeta = ((CompassMeta) meta);
+                    CompassMeta.setLodestone(loc);
+                    CompassMeta.setLodestoneTracked(tracked);
+                }
+            }
+            else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(4))) {
+                final String _CROSSBOW_PROJECTILES = "charged-projectiles";
+
+                if (JSON_META.has(_CROSSBOW_PROJECTILES)) {
+                    ArrayList<ItemStack> _PROJECTILES = new ArrayList<>();
+                    JSON_META.get(_CROSSBOW_PROJECTILES).getAsJsonArray().forEach(p -> _PROJECTILES.add(ITEM_ADAPTER.fromJson(p.getAsJsonObject())));
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    CrossbowMeta CrossBowMeta = ((CrossbowMeta) meta);
+                    CrossBowMeta.setChargedProjectiles(_PROJECTILES);
+                }
+
+            } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(5))) {
+                final String _DMG_DAMAGE = "Damage";
+
+                if (JSON_META.has(_DMG_DAMAGE)) {
+                    int damage = JSON_META.get(_DMG_DAMAGE).getAsInt();
+                    JSON_META.remove(_DMG_DAMAGE);
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    Damageable DamageableMeta = ((Damageable) meta);
+                    DamageableMeta.setDamage(damage);
+                }
+
+            } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(6))) {
+                final String _FIREWORK_EFFECTS = "firework-effects";
+                final String _FIREWORK_POWER = "power";
+
+                if (JSON_META.has(_FIREWORK_EFFECTS)) {
+                    int power = JSON_META.get(_FIREWORK_POWER).getAsInt();
+                    JsonArray effects = JSON_META.getAsJsonArray(_FIREWORK_EFFECTS);
+                    JSON_META.remove(_FIREWORK_POWER);
+                    JSON_META.remove(_FIREWORK_EFFECTS);
+
+
+                    ArrayList<FireworkEffect> fireworkEffectList = new ArrayList<>();
+
+                    for (JsonElement effect : effects) {
+                        ArrayList<Color> colorList = new ArrayList<>();
+                        ArrayList<Color> fadeColorList = new ArrayList<>();
+                        FireworkEffect.Type fType = null;
+                        boolean fTrail = false;
+                        boolean fFlicker = false;
+
+                        for (Map.Entry<String, JsonElement> map : effect.getAsJsonObject().entrySet()) {
+                            if (!map.getKey().equals("==")) {
+                                if (map.getKey().equals("colors"))
+                                    map.getValue().getAsJsonArray().forEach(c -> colorList.add(Color.deserialize(gsonAdapter.fromJson(c, HashMap.class))));
+                                if (map.getKey().equals("type"))
+                                    fType = FireworkEffect.Type.valueOf(map.getValue().getAsString());
+                                if (map.getKey().equals("flicker"))
+                                    fFlicker = map.getValue().getAsBoolean();
+                                if (map.getKey().equals("trail"))
+                                    fTrail = map.getValue().getAsBoolean();
+                                if (map.getKey().equals("fade-colors"))
+                                    map.getValue().getAsJsonArray().forEach(c -> fadeColorList.add(Color.deserialize(gsonAdapter.fromJson(c, HashMap.class))));
+                            }
+                        }
+                        assert fType != null;
+                        FireworkEffect fireworkEffect = FireworkEffect.builder()
+                                .with(fType)
+                                .withColor(colorList)
+                                .withFade(fadeColorList)
+                                .trail(fTrail)
+                                .flicker(fFlicker)
+                                .build();
+
+                        fireworkEffectList.add(fireworkEffect);
+                    }
+
+                    meta =  gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    FireworkMeta FireworkMeta = ((FireworkMeta) meta);
+                    FireworkMeta.addEffects(fireworkEffectList);
+                    FireworkMeta.setPower(power);
+                }
+
+            } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(7))) {
+                final String _MAP_ID = "map-id";
+
+                if (JSON_META.has(_MAP_ID)) {
+                    int mapID = JSON_META.get(_MAP_ID).getAsInt();
+                    JSON_META.remove(_MAP_ID);
+
+                    meta =  gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    MapMeta mapMeta = ((MapMeta) meta);
+                    mapMeta.setMapId(mapID);
+                }
+
+            } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(8))) {
+                final String _S_STEW_EFFECTS = "effects";
+
+                if (JSON_META.has(_S_STEW_EFFECTS)) {
+                    JsonArray jsonEffects = JSON_META.getAsJsonArray(_S_STEW_EFFECTS);
+                    ArrayList<PotionEffect> potionEffects = new ArrayList<>();
+                    jsonEffects.forEach(e -> potionEffects.add(new PotionEffect(
+                            Objects.requireNonNull(PotionEffectType.getById(e.getAsJsonObject().get("effect").getAsInt())),
+                            e.getAsJsonObject().get("duration").getAsInt(),
+                            e.getAsJsonObject().get("amplifier").getAsInt(),
+                            e.getAsJsonObject().get("ambient").getAsBoolean(),
+                            e.getAsJsonObject().get("has-particles").getAsBoolean(),
+                            e.getAsJsonObject().get("has-icon").getAsBoolean()
+                    )));
+
+                    JSON_META.remove(_S_STEW_EFFECTS);
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    SuspiciousStewMeta newMeta = ((SuspiciousStewMeta) meta);
+                    potionEffects.forEach(e -> newMeta.addCustomEffect(e, true));
+                }
+
+            } else if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(9))) {
+                final String _FISH_MODEL = "custom-fish";
+                final String _FISH_PATTERN = "pattern";
+                final String _FISH_PATTERN_COLOR = "pattern-color";
+                final String _FISH_B_COLOR = "body-color";
+
+                if (JSON_META.has(_FISH_MODEL)) {
+                    final JsonObject fishModel = JSON_META.get(_FISH_MODEL).getAsJsonObject();
+                    JSON_META.remove(_FISH_MODEL);
+                    JSON_META.remove("fish-variant");
+
+                    meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                    TropicalFishBucketMeta Newmeta = ((TropicalFishBucketMeta) meta);
+                    Newmeta.setPattern(TropicalFish.Pattern.valueOf(fishModel.get(_FISH_PATTERN).getAsString()));
+                    Newmeta.setPatternColor(DyeColor.legacyValueOf(fishModel.get(_FISH_PATTERN_COLOR).getAsString()));
+                    Newmeta.setBodyColor(DyeColor.legacyValueOf(fishModel.get(_FISH_B_COLOR).getAsString()));
+                }
+            }
+            else {
+                meta = gsonAdapter.fromJson(JSON_META, ItemMeta.class);
+                setModel(CustomModelData, meta);
+                return meta;
+            }
+            setModel(CustomModelData, meta);
+            setModifiers(JSON_META, meta);
+            return meta;
+        }
+
+
+
+
+
+
+
+
+
+
+        @Override
+        public @NotNull JsonElement toJson(ItemMeta source) {
+            return null;
+        }
+
+        @Override
+        public ItemMeta fromJson(JsonObject json) {
+            return convert(json);
+        }
+
+        @Override
+        public Class<? extends ItemMeta> typeOf(JsonObject json) {
+            return null;
         }
     };
 
@@ -736,6 +764,7 @@ public class DefaultAdapters {
         } catch (ClassNotFoundException notFoundException) {
             printPrettyStackTrace(notFoundException, _STACKTRACE_LENGTH);
         }
+
         if (clazz != null) {
             try {
                 if (World.class.isAssignableFrom(clazz))
@@ -743,7 +772,7 @@ public class DefaultAdapters {
                 else if (Chunk.class.isAssignableFrom(clazz))
                     return (T) CHUNK_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
-                    return ((T) ITEMSTACK_ADAPTER.fromJson(json.getAsJsonObject()));
+                    return ((T) ITEM_ADAPTER.fromJson(json.getAsJsonObject()));
                 else if (Inventory.class.isAssignableFrom(clazz))
                     return (T) INVENTORY_ADAPTER.fromJson(json.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
@@ -757,6 +786,7 @@ public class DefaultAdapters {
                     return null;
                 }
             } catch (Exception ex) {
+                ex.printStackTrace();
                 printPrettyStackTrace(ex, _STACKTRACE_LENGTH);
             }
         }
@@ -769,7 +799,7 @@ public class DefaultAdapters {
         boolean isNBT = false;
 
         if (object instanceof World) return WORLD_ADAPTER.toJson((World) object);
-        else if (object instanceof ItemStack) return ITEMSTACK_ADAPTER.toJson((ItemStack) object);
+        else if (object instanceof ItemStack) return ITEM_ADAPTER.toJson((ItemStack) object);
         else if (object instanceof Chunk) return CHUNK_ADAPTER.toJson((Chunk) object);
         else if (object instanceof NBTCompound) {
             if (_NBT_SUPPORTED) return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
@@ -789,7 +819,7 @@ public class DefaultAdapters {
         }
         else {
             if (skriptItem instanceof ItemType || skriptItem instanceof Slot || skriptItem instanceof ItemStack) {
-                return ITEMSTACK_ADAPTER.toJson(parseItem(skriptItem, expression, event));
+                return ITEM_ADAPTER.toJson(parseItem(skriptItem, expression, event));
             } else {
                 return assignTo(skriptItem);
             }
