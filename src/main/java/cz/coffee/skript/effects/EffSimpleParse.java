@@ -59,7 +59,7 @@ public class EffSimpleParse extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(EffSimpleParse.class, Object.class, ExpressionType.SIMPLE,
-                "parsed %json%"
+                "parsed %object%"
         );
     }
 
