@@ -382,7 +382,7 @@ public class DefaultAdapters {
      * <p>
      * <b>Example</b>
      * </p>
-     *
+     *  Seperated ItemMeta
      * </p>
      */
     private static final DefaultAdapter<ItemMeta> META_ADAPTER = new DefaultAdapter<>() {
