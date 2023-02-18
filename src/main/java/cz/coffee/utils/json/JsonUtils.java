@@ -20,6 +20,7 @@ package cz.coffee.utils.json;
 
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
+import cz.coffee.adapter.DefaultAdapters;
 import cz.coffee.utils.SimpleUtil;
 import cz.coffee.utils.Type;
 import org.bukkit.event.Event;
@@ -264,7 +265,7 @@ public class JsonUtils {
 
         if (pos > -1) {
             return s.substring(0, pos)
-                    + s.substring(pos + search.length(), s.length());
+                    + s.substring(pos + search.length());
         }
 
         return s;
@@ -352,7 +353,7 @@ public class JsonUtils {
         final Pattern internalPattern = Pattern.compile("\\[(.*?)]");
 
 
-        for (String string : StringInput.split(":")) {
+        for (String string : StringInput.split(":(?![{}\\[\\]])")) {
             Matcher squares = subPattern.matcher(string);
             Matcher number = internalPattern.matcher(string);
             if (isSquared.matcher(string).find()) {
@@ -374,34 +375,54 @@ public class JsonUtils {
 
 
     @SuppressWarnings("UnusedReturnValue")
-    public static JsonElement deleteNested(String[] nest, JsonElement input, boolean ...valueS) {
-        boolean getValue = valueS != null && valueS.length > 0 && valueS[0];
+    public static JsonElement deleteNested(String[] nest, JsonElement input, boolean edited, Event event, Object ...data) {
+        Object unparsedData = (data != null && data.length > 0 && data[0] != null) ? data[0] : null;
+        boolean unparsedJson = data != null && data.length > 0 && data[0] != null;
+
+
         JsonElement element;
         Deque<JsonElement> elements = new ArrayDeque<>();
         elements.add(input);
 
         while ((element = elements.pollFirst()) != null) {
+
             if (element instanceof JsonObject) {
                 JsonObject map = element.getAsJsonObject();
                 String[] mapKeys = map.keySet().toArray(new String[0]);
                 for (String mapKey : nest) {
                     JsonElement value = map.get(mapKey);
                     if (!(value == null || value instanceof JsonNull)) {
-                        if (mapKey.equals(nest[nest.length - 1])) {
-                            map.remove(mapKey);
-                        } else {
+                        if (unparsedJson) {
                             if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                        } else {
+                            if (mapKey.equals(nest[nest.length - 1])) {
+                                map.remove(mapKey);
+                            } else {
+                                if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                            }
                         }
                     }
                 }
             } else if (element instanceof JsonArray) {
-                System.out.println("array");
                 JsonArray list = element.getAsJsonArray();
                 for (int j = 0; j < list.size(); j++) {
                     JsonElement value = list.get(j);
                     if (!(value == null || value instanceof JsonNull)) {
-                        if (getValue) {
-                            if (value.getAsString().equals(nest[nest.length - 1])){
+                        if (unparsedJson) {
+                            if (unparsedData instanceof Number) {
+                                Number w = (Number) unparsedData;
+                                if (w.intValue() <= list.size()) {
+                                    list.remove(w.intValue());
+                                }
+                            } else {
+                                if (DefaultAdapters.parse(unparsedData, event).equals(value))
+                                    list.remove(j);
+                                else
+                                    if (!(value instanceof JsonPrimitive)) elements.offerLast(value);
+                            }
+                        }
+                        else if (edited) {
+                            if (value.toString().equals(nest[nest.length - 1])) {
                                 list.remove(j);
                             } else {
                                 if (!(value instanceof JsonPrimitive)) elements.offerLast(value);

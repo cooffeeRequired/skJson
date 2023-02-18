@@ -48,6 +48,8 @@ import static cz.coffee.utils.json.JsonVariables.setVariable;
         "remove json value \"list[1]\" from {-json}",
         "remove json value \"list\" from {-json}",
         "remove json value \"list[1]\" from cached json \"your.input\"",
+        "remove index 1 from nested object \"list\" of {-json}",
+        "remove object player's tool from nested object \"items\" of {-json}"
 })
 @Since("2.5.1")
 
@@ -61,12 +63,13 @@ public class EffCustomChanger extends Effect {
         Skript.registerEffect(EffCustomChanger.class,
                 "set json value[s] %string% of [(:cached json)] %string/json% to %objects%",
                 "add json value[s] %objects% to [(:cached json)] %string/json%",
-                "remove json [[list]( |-)[:value]] %string% from [(:cached json)] %string/json%"
+                "remove json [[list]( |-)[:value]] %string% from [(:cached json)] %string/json%",
+                "remove [json] (:index|:object) %object% [from nested object %-string%] of [(:cached json)] %string/json%"
         );
     }
     private VariableString variableString;
 
-    private boolean isCached, isLocal, value;
+    private boolean isCached, isLocal, value, isIndex, isObject, parsedCase;
 
     @Override
     protected void execute(@NotNull Event event) {
@@ -75,6 +78,9 @@ public class EffCustomChanger extends Effect {
         Object what = expressionWhat.getSingle(event);
         if (mode == 1 || mode == 0) {
             keyValue = expressionKeyValue.getSingle(event);
+            if (parsedCase) {
+                delta = expressionDelta.getAll(event);
+            }
         }
         if (mode != 0) delta = expressionDelta.getAll(event);
         process(what, delta, isCached, keyValue, mode, event, expressionDelta);
@@ -108,12 +114,23 @@ public class EffCustomChanger extends Effect {
             mode = 2;
             expressionWhat = LiteralUtils.defendExpression(expressions[1]);
             expressionDelta = LiteralUtils.defendExpression(expressions[0]);
-        } else if (i == 2) {
+        } else if (i == 2 || i == 3) {
             // Case REMOVE
             value = parseResult.hasTag("value");
+            isIndex = parseResult.hasTag("index");
+            isObject = parseResult.hasTag("object");
             mode = 0;
-            expressionKeyValue = (Expression<String>) expressions[0];
-            expressionWhat = LiteralUtils.defendExpression(expressions[1]);
+            if (i == 3){
+                parsedCase = true;
+                expressionDelta = LiteralUtils.defendExpression(expressions[0]);
+                if (LiteralUtils.canInitSafely(expressionDelta)) {
+                    expressionKeyValue = (Expression<String>) expressions[1];
+                    expressionWhat = LiteralUtils.defendExpression(expressions[2]);
+                }
+            } else {
+                expressionKeyValue = (Expression<String>) expressions[0];
+                expressionWhat = LiteralUtils.defendExpression(expressions[1]);
+            }
         }
 
         // Cached think
@@ -132,7 +149,13 @@ public class EffCustomChanger extends Effect {
                 return LiteralUtils.canInitSafely(expressionDelta);
             }
         } else if (mode == 0) {
-            return LiteralUtils.canInitSafely(expressionWhat);
+            if (parsedCase) {
+                if (LiteralUtils.canInitSafely(expressionDelta)) {
+                    return LiteralUtils.canInitSafely(expressionWhat);
+                }
+            } else {
+                return LiteralUtils.canInitSafely(expressionWhat);
+            }
         }
         return false;
     }
@@ -150,9 +173,9 @@ public class EffCustomChanger extends Effect {
                 if (JSON_STORAGE.containsKey(key) && FILE_JSON_MAP.containsKey(key)) {
                     STORAGE = JSON_STORAGE.get(key);
                     if (!value){
-                        deleteNested(extractedKeys,STORAGE);
+                        deleteNested(extractedKeys,STORAGE, false, event);
                     } else {
-                        deleteNested(extractedKeys,STORAGE, true);
+                        deleteNested(extractedKeys,STORAGE, true, event);
                     }
                     JSON_STORAGE.remove(key);
                     JSON_STORAGE.put(key, STORAGE);
@@ -163,9 +186,25 @@ public class EffCustomChanger extends Effect {
                 if (fromVar instanceof JsonElement) {
                     STORAGE = (JsonElement) fromVar;
                     if (!value){
-                        deleteNested(extractedKeys,STORAGE);
+                        if (parsedCase) {
+                            if (isObject) {
+                                deleteNested(extractedKeys, STORAGE, false, event, delta);
+                            } else if (isIndex) {
+                                deleteNested(extractedKeys, STORAGE, false, event, delta);
+                            }
+                        } else {
+                            deleteNested(extractedKeys,STORAGE, false, event);
+                        }
                     } else {
-                        deleteNested(extractedKeys,STORAGE,true);
+                        if (parsedCase) {
+                            if (isObject) {
+                                System.out.println("object");
+                            } else if (isIndex) {
+                                System.out.println("index");
+                            } else {
+                                deleteNested(extractedKeys, STORAGE, true, event);
+                            }
+                        }
                     }
                     setVariable(variableName, STORAGE, event, isLocal);
                 }

@@ -29,6 +29,7 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.shanebeestudios.skbee.api.NBT.NBTContainer;
+import cz.coffee.SkJson;
 import cz.coffee.adapter.DefaultAdapters;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -36,6 +37,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
@@ -46,6 +48,7 @@ import static cz.coffee.utils.json.JsonUtils.convert;
 @SuppressWarnings("unused")
 public class Type {
     private static final String KEY_PARSED_TAG = ";";
+    static final Plugin skBee = SkJson.getInstance().getPluginManager().getPlugin("SkBee");
 
     static {
         Converters.registerConverter(JsonElement.class, ItemStack.class, DefaultAdapters::assignFrom);
@@ -53,7 +56,6 @@ public class Type {
         Converters.registerConverter(JsonElement.class, World.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, Chunk.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, Inventory.class, DefaultAdapters::assignFrom);
-        Converters.registerConverter(JsonElement.class, NBTContainer.class, DefaultAdapters::assignFrom);
         Converters.registerConverter(JsonElement.class, ConfigurationSerializable.class, DefaultAdapters::assignFrom);
 
         Classes.registerClass(

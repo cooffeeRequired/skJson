@@ -174,10 +174,13 @@ public class DefaultAdapters {
         final private String META_ = "meta";
         final private String META_TYPE = "meta-type";
 
+        private boolean hasCustomModel = false;
+
         private ItemStack itemStack;
 
         @Override
         public @NotNull JsonElement toJson(ItemStack source) {
+
             if (source.getItemMeta() == null) {
                 return gsonAdapter.toJsonTree(source, ItemStack.class);
             }
@@ -203,6 +206,7 @@ public class DefaultAdapters {
         @SuppressWarnings({"UnstableApiUsage", "unchecked", "deprecation"})
         @Override
         public ItemStack fromJson(JsonObject json) {
+
             if (json.has(META_)) {
                 final JsonObject JSON_META = json.getAsJsonObject(META_);
                 boolean isIgnored = Arrays.stream(IGNORED_CLASSES).anyMatch(ignored -> JSON_META.get(META_TYPE).getAsString().equals(ignored));
@@ -211,6 +215,16 @@ public class DefaultAdapters {
                     itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                     setOthers(json);
                     return getItemStack();
+                }
+
+                if (JSON_META.has("custom-model-data")) {
+                    hasCustomModel = true;
+                    int customModelData = JSON_META.get("custom-model-data").getAsInt();
+                    JSON_META.remove("custom-model-data");
+                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                    ItemMeta im = itemStack.getItemMeta();
+                    im.setCustomModelData(customModelData);
+                    itemStack.setItemMeta(im);
                 }
 
                 if (JSON_META.get(META_TYPE).getAsString().equals(metaTypes.get(0))) {
@@ -435,10 +449,13 @@ public class DefaultAdapters {
                         itemStack.setItemMeta(meta);
                     }
                 } else
-                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                    if (!hasCustomModel) {
+                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                    }
                 setOthers(json);
                 return getItemStack();
             }
+            System.out.println("HERE");
             return gsonAdapter.fromJson(json, ItemStack.class);
         }
 
@@ -769,7 +786,6 @@ public class DefaultAdapters {
             }
         }
     }
-
     public static JsonElement parse(Object item, Event e) {
         Object finalI = null;
         if (item instanceof JsonElement) {

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
@@ -55,7 +56,7 @@ public class JsonFilesHandler {
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        Files.writeString(new File(strFile).toPath(), gson.toJson(dataJson));
+                        Files.writeString(new File(strFile).toPath(), gson.toJson(dataJson), StandardCharsets.UTF_8);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -93,7 +94,7 @@ public class JsonFilesHandler {
             if (async) {
                 asyncWriting(data, file.toString());
             } else {
-                Files.writeString(file.toPath(), gson.toJson(data));
+                Files.writeString(file.toPath(), gson.toJson(data), StandardCharsets.UTF_8);
             }
         } catch (IOException exception) {
             printPrettyStackTrace(exception, _STACKTRACE_LENGTH);
