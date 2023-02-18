@@ -212,7 +212,7 @@ public class DefaultAdapters {
                 boolean isIgnored = Arrays.stream(IGNORED_CLASSES).anyMatch(ignored -> JSON_META.get(META_TYPE).getAsString().equals(ignored));
 
                 if (isIgnored) {
-                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                     if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                     setOthers(json);
                     return getItemStack();
                 }
@@ -221,7 +221,7 @@ public class DefaultAdapters {
                     hasCustomModel = true;
                     int customModelData = JSON_META.get("custom-model-data").getAsInt();
                     JSON_META.remove("custom-model-data");
-                    itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                     if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                     ItemMeta im = itemStack.getItemMeta();
                     im.setCustomModelData(customModelData);
                     itemStack.setItemMeta(im);
@@ -241,7 +241,7 @@ public class DefaultAdapters {
                                     Objects.requireNonNull(PatternType.getByIdentifier(pattern.getAsJsonObject().get("pattern").getAsString()))
                             ));
                         }
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                         BannerMeta meta = (BannerMeta) itemStack.getItemMeta();
                         meta.setPatterns(_PATTERNS);
                         itemStack.setItemMeta(meta);
@@ -261,7 +261,7 @@ public class DefaultAdapters {
                         Integer variant = JSON_META.get(_AXOLOTL_B_VARIANT).getAsInt();
                         JSON_META.remove(_AXOLOTL_B_VARIANT);
 
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                         AxolotlBucketMeta meta = ((AxolotlBucketMeta) itemStack.getItemMeta());
                         meta.setVariant(axolotlVariants.get(variant));
                         itemStack.setItemMeta(meta);
@@ -274,7 +274,7 @@ public class DefaultAdapters {
                         final JsonArray JSON_ITEMS_ = JSON_META.getAsJsonArray(_BUNDLE_ITEMS);
                         JSON_META.remove(_BUNDLE_ITEMS);
                         final ArrayList<ItemStack> items = new ArrayList<>();
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                         for (JsonElement jsonItem : JSON_ITEMS_) {
                             items.add(gsonAdapter.fromJson(jsonItem, ItemStack.class));
                         }
@@ -305,7 +305,7 @@ public class DefaultAdapters {
                         JSON_META.remove(_COMPASS_P_WORLD);
                         JSON_META.remove(_COMPASS_P_TRACKED);
 
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         CompassMeta meta = ((CompassMeta) itemStack.getItemMeta());
                         meta.setLodestone(loc);
@@ -320,7 +320,7 @@ public class DefaultAdapters {
                         ArrayList<ItemStack> _PROJECTILES = new ArrayList<>();
                         JSON_META.get(_CROSSBOW_PROJECTILES).getAsJsonArray().forEach(p -> _PROJECTILES.add(gsonAdapter.fromJson(p, ItemStack.class)));
 
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         CrossbowMeta meta = ((CrossbowMeta) itemStack.getItemMeta());
                         meta.setChargedProjectiles(_PROJECTILES);
@@ -334,7 +334,7 @@ public class DefaultAdapters {
                         int damage = JSON_META.get(_DMG_DAMAGE).getAsInt();
                         JSON_META.remove(_DMG_DAMAGE);
 
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         Damageable meta = ((Damageable) itemStack.getItemMeta());
                         meta.setDamage(damage);
@@ -386,7 +386,7 @@ public class DefaultAdapters {
 
                             fireworkEffectList.add(fireworkEffect);
                         }
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         FireworkMeta meta = ((FireworkMeta) itemStack.getItemMeta());
                         meta.addEffects(fireworkEffectList);
@@ -400,7 +400,7 @@ public class DefaultAdapters {
                     if (JSON_META.has(_MAP_ID)) {
                         int mapID = JSON_META.get(_MAP_ID).getAsInt();
                         JSON_META.remove(_MAP_ID);
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         MapMeta meta = ((MapMeta) itemStack.getItemMeta());
                         meta.setMapId(mapID);
@@ -423,7 +423,7 @@ public class DefaultAdapters {
                         )));
 
                         JSON_META.remove(_S_STEW_EFFECTS);
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                         if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
 
                         SuspiciousStewMeta newMeta = ((SuspiciousStewMeta) itemStack.getItemMeta());
                         potionEffects.forEach(e -> newMeta.addCustomEffect(e, true));
@@ -441,7 +441,7 @@ public class DefaultAdapters {
                         JSON_META.remove(_FISH_MODEL);
                         JSON_META.remove("fish-variant");
 
-                        itemStack = gsonAdapter.fromJson(json, ItemStack.class);
+                        if (!hasCustomModel) itemStack = gsonAdapter.fromJson(json, ItemStack.class);
                         TropicalFishBucketMeta meta = ((TropicalFishBucketMeta) itemStack.getItemMeta());
                         meta.setPattern(TropicalFish.Pattern.valueOf(fishModel.get(_FISH_PATTERN).getAsString()));
                         meta.setPatternColor(DyeColor.legacyValueOf(fishModel.get(_FISH_PATTERN_COLOR).getAsString()));
@@ -455,7 +455,6 @@ public class DefaultAdapters {
                 setOthers(json);
                 return getItemStack();
             }
-            System.out.println("HERE");
             return gsonAdapter.fromJson(json, ItemStack.class);
         }
 
