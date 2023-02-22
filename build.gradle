@@ -36,7 +36,7 @@ dependencies {
     /*
     net.minecraft.server
     compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
-    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
+    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal..
      */
 
 
@@ -48,6 +48,8 @@ dependencies {
 
     //Shadowing
     shadow 'com.google.code.gson:gson:2.10.1'
+
+    testCompileOnly "io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT"
 }
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-source", "11", "-target", "11"]

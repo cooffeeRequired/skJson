@@ -26,7 +26,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.shanebeestudios.skbee.api.NBT.NBTContainer;
 import cz.coffee.utils.ErrorHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

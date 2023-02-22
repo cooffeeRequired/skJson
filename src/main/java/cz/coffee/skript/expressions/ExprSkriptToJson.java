@@ -37,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.utils.ErrorHandler.Level.ERROR;
 import static cz.coffee.utils.ErrorHandler.*;
-import static cz.coffee.utils.json.JsonMapping.listToJson;
 
 @Name("Array or List formatted to JSON.")
 @Description({"It allows you to convert the sheet back to Json!",

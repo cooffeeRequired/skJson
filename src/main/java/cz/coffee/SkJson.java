@@ -107,25 +107,6 @@ public final class SkJson extends JavaPlugin {
         info("&eDisabling... good bye!");
     }
 
-    @SuppressWarnings("unused")
-    public static void warning(String string) {
-        logger.warning(util.color("&e" + string));
-    }
-
-    // Logging
-    public static void info(String string) {
-        logger.info(util.color(string));
-    }
-
-    @SuppressWarnings("unused")
-    public static void debug(Object str) {
-        logger.severe(util.color("DEBUG! " + "&r" + str));
-    }
-
-    public static void severe(String string) {
-        logger.severe(util.color("&c" + string));
-    }
-
     @Override
     public void onEnable() {
         instance = this;
@@ -175,5 +156,23 @@ public final class SkJson extends JavaPlugin {
     public static void console(String string) {
         String prefix = version.isLegacy() ? util.color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
         Bukkit.getServer().getConsoleSender().sendMessage(util.color(prefix + " " + (version.isLegacy() ? util.color(string) : hex(string))));
+    }
+    @SuppressWarnings("unused")
+    public static void warning(String string) {
+        logger.warning(util.color("&e" + string));
+    }
+
+    // Logging
+    public static void info(String string) {
+        logger.info(util.color(string));
+    }
+
+    @SuppressWarnings("unused")
+    public static void debug(Object str) {
+        logger.severe(util.color("DEBUG! " + "&r" + str));
+    }
+
+    public static void severe(String string) {
+        logger.severe(util.color("&c" + string));
     }
 }

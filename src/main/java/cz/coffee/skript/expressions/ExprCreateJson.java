@@ -173,7 +173,7 @@ public class ExprCreateJson extends SimpleExpression<JsonElement> {
             }
             return false;
         } else if (pattern == 4) {
-            sendMessage("This is a deprecated syntax, &f&lTry that expression without &c&7'&f... &cnew&f json from text ...", ERROR);
+            Skript.error("This is a deprecated syntax. Don't use syntax like 'new json from ...'");
             return false;
         } else {
             exprToSerialize = LiteralUtils.defendExpression(expressions[0]);

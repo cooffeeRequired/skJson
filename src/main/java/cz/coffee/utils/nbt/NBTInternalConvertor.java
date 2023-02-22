@@ -19,8 +19,8 @@
 package cz.coffee.utils.nbt;
 
 import com.google.gson.JsonElement;
-import com.shanebeestudios.skbee.api.NBT.NBTCompound;
-import com.shanebeestudios.skbee.api.NBT.NBTContainer;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 
 
 @SuppressWarnings("unused")

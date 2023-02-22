@@ -118,7 +118,7 @@ public class JsonMapping {
      * @param isLocal value contain if variable is local or nah
      * @param event   {@link Event}
      */
-    public static void listToJson(@NotNull String name, JsonElement json, boolean isLocal, Event event) {
+    public static void jsonToList(@NotNull String name, JsonElement json, boolean isLocal, Event event) {
         JsonElement next;
         Deque<JsonElement> elements = new ArrayDeque<>();
         if (json != null) elements.add(json);
@@ -172,11 +172,11 @@ public class JsonMapping {
         if (input instanceof JsonObject) {
             input.getAsJsonObject().keySet().forEach(key -> {
                 if (!(key == null))
-                    listToJson(variableName + SEPARATOR + key, input.getAsJsonObject().get(key), isLocal, event);
+                    jsonToList(variableName + SEPARATOR + key, input.getAsJsonObject().get(key), isLocal, event);
             });
         } else if (input instanceof JsonArray) {
             for (int index = 0; input.getAsJsonArray().size() > index; index++)
-                listToJson(variableName + SEPARATOR + (index + 1), input.getAsJsonArray().get(index), isLocal, event);
+                jsonToList(variableName + SEPARATOR + (index + 1), input.getAsJsonArray().get(index), isLocal, event);
         }
     }
 }
