@@ -793,13 +793,15 @@ public class DefaultAdapters {
         if (object instanceof World) return WORLD_ADAPTER.toJson((World) object);
         else if (object instanceof ItemStack) return ITEM_ADAPTER.toJson((ItemStack) object);
         else if (object instanceof Chunk) return CHUNK_ADAPTER.toJson((Chunk) object);
-        else if (object instanceof NBTCompound) {
-            if (_NBT_SUPPORTED) return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
-            return null;
+        else if (_NBT_SUPPORTED) {
+            if (object instanceof NBTCompound) {
+                return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
+            }
         }
         else if (object instanceof Inventory) return INVENTORY_ADAPTER.toJson((Inventory) object);
         else if (isSerializable) return gsonAdapter.toJsonTree(object, ConfigurationSerializable.class);
         else return null;
+        return null;
     }
 
     public static JsonElement parse(Object skriptItem, Expression<?> expression, Event event) {

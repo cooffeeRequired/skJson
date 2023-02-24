@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'cz.coffee'
-version = '2.7.0-B'
+version = '2.7.0'
 def testVersion = 'latest'
 
 
