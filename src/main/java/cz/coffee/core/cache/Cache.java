@@ -1,0 +1,62 @@
+package cz.coffee.core.cache;
+
+import com.google.gson.JsonElement;
+import cz.coffee.core.annotation.Used;
+
+import java.io.File;
+import java.util.TreeMap;
+
+/**
+ * This file is part of skJson.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
+ * <p>
+ * Copyright coffeeRequired nd contributors
+ */
+
+@Used
+public class Cache {
+
+    private final static TreeMap<String, CachePackage<JsonElement, File>> map;
+
+    static {
+        map = new TreeMap<>();
+    }
+
+    public static void addTo(String identifier, JsonElement json, File file){
+        if (!map.containsKey(identifier)) {
+            CachePackage<JsonElement, File> ch = new CachePackage<>(json, file);
+            map.put(identifier, ch);
+        }
+    }
+
+    public static void addTo(String identifier, JsonElement json, String file){
+        addTo(identifier, json, new File(file));
+    }
+
+    public static TreeMap<String, CachePackage<JsonElement, File>> getAll() {
+        return map;
+    }
+
+    public static void remove(String identifier) {
+        map.remove(identifier);
+    }
+
+    public static CachePackage<JsonElement, File> getPackage(String identifier) {
+        if (map.containsKey(identifier)) {
+            return map.get(identifier);
+        }
+        return null;
+    }
+}
