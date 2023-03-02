@@ -97,7 +97,6 @@ public class EffAppend extends Effect {
         String variableName;
 
         json = DefaultAdapters.parse(dataToAppend, dataToAppendExpr, e);
-
         assert json != null;
         assert inputSource != null;
 

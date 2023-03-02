@@ -1,5 +1,6 @@
 package cz.coffee.adapter;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.slot.Slot;
@@ -9,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import cz.coffee.SkJson;
+import cz.coffee.utils.ErrorHandler;
 import cz.coffee.utils.Type;
 import cz.coffee.utils.github.Version;
 import org.bukkit.*;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 import static cz.coffee.adapter.DefaultAdapter.SERIALIZED_JSON_TYPE_KEY;
+import static cz.coffee.utils.ErrorHandler.sendMessage;
 import static cz.coffee.utils.SimpleUtil.gsonAdapter;
 import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 import static cz.coffee.utils.config.Config._NBT_SUPPORTED;
@@ -743,6 +746,12 @@ public class DefaultAdapters {
 
     @SuppressWarnings("unchecked")
     public static <T> T assignFrom(JsonElement json) {
+        if (json == null) {
+            sendMessage("Your inputed json cannot be &cNull", ErrorHandler.Level.WARNING);
+            return null;
+        }
+
+
         Class<?> clazz = null;
         String potentialClass = null;
         if (json.getAsJsonObject().has(SERIALIZED_JSON_TYPE_KEY))
@@ -793,13 +802,12 @@ public class DefaultAdapters {
         if (object instanceof World) return WORLD_ADAPTER.toJson((World) object);
         else if (object instanceof ItemStack) return ITEM_ADAPTER.toJson((ItemStack) object);
         else if (object instanceof Chunk) return CHUNK_ADAPTER.toJson((Chunk) object);
-        else if (_NBT_SUPPORTED) {
-            if (object instanceof NBTCompound) {
-                return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
-            }
-        }
         else if (object instanceof Inventory) return INVENTORY_ADAPTER.toJson((Inventory) object);
         else if (isSerializable) return gsonAdapter.toJsonTree(object, ConfigurationSerializable.class);
+        else if (_NBT_SUPPORTED) {
+            if (object instanceof NBTCompound)
+                return NBT_ADAPTER.toJson(new NBTContainer(object.toString()));
+        }
         else return null;
         return null;
     }
