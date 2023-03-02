@@ -26,19 +26,19 @@ import java.util.zip.GZIPOutputStream;
 /**
  * This Metrics class was auto-generated and can be copied into your project if you are
  * not using a build tool like Gradle or Maven for dependency management.
- *
+ * <p>
  * IMPORTANT: You are not allowed to modify this class, except changing the package.
- *
+ * <p>
  * Unallowed modifications include but are not limited to:
- *  - Remove the option for users to opt-out
- *  - Change the frequency for data submission
- *  - Obfuscate the code (every obfucator should allow you to make an exception for specific files)
- *  - Reformat the code (if you use a linter, add an exception)
- *
+ * - Remove the option for users to opt-out
+ * - Change the frequency for data submission
+ * - Obfuscate the code (every obfucator should allow you to make an exception for specific files)
+ * - Reformat the code (if you use a linter, add an exception)
+ * <p>
  * Violations will result in a ban of your plugin and account from bStats.
  */
 
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "deprecation"})
 public class Metrics {
 
     private final Plugin plugin;

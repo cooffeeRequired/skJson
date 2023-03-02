@@ -34,14 +34,14 @@ public class Cache {
         map = new TreeMap<>();
     }
 
-    public static void addTo(String identifier, JsonElement json, File file){
+    public static void addTo(String identifier, JsonElement json, File file) {
         if (!map.containsKey(identifier)) {
             CachePackage<JsonElement, File> ch = new CachePackage<>(json, file);
             map.put(identifier, ch);
         }
     }
 
-    public static void addTo(String identifier, JsonElement json, String file){
+    public static void addTo(String identifier, JsonElement json, String file) {
         addTo(identifier, json, new File(file));
     }
 
@@ -58,5 +58,17 @@ public class Cache {
             return map.get(identifier);
         }
         return null;
+    }
+
+    public static boolean contains(String identifier) {
+        return map.containsKey(identifier);
+    }
+
+    public static boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    public static int size() {
+        return map.size();
     }
 }

@@ -2,6 +2,7 @@ package cz.coffee;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.config.Node;
 import cz.coffee.core.Preload;
 import cz.coffee.core.Version;
 import cz.coffee.core.annotation.Used;
@@ -68,14 +69,22 @@ public final class SkJson extends JavaPlugin {
         logger.severe(o.toString());
     }
 
+    public static void error(String message) {
+        logger.info(color("&c" + message));
+    }
+
+    public static void error(String message, Node node) {
+        logger.info(color(node.toString()));
+        logger.info(color("&c" + message));
+    }
+
     public static void console(String string) {
         String prefix = version.isLegacy() ? color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
         Bukkit.getServer().getConsoleSender().sendMessage(color(prefix + " " + (version.isLegacy() ? color(string) : hex(string))));
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         new Cache();
 
         instance = this;
@@ -89,19 +98,11 @@ public final class SkJson extends JavaPlugin {
             severe("Unable to register " + descriptionFile.getName() + " syntaxes:\n- " + exception.getMessage());
             pluginManager.disablePlugin(this);
         }
-
-
-
-
-
-
-
-
+        console("&aFinished loading.");
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
 
     }
 
@@ -123,7 +124,7 @@ public final class SkJson extends JavaPlugin {
         String reason = "";
         Plugin skriptPlugin = pluginManager.getPlugin(dependency[0]);
         if (skriptPlugin == null || !skriptPlugin.isEnabled()) {
-            reason = "Plugin '"+dependency[0]+"'" + (skriptPlugin == null ? " isn't found." : " isn't enabled.");
+            reason = "Plugin '" + dependency[0] + "'" + (skriptPlugin == null ? " isn't found." : " isn't enabled.");
             canContinue = false;
         }
         if (!canContinue)
@@ -131,7 +132,6 @@ public final class SkJson extends JavaPlugin {
         new Preload();
         return canContinue;
     }
-
 
 
 }

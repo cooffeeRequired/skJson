@@ -1,6 +1,11 @@
 package cz.coffee.core;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import cz.coffee.adapter.DefaultAdapter.TypeAdapter.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +30,39 @@ import java.util.regex.Pattern;
  */
 
 public class Utils {
+
+    /**
+     * <p>
+     * This constant will return the new Gson() with a registerTypeHierarchyAdapter.
+     * </p>
+     */
+    public static final Gson gsonAdapter = new GsonBuilder()
+            .setPrettyPrinting()
+            .enableComplexMapKeySerialization()
+            .disableHtmlEscaping()
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Bukkit())
+            .create();
+
+    /**
+     * <p>
+     * This function will translate alternative color code to actually colors.
+     * </p>
+     *
+     * @param input will take {@link Object}
+     * @return will return transformed {@link String}.
+     */
+    public static String color(Object input) {
+        return ChatColor.translateAlternateColorCodes('&', String.valueOf(input));
+    }
+
+    /**
+     * <p>
+     * This function will hex color code to actually colors.
+     * </p>
+     *
+     * @param message will take {@link String}
+     * @return will return transformed {@link String}.
+     */
     public static String hex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
@@ -46,13 +84,26 @@ public class Utils {
 
     /**
      * <p>
-     * This function will translate alternative color code to actually colors.
+     * This function will return true the number is continuously increasing.
      * </p>
      *
-     * @param input will take {@link Object}
-     * @return will return transformed {@link String}.
+     * @param inputs will take any objects {@link Object}
+     * @return {@link Boolean}.
      */
-    public static String color(Object input) {
-        return ChatColor.translateAlternateColorCodes('&', String.valueOf(input));
+    public static boolean isIncrementNumber(Object @NotNull [] inputs) {
+        int step = 1;
+        int count = 1;
+        for (Object k : inputs) {
+            if (k instanceof Number) {
+                count = ((Number) k).intValue();
+            } else if (k instanceof String) count = Integer.parseInt(((String) k));
+            if (step != count) return false;
+            step++;
+        }
+        return true;
+    }
+
+    public static boolean isNumeric(Object t) {
+        return t != null && t.toString().matches("[0-9]+");
     }
 }
