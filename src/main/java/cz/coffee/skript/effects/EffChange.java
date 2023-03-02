@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import cz.coffee.adapter.DefaultAdapter;
 import cz.coffee.core.cache.Cache;
+import cz.coffee.core.cache.CachePackage;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -57,11 +58,11 @@ public class EffChange extends Effect {
 
     static {
         Skript.registerEffect(EffChange.class,
-                "change [:cached json] %json/string%['s] value %string% to %object%"
+                "change [[:hot] :cached json] %json/string%['s] value %string% to %object%"
         );
     }
 
-    private boolean isCached;
+    private boolean isCached, hot;
     private Expression<Object> exprInputSource;
     private Expression<String> keyExpr;
     private Expression<?> exprChangedData;
@@ -83,11 +84,21 @@ public class EffChange extends Effect {
         assert inputSource != null;
 
         if (isCached) {
-            if (Cache.contains(inputSource.toString())) {
-                jsonInput = Cache.getPackage(inputSource.toString()).getJson();
-                JsonElement changedJson = changeJson(jsonInput, extractKeys(key), json);
-                Cache.remove(key);
-                Cache.addTo(key, changedJson, Cache.getPackage(inputSource.toString()).getFile());
+            if (hot) {
+                if (Cache.hotContains(inputSource.toString())) {
+                    CachePackage.HotLink cachePackage = Cache.getHotPackage(inputSource.toString());
+                    jsonInput = cachePackage.getJson();
+                    JsonElement changedJson = changeJson(jsonInput, extractKeys(key), json);
+                    Cache.hotRemove(inputSource.toString());
+                    Cache.addToHot(inputSource.toString(),changedJson, cachePackage.getUuid());
+                }
+            } else {
+                if (Cache.contains(inputSource.toString())) {
+                    jsonInput = Cache.getPackage(inputSource.toString()).getJson();
+                    JsonElement changedJson = changeJson(jsonInput, extractKeys(key), json);
+                    Cache.remove(key);
+                    Cache.addTo(key, changedJson, Cache.getPackage(inputSource.toString()).getFile());
+                }
             }
         } else {
             variableName = variableString.getDefaultVariableName().replaceAll("_", "");
@@ -115,6 +126,7 @@ public class EffChange extends Effect {
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         isCached = parseResult.hasTag(("cached json"));
+        hot = parseResult.hasTag("hot");
         exprInputSource = LiteralUtils.defendExpression(exprs[0]);
         if (!isCached) {
             if (exprInputSource instanceof Variable<?>) {

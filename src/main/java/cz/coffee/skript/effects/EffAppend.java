@@ -68,7 +68,7 @@ public class EffAppend extends Effect {
     static {
         Skript.registerEffect(EffAppend.class,
                 "append %object/json% [:with key %-string%] [:as nested object %-string%] to json file %string%",
-                "append %object% [:with key %-string%] [:as nested object %-string%] to (:cached json) %string%",
+                "append %object% [:with key %-string%] [:as nested object %-string%] to [:hot] (:cached json) %string%",
                 "append %object% [:with key %-string%] [:as nested object %-string%] to %json%"
         );
     }
@@ -78,7 +78,7 @@ public class EffAppend extends Effect {
     private Expression<String> keyExpr, nestedExpr;
     private Expression<?> dataToAppendExpr;
     private VariableString variableString;
-    private boolean isLocal;
+    private boolean isLocal, hot;
 
     @Override
     protected void execute(@NotNull Event e) {
@@ -102,11 +102,20 @@ public class EffAppend extends Effect {
         assert inputSource != null;
 
         if (isCached) {
-            if (Cache.contains(inputSource.toString())) {
-                CachePackage<JsonElement, File> cachePackage = Cache.getPackage(inputSource.toString());
-                jsonInput = cachePackage.getJson();
-                Cache.remove(inputSource.toString());
-                Cache.addTo(inputSource.toString(),appendJson(jsonInput, json, key, nested), cachePackage.getFile());
+            if (hot) {
+                if (Cache.hotContains(inputSource.toString())) {
+                    CachePackage.HotLink cachePackage = Cache.getHotPackage(inputSource.toString());
+                    jsonInput = cachePackage.getJson();
+                    Cache.hotRemove(inputSource.toString());
+                    Cache.addToHot(inputSource.toString(),appendJson(jsonInput, json, key, nested), cachePackage.getUuid());
+                }
+            } else {
+                if (Cache.contains(inputSource.toString())) {
+                    CachePackage<JsonElement, File> cachePackage = Cache.getPackage(inputSource.toString());
+                    jsonInput = cachePackage.getJson();
+                    Cache.remove(inputSource.toString());
+                    Cache.addTo(inputSource.toString(),appendJson(jsonInput, json, key, nested), cachePackage.getFile());
+                }
             }
         } else if (isFile) {
             JsonFilesHandler jfh = new JsonFilesHandler(false);
@@ -139,6 +148,7 @@ public class EffAppend extends Effect {
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         isFile = matchedPattern == 0;
+        hot = parseResult.hasTag("hot");
 
         isCached = parseResult.hasTag(("cached json"));
         isNested = parseResult.hasTag(("as nested object"));

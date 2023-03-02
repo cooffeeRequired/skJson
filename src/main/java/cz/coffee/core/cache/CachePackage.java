@@ -1,6 +1,9 @@
 package cz.coffee.core.cache;
 
 import cz.coffee.core.annotation.Used;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 /**
  * This file is part of skJson.
@@ -40,6 +43,31 @@ public class CachePackage<JsonElement, File> {
     @Used
     public File getFile() {
         return file;
+    }
+
+
+    public static class HotLink {
+        protected com.google.gson.JsonElement json;
+        protected UUID uuid;
+
+        public HotLink(@NotNull com.google.gson.JsonElement json, UUID uuid) {
+            this.json = json;
+            if (uuid == null) {
+                this.uuid = UUID.randomUUID();
+            } else {
+                this.uuid = uuid;
+            }
+        }
+
+        @Used
+        public com.google.gson.JsonElement getJson() {
+            return json;
+        }
+
+        @Used
+        public UUID getUuid() {
+            return uuid;
+        }
     }
 
 }

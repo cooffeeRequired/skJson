@@ -5,6 +5,7 @@ import cz.coffee.core.annotation.Used;
 
 import java.io.File;
 import java.util.TreeMap;
+import java.util.UUID;
 
 /**
  * This file is part of skJson.
@@ -29,9 +30,17 @@ import java.util.TreeMap;
 public class Cache {
 
     private final static TreeMap<String, CachePackage<JsonElement, File>> map;
+    private final static TreeMap<String, CachePackage.HotLink> hotMap;
 
     static {
         map = new TreeMap<>();
+        hotMap = new TreeMap<>();
+    }
+
+    public static void addToHot(String identifier, JsonElement json, UUID uuid) {
+        hotMap.remove(identifier);
+        CachePackage.HotLink hotLink = new CachePackage.HotLink(json, uuid);
+        hotMap.put(identifier, hotLink);
     }
 
     public static void addTo(String identifier, JsonElement json, File file) {
@@ -49,8 +58,16 @@ public class Cache {
         return map;
     }
 
+    public static TreeMap<String, CachePackage.HotLink> getHotAll() {
+        return hotMap;
+    }
+
     public static void remove(String identifier) {
         map.remove(identifier);
+    }
+
+    public static void hotRemove(String identifier) {
+        hotMap.remove(identifier);
     }
 
     public static CachePackage<JsonElement, File> getPackage(String identifier) {
@@ -60,8 +77,19 @@ public class Cache {
         return null;
     }
 
+    public static CachePackage.HotLink getHotPackage(String identifier) {
+        if (hotMap.containsKey(identifier)) {
+            return hotMap.get(identifier);
+        }
+        return null;
+    }
+
     public static boolean contains(String identifier) {
         return map.containsKey(identifier);
+    }
+
+    public static boolean hotContains(String identifier) {
+        return hotMap.containsKey(identifier);
     }
 
     public static boolean isEmpty() {

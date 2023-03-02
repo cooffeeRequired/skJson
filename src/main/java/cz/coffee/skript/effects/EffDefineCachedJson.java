@@ -33,7 +33,7 @@ public class EffDefineCachedJson extends Effect {
 
     static {
         Skript.registerEffect(EffDefineCachedJson.class,
-                "[define] new cached json %string% for [given] path %string% [(:with) data %-object%]"
+                "[define] [new] cached json %string% for [given] path %string% [(:with) data %-object%]"
         );
     }
 
