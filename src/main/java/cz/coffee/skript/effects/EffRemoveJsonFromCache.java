@@ -42,10 +42,10 @@ import static cz.coffee.SkJson.JSON_STORAGE;
 })
 @Since("2.5.0")
 
-public class RemoveJsonFromCache extends Effect {
+public class EffRemoveJsonFromCache extends Effect {
 
     static {
-        Skript.registerEffect(RemoveJsonFromCache.class,
+        Skript.registerEffect(EffRemoveJsonFromCache.class,
                 "(remove|unlink) cached json %string%"
         );
     }
