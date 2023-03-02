@@ -5,6 +5,7 @@
 ![GitHub All Downloads](https://img.shields.io/github/downloads/cooffeeRequired/skJson/total?style=for-the-badge)
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)
 ![License](https://img.shields.io/github/license/cooffeeRequired/skJson?style=for-the-badge)
+[![CodeFactor](https://www.codefactor.io/repository/github/cooffeerequired/skjson/badge)](https://www.codefactor.io/repository/github/cooffeerequired/skjson)
 
 
 <p align="center" width="100%">
