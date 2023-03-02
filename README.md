@@ -9,9 +9,8 @@
 
 
 <p align="center" width="100%">
-    <img width="33%" size="64" src="https://user-images.githubusercontent.com/106232282/213727670-e9412127-c51e-495b-ba04-c1c2f64bb2b1.png"> 
+    <img width="33%" size="64" src="https://user-images.githubusercontent.com/106232282/222391312-4a2ecef5-2cc6-4d57-9137-0e2d52f40782.png"> 
 </p>
-
 
 
 #### This addon uses Google Json (Gson) API to work with Json in Skript, allowing users to edit Json files or even directly Variables that contain json
