@@ -4,8 +4,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.core.annotation.Used;
 
 import java.io.File;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This file is part of skJson.
@@ -30,17 +29,30 @@ import java.util.UUID;
 public class Cache {
 
     private final static TreeMap<String, CachePackage<JsonElement, File>> map;
-    private final static TreeMap<String, CachePackage.HotLink> hotMap;
+    private final static HashMap<String, CachePackage.HotLink> hotMap;
 
     static {
         map = new TreeMap<>();
-        hotMap = new TreeMap<>();
+        hotMap = new HashMap<>();
     }
 
     public static void addToHot(String identifier, JsonElement json, UUID uuid) {
-        hotMap.remove(identifier);
-        CachePackage.HotLink hotLink = new CachePackage.HotLink(json, uuid);
-        hotMap.put(identifier, hotLink);
+        if (uuid != null) {
+            if (!hotMap.isEmpty()) {
+                hotMap.forEach((str, hot) -> {
+                    if (hot.getUuid() != uuid) {
+                        CachePackage.HotLink hotLink = new CachePackage.HotLink(json, uuid);
+                        hotMap.put(identifier, hotLink);
+                    }
+                });
+            } else {
+                CachePackage.HotLink hotLink = new CachePackage.HotLink(json, uuid);
+                hotMap.put(identifier, hotLink);
+            }
+        } else {
+            CachePackage.HotLink hotLink = new CachePackage.HotLink(json, null);
+            hotMap.put(identifier, hotLink);
+        }
     }
 
     public static void addTo(String identifier, JsonElement json, File file) {
@@ -58,7 +70,7 @@ public class Cache {
         return map;
     }
 
-    public static TreeMap<String, CachePackage.HotLink> getHotAll() {
+    public static HashMap<String, CachePackage.HotLink> getHotAll() {
         return hotMap;
     }
 
@@ -83,6 +95,18 @@ public class Cache {
         }
         return null;
     }
+
+    public static CachePackage.HotLink getHotPackage(UUID uuid, String identifier) {
+        if (uuid != null) {
+            for (Map.Entry<String, CachePackage.HotLink> map : hotMap.entrySet()) {
+                if (Objects.equals(map.getValue().getUuid(), uuid) && Objects.equals(identifier, map.getKey())) {
+                    return map.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
 
     public static boolean contains(String identifier) {
         return map.containsKey(identifier);

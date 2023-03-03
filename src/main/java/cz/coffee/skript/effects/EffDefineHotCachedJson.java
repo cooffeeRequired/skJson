@@ -25,7 +25,7 @@ import java.util.UUID;
         "\tdefine hot cached json \"test1\" for player's uuid",
         "\tsend hot cached json \"test1\" of player's uuid",
         "",
-        "\tdefine hot cached json \"test1\" for random uuid",
+        "\tdefine hot cached json \"test1\" for \"e4f5b3f1-4a6d-4cc0-b4ba-67e8190f51cf\"",
         "\tsend hot cached json \"test1\""
 })
 
@@ -33,24 +33,23 @@ public class EffDefineHotCachedJson extends Effect {
 
     static {
         Skript.registerEffect(EffDefineHotCachedJson.class,
-                "[[define] [new]] hot(-| )cached json %string% [(:for) (:random uuid|[uuid] %-object%)]"
+                "define hot(-| )cached json %string% [(:for) %-object%]"
         );
     }
 
     private Expression<String> exprName;
     private Expression<Object> exprUUID;
-    private boolean randomUUID;
+    private boolean uuidFor;
 
     @Override
     protected void execute(@NotNull Event e) {
-        UUID uuid;
-        if (randomUUID) {
-            uuid = UUID.randomUUID();
-        } else {
-            uuid = UUID.fromString(exprUUID.getSingle(e).toString());
+        UUID uuid = null;
+        if (uuidFor) {
+            Object o = exprUUID.getSingle(e);
+            if (o == null) return;
+            uuid = UUID.fromString(o.toString());
         }
         String name = exprName.getSingle(e);
-
         if (name == null) return;
 
         Cache.addToHot(name, new JsonObject(), uuid);
@@ -64,8 +63,8 @@ public class EffDefineHotCachedJson extends Effect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        randomUUID = parseResult.hasTag("random uuid") || parseResult.tags.size() < 1;
-        if (parseResult.hasTag("for")) {
+        uuidFor = parseResult.hasTag("for");
+        if (uuidFor) {
             exprUUID = (Expression<Object>) exprs[1];
         }
         exprName = (Expression<String>) exprs[0];

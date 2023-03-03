@@ -25,14 +25,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import cz.coffee.core.cache.Cache;
+import cz.coffee.core.cache.CachePackage;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 
 @Since("2.5.0")
@@ -40,24 +42,42 @@ public class SimpleExprGetCachedHotJson extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(SimpleExprGetCachedHotJson.class, JsonElement.class, ExpressionType.SIMPLE,
-                "hot(-| )cached json %string%"
+                "hot(-| )cached json %string% [(1:(of|for)) %-object%]"
         );
     }
 
 
     private Expression<String> storedKeyExpr;
+    private Expression<Object> exprUuid;
+    private boolean forUUID;
 
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().serializeNulls().enableComplexMapKeySerialization().create();
         String storedKey = storedKeyExpr.getSingle(e);
+        Object uuid0;
+        JsonElement element = null;
         if (storedKey != null) {
-
-            if (Cache.hotContains(storedKey)) {
-                return new JsonElement[]{gson.toJsonTree(Cache.getHotPackage(storedKey).getJson())};
+            if (forUUID) {
+                uuid0 = exprUuid.getSingle(e);
+                if (uuid0 == null) return new JsonElement[0];
+                UUID uuid = UUID.fromString(uuid0.toString());
+                CachePackage.HotLink hotLink = Cache.getHotPackage(uuid, storedKey);
+                if (hotLink != null){
+                    element = hotLink.getJson();
+                }
+            } else {
+                if (Cache.hotContains(storedKey)) {
+                    CachePackage.HotLink hotLink = Cache.getHotPackage(storedKey);
+                    if (hotLink!=null){
+                        element = hotLink.getJson();
+                    }
+                }
             }
         }
-        return new JsonElement[0];
+
+        System.out.println(Cache.getHotAll());
+
+        return new JsonElement[]{element};
     }
 
     @Override
@@ -79,6 +99,12 @@ public class SimpleExprGetCachedHotJson extends SimpleExpression<JsonElement> {
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         storedKeyExpr = (Expression<String>) exprs[0];
-        return true;
+        forUUID = parseResult.mark == 1;
+        if (forUUID) {
+            exprUuid = LiteralUtils.defendExpression(exprs[1]);
+            return LiteralUtils.canInitSafely(exprUuid);
+        } else {
+            return true;
+        }
     }
 }

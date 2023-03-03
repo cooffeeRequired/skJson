@@ -37,6 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.UUID;
 
 import static cz.coffee.adapter.DefaultAdapter.assignTo;
 import static cz.coffee.adapter.DefaultAdapter.isClassicType;
@@ -68,13 +69,13 @@ public class EffAppend extends Effect {
     static {
         Skript.registerEffect(EffAppend.class,
                 "append %object/json% [:with key %-string%] [:as nested object %-string%] to json file %string%",
-                "append %object% [:with key %-string%] [:as nested object %-string%] to [:hot] (:cached json) %string%",
+                "append %object% [:with key %-string%] [:as nested object %-string%] to [:hot] (:cached json) %string% [(1:of) %-object%]",
                 "append %object% [:with key %-string%] [:as nested object %-string%] to %json%"
         );
     }
 
-    private boolean isCached, isFile, hasKey, isNested;
-    private Expression<Object> exprInputSource;
+    private boolean isCached, isFile, hasKey, isNested, forUUID;
+    private Expression<Object> exprInputSource, exprUUID;
     private Expression<String> keyExpr, nestedExpr;
     private Expression<?> dataToAppendExpr;
     private VariableString variableString;
@@ -103,12 +104,19 @@ public class EffAppend extends Effect {
 
         if (isCached) {
             if (hot) {
+                UUID uuid0;
+
                 if (Cache.hotContains(inputSource.toString())) {
                     CachePackage.HotLink cachePackage = Cache.getHotPackage(inputSource.toString());
+                    if (cachePackage == null) return;
+                    if (forUUID)
+                        uuid0 = UUID.fromString(exprUUID.getSingle(e).toString());
+                    else
+                        uuid0 = cachePackage.getUuid();
                     jsonInput = cachePackage.getJson();
-                    Cache.hotRemove(inputSource.toString());
-                    Cache.addToHot(inputSource.toString(),appendJson(jsonInput, json, key, nested), cachePackage.getUuid());
+                    Cache.addToHot(inputSource.toString(),appendJson(jsonInput, json, key, nested), uuid0);
                 }
+
             } else {
                 if (Cache.contains(inputSource.toString())) {
                     CachePackage<JsonElement, File> cachePackage = Cache.getPackage(inputSource.toString());
@@ -150,16 +158,14 @@ public class EffAppend extends Effect {
         isFile = matchedPattern == 0;
         hot = parseResult.hasTag("hot");
 
-        isCached = parseResult.hasTag(("cached json"));
+        isCached = parseResult.hasTag("cached json");
         isNested = parseResult.hasTag(("as nested object"));
         hasKey = parseResult.hasTag(("with key"));
-
         dataToAppendExpr = LiteralUtils.defendExpression(exprs[0]);
 
         keyExpr = (Expression<String>) exprs[1];
         nestedExpr = (Expression<String>) exprs[2];
         exprInputSource = LiteralUtils.defendExpression(exprs[3]);
-
 
         if (!isCached || !isFile) {
             if (exprInputSource instanceof Variable<?>) {
@@ -169,6 +175,17 @@ public class EffAppend extends Effect {
                     variableString = var.getName();
                 } else {
                     return false;
+                }
+            }
+        }
+        if (hot) {
+            forUUID = parseResult.mark == 1;
+            if (forUUID) {
+                exprUUID = LiteralUtils.defendExpression(exprs[4]);
+                if (LiteralUtils.canInitSafely(dataToAppendExpr)) {
+                    if (LiteralUtils.canInitSafely(exprUUID)){
+                        return LiteralUtils.canInitSafely(exprInputSource);
+                    }
                 }
             }
         }
