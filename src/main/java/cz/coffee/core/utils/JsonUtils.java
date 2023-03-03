@@ -37,7 +37,13 @@ abstract public class JsonUtils {
             if (element.isJsonArray()) {
                 JsonArray array = element.getAsJsonArray();
                 for (JsonElement term : array) {
-                    if (Objects.equals(term.toString(), searchedTerm)) return true;
+                    JsonElement parsedElement;
+                    try {
+                        parsedElement =  new Gson().fromJson(searchedTerm, JsonElement.class);
+                    } catch (JsonSyntaxException exception) {
+                        parsedElement = new JsonPrimitive(searchedTerm);
+                    }
+                    if (Objects.equals(term, parsedElement)) return true;
                     elements.offerLast(term);
                 }
             } else if (element.isJsonObject()) {
@@ -47,7 +53,12 @@ abstract public class JsonUtils {
                         if (entry.getKey().equals(searchedTerm)) return true;
                         if (!entry.getValue().isJsonPrimitive()) elements.offerLast(entry.getValue());
                     } else if (type == VALUE) {
-                        JsonElement parsedElement = JsonParser.parseString(searchedTerm);
+                        JsonElement parsedElement;
+                        try {
+                            parsedElement =  new Gson().fromJson(searchedTerm, JsonElement.class);
+                        } catch (JsonSyntaxException exception) {
+                            parsedElement = new JsonPrimitive(searchedTerm);
+                        }
                         if (entry.getValue().equals(parsedElement)) return true;
                         elements.offerLast(entry.getValue());
                     }
@@ -345,8 +356,7 @@ abstract public class JsonUtils {
                     if (!(value == null || value instanceof JsonNull)) {
                         if (unparsedJson) {
                             if (!isObject) {
-                                if (unparsedData instanceof Number) {
-                                    Number w = (Number) unparsedData;
+                                if (unparsedData instanceof Number w) {
                                     if (w.intValue() <= list.size()) {
                                         list.remove(w.intValue());
                                     }
