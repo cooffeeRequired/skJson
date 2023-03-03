@@ -106,8 +106,6 @@ public class Cache {
         }
         return null;
     }
-
-
     public static boolean contains(String identifier) {
         return map.containsKey(identifier);
     }
