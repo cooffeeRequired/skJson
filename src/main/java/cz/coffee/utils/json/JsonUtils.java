@@ -60,20 +60,21 @@ public class JsonUtils {
 
         while ((element = elements.pollFirst()) != null) {
             if (element.isJsonArray()) {
-                JsonArray elementArray = element.getAsJsonArray();
-                for (JsonElement term : elementArray) {
-                    if (Objects.equals(term.toString(), searchedTerm)) return true;
+                JsonArray array = element.getAsJsonArray();
+                for (JsonElement term : array) {
+                    JsonElement parsedElement = new JsonPrimitive(searchedTerm);
+                    if (Objects.equals(term, parsedElement)) return true;
                     elements.offerLast(term);
                 }
             } else if (element.isJsonObject()) {
-                JsonObject elementObject = element.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : elementObject.entrySet()) {
+                JsonObject map = element.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
                     if (type == KEY) {
                         if (entry.getKey().equals(searchedTerm)) return true;
                         if (!entry.getValue().isJsonPrimitive()) elements.offerLast(entry.getValue());
-                    } else if (type == Type.VALUE) {
-                        JsonElement parsedData = JsonParser.parseString(searchedTerm);
-                        if (entry.getValue().equals(parsedData)) return true;
+                    } else if (type == VALUE) {
+                        JsonElement parsedElement = new Gson().toJsonTree(searchedTerm);
+                        if (entry.getValue().equals(parsedElement)) return true;
                         elements.offerLast(entry.getValue());
                     }
                 }
