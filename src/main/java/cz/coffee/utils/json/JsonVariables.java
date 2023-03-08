@@ -51,7 +51,7 @@ public class JsonVariables {
      * @param event   {@link Event}
      * @param isLocal {@link Boolean} if a variable is local or nah
      */
-    public static void setVariable(String name, Object element, Event event, boolean isLocal) {
+    public static <T> void setVariable(String name, T element, Event event, boolean isLocal) {
         Variables.setVariable(name, element, event, isLocal);
     }
 

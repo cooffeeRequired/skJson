@@ -29,7 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static cz.coffee.utils.SimpleUtil.*;
+import static cz.coffee.utils.SimpleUtil.isIncrementNumber;
+import static cz.coffee.utils.SimpleUtil.isNumeric;
 import static cz.coffee.utils.json.JsonUtils.fromPrimitive2Object;
 import static cz.coffee.utils.json.JsonVariables.*;
 
@@ -75,8 +76,7 @@ public class JsonMapping {
                 JsonObject jsonStructure = new JsonObject();
                 keys.forEach(key -> {
                     JsonElement data = gson.toJsonTree(jsonListSubTree(name + key, isLocal, event));
-                    if (data instanceof JsonPrimitive) {
-                        JsonPrimitive primitive = (JsonPrimitive) data;
+                    if (data instanceof JsonPrimitive primitive) {
                         jsonStructure.add(key, primitive);
                     } else {
                         jsonStructure.add(key, data);
@@ -124,14 +124,14 @@ public class JsonMapping {
         if (json != null) elements.add(json);
 
         while ((next = elements.pollFirst()) != null) {
+            //setVariable(name, next, event, isLocal);
+            //System.out.println("NAME: " + name + " JSON: " + next);
             if (next instanceof JsonObject) {
                 extractNestedObjects(name, next.getAsJsonObject(), isLocal, event);
             } else if (next instanceof JsonArray) {
                 extractNestedObjects(name, next.getAsJsonArray(), isLocal, event);
             } else if (next instanceof JsonPrimitive) {
                 setPrimitiveType(name, next.getAsJsonPrimitive(), event, isLocal);
-            } else {
-                setVariable(name, next, event, isLocal);
             }
         }
     }
@@ -170,13 +170,24 @@ public class JsonMapping {
      */
     private static void extractNestedObjects(@NotNull String variableName, @NotNull JsonElement input, boolean isLocal, Event event) {
         if (input instanceof JsonObject) {
+            setMainObject(variableName + SEPARATOR + "*", input, isLocal, event);
             input.getAsJsonObject().keySet().forEach(key -> {
-                if (!(key == null))
+                if (!(key == null)) {
                     jsonToList(variableName + SEPARATOR + key, input.getAsJsonObject().get(key), isLocal, event);
+                }
             });
         } else if (input instanceof JsonArray) {
-            for (int index = 0; input.getAsJsonArray().size() > index; index++)
+            setMainObject(variableName + SEPARATOR + "*", input, isLocal, event);
+            for (int index = 0; input.getAsJsonArray().size() > index; index++) {
                 jsonToList(variableName + SEPARATOR + (index + 1), input.getAsJsonArray().get(index), isLocal, event);
+            }
         }
     }
+
+    private static void setMainObject(@NotNull String name, @NotNull JsonElement input, boolean isLocal, Event e) {
+        Gson gson = new Gson();
+        Object natural = gson.fromJson(input.toString(), Object.class);
+        setVariable(name, natural, e, isLocal);
+    }
+
 }
