@@ -1,6 +1,5 @@
 package cz.coffee.adapter;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.slot.Slot;
@@ -43,7 +42,8 @@ import static cz.coffee.utils.SimpleUtil.printPrettyStackTrace;
 import static cz.coffee.utils.config.Config._NBT_SUPPORTED;
 import static cz.coffee.utils.config.Config._STACKTRACE_LENGTH;
 import static cz.coffee.utils.json.JsonUtils.*;
-import static org.bukkit.Bukkit.*;
+import static org.bukkit.Bukkit.createInventory;
+import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 //
 
@@ -288,9 +288,15 @@ public class DefaultAdapters {
 
             Version version = new Version(Bukkit.getBukkitVersion());
             InventoryData inventoryData = new InventoryData(version);
-            inventoryData.setType(InventoryType.valueOf(json.getAsJsonObject(INVENTORY_KEY).get(TYPE_KEY).getAsString().toUpperCase()));
-            inventoryData.setHolder(inventoryData.getType().equals(InventoryType.PLAYER) ? Bukkit.getPlayer(json.getAsJsonObject(INVENTORY_KEY).get(HOLDER_KEY).getAsString()) : null);
+            Object typeJS = json.getAsJsonObject(INVENTORY_KEY).get(TYPE_KEY);
+            if (typeJS == null ||typeJS instanceof JsonNull || !Objects.equals(typeJS.toString(), "PLAYER")) {
+                typeJS = "CHEST";
+            } else {
+                typeJS = ((JsonElement) typeJS).getAsString();
+            }
 
+            inventoryData.setType(InventoryType.valueOf(((String) typeJS).toUpperCase()));
+            inventoryData.setHolder(inventoryData.getType().equals(InventoryType.PLAYER) ? Bukkit.getPlayer(json.getAsJsonObject(INVENTORY_KEY).get(HOLDER_KEY).getAsString()) : null);
             inventoryData.setSize(json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY) != null ? json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY).getAsInt() : 0);
             inventoryData.setTitle(json.getAsJsonObject(INVENTORY_KEY).get(TITLE_KEY).getAsString());
             inventoryData.setContents(json.getAsJsonObject(INVENTORY_KEY).getAsJsonObject(CONTENTS_KEY).asMap());
@@ -834,8 +840,7 @@ public class DefaultAdapters {
         } else if (isClassicType(item)){
             return convert(item);
         }else{
-            if (item instanceof ItemType) {
-                ItemType i = (ItemType) item;
+            if (item instanceof ItemType i) {
                 finalI = i.getRandom();
             } else if (item instanceof ItemStack) {
                 finalI = item;

@@ -76,8 +76,8 @@ public class JsonMapping {
                 JsonObject jsonStructure = new JsonObject();
                 keys.forEach(key -> {
                     JsonElement data = gson.toJsonTree(jsonListSubTree(name + key, isLocal, event));
-                    if (data instanceof JsonPrimitive primitive) {
-                        jsonStructure.add(key, primitive);
+                    if (data instanceof JsonPrimitive) {
+                        jsonStructure.add(key, data.getAsJsonPrimitive());
                     } else {
                         jsonStructure.add(key, data);
                     }
