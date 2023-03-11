@@ -22,6 +22,7 @@ package cz.coffee;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import com.google.gson.JsonElement;
+import cz.coffee.utils.InvListener;
 import cz.coffee.utils.SimpleUtil;
 import cz.coffee.utils.config.Config;
 import cz.coffee.utils.github.Hash;
@@ -125,6 +126,7 @@ public final class SkJson extends JavaPlugin {
             return;
         }
         CURRENT_HASH = new Hash(new File(instance.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()), "SHA-256");
+        getServer().getPluginManager().registerEvents(new InvListener(), this);
 
         //metrics
         loadMetrics();

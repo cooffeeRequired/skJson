@@ -10,6 +10,7 @@ import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import cz.coffee.SkJson;
 import cz.coffee.utils.ErrorHandler;
+import cz.coffee.utils.InvListener;
 import cz.coffee.utils.Type;
 import cz.coffee.utils.github.Version;
 import org.bukkit.*;
@@ -27,6 +28,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
@@ -250,12 +252,17 @@ public class DefaultAdapters {
 
             final JsonObject _SERIALIZED_INV = new JsonObject();
             final JsonObject _SERIALIZED_ITEMS = new JsonObject();
-
             String _HOLDER = null;
-            String _TITLE = "Unknown";
+            String _TITLE = InvListener.getTitle();
             if (isPlayer) {
+                System.out.println("here");
                 _HOLDER = ((Player) source.getHolder()).getName();
-                _TITLE = String.format("Inventory of %s", ((Player) source.getHolder()).getName());
+                InventoryView view = ((Player) source.getHolder()).getOpenInventory();
+                if (view == null) {
+                    _TITLE = String.format("Inventory of %s", ((Player) source.getHolder()).getName());
+                } else {
+                    _TITLE = view.getTitle();
+                }
             }
 
             _SERIALIZED_INV.addProperty("holder", _HOLDER);
@@ -840,8 +847,8 @@ public class DefaultAdapters {
         } else if (isClassicType(item)){
             return convert(item);
         }else{
-            if (item instanceof ItemType i) {
-                finalI = i.getRandom();
+            if (item instanceof ItemType) {
+                finalI = ((ItemType) item).getRandom();
             } else if (item instanceof ItemStack) {
                 finalI = item;
             } else if (item instanceof Slot) {
