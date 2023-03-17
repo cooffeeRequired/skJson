@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.utils;
 
 import ch.njol.skript.Skript;
 import com.google.gson.*;
@@ -7,12 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static cz.coffee.core.AdapterUtils.assignFrom;
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.NumberUtils.isNumber;
-import static cz.coffee.core.NumberUtils.parsedNumber;
-import static cz.coffee.core.Util.arrayIsSafe;
-import static cz.coffee.core.Util.jsonToObject;
+import static cz.coffee.core.utils.AdapterUtils.assignFrom;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.NumberUtils.isNumber;
+import static cz.coffee.core.utils.NumberUtils.parsedNumber;
+import static cz.coffee.core.utils.Util.arrayIsSafe;
+import static cz.coffee.core.utils.Util.jsonToObject;
 
 /**
  * This file is part of skJson.

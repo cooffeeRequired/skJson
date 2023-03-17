@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.utils;
 
 import org.jetbrains.annotations.NotNull;
 

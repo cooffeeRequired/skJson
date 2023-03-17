@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.core.FileUtils.isJsonFile;
+import static cz.coffee.core.utils.FileUtils.isJsonFile;
 
 /**
  * This file is part of skJson.

@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.utils;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
@@ -15,9 +15,9 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import static cz.coffee.core.Util.GSON_ADAPTER;
 import static cz.coffee.core.adapters.Adapter.SERIALIZED_JSON_TYPE_KEY;
 import static cz.coffee.core.adapters.Adapters.*;
+import static cz.coffee.core.utils.Util.GSON_ADAPTER;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
 /**

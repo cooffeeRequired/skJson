@@ -11,7 +11,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.core.AdapterUtils;
+import cz.coffee.core.utils.AdapterUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +23,8 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffee.core.NumberUtils.parsedNumber;
-import static cz.coffee.core.Util.jsonToObject;
+import static cz.coffee.core.utils.NumberUtils.parsedNumber;
+import static cz.coffee.core.utils.Util.jsonToObject;
 
 /**
  * This file is part of skJson.

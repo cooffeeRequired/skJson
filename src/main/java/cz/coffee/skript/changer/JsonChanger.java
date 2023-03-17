@@ -21,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.JsonUtils.*;
-import static cz.coffee.core.Util.extractKeys;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.JsonUtils.*;
+import static cz.coffee.core.utils.Util.extractKeys;
 
 /**
  * This file is part of skJson.

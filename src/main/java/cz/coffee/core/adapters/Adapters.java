@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.Util.GSON_ADAPTER;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.Util.GSON_ADAPTER;
 import static org.bukkit.Bukkit.createInventory;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;

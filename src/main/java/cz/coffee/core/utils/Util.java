@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffee.core.NumberUtils.parsedNumber;
+import static cz.coffee.core.utils.NumberUtils.parsedNumber;
 
 /**
  * This file is part of skJson.

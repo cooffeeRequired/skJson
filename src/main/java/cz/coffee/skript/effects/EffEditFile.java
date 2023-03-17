@@ -17,9 +17,9 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import cz.coffee.core.FileUtils;
-import cz.coffee.core.JsonFile;
-import cz.coffee.core.JsonUtils;
+import cz.coffee.core.utils.FileUtils;
+import cz.coffee.core.utils.JsonFile;
+import cz.coffee.core.utils.JsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +28,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.Util.extractKeys;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.Util.extractKeys;
 
 /**
  * This file is part of skJson.
@@ -71,7 +71,7 @@ public class EffEditFile extends Effect {
         Parameter<?>[] fileInput = new Parameter[]{new Parameter<>("file", DefaultClasses.STRING, true, null)};
         Functions.registerFunction(new SimpleJavaFunction<>("jsonfile", fileInput, DefaultClasses.OBJECT, true) {
             @Override
-            public @Nullable JsonFile @NotNull [] executeSimple(Object[] @NotNull [] params) {
+            public @Nullable JsonFile @NotNull [] executeSimple(@NotNull Object[][] params) {
                 return new JsonFile[]{new JsonFile(String.valueOf(params[0][0]))};
             }
         }.description("Get json file from string/object input")

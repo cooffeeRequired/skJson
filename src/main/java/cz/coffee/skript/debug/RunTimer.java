@@ -10,8 +10,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.core.Util.codeRunTime;
-import static cz.coffee.core.Util.color;
+import static cz.coffee.core.utils.Util.codeRunTime;
+import static cz.coffee.core.utils.Util.color;
 
 /**
  * This file is part of skJson.

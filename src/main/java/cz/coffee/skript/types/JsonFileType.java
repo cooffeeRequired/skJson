@@ -6,7 +6,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import cz.coffee.core.JsonFile;
+import cz.coffee.core.utils.JsonFile;
 import org.jetbrains.annotations.NotNull;
 
 /**

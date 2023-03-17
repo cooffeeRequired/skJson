@@ -14,17 +14,17 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.core.AdapterUtils;
+import cz.coffee.core.utils.AdapterUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static cz.coffee.core.JsonUtils.getByKey;
-import static cz.coffee.core.JsonUtils.getNestedElements;
-import static cz.coffee.core.Util.extractKeys;
-import static cz.coffee.core.Util.jsonToObject;
+import static cz.coffee.core.utils.JsonUtils.getByKey;
+import static cz.coffee.core.utils.JsonUtils.getNestedElements;
+import static cz.coffee.core.utils.Util.extractKeys;
+import static cz.coffee.core.utils.Util.jsonToObject;
 
 /**
  * This file is part of skJson.

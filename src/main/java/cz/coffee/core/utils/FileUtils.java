@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.utils;
 
 import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;

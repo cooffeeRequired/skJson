@@ -15,8 +15,8 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import cz.coffee.core.AdapterUtils;
-import cz.coffee.core.Util;
+import cz.coffee.core.utils.AdapterUtils;
+import cz.coffee.core.utils.Util;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -34,8 +34,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.JsonUtils.convert;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.JsonUtils.convert;
 
 /**
  * This file is part of skJson.

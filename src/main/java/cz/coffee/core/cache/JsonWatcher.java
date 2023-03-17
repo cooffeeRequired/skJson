@@ -2,7 +2,7 @@ package cz.coffee.core.cache;
 
 import com.google.gson.JsonElement;
 import cz.coffee.SkJson;
-import cz.coffee.core.FileUtils;
+import cz.coffee.core.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,6 @@ public class JsonWatcher {
     public static void init() {
         LOGGER = LoggerFactory.getLogger("AsyncJsonWatcher");
         service = Executors.newSingleThreadScheduledExecutor(runnable -> new Thread(runnable, "AsyncJsonWatcher"));
-        service.isShutdown();
     }
 
     public static Logger getLogger() {

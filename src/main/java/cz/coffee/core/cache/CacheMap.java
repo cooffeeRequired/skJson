@@ -1,4 +1,4 @@
-package cz.coffee.core;
+package cz.coffee.core.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

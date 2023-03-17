@@ -16,9 +16,9 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
-import static cz.coffee.core.JsonUtils.countKeys;
-import static cz.coffee.core.JsonUtils.countValues;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.JsonUtils.countKeys;
+import static cz.coffee.core.utils.JsonUtils.countValues;
 
 /**
  * This file is part of skJson.

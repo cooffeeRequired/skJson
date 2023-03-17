@@ -4,10 +4,10 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static cz.coffee.core.JsonUtils.checkKeys;
-import static cz.coffee.core.NumberUtils.isNumber;
-import static cz.coffee.core.NumberUtils.parsedNumber;
-import static cz.coffee.core.Util.extractKeys;
+import static cz.coffee.core.utils.JsonUtils.checkKeys;
+import static cz.coffee.core.utils.NumberUtils.isNumber;
+import static cz.coffee.core.utils.NumberUtils.parsedNumber;
+import static cz.coffee.core.utils.Util.extractKeys;
 
 /**
  * This file is part of skJson.

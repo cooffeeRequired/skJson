@@ -5,7 +5,7 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
-import cz.coffee.core.CacheMap;
+import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.Updater;
 import cz.coffee.core.cache.JsonWatcher;
 import de.tr7zw.nbtapi.NBTContainer;
@@ -20,8 +20,8 @@ import java.io.File;
 import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
-import static cz.coffee.core.Util.color;
-import static cz.coffee.core.Util.hex;
+import static cz.coffee.core.utils.Util.color;
+import static cz.coffee.core.utils.Util.hex;
 
 /**
  * This file is part of skJson.
@@ -68,6 +68,10 @@ public final class SkJson extends JavaPlugin {
 
     public static void error(@NotNull Object message) {
         logger.info(color("&c"+message));
+    }
+
+    public static void warning(@NotNull Object message) {
+        logger.warning(color(message));
     }
 
     public static void error(String message, Node node) {

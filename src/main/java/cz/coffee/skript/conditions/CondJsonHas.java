@@ -11,12 +11,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.core.JsonUtils;
+import cz.coffee.core.utils.JsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.coffee.core.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
 /**
  * This file is part of skJson.
