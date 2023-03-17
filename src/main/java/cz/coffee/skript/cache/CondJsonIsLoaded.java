@@ -1,4 +1,4 @@
-package cz.coffee.skript.conditions;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -7,13 +7,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import static cz.coffee.SkJson.JSON_STORAGE;
 
 /**
  * This file is part of skJson.
@@ -33,52 +33,47 @@ import java.io.File;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: Sunday (3/12/2023)
+ * Created: pondělí (13.03.2023)
  */
 
-@Name("Json file is empty")
-@Description("You can check if the json file empty")
-@Examples("""
-        Command jsonFileIsEmpty:
-            trigger:
-                if json file "plugins/raw/test.json" is empty:
-                    send true
-                else:
-                    send false
-        """
-)
+@Name("Json file is cached")
+@Description("Check if the file for given id is cached")
+@Examples({
+        "on load:",
+        "\tif cached json \"test\" if linked:",
+        "\t\tsend true"
+})
 @Since("2.8.0 - performance & clean")
 
-public class CondJsonEmpty extends Condition {
+public class CondJsonIsLoaded extends Condition {
 
     static {
-        Skript.registerCondition(CondJsonEmpty.class,
-                "json file %string% is empty",
-                "json file %string% is(n't| not) empty"
+        Skript.registerCondition(CondJsonIsLoaded.class,
+                "cached json %string% is (load|linked)",
+                "cached json %string% is(n't| not) (load|linked)"
         );
     }
 
+    private Expression<String> exprId;
     private int line;
-    private Expression<String> filePath;
 
     @Override
-    public boolean check(@NotNull Event e) {
-        final String fileString = filePath.getSingle(e);
-        assert fileString != null;
-        final File file = new File(fileString);
-        return (line == 0) == file.length() < 1;
+    public boolean check(@NotNull Event event) {
+        final String id = exprId.getSingle(event);
+        return (line == 0) == JSON_STORAGE.containsKey(id);
     }
 
     @Override
-    public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json file " + filePath.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
+    public @NotNull String toString(@Nullable Event event, boolean b) {
+        return "cached json " + exprId.toString(event, b) + (line == 0 ? " is " : " is not") + "loaded";
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        line = matchedPattern;
-        filePath = (Expression<String>) exprs[0];
+    public boolean init(Expression<?>[] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+        line = i;
+        setNegated(i == 1);
+        exprId = (Expression<String>) expressions[0];
         return true;
     }
 }

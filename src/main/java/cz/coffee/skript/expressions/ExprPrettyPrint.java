@@ -7,10 +7,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffee.core.ColoredJson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -33,34 +35,39 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: pondělí (13.03.2023)
+ * Created: Friday (3/10/2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
+@Name("Pretty json")
+@Description({
+        "Allows you to better parse json",
+        "<pre>",
+        "{",
+        "\t\"test\": \"skJson\"",
+        "\t\"Object\": {",
+        "\t\t\"new\": \"data\"",
+        "\t}",
+        "</pre>"
+})
 @Examples({
-        "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+        "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
+        "send {_json} with pretty print"
 })
 @Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+
+
+public class ExprPrettyPrint extends SimpleExpression<String> {
+
+    static Expression<JsonElement> jsonExpression;
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% with pretty print");
     }
 
-    private Expression<JsonElement> jsonElementExpression;
-
-
     @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
-        final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
+    protected @Nullable String @NotNull [] get(@NotNull Event e) {
+        JsonElement json = jsonExpression.getSingle(e);
+        return new String[]{"\n"+new ColoredJson(json).getOutput()};
     }
 
     @Override
@@ -69,19 +76,18 @@ public class ExprSizeOfJson extends SimpleExpression<Integer> {
     }
 
     @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    public @NotNull Class<? extends String> getReturnType() {
+        return String.class;
     }
 
     @Override
-    public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
+        return jsonExpression.toString(e, debug) + " with pretty print";
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
-        jsonElementExpression = (Expression<JsonElement>) expressions[0];
-        return true;
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        jsonExpression = LiteralUtils.defendExpression(exprs[0]);
+        return LiteralUtils.canInitSafely(jsonExpression);
     }
 }

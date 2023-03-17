@@ -2,7 +2,6 @@ package cz.coffee.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -10,85 +9,84 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.adapter.DefaultAdapter;
-import cz.coffee.core.utils.JsonFilesHandler;
+import cz.coffee.core.FileUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+import static cz.coffee.core.AdapterUtils.parseItem;
 
-@Name("New json file with given path")
-@Description({
-        "New json file with given path, with or without user data.",
-        "When the data was null, parser will automatically create a jsonobject inside the file",
-        "When you will handle big json payload i recommend you use 'async new json file ....' "
-})
-@Examples({
-        "on script load:",
-        "\tif json file \"...\" does not exists:",
-        "\t\tnew json file \"...\""
-})
-@Since("2.5.0")
+/**
+ * This file is part of skJson.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
+ * <p>
+ * Copyright coffeeRequired nd contributors
+ * <p>
+ * Created: úterý (14.03.2023)
+ */
+
+@Name("New json file")
+@Description({"You can create a new json file."})
+@Since("2.8.0 - performance & clean")
 
 public class EffNewJsonFile extends Effect {
 
     static {
-        Skript.registerEffect(EffNewJsonFile.class,
-                "[:async] new json file %string% [with %-object%]"
-        );
+        Skript.registerEffect(EffNewJsonFile.class, "[:async] new json file %string% [(:with) (object|content)[s] %-object%]");
     }
 
-    private Expression<?> inputToFile;
-    private Expression<String> pathToFileExpr;
-    private int pattern;
-    private boolean hasArray, hasObject, async;
+    private boolean async, with;
+    private Expression<String> expressionPath;
+    private Expression<?> expressionObject;
 
     @Override
-    protected void execute(@NotNull Event event) {
-        JsonFilesHandler jfh = new JsonFilesHandler();
-        String strPathToFile = (pathToFileExpr.getSingle(event));
-        Object assignedValue;
-        if (strPathToFile == null) return;
-        File file = new File(strPathToFile);
-
-        JsonElement json = null;
-        if (inputToFile != null) {
-            assignedValue = inputToFile.getSingle(event);
-            json = DefaultAdapter.parse(assignedValue, inputToFile, event);
-        }
-
-        if (hasObject) {
-            jfh.writeFile(file, new JsonObject(), false);
-        } else if (hasArray) {
-            jfh.writeFile(file, new JsonArray(), false);
+    protected void execute(@NotNull Event e) {
+        String path = expressionPath.getSingle(e);
+        JsonElement content;
+        if (path == null) return;
+        final File file = new File(path);
+        if (with) {
+            Object o = expressionObject.getSingle(e);
+            if (o == null) {
+                content = new JsonObject();
+            } else {
+                content = parseItem(o, o.getClass());
+            }
         } else {
-            jfh.writeFile(file, json, async);
+            content = new JsonObject();
         }
+        FileUtils.write(file, content, async);
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return (async ? "async" : "") + " new json file" + pathToFileExpr.toString(e, debug) + " with " + inputToFile.toString(e, debug);
+        return String.format("%s new json file %s %s", (async ? "async" : ""), expressionPath.toString(e, debug), (with ? "with content " + expressionObject.toString(e, debug) : ""));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        async = parseResult.hasTag(("async"));
-        hasObject = parseResult.hasTag(("object"));
-        hasArray = parseResult.hasTag(("array"));
-        pattern = matchedPattern;
-
-        pathToFileExpr = (Expression<String>) expressions[0];
-        if (expressions[1] != null) {
-            inputToFile = LiteralUtils.defendExpression(expressions[1]);
-            return LiteralUtils.canInitSafely(inputToFile);
-        }
+    @SuppressWarnings("unchecked")
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
+        with = parseResult.hasTag("with");
+        async = parseResult.hasTag("async");
+        expressionPath = (Expression<String>) exprs[0];
+        expressionObject = LiteralUtils.defendExpression(exprs[1]);
+        if (with) return LiteralUtils.canInitSafely(expressionObject);
         return true;
     }
 }

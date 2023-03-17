@@ -1,19 +1,24 @@
-package cz.coffee.skript.expressions;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffee.core.cache.JsonWatcher;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Map;
+
+import static cz.coffee.SkJson.JSON_STORAGE;
 
 /**
  * This file is part of skJson.
@@ -33,55 +38,59 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: pondělí (13.03.2023)
+ * Created: úterý (14.03.2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
+@Name("Json file is listening")
+@Description("Check if the file for given id is listening via JsonWatcher")
 @Examples({
         "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+        "\tif cached json \"test\" is listen:",
+        "\t\tsend true"
 })
 @Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+
+public class CondJsonIsListened extends Condition {
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerCondition(CondJsonIsListened.class,
+                "[cached] json [id] %string% is listen",
+                "[cached] json [id] %string% is(n't| not) listen"
+        );
     }
 
-    private Expression<JsonElement> jsonElementExpression;
-
-
-    @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
-        final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
-    }
+    private int line;
+    private Expression<String> exprId;
 
     @Override
-    public boolean isSingle() {
-        return true;
-    }
+    public boolean check(@NotNull Event event) {
+        String id = exprId.getSingle(event);
 
-    @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+
+        File file = null;
+        for (Map.Entry<String, Map<JsonElement, File>> stringMapEntry : JSON_STORAGE.entrySet()) {
+            for (Map.Entry<JsonElement, File> jsonElementFileEntry : stringMapEntry.getValue().entrySet()) {
+                if (stringMapEntry.getKey().equals(id)) {
+                    file = jsonElementFileEntry.getValue();
+                    break;
+                }
+            }
+            if (file != null) break;
+        }
+        return (line == 0) == JsonWatcher.isRegistered(file);
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+        return String.format("json id %s %s listened",exprId.toString(event,b), (line == 0 ? "is": "isn't"));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
-        jsonElementExpression = (Expression<JsonElement>) expressions[0];
+        exprId = (Expression<String>) expressions[0];
+        line = i;
+        setNegated(i == 1);
         return true;
     }
 }

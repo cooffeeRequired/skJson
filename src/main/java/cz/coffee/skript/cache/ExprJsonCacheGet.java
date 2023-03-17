@@ -1,4 +1,4 @@
-package cz.coffee.skript.expressions;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -14,6 +14,11 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Map;
+
+import static cz.coffee.SkJson.JSON_STORAGE;
 
 /**
  * This file is part of skJson.
@@ -33,34 +38,39 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: pondělí (13.03.2023)
+ * Created: úterý (14.03.2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
-@Examples({
-        "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+@Name("Get cached json")
+@Description({"You can get json from cached internal storage by with a key defined by you"})
+@Examples({"on script load:",
+        "\tset {_json} to cached json \"your\"",
+        "\tsend {_json} with pretty print"
 })
 @Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+
+public class ExprJsonCacheGet extends SimpleExpression<JsonElement> {
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerExpression(ExprJsonCacheGet.class, JsonElement.class, ExpressionType.SIMPLE,
+                "cached json %string%"
+        );
     }
-
-    private Expression<JsonElement> jsonElementExpression;
-
+    private Expression<String> storedKeyExpr;
 
     @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
-        final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
+    protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
+        String storedKey = storedKeyExpr.getSingle(e);
+        if (storedKey != null) {
+            for (Map.Entry<String, Map<JsonElement, File>> entry : JSON_STORAGE.entrySet()) {
+                if (entry.getKey().equals(storedKey)) {
+                    for (Map.Entry<JsonElement, File> fileEntry : entry.getValue().entrySet()) {
+                        return new JsonElement[]{fileEntry.getKey()};
+                    }
+                }
+            }
+        }
+        return new JsonElement[0];
     }
 
     @Override
@@ -69,19 +79,19 @@ public class ExprSizeOfJson extends SimpleExpression<Integer> {
     }
 
     @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    public @NotNull Class<JsonElement> getReturnType() {
+        return JsonElement.class;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+        return "get cached json " + storedKeyExpr.toString(event, b);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
-        jsonElementExpression = (Expression<JsonElement>) expressions[0];
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull SkriptParser.ParseResult parseResult) {
+        storedKeyExpr = (Expression<String>) exprs[0];
         return true;
     }
 }

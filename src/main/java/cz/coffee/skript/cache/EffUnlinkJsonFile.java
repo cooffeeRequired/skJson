@@ -1,19 +1,23 @@
-package cz.coffee.skript.expressions;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
+import cz.coffee.core.cache.JsonWatcher;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static cz.coffee.SkJson.JSON_STORAGE;
 
 /**
  * This file is part of skJson.
@@ -36,52 +40,43 @@ import org.jetbrains.annotations.NotNull;
  * Created: pondělí (13.03.2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
+@Name("UnLink or Unload json file")
+@Description("You can unload the json file.")
 @Examples({
         "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+        "\tlunink json \"mine.id\""
 })
 @Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+public class EffUnlinkJsonFile extends Effect {
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerEffect(EffUnlinkJsonFile.class, "unlink json %string%");
     }
 
-    private Expression<JsonElement> jsonElementExpression;
+    private Expression<String> exprID;
 
 
     @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
-        final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    protected void execute(@NotNull Event event) {
+        String id = exprID.getSingle(event);
+        if (id == null) return;
+        if (JSON_STORAGE.containsKey(id)) {
+            AtomicReference<File> file = new AtomicReference<>();
+            JSON_STORAGE.get(id).forEach((json, file0) -> file.set(file0));
+            JsonWatcher.unregister(file.get());
+            JSON_STORAGE.remove(id);
+        }
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+        return "unlink json " + exprID.toString(event, b);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
-        jsonElementExpression = (Expression<JsonElement>) expressions[0];
+        exprID = (Expression<String>) expressions[0];
         return true;
     }
 }

@@ -1,14 +1,10 @@
-package cz.coffee.skript.expressions;
+package cz.coffee.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
@@ -36,52 +32,53 @@ import org.jetbrains.annotations.NotNull;
  * Created: pondělí (13.03.2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
+@Name("Type of json")
+@Description("You check json type of Json")
 @Examples({
         "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+        "\tif type of {_json} is primitive:",
+        "\tsend true"
 })
 @Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+
+public class CondJsonType extends Condition {
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerCondition(CondJsonType.class,
+                "type of %json% (is|=) (1:primitive|2:[json]object|3:array)",
+                "type of %json% (is(n't| not)|!=) (1:primitive|2:[json]object|3:array)"
+        );
     }
 
+    private int line, mark;
     private Expression<JsonElement> jsonElementExpression;
 
-
     @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
+    public boolean check(@NotNull Event event) {
         final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+        if (json == null) return false;
+        if (!json.isJsonNull()) {
+            if (line == 0) {
+                if (mark == 1) return json.isJsonPrimitive();
+                if (mark == 2) return json.isJsonObject();
+                if (mark == 3) return json.isJsonArray();
+            }
+        }
+        return false;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+        return "type of " + jsonElementExpression.toString(event, b);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+        line = i;
+        mark = parseResult.mark;
         jsonElementExpression = (Expression<JsonElement>) expressions[0];
+        setNegated(i == 1);
         return true;
     }
 }

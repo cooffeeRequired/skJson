@@ -1,4 +1,4 @@
-package cz.coffee.skript.expressions;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -14,6 +14,10 @@ import com.google.gson.JsonElement;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+
+import static cz.coffee.SkJson.JSON_STORAGE;
 
 /**
  * This file is part of skJson.
@@ -33,55 +37,49 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: pondělí (13.03.2023)
+ * Created: úterý (14.03.2023)
  */
 
-@Name("Json size")
-@Description("Returns the size of the json")
+@Name("All cached jsons")
+@Description("That will return jsons from your cache.")
 @Examples({
-        "on load:",
-        "\tset {_json} to json from text \"{'E1': 1, 'E2': 2}\"",
-        "\tif size of {_json} > 10",
-        "\t\tsend \"size is too big\""
+        "command AllCachedJsons:",
+        "\ttrigger:",
+        "\t\tsend all cached jsons"
 })
-@Since("2.8.0 - performance & clean")
-public class ExprSizeOfJson extends SimpleExpression<Integer> {
+@Since("2.8.0 performance & clean")
+public class GetAllCachedJson extends SimpleExpression<JsonElement> {
 
     static {
-        Skript.registerExpression(ExprSizeOfJson.class, Integer.class, ExpressionType.SIMPLE, "size of %json%", "%json% size");
+        Skript.registerExpression(GetAllCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
+                "all cached jsons")
+        ;
     }
 
-    private Expression<JsonElement> jsonElementExpression;
-
-
     @Override
-    protected @Nullable Integer @NotNull [] get(@NotNull Event event) {
-        final JsonElement json = jsonElementExpression.getSingle(event);
-        if (json == null) return new Integer[0];
-        if (json.isJsonArray()) return new Integer[]{json.getAsJsonArray().size()};
-        if (json.isJsonObject()) return new Integer[]{json.getAsJsonObject().size()};
-        return new Integer[0];
+    protected @Nullable JsonElement @NotNull [] get(@NotNull Event event) {
+        ArrayList<JsonElement> finalElements = new ArrayList<>();
+        JSON_STORAGE.forEach((id, map) -> map.forEach((json, file) -> finalElements.add(json)));
+        return finalElements.toArray(new JsonElement[0]);
     }
 
     @Override
     public boolean isSingle() {
-        return true;
+        return false;
     }
 
     @Override
-    public @NotNull Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    public @NotNull Class<? extends JsonElement> getReturnType() {
+        return JsonElement.class;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "size of " + jsonElementExpression.toString(event, b);
+        return "all cached jsons";
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
-        jsonElementExpression = (Expression<JsonElement>) expressions[0];
         return true;
     }
 }

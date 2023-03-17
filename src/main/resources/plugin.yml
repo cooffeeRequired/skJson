@@ -1,11 +1,11 @@
 name: skJson
-version: '${version}'
+version: '${project.version}'
 main: cz.coffee.SkJson
-api-version: 1.16
+api-version: 1.13
+depend:
+  - Skript
 prefix: skJson
 load: POSTWORLD
-depend: [ Skript ]
-softdepend: [ Vault, SkBee, Reqn ]
-authors: [ coffeeReuired ]
+authors: [ coffeeRequired ]
 description: skJson - simple work with Json in Script
 website: https://github.com/cooffeeRequired/skJson

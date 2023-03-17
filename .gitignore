@@ -17,6 +17,7 @@
 **/bin/
 **/build/
 **/.grandle/
+**/target/
 hs_err_pid*
 replay_pid*
 *gradle*
@@ -31,6 +32,5 @@ replay_pid*
 *.rar
 *.lock
 *.bin
-build.___gradle
 build.___gradle
 *.lang
