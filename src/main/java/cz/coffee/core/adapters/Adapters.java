@@ -14,9 +14,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Axolotl;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.TropicalFish;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -28,7 +26,6 @@ import java.util.*;
 
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.Util.GSON_ADAPTER;
-import static org.bukkit.Bukkit.createInventory;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
@@ -555,69 +552,38 @@ public abstract class Adapters {
     public final static Adapter<Inventory> InventoryAdapter = new Adapter<>() {
         @Override
         public @NotNull JsonElement toJson(Inventory source) {
-            final JsonObject o = new JsonObject();
-            o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            boolean isPlayer = source.getHolder() instanceof Player;
+            final int sourceSize = source.getSize();
+            final String sourceTitle = source.getType().getDefaultTitle();
 
-            final JsonObject _SERIALIZED_INV = new JsonObject();
-            final JsonObject _SERIALIZED_ITEMS = new JsonObject();
-
-            String _HOLDER = null;
-            String _TITLE = "Unknown";
-            if (isPlayer) {
-                _HOLDER = ((Player) source.getHolder()).getName();
-                _TITLE = String.format("Inventory of %s", ((Player) source.getHolder()).getName());
+            final JsonObject object = new JsonObject();
+            final JsonObject jsonInventory = new JsonObject();
+            object.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            for (ItemStack item : source.getContents()) {
+                String slot = "Slot " + jsonInventory.size();
+                jsonInventory.add(slot, (item != null ? ItemStackAdapter.toJson(item) : JsonNull.INSTANCE));
             }
-
-            _SERIALIZED_INV.addProperty("holder", _HOLDER);
-            if (isPlayer) _SERIALIZED_INV.addProperty("type", "PLAYER");
-            if (!isPlayer) _SERIALIZED_INV.addProperty("size", source.getSize());
-            _SERIALIZED_INV.addProperty("title", _TITLE);
-            for (ItemStack i : source.getContents()) {
-                String slot = "Slot "+_SERIALIZED_ITEMS.size();
-                if (i != null) {
-                    _SERIALIZED_ITEMS.add(slot, ItemStackAdapter.toJson(i));
-                } else {
-                    _SERIALIZED_ITEMS.add(slot, JsonNull.INSTANCE);
-                }
-            }
-            _SERIALIZED_INV.add("contents", _SERIALIZED_ITEMS);
-            o.add("inventory", _SERIALIZED_INV);
-            return !o.isEmpty() ? o : JsonNull.INSTANCE;
+            object.addProperty("title", sourceTitle);
+            object.addProperty("size", sourceSize);
+            object.add("contents", jsonInventory);
+            return object;
         }
 
         @Override
         public Inventory fromJson(JsonObject json) {
-            final String INVENTORY_KEY = "inventory";
-            final String CONTENTS_KEY = "contents";
-            final String HOLDER_KEY = "holder";
-            final String TYPE_KEY = "type";
-            final String TITLE_KEY = "title";
-            final String SIZE_KEY = "size";
-
-            InventoryData inventoryData = new InventoryData();
-            inventoryData.setType(InventoryType.valueOf(json.getAsJsonObject(INVENTORY_KEY).get(TYPE_KEY).getAsString().toUpperCase()));
-            inventoryData.setHolder(inventoryData.getType().equals(InventoryType.PLAYER) ? Bukkit.getPlayer(json.getAsJsonObject(INVENTORY_KEY).get(HOLDER_KEY).getAsString()) : null);
-
-            inventoryData.setSize(json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY) != null ? json.getAsJsonObject(INVENTORY_KEY).get(SIZE_KEY).getAsInt() : 0);
-            inventoryData.setTitle(json.getAsJsonObject(INVENTORY_KEY).get(TITLE_KEY).getAsString());
-            inventoryData.setContents(json.getAsJsonObject(INVENTORY_KEY).getAsJsonObject(CONTENTS_KEY).asMap());
-
-
-
-
-            final ArrayList<ItemStack> _ITEMS = new ArrayList<>();
-            //noinspection deprecation
-            final Inventory _INV = inventoryData.getType() == InventoryType.PLAYER ?
-                    createInventory
-                            (inventoryData.getHolder(), inventoryData.getType(), inventoryData.getTitle()):
-                    createInventory
-                            (null, inventoryData.getSize(), inventoryData.getTitle());
-
-            inventoryData.getContents().forEach((key, value) -> _ITEMS.add(
-                    value == JsonNull.INSTANCE ? new ItemStack(Material.AIR) : ItemStackAdapter.fromJson(value.getAsJsonObject())));
-            _INV.setContents(_ITEMS.toArray(new ItemStack[0]));
-            return _INV;
+            final String jsonTitle = json.get("title").getAsString();
+            final int jsonSize = json.get("size").getAsInt();
+            final ArrayList<ItemStack> items = new ArrayList<>();
+            final Inventory inventory = Bukkit.createInventory(null, jsonSize, jsonTitle);
+            json.getAsJsonObject("contents").entrySet().forEach(entry -> {
+                JsonElement jElement = entry.getValue();
+                if (jElement == JsonNull.INSTANCE) {
+                    items.add(new ItemStack(Material.AIR));
+                } else {
+                    items.add(ItemStackAdapter.fromJson(jElement.getAsJsonObject()));
+                }
+            });
+            inventory.setContents(items.toArray(new ItemStack[0]));
+            return inventory;
         }
     };
 
