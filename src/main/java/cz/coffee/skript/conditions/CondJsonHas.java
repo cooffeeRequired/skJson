@@ -16,7 +16,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
+
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
+import static cz.coffee.core.utils.Util.extractKeys;
 
 /**
  * This file is part of skJson.
@@ -54,13 +57,13 @@ public class CondJsonHas extends Condition {
 
     static {
         Skript.registerCondition(CondJsonHas.class,
-                "%json% has (:value|:key)[s] %objects%",
-                "%json% does(n't| not) have (:value|:key)[s] %objects%"
+                "%json% [:directly] has (:value|:key)[s] %objects%",
+                "%json% [:directly] does(n't| not) have (:value|:key)[s] %objects%"
         );
     }
 
     private int line;
-    private boolean isValues;
+    private boolean isValues, directly;
     private Expression<?> expressionRaw;
     private Expression<JsonElement> jsonElementExpression;
 
@@ -82,9 +85,19 @@ public class CondJsonHas extends Condition {
                 }
             } else {
                 String element = (String) value;
-                if (!JsonUtils.checkKeys(element, json)) {
-                    found = false;
-                    break;
+
+                if (directly) {
+                    final LinkedList<String> list = extractKeys(element, null);
+                    final JsonElement result = JsonUtils.getByKey(json, list);
+                    if (result == null || result.isJsonNull()) {
+                        found = false;
+                        break;
+                    }
+                } else {
+                    if (!JsonUtils.checkKeys(element, json)) {
+                        found = false;
+                        break;
+                    }
                 }
             }
         }
@@ -99,6 +112,7 @@ public class CondJsonHas extends Condition {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        directly = parseResult.hasTag("directly");
         line = matchedPattern;
         isValues = parseResult.hasTag("value");
         setNegated(line == 1);
