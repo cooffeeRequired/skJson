@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import static cz.coffee.core.utils.FileUtils.isJsonFile;
 
 /**
  * This file is part of skJson.
@@ -33,52 +33,51 @@ import java.io.File;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: Sunday (3/12/2023)
+ * Created: Saturday (3/11/2023)
  */
 
-@Name("Json file is empty")
-@Description("You can check if the json file empty")
+@Name("Json file exists")
+@Description({"You can check if the json file already exists or not."})
 @Examples("""
-        Command jsonFileIsEmpty:
-            trigger:
-                if json file "plugins/raw/test.json" is empty:
-                    send true
-                else:
-                    send false
+        command FileExists:
+          trigger:
+            if json file "plugins/test/main.json" already exists:
+                set {_json} to json from string "{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}"
         """
 )
 @Since("2.8.0 - performance & clean")
 
-public class CondJsonEmpty extends Condition {
+public class CondJsonFileExist extends Condition {
 
     static {
-        Skript.registerCondition(CondJsonEmpty.class,
-                "json file %string% is empty",
-                "json file %string% is(n't| not) empty"
+        Skript.registerCondition(CondJsonFileExist.class,
+                "json [file] %string% [already] exists",
+                "json [file] %string% [already] does(n't| not) exists"
         );
     }
 
+    private Expression<String> exprFile;
     private int line;
-    private Expression<String> filePath;
+
 
     @Override
     public boolean check(@NotNull Event e) {
-        final String fileString = filePath.getSingle(e);
-        assert fileString != null;
-        final File file = new File(fileString);
-        return (line == 0) == file.length() < 1;
+        final String fileString = exprFile.getSingle(e);
+        if (fileString == null) return false;
+        return (line == 0) == isJsonFile(fileString);
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json file " + filePath.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
+        return "json file " + exprFile.toString(e, debug) + " already" + (line == 0 ? "exists" : "not exists");
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        exprFile = (Expression<String>) exprs[0];
         line = matchedPattern;
-        filePath = (Expression<String>) exprs[0];
+        setNegated(line == 1);
         return true;
     }
 }

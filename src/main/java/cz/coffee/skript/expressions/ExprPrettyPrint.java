@@ -1,19 +1,21 @@
-package cz.coffee.skript.conditions;
+package cz.coffee.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonElement;
+import cz.coffee.core.ColoredJson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 /**
  * This file is part of skJson.
@@ -33,52 +35,59 @@ import java.io.File;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: Sunday (3/12/2023)
+ * Created: Friday (3/10/2023)
  */
 
-@Name("Json file is empty")
-@Description("You can check if the json file empty")
-@Examples("""
-        Command jsonFileIsEmpty:
-            trigger:
-                if json file "plugins/raw/test.json" is empty:
-                    send true
-                else:
-                    send false
-        """
-)
+@Name("Pretty json")
+@Description({
+        "Allows you to better parse json",
+        "<pre>",
+        "{",
+        "\t\"test\": \"skJson\"",
+        "\t\"Object\": {",
+        "\t\t\"new\": \"data\"",
+        "\t}",
+        "</pre>"
+})
+@Examples({
+        "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
+        "send {_json} with pretty print"
+})
 @Since("2.8.0 - performance & clean")
 
-public class CondJsonEmpty extends Condition {
+
+public class ExprPrettyPrint extends SimpleExpression<String> {
+
+    static Expression<JsonElement> jsonExpression;
 
     static {
-        Skript.registerCondition(CondJsonEmpty.class,
-                "json file %string% is empty",
-                "json file %string% is(n't| not) empty"
-        );
+        Skript.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% with pretty print");
     }
 
-    private int line;
-    private Expression<String> filePath;
+    @Override
+    protected @Nullable String @NotNull [] get(@NotNull Event e) {
+        JsonElement json = jsonExpression.getSingle(e);
+        return new String[]{"\n"+new ColoredJson(json).getOutput()};
+    }
 
     @Override
-    public boolean check(@NotNull Event e) {
-        final String fileString = filePath.getSingle(e);
-        assert fileString != null;
-        final File file = new File(fileString);
-        return (line == 0) == file.length() < 1;
+    public boolean isSingle() {
+        return true;
+    }
+
+    @Override
+    public @NotNull Class<? extends String> getReturnType() {
+        return String.class;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json file " + filePath.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
+        return jsonExpression.toString(e, debug) + " with pretty print";
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        line = matchedPattern;
-        filePath = (Expression<String>) exprs[0];
-        return true;
+        jsonExpression = LiteralUtils.defendExpression(exprs[0]);
+        return LiteralUtils.canInitSafely(jsonExpression);
     }
 }

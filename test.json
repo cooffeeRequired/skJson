@@ -1,0 +1,9 @@
+{
+  "Array": "A",
+  "Booleans": [1,2,3],
+  "Test": true,
+  "False": false,
+  "Test2": {
+      "X": true
+  }
+}

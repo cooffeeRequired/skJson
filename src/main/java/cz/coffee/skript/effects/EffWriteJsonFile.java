@@ -2,21 +2,20 @@ package cz.coffee.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import cz.coffee.core.utils.FileUtils;
+import cz.coffee.core.utils.JsonFile;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
@@ -38,55 +37,55 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
  * <p>
  * Copyright coffeeRequired nd contributors
  * <p>
- * Created: úterý (14.03.2023)
+ * Created: pondělí (20.03.2023)
  */
 
-@Name("New json file")
-@Description({"You can create a new json file."})
-@Since("2.8.0 - performance & clean")
-
-public class EffNewJsonFile extends Effect {
+@Name("Write json file with contents")
+@Description("You can write/re-write to jsons")
+@Examples({
+        "command sk-example:",
+        "\ttrigger:",
+        "\t\tset {_json} to json from player's world",
+        "\t\twrite {_json} to json file \"*.json\"",
+})
+@Since("2.8.0 performance & clean")
+public class EffWriteJsonFile  extends Effect {
 
     static {
-        Skript.registerEffect(EffNewJsonFile.class, "[:async] new json file %string% [(:with) (object|content)[s] %-object%]");
+        Skript.registerEffect(EffWriteJsonFile.class,
+                "[re[-]]write %object% to [json file] %-string/jsonfile%"
+        );
     }
 
-    private boolean async, with;
-    private Expression<String> expressionPath;
-    private Expression<?> expressionObject;
+
+    private Expression<?> inputEx;
+    private Expression<?> ExprFile;
 
     @Override
     protected void execute(@NotNull Event e) {
-        String path = expressionPath.getSingle(e);
-        JsonElement content;
-        if (path == null) return;
-        final File file = new File(path);
-        if (with) {
-            Object o = expressionObject.getSingle(e);
-            if (o == null) {
-                content = new JsonObject();
-            } else {
-                content = parseItem(o, o.getClass());
-            }
-        } else {
-            content = new JsonObject();
+        JsonFile file = null;
+        Object o = ExprFile.getSingle(e);
+        if (o instanceof JsonFile) {
+            file = (JsonFile) o;
+        } else if (o instanceof String) {
+            file = new JsonFile((String) o);
         }
-        FileUtils.write(file, content, async);
+        final Object data =  inputEx.getSingle(e);
+        if (file != null) FileUtils.write(file, parseItem(data, inputEx, e), true);
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return String.format("%s new json file %s %s", (async ? "async" : ""), expressionPath.toString(e, debug), (with ? "with content " + expressionObject.toString(e, debug) : ""));
+        return Classes.getDebugMessage(e);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        with = parseResult.hasTag("with");
-        async = parseResult.hasTag("async");
-        expressionPath = (Expression<String>) exprs[0];
-        expressionObject = LiteralUtils.defendExpression(exprs[1]);
-        if (with) return LiteralUtils.canInitSafely(expressionObject);
-        return true;
+        ExprFile = LiteralUtils.defendExpression(exprs[1]);
+        inputEx = LiteralUtils.defendExpression(exprs[0]);
+        if (LiteralUtils.canInitSafely(inputEx)) {
+            return LiteralUtils.canInitSafely(ExprFile);
+        }
+        return false;
     }
 }

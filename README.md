@@ -19,9 +19,9 @@
 > **Discord:** https://discord.gg/trwWpUkmQp
 <!-- > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \ -->
 > **Requirements**
-> * Java 11 +
-> * Minecraft 1.8.8+
-> * Skript
+> * Java 16 +
+> * Minecraft 1.16.5+
+> * Skript 2.7
 
 > **Recommended**
 > * VSCode = [Download link](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)
