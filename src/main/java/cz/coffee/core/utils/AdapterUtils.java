@@ -203,7 +203,6 @@ public class AdapterUtils {
                 return GSON_ADAPTER.toJsonTree(item, ConfigurationSerializable.class);
             }
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
             return null;
         }
         return null;

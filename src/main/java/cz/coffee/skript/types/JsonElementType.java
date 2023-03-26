@@ -21,7 +21,6 @@ import cz.coffee.core.utils.Util;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -62,16 +61,18 @@ import static cz.coffee.core.utils.JsonUtils.convert;
 @Since("2.8.0")
 @SuppressWarnings({"unused", "deprecation"})
 public class JsonElementType {
-    public static final Collection<Class<?>> allowedTypes = List.of(Block.class, ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
+    public static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
     static {
-        if (Skript.getVersion().isLargerThan(new Version(2,6,4))) {
-            allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
-        } else {
-            allowedTypes.forEach(clazz -> {
-                ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom);
-            });
-        }
+        try {
+            if (Skript.getVersion().isLargerThan(new Version(2,6,4))) {
+                allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
+            } else {
+                allowedTypes.forEach(clazz -> {
+                    ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom);
+                });
+            }
 
+        } catch (ArrayStoreException ignored) {}
 
         Classes.registerClass(
                 new ClassInfo<>(JsonElement.class, "json")
