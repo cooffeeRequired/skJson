@@ -21,7 +21,7 @@
 > **Requirements**
 > * Java 16 +
 > * Minecraft 1.16.5+
-> * Skript 2.7
+> * Skript 2.6.4
 
 > **Recommended**
 > * VSCode = [Download link](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)
