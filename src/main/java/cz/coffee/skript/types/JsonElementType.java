@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Version;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonArray;
@@ -59,12 +60,15 @@ import static cz.coffee.core.utils.JsonUtils.convert;
  */
 
 @Since("2.8.0")
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "deprecation"})
 public class JsonElementType {
     public static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Block.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
-
     static {
-        allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
+        if (Skript.getVersion().isLargerThan(new Version(2,6,4))) {
+            allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
+        } else {
+            allowedTypes.forEach(clazz -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
+        }
 
 
         Classes.registerClass(
