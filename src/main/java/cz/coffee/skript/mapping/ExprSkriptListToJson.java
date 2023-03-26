@@ -20,8 +20,6 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import static ch.njol.skript.variables.Variables.getVariable;
-
 /**
  * This file is part of skJson.
  * <p>
@@ -68,8 +66,6 @@ public class ExprSkriptListToJson extends SimpleExpression<JsonElement> {
         String variableName = variableString.toString(e);
         String var = (variableName.substring(0, variableName.length() - 1));
         JsonElement element = JsonMap.Json.convert(var, isLocal, false, e);
-
-        System.out.println(getVariable("jsons::*", e, isLocal));
         return new JsonElement[]{element};
     }
 

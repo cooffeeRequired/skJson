@@ -114,17 +114,19 @@ public abstract class JsonMap {
                     });
                     return jsonStructure;
                 }
+            } else {
+                final JsonObject jsonStructure = JSON_OBJECT;
+                keys.forEach(key -> {
+                    JsonElement data = GSON.toJsonTree(subList(name + key, isLocal, event));
+                    if (data instanceof JsonPrimitive primitive) {
+                        jsonStructure.add(key, primitive);
+                    } else {
+                        jsonStructure.add(key, data);
+                    }
+                });
+                return jsonStructure;
             }
-            final JsonObject jsonStructure = JSON_OBJECT;
-            keys.forEach(key -> {
-                JsonElement data = GSON.toJsonTree(subList(name + key, isLocal, event));
-                if (data instanceof JsonPrimitive primitive) {
-                    jsonStructure.add(key, primitive);
-                } else {
-                    jsonStructure.add(key, data);
-                }
-            });
-            return jsonStructure;
+            return null;
         }
 
         private static Object subList(String name, boolean isLocal, Event event) {
