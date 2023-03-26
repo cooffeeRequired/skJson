@@ -91,7 +91,6 @@ public class AdapterUtils {
                     return ItemStackAdapter.toJson(((Slot) item).getItem());
                 }
             }
-
         } else {
             return assignTo(item);
         }
@@ -180,6 +179,7 @@ public class AdapterUtils {
      static <T> JsonElement assignTo(T item) {
         if (item == null) return JsonNull.INSTANCE;
         boolean isSerializable = (item instanceof YggdrasilSerializable || item instanceof ConfigurationSerializable);
+
         try {
             if (item instanceof World) {
                 return WorldAdapter.toJson((World) item);
@@ -203,6 +203,7 @@ public class AdapterUtils {
                 return GSON_ADAPTER.toJsonTree(item, ConfigurationSerializable.class);
             }
         } catch (Exception exception) {
+            System.out.println(exception.getMessage());
             return null;
         }
         return null;

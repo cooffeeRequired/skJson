@@ -62,12 +62,14 @@ import static cz.coffee.core.utils.JsonUtils.convert;
 @Since("2.8.0")
 @SuppressWarnings({"unused", "deprecation"})
 public class JsonElementType {
-    public static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Block.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
+    public static final Collection<Class<?>> allowedTypes = List.of(Block.class, ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
     static {
         if (Skript.getVersion().isLargerThan(new Version(2,6,4))) {
             allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
         } else {
-            allowedTypes.forEach(clazz -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
+            allowedTypes.forEach(clazz -> {
+                ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom);
+            });
         }
 
 

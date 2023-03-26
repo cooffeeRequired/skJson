@@ -14,8 +14,8 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Axolotl;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TropicalFish;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -554,7 +554,15 @@ public abstract class Adapters {
         @Override
         public @NotNull JsonElement toJson(Inventory source) {
             final String sourceType = source.getType().name();
-            final String sourceTitle = source.getType().getDefaultTitle();
+            String sourceTitle;
+            String sourceHolder;
+            if (source.getViewers().isEmpty()) {
+                sourceHolder = "DEFAULT";
+                sourceTitle =  source.getType().getDefaultTitle();
+            } else {
+                sourceHolder = source.getViewers().get(0).getName();
+                sourceTitle = source.getViewers().get(0).getOpenInventory().getTitle();
+            }
 
             final JsonObject object = new JsonObject();
             final JsonObject jsonInventory = new JsonObject();
@@ -564,7 +572,10 @@ public abstract class Adapters {
                 jsonInventory.add(slot, (item != null ? ItemStackAdapter.toJson(item) : JsonNull.INSTANCE));
             }
             object.addProperty("title", sourceTitle);
+            object.addProperty("rows", source.getSize()/9);
+            object.addProperty("size", source.getSize());
             object.addProperty("type", sourceType);
+            object.addProperty("holder", sourceHolder);
             object.add("contents", jsonInventory);
             return object;
         }
@@ -573,8 +584,16 @@ public abstract class Adapters {
         public Inventory fromJson(JsonObject json) {
             final String jsonTitle = json.get("title").getAsString();
             final String jsonType = json.get("type").getAsString();
+            final String jsonHolder = json.get("holder").getAsString();
+            final int jsonSize = json.get("size").getAsInt();
             final ArrayList<ItemStack> items = new ArrayList<>();
-            final Inventory inventory = Bukkit.createInventory(null, InventoryType.valueOf(jsonType), jsonTitle);
+            Inventory inventory;
+            if (jsonHolder.equals("DEFAULT")) {
+                inventory = Bukkit.createInventory(null, jsonSize, jsonTitle);
+            } else {
+                Player p = Bukkit.getPlayer(jsonHolder);
+                inventory = Bukkit.createInventory(p, jsonSize, jsonTitle);
+            }
             json.getAsJsonObject("contents").entrySet().forEach(entry -> {
                 JsonElement jElement = entry.getValue();
                 if (jElement == JsonNull.INSTANCE) {
