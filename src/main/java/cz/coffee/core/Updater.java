@@ -79,7 +79,7 @@ public class Updater {
                 SkJson.console("Version check &cfailed");
             } else {
                 String lVersionString = apiJson.getAsJsonObject().get("tag_name").getAsString();
-                int latestVersion = Integer.parseInt(apiJson.getAsJsonObject().get("tag_name").getAsString().replaceAll("[.]", ""));
+                int latestVersion = Integer.parseInt(apiJson.getAsJsonObject().get("tag_name").getAsString().replaceAll("[.]", "").replaceAll("[^0-9]", ""));
                 if (latestVersion == currentVersion) {
                     SkJson.console("You're running on &alatest stable &fversion!");
                 } else if (latestVersion > currentVersion) {
