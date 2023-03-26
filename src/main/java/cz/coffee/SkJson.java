@@ -70,13 +70,13 @@ public final class SkJson extends JavaPlugin {
         logger.info(color("&c"+message));
     }
 
-    public static void warning(@NotNull Object message) {
-        logger.warning(color(message));
-    }
-
     public static void error(String message, Node node) {
         logger.info(color(node.toString()));
         logger.info(color("&c" + message));
+    }
+
+    public static void warning(@NotNull Object message) {
+        logger.warning(color(message));
     }
 
     public static void severe(Object o) {
