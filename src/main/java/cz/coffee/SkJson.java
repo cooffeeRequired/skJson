@@ -2,7 +2,6 @@ package cz.coffee;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.bstats.bukkit.Metrics;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
@@ -131,7 +130,7 @@ public final class SkJson extends JavaPlugin {
     }
 
     private void loadMetrics() {
-        Metrics metrics = new Metrics(this, 17374);
+        cz.coffee.Metrics metrics = new cz.coffee.Metrics(this, 17374);
         metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
         console("&fMetrics&r: Loaded metrics&a successfully!");
     }
