@@ -71,7 +71,8 @@ public class JsonWatcher {
         JsonWatcher assignedWatcher = null;
         for (Map.Entry<File, JsonWatcher> entry : WATCHERS.entrySet()) {
             if (file.equals(entry.getKey())) {
-                assignedWatcher = entry.getValue();break;
+                assignedWatcher = entry.getValue();
+                break;
             }
         }
         if (assignedWatcher != null && assignedWatcher.isActive()) {
