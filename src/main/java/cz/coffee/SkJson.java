@@ -2,11 +2,12 @@ package cz.coffee;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.bstats.bukkit.Metrics;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
-import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.Updater;
+import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.cache.JsonWatcher;
 import de.tr7zw.nbtapi.NBTContainer;
 import org.bukkit.Bukkit;
@@ -119,6 +120,7 @@ public final class SkJson extends JavaPlugin {
         JsonWatcher.init();
         console(JsonWatcher.getLogger().getName() +  " was &ainitialized");
         new Updater();
+        loadMetrics();
         console("&aFinished loading.");
     }
     @Override
@@ -126,6 +128,12 @@ public final class SkJson extends JavaPlugin {
         console(JsonWatcher.getLogger().getName() +  " &7trying unload a JsonWatchers!");
         JsonWatcher.shutdown();
         console("&7Unload &aDone");
+    }
+
+    private void loadMetrics() {
+        Metrics metrics = new Metrics(this, 17374);
+        metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
+        console("&fMetrics&r: Loaded metrics&a successfully!");
     }
 
     private boolean pluginCanBeLoad() {
