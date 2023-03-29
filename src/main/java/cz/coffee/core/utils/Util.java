@@ -40,6 +40,7 @@ import static cz.coffee.core.utils.NumberUtils.parsedNumber;
 public class Util {
 
     private static long START_TIME;
+    public static final String DEFAULT_DELIMITER = "::";
 
     public static final Gson GSON_ADAPTER = new GsonBuilder().serializeNulls().enableComplexMapKeySerialization().disableHtmlEscaping()
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Adapters.TypeAdapter.BukkitAdapter()).create();
@@ -91,7 +92,7 @@ public class Util {
 
     public static LinkedList<String> extractKeys(String string, String delimiter, boolean ...rawAdd) {
         boolean add = rawAdd != null && rawAdd.length > 0 && rawAdd[0];
-        delimiter = delimiter == null ? ":(?![{}])" : delimiter;
+        delimiter = delimiter == null ? (DEFAULT_DELIMITER + "(?![{}])") : delimiter;
         if (string == null) return null;
         LinkedList<String> extractedKeys = new LinkedList<>();
         final Pattern squareBrackets = Pattern.compile(".*\\[((\\d+|)])");
