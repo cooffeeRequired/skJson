@@ -67,9 +67,18 @@ public class EffSaveCache extends Effect {
             String id = externalExprID.getSingle(e);
             for (Map.Entry<String, Map<JsonElement, File>> mapEntry : JSON_STORAGE.entrySet()) {
                 for (Map.Entry<JsonElement, File> entry : mapEntry.getValue().entrySet()) {
-                    if (mapEntry.getKey().equals(id)) FileUtils.write(entry.getValue(), entry.getKey(), async);
-                    return;
+                    if (mapEntry.getKey().equals(id)) {
+                        FileUtils.write(entry.getValue(), entry.getKey(), async);
+                        return;
+                    }
                 }
+            }
+        } else {
+            for (Map.Entry<String, Map<JsonElement, File>> mapEntry : JSON_STORAGE.entrySet()) {
+                for (Map.Entry<JsonElement, File> entry : mapEntry.getValue().entrySet()) {
+                    FileUtils.write(entry.getValue(), entry.getKey(), async);
+                }
+                return;
             }
         }
 

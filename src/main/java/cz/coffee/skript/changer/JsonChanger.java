@@ -18,12 +18,14 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.JsonUtils.*;
 import static cz.coffee.core.utils.Util.extractKeys;
+import static cz.coffee.core.utils.Util.jsonToObject;
 
 /**
  * This file is part of skJson.
@@ -47,10 +49,10 @@ import static cz.coffee.core.utils.Util.extractKeys;
  */
 
 @Since(2.8)
-public class JsonChanger extends SimpleExpression<JsonElement> {
+public class JsonChanger extends SimpleExpression<Object> {
 
     static {
-        Skript.registerExpression(JsonChanger.class, JsonElement.class, ExpressionType.COMBINED,
+        Skript.registerExpression(JsonChanger.class, Object.class, ExpressionType.COMBINED,
                 "json list %string% in %json%",
                 "(:keys|:values) of json object [%-string%] in %json%",
                 "json (:value|:key) %string% in %json%"
@@ -63,18 +65,34 @@ public class JsonChanger extends SimpleExpression<JsonElement> {
     private Expression<String> pathExpression;
 
     @Override
-    protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-        return new JsonElement[0];
+    protected @Nullable Object @NotNull [] get(@NotNull Event e) {
+        final JsonElement json = jsonExpression.getSingle(e);
+        final String pathString = pathExpression.getSingle(e);
+        if (json ==  null) return new Object[0];
+        if (pattern == 0) {
+            LinkedList<String> keys = extractKeys(pathString, null, true);
+            final JsonElement in = getByKey(json, keys);
+            if (in == null) return new JsonElement[0];
+            if (in instanceof JsonArray array) {
+                ArrayList<Object> objects = new ArrayList<>();
+                for (JsonElement a : array) {
+                    objects.add(jsonToObject(a));
+                }
+                return objects.toArray(new Object[0]);
+            }
+        } else if (pattern == 1) {
+        }
+        return new Object[0];
     }
 
     @Override
     public boolean isSingle() {
-        return true;
+        return false;
     }
 
     @Override
-    public @NotNull Class<? extends JsonElement> getReturnType() {
-        return JsonElement.class;
+    public @NotNull Class<?> getReturnType() {
+        return Object.class;
     }
 
     @Override
