@@ -101,14 +101,20 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json from " + (isFile? "file " +file.toString(e, debug) : objects.toString());
+        if (line == 0) {
+            return "json from (text|string) " + objects.toString(e, debug);
+        } else if (line == 1) {
+            return "json from file " + file.toString(e, debug);
+        } else {
+            return "empty json " + (isArray ? "array" : "object");
+        }
     }
 
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         isFile = matchedPattern == 1;
         line = matchedPattern;
-        isArray = parseResult.mark == 0 || parseResult.mark == 1;
+        isArray = parseResult.mark == 0;
         if (line == 2) return true;
         objects = LiteralUtils.defendExpression(exprs[0]);
         if (isFile) {

@@ -80,6 +80,7 @@ public class FileUtils {
                 //noinspection ReadWriteStringCanBeUsed
                 Files.write(file.toPath(), dataToWrite.getBytes(StandardCharsets.UTF_8));
                 CompletableFuture.completedFuture(true);
+                return;
             }
             return;
         } catch (IOException exception) {
