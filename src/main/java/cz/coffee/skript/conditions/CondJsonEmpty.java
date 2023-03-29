@@ -9,6 +9,11 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import cz.coffee.core.utils.FileUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -63,10 +68,18 @@ public class CondJsonEmpty extends Condition {
 
     @Override
     public boolean check(@NotNull Event e) {
+        boolean result = false;
         final String fileString = filePath.getSingle(e);
         assert fileString != null;
         final File file = new File(fileString);
-        return (line == 0) == file.length() < 1;
+        if (file.length() > 1) {
+            final JsonElement JSON = FileUtils.get(file);
+            if (JSON == null) return true;
+            if (JSON instanceof JsonNull) result = true;
+            if (JSON instanceof JsonObject object) result = object.isEmpty();
+            if (JSON instanceof JsonArray array) result = array.isEmpty();
+        }
+        return (line == 0) == result;
     }
 
     @Override
@@ -79,6 +92,7 @@ public class CondJsonEmpty extends Condition {
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         line = matchedPattern;
         filePath = (Expression<String>) exprs[0];
+        setNegated(line == 1);
         return true;
     }
 }
