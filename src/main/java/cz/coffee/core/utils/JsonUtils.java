@@ -4,7 +4,10 @@ import ch.njol.skript.Skript;
 import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.core.utils.AdapterUtils.assignFrom;
@@ -99,26 +102,9 @@ public class JsonUtils {
         return count;
     }
     private static final String KEY_SUFFIX = "->List";
-    private static final JsonArray EMPTY_JSON_ARRAY = new JsonArray();
-    private static final JsonObject EMPTY_JSON_OBJECT = new JsonObject();
-    private static JsonElement createMissing(JsonElement json, String key, Object o) {
-        if (json.isJsonObject()) {
-            String sanitizedKey = key.endsWith(KEY_SUFFIX) ? key.substring(0, key.length() - KEY_SUFFIX.length()) : key;
-            if (!checkKeys(sanitizedKey, json)) {
-                json.getAsJsonObject().add(sanitizedKey, key.endsWith(KEY_SUFFIX) ? EMPTY_JSON_ARRAY : EMPTY_JSON_OBJECT);
-            }
-
-        } else if (json.isJsonArray()) {
-            boolean overFlow = ((int) o) > (json.getAsJsonArray().size() - 1);
-            if (json.getAsJsonArray().isEmpty() || overFlow) {
-                json.getAsJsonArray().add(key.endsWith(KEY_SUFFIX) ? EMPTY_JSON_ARRAY : EMPTY_JSON_OBJECT);
-            }
-        }
-        return json;
-    }
     public static void changeValue(JsonElement obj, LinkedList<String> keys, Object value) {
         Deque<JsonElement> elements = new ConcurrentLinkedDeque<>();
-        JsonElement current, child;
+        JsonElement current;
         elements.offerLast(obj);
         String lastKey = keys.removeLast();
         JsonElement parsedValue = parseItem(value, null, null, value.getClass());
@@ -129,33 +115,35 @@ public class JsonUtils {
                 if (key.isEmpty()) continue;
                 String sanitizedKey = key.replaceAll(KEY_SUFFIX, "");
                 int index = isNumber(sanitizedKey) ? parsedNumber(sanitizedKey) : -1;
+                //SkJson.console("&cKey: &f" + key + "  &bSanitized: &f" + sanitizedKey + "  &eMAIN: &f" + current);
 
-                // creating section
-                if (current.isJsonArray()) {
-                    JsonArray array = current.getAsJsonArray();
-                    current = createMissing(array, key, index);
-                } else if (current.isJsonObject()) {
-                    JsonObject object = current.getAsJsonObject();
-                    current = createMissing(object, key, null);
-                }
-
-                // Modding/looping section
-                if (current.isJsonArray()) {
-                    JsonArray array = current.getAsJsonArray();
-                    if (array.isEmpty()) current = array;
-                    else current = array.get(index);
-                } else if (current.isJsonObject()) {
-                    JsonObject object = current.getAsJsonObject();
-                    child = object.get(sanitizedKey);
-                    if (!(child instanceof JsonPrimitive || child instanceof JsonNull)) current = child;
+                if (current instanceof JsonObject object) {
+                    if (!object.has(sanitizedKey)) {
+                        if (key.endsWith(KEY_SUFFIX)) {
+                            object.add(sanitizedKey, new JsonArray());
+                        } else {
+                            object.add(sanitizedKey, new JsonObject());
+                        }
+                    }
+                    current = object.get(sanitizedKey);
+                } else if (current instanceof JsonArray array) {
+                    if (index >= array.size()) {
+                        if (key.endsWith(KEY_SUFFIX)) {
+                            array.add(new JsonArray());
+                        } else {
+                            array.add(new JsonObject());
+                        }
+                    }
+                    current = array.get(index);
                 }
             }
-            if (current.isJsonObject()) {
-                current.getAsJsonObject().remove(lastKey);
-                current.getAsJsonObject().add(lastKey == null ? String.valueOf(current.getAsJsonObject().size()) : lastKey, parsedValue);
-            } else if (current.isJsonArray()) {
-                current.getAsJsonArray().remove(parsedValue);
-                current.getAsJsonArray().add(parsedValue);
+            // final...
+            if (current instanceof JsonObject object) {
+                object.remove(lastKey);
+                object.add(lastKey == null ? String.valueOf(object.size()) : lastKey, parsedValue);
+            } else if (current instanceof JsonArray array) {
+                array.remove(parsedValue);
+                array.add(parsedValue);
             }
         }
     }
@@ -199,6 +187,8 @@ public class JsonUtils {
     private static boolean isNewArray(final String value) {
         return value.endsWith("->List");
     }
+
+    @SuppressWarnings("unused")
     public static void addValue(JsonElement obj, LinkedList<String> path, String definedKey, Object value) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(obj);
@@ -273,7 +263,6 @@ public class JsonUtils {
             }
         }
 
-        String lastKey = keys.getLast();
         current = currentElements.pollLast();
         if (current == null || current.isJsonNull()) return;
         if (current.isJsonObject()) {
@@ -443,8 +432,5 @@ public class JsonUtils {
             }
         }
         return found;
-    }
-    public enum TYPE {
-        Key, Value
     }
 }
