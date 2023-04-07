@@ -5,7 +5,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.Functions;
@@ -13,6 +12,7 @@ import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.DefaultClasses;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
@@ -62,7 +62,7 @@ import static cz.coffee.core.utils.Util.extractKeys;
 @Since("2.8.0 - performance & clean")
 
 
-public class EffEditFile extends Effect {
+public class EffEditFile extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffEditFile.class,
@@ -126,6 +126,7 @@ public class EffEditFile extends Effect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         isValue = parseResult.hasTag("value");
         async = parseResult.hasTag("async");
         jsonFileExpression = parseResult.hasTag("json file");

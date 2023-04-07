@@ -5,14 +5,15 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import cz.coffee.core.requests.HttpHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 })
 @Since("2.8.0 performance & clean")
 
-public class EffExecuteRequest extends Effect {
+public class EffExecuteRequest extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffExecuteRequest.class,
@@ -59,16 +60,18 @@ public class EffExecuteRequest extends Effect {
     private Expression<String> urlExpression;
     private Expression<?> bodyExpression, headersExpression;
     private boolean withHeaders, withBody;
+    protected static HttpHandler.HandlerBody response;
 
     @Override
     protected void execute(@NotNull Event e) {
         final String url = urlExpression.getSingle(e);
+        HttpHandler handler;
         Object headers;
         Object body;
         try {
-            RequestJson.init(e);
             if (pattern == 0) {
-                JsonObject finalHeaders = null;
+                JsonObject finalHeaders;
+                handler = new HttpHandler(url, "GET");
                 if (withHeaders) {
                     headers = headersExpression.getSingle(e);
                     if (headers instanceof String s) {
@@ -76,17 +79,30 @@ public class EffExecuteRequest extends Effect {
                     } else {
                         finalHeaders = (JsonObject) headers;
                     }
+                    if (finalHeaders != null && finalHeaders.isJsonObject()) {
+                        finalHeaders.getAsJsonObject().entrySet().forEach(entry -> {
+                            handler.addHeader(entry.getKey(), entry.getValue().toString());
+                        });
+                    }
                 }
-                RequestJson.getPrepare(url, finalHeaders);
+                handler.asyncSend();
+                response = handler.getBody();
+                handler.disconnect();
             } else if (pattern == 1) {
-                JsonObject finalHeaders = null;
-                JsonObject finalBody = null;
+                handler = new HttpHandler(url, "POST");
+                JsonObject finalHeaders;
+                JsonObject finalBody;
                 if (withHeaders) {
                     headers = headersExpression.getSingle(e);
                     if (headers instanceof String s) {
                         finalHeaders = JsonParser.parseString(s).getAsJsonObject();
                     } else {
                         finalHeaders = (JsonObject) headers;
+                    }
+                    if (finalHeaders != null && finalHeaders.isJsonObject()) {
+                        finalHeaders.getAsJsonObject().entrySet().forEach(entry -> {
+                            handler.addHeader(entry.getKey(), entry.getValue().toString());
+                        });
                     }
                 }
                 if (withBody) {
@@ -96,10 +112,16 @@ public class EffExecuteRequest extends Effect {
                     } else {
                         finalBody = (JsonObject) body;
                     }
+                    if (finalBody != null && finalBody.isJsonObject()) {
+                        finalBody.getAsJsonObject().entrySet().forEach(body_ -> {
+                            handler.addBodyContent(body_.getKey(), body_.getValue().toString());
+                        });
+                    }
                 }
-                RequestJson.postPrepare(url, finalHeaders, finalBody);
+                handler.asyncSend();
+                response = handler.getBody();
+                handler.disconnect();
             }
-            RequestJson.execute();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -113,6 +135,7 @@ public class EffExecuteRequest extends Effect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         pattern = matchedPattern;
         urlExpression = (Expression<String>) exprs[0];
         headersExpression = LiteralUtils.defendExpression(exprs[1]);

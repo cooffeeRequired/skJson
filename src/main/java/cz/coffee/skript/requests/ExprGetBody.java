@@ -52,8 +52,8 @@ public class ExprGetBody extends SimpleExpression<JsonElement> {
     }
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-        if (RequestJson.getResponse() != null) {
-            return new JsonElement[]{RequestJson.getResponse()};
+        if (EffExecuteRequest.response != null) {
+            return new JsonElement[]{EffExecuteRequest.response.toJson()};
         }
         return new JsonElement[0];
     }

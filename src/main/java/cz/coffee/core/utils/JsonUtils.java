@@ -107,7 +107,9 @@ public class JsonUtils {
         JsonElement current;
         elements.offerLast(obj);
         String lastKey = keys.removeLast();
+        if (value == null) return;
         JsonElement parsedValue = parseItem(value, null, null, value.getClass());
+        if (parsedValue == null) return;
 
 
         while ((current = elements.pollFirst()) != null) {

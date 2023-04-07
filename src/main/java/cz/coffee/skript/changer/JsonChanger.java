@@ -2,6 +2,7 @@ package cz.coffee.skript.changer;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -13,7 +14,6 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Since;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +48,7 @@ import static cz.coffee.core.utils.Util.jsonToObject;
  * Created: úterý (14.03.2023)
  */
 
-@Since(2.8)
+@Since("2.8 - b2")
 public class JsonChanger extends SimpleExpression<Object> {
 
     static {
@@ -66,6 +66,7 @@ public class JsonChanger extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
+        ArrayList<Object> objects = new ArrayList<>();
         final JsonElement json = jsonExpression.getSingle(e);
         final String pathString = pathExpression.getSingle(e);
         if (json ==  null) return new Object[0];
@@ -74,13 +75,26 @@ public class JsonChanger extends SimpleExpression<Object> {
             final JsonElement in = getByKey(json, keys);
             if (in == null) return new JsonElement[0];
             if (in instanceof JsonArray array) {
-                ArrayList<Object> objects = new ArrayList<>();
                 for (JsonElement a : array) {
                     objects.add(jsonToObject(a));
                 }
                 return objects.toArray(new Object[0]);
             }
         } else if (pattern == 1) {
+            LinkedList<String> keys = extractKeys(pathString, null, true);
+            final JsonElement in = getByKey(json, keys);
+            if (result.hasTag("keys")) {
+                if (in == null) return new JsonElement[0];
+                if (in instanceof JsonObject object) objects.addAll(object.keySet());
+            } else if (result.hasTag("values")) {
+                if (in == null) return new JsonElement[0];
+                if (in instanceof JsonObject object) {
+                    object.entrySet().forEach(entry -> {
+                        objects.add(entry.getValue());
+                    });
+                }
+            }
+            return objects.toArray(new Object[0]);
         }
         return new Object[0];
     }

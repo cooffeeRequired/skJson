@@ -5,10 +5,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import cz.coffee.core.utils.FileUtils;
@@ -49,7 +49,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
         "\t\twrite {_json} to json file \"*.json\"",
 })
 @Since("2.8.0 performance & clean")
-public class EffWriteJsonFile  extends Effect {
+public class EffWriteJsonFile  extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffWriteJsonFile.class,
@@ -81,6 +81,7 @@ public class EffWriteJsonFile  extends Effect {
 
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         ExprFile = LiteralUtils.defendExpression(exprs[1]);
         inputEx = LiteralUtils.defendExpression(exprs[0]);
         if (LiteralUtils.canInitSafely(inputEx)) {

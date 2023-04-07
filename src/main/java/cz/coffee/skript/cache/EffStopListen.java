@@ -5,9 +5,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.core.cache.JsonWatcher;
@@ -47,7 +47,7 @@ import static cz.coffee.SkJson.JSON_STORAGE;
         "\tstop jsonwatcher listen to id \"mine.id\""
 })
 @Since("2.8.0 - performance & clean")
-public class EffStopListen extends Effect{
+public class EffStopListen extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffStopListen.class, "stop [json]watcher listen to [id] %string%");

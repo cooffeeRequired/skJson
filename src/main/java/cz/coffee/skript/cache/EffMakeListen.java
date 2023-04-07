@@ -5,9 +5,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.core.cache.JsonWatcher;
@@ -47,7 +47,7 @@ import static cz.coffee.SkJson.JSON_STORAGE;
         "\tmake jsonwatcher listen to \"mine.id\""
 })
 @Since("2.8.0 - performance & clean")
-public class EffMakeListen extends Effect {
+public class EffMakeListen extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffMakeListen.class, "make [json]watcher listen to %string%");
@@ -80,6 +80,7 @@ public class EffMakeListen extends Effect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         exprId = (Expression<String>) expressions[0];
         return true;
     }

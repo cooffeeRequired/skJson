@@ -4,9 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
@@ -45,7 +45,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 @Description({"You can create a new json file."})
 @Since("2.8.0 - performance & clean")
 
-public class EffNewJsonFile extends Effect {
+public class EffNewJsonFile extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffNewJsonFile.class, "[:async] new json file %string% [(:with) (object|content)[s] %-object%]");
@@ -83,6 +83,7 @@ public class EffNewJsonFile extends Effect {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         with = parseResult.hasTag("with");
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         async = parseResult.hasTag("async");
         expressionPath = (Expression<String>) exprs[0];
         expressionObject = LiteralUtils.defendExpression(exprs[1]);

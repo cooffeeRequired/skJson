@@ -5,9 +5,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.core.utils.FileUtils;
@@ -48,7 +48,7 @@ import static cz.coffee.SkJson.JSON_STORAGE;
         "\tsave cached json \"test\""
 })
 @Since("2.8.0 - performance & clean")
-public class EffSaveCache extends Effect {
+public class EffSaveCache extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffSaveCache.class,

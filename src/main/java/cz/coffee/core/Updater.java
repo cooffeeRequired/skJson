@@ -1,15 +1,8 @@
 package cz.coffee.core;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import cz.coffee.SkJson;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import cz.coffee.core.requests.HttpHandler;
 
 import static cz.coffee.SkJson.getDescriptionFile;
 
@@ -41,34 +34,25 @@ public class Updater {
 
     private static boolean success = false;
 
-    private static JsonElement getGithubConfig(URL url) {
-        if (url == null) return null;
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
-        Response response = null;
-        String st = null;
+    private static JsonElement getGithubConfig() throws Exception {
+        JsonElement element = null;
+        HttpHandler handler = new HttpHandler(Updater.apiLink, "GET");
+        handler.asyncSend();
         try {
-            response = client.newCall(request).execute();
-            success = response.isSuccessful();
-            if (response.isSuccessful()) {
-                assert response.body() != null;
-                st = response.body().string();
-            }
-        } catch (IOException urlException) {
-            urlException.printStackTrace();
+            success = handler.isSucccessfull();
+            handler.asyncSend();
         } finally {
-            assert response != null;
-            response.close();
+            if (handler.getBody() != null) element = handler.getBody().toJson();
         }
-        assert st != null;
-        return JsonParser.parseString(st);
+        assert element != null;
+        return element;
     }
 
     static {
         JsonElement apiJson;
         try {
-            apiJson = getGithubConfig(new URL(apiLink));
-        } catch (MalformedURLException e) {
+            apiJson = getGithubConfig();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         boolean beta = getDescriptionFile().getVersion().endsWith("-B");
