@@ -13,9 +13,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.core.utils.FileUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 /**
  * This file is part of skJson.
@@ -38,13 +41,12 @@ import org.jetbrains.annotations.NotNull;
  * Created: Sunday (3/12/2023)
  */
 
-@Name("Json is empty")
-@Description("You can check if the json empty")
+@Name("Json file is empty")
+@Description("You can check if the json file empty")
 @Examples("""
-        Command jsonIsEmpty:
+        Command jsonFileIsEmpty:
             trigger:
-                set {_json} to json object
-                if {_json} is empty:
+                if json file "plugins/raw/test.json" is empty:
                     send true
                 else:
                     send false
@@ -52,39 +54,44 @@ import org.jetbrains.annotations.NotNull;
 )
 @Since("2.8.0 - performance & clean")
 
-public class CondJsonEmpty extends Condition {
+public class CondJsonFileEmpty extends Condition {
 
     static {
-        Skript.registerCondition(CondJsonEmpty.class,
-                "json %json% is empty",
-                "json]%json% is(n't| not) empty"
+        Skript.registerCondition(CondJsonFileEmpty.class,
+                "json file %string% is empty",
+                "json file %string% is(n't| not) empty"
         );
     }
 
     private int line;
-    private Expression<JsonElement> jsonElementExpression;
+    private Expression<String> filePath;
 
     @Override
     public boolean check(@NotNull Event e) {
-        final JsonElement JSON = jsonElementExpression.getSingle(e);
         boolean result = false;
-        if (JSON == null) return true;
-        if (JSON instanceof JsonNull) result = true;
-        if (JSON instanceof JsonObject object) result = object.isEmpty();
-        if (JSON instanceof JsonArray array) result = array.isEmpty();
+        final String fileString = filePath.getSingle(e);
+        assert fileString != null;
+        final File file = new File(fileString);
+        if (file.length() > 1) {
+            final JsonElement JSON = FileUtils.get(file);
+            if (JSON == null) return true;
+            if (JSON instanceof JsonNull) result = true;
+            if (JSON instanceof JsonObject object) result = object.isEmpty();
+            if (JSON instanceof JsonArray array) result = array.isEmpty();
+        }
         return (line == 0) == result;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json" + jsonElementExpression.toString(e, debug)+ " " + (line == 0 ? "is" : "does not") + " empty";
+        return "json file " + filePath.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         line = matchedPattern;
-        jsonElementExpression = (Expression<JsonElement>) exprs[0];
+        filePath = (Expression<String>) exprs[0];
         setNegated(line == 1);
         return true;
     }
