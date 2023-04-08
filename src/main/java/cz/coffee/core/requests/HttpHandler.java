@@ -83,8 +83,11 @@ public class HttpHandler {
 
     @SuppressWarnings("UnusedReturnValue")
     public HttpHandler addBodyContent(String key, Object value) {
-        _content.addProperty(key.strip(), value.toString().strip());
-
+        if (value instanceof JsonElement element) {
+            _content.add(key.strip(), element);
+        } else {
+            _content.addProperty(key.strip(), value.toString().strip());
+        }
         return this;
     }
 
@@ -170,7 +173,6 @@ public class HttpHandler {
             _timer.addTime(endTime - startTime);
         }
         response_ = HandlerBody.of(response.body());
-        System.out.println(_timer.getTime());
     }
 
     public void disconnect() {

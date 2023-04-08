@@ -10,9 +10,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import cz.coffee.SkJson;
 import cz.coffee.core.requests.HttpHandler;
 import org.bukkit.event.Event;
@@ -53,7 +51,7 @@ public class EffExecuteRequest extends AsyncEffect {
     static {
         Skript.registerEffect(EffExecuteRequest.class,
                 "execute GET request to %string% [(:with headers) %-objects%]",
-                "execute POST request to %string% [:(with headers) %-objects%] [[and] [with] (:body|:data) %-strings/json%] [(:url encoded)]"
+                "execute POST request to %string% [(:with headers) %-objects%] [[and] [with] (:body|:data) %-strings/json%] [[as] (:url encoded)]"
         );
     }
 
@@ -96,6 +94,9 @@ public class EffExecuteRequest extends AsyncEffect {
                 handler.disconnect();
             } else if (pattern == 1) {
                 handler = new HttpHandler(url, "POST");
+
+
+
                 if (withHeaders) {
                     headers = headersExpression.getAll(e);
                     for (Object headerLine : headers) {
@@ -120,7 +121,20 @@ public class EffExecuteRequest extends AsyncEffect {
                     for (Object bodyItem : bodys) {
                         if (bodyItem instanceof JsonElement elementBody) {
                             if (elementBody instanceof JsonObject object) {
-                                object.entrySet().forEach(data -> handler.addBodyContent(data.getKey(), data.getValue().getAsString()));
+                                object.entrySet().forEach(data -> {
+                                    JsonElement parsedValue = data.getValue();
+                                    if (parsedValue instanceof JsonArray || parsedValue instanceof JsonObject) {
+                                        handler.addBodyContent(data.getKey(), parsedValue);
+                                    } else {
+                                        if (parsedValue instanceof JsonPrimitive primitive) {
+                                            if (primitive.isString()) {
+                                                handler.addBodyContent(data.getKey(), primitive.getAsString());
+                                            } else {
+                                                handler.addBodyContent(data.getKey(), String.valueOf(primitive));
+                                            }
+                                        }
+                                    }
+                                });
                             }
                         } else {
                             String[] bds = urlEncoded ? bodyItem.toString().split("=") : bodyItem.toString().split(":");
