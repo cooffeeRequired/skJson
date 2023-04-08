@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import cz.coffee.SkJson;
 import cz.coffee.core.requests.HttpHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -52,14 +53,14 @@ public class EffExecuteRequest extends AsyncEffect {
     static {
         Skript.registerEffect(EffExecuteRequest.class,
                 "execute GET request to %string% [(:with headers) %-objects%]",
-                "execute POST request to %string% [:(with headers) %-objects%] [[and] [with] (:body) %-string/json%]"
+                "execute POST request to %string% [:(with headers) %-objects%] [[and] [with] (:body|:data) %-strings/json%] [(:url encoded)]"
         );
     }
 
     private int pattern;
     private Expression<String> urlExpression;
     private Expression<?> bodyExpression, headersExpression;
-    private boolean withHeaders, withBody;
+    private boolean withHeaders, withBody, urlEncoded;
     protected static HttpHandler.HandlerBody response;
 
     @Override
@@ -68,7 +69,6 @@ public class EffExecuteRequest extends AsyncEffect {
         final String url = urlExpression.getSingle(e);
         HttpHandler handler;
         Object[] headers;
-        Object body;
         try {
             if (pattern == 0) {
                 handler = new HttpHandler(url, "GET");
@@ -79,19 +79,15 @@ public class EffExecuteRequest extends AsyncEffect {
                             if (header.startsWith("{") && header.endsWith("}")) {
                                 // JSON
                                 JsonObject object = JsonParser.parseString(header).getAsJsonObject();
-                                object.entrySet().forEach(entry -> {
-                                    handler.addHeader(entry.getKey(), entry.getValue().toString());
-                                });
+                                object.entrySet().forEach(entry -> handler.addHeader(entry.getKey(), entry.getValue().toString()));
                             } else {
                                 // PAIRS
-                                String[] hrs = header.split(":");
+                                String[] hrs = header.split("(:|: )");
                                 handler.addHeader(hrs[0], hrs[1]);
                             }
                         } else if (headerLine instanceof JsonElement jsonHeader) {
                             JsonObject object = jsonHeader.getAsJsonObject();
-                            object.getAsJsonObject().entrySet().forEach(entry -> {
-                                handler.addHeader(entry.getKey(), entry.getValue().toString());
-                            });
+                            object.getAsJsonObject().entrySet().forEach(entry -> handler.addHeader(entry.getKey(), entry.getValue().toString()));
                         }
                     }
                 }
@@ -100,8 +96,6 @@ public class EffExecuteRequest extends AsyncEffect {
                 handler.disconnect();
             } else if (pattern == 1) {
                 handler = new HttpHandler(url, "POST");
-                JsonObject finalHeaders;
-                JsonObject finalBody;
                 if (withHeaders) {
                     headers = headersExpression.getAll(e);
                     for (Object headerLine : headers) {
@@ -109,33 +103,33 @@ public class EffExecuteRequest extends AsyncEffect {
                             if (header.startsWith("{") && header.endsWith("}")) {
                                 // JSON
                                 JsonObject object = JsonParser.parseString(header).getAsJsonObject();
-                                object.entrySet().forEach(entry -> {
-                                    handler.addHeader(entry.getKey(), entry.getValue().toString());
-                                });
+                                object.entrySet().forEach(entry -> handler.addHeader(entry.getKey(), entry.getValue().toString()));
                             } else {
                                 // PAIRS
-                                String[] hrs = header.split(":");
+                                String[] hrs = header.split("(:|: )");
                                 handler.addHeader(hrs[0], hrs[1]);
                             }
                         } else if (headerLine instanceof JsonElement jsonHeader) {
                             JsonObject object = jsonHeader.getAsJsonObject();
-                            object.getAsJsonObject().entrySet().forEach(entry -> {
-                                handler.addHeader(entry.getKey(), entry.getValue().toString());
-                            });
+                            object.getAsJsonObject().entrySet().forEach(entry -> handler.addHeader(entry.getKey(), entry.getValue().toString()));
                         }
                     }
                 }
                 if (withBody) {
-                    body = bodyExpression.getSingle(e);
-                    if (body instanceof String s) {
-                        finalBody = JsonParser.parseString(s).getAsJsonObject();
-                    } else {
-                        finalBody = (JsonObject) body;
-                    }
-                    if (finalBody != null && finalBody.isJsonObject()) {
-                        finalBody.getAsJsonObject().entrySet().forEach(body_ -> {
-                            handler.addBodyContent(body_.getKey(), body_.getValue().toString());
-                        });
+                    Object[] bodys = bodyExpression.getAll(e);
+                    for (Object bodyItem : bodys) {
+                        if (bodyItem instanceof JsonElement elementBody) {
+                            if (elementBody instanceof JsonObject object) {
+                                object.entrySet().forEach(data -> handler.addBodyContent(data.getKey(), data.getValue().getAsString()));
+                            }
+                        } else {
+                            String[] bds = urlEncoded ? bodyItem.toString().split("=") : bodyItem.toString().split(":");
+                            if (bds.length < 2) {
+                                SkJson.console("&f[RequestHandler] &cError occurred while parsing post data, check your type of input data");
+                                return;
+                            }
+                            handler.addBodyContent(bds[0], bds[1]);
+                        }
                     }
                 }
                 handler.asyncSend();
@@ -159,8 +153,9 @@ public class EffExecuteRequest extends AsyncEffect {
         pattern = matchedPattern;
         urlExpression = (Expression<String>) exprs[0];
         headersExpression = LiteralUtils.defendExpression(exprs[1]);
-        withBody = parseResult.hasTag("body");
+        withBody = parseResult.hasTag("body") || parseResult.hasTag("data");
         withHeaders = parseResult.hasTag("with headers");
+        urlEncoded = parseResult.hasTag("url encoded");
 
         if (pattern == 1) {
             bodyExpression = LiteralUtils.defendExpression(exprs[2]);

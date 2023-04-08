@@ -63,25 +63,32 @@ public class HttpHandler {
 
         _requestBuilder = HttpRequest.newBuilder().uri(_uri);
     }
-    public boolean isSucccessfull() {
+    public boolean isSuccessful() {
        return lastHttpResponseCode == 200;
     }
 
+
+
+    @Future.Constructor
     public HttpHandler(String url, String method, Timer timer) {
         this(url, method);
         _timer = timer;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public HttpHandler addHeader(String key, String value) {
         _headers.put(key, value);
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public HttpHandler addBodyContent(String key, Object value) {
-        _content.add(key, new Gson().toJsonTree(value, value.getClass()));
+        _content.addProperty(key.strip(), value.toString().strip());
+
         return this;
     }
 
+    @Future.Method
     public Map<?,?> getHeaders() {
         if (_request != null) {
             return _request.headers().map();
@@ -93,10 +100,9 @@ public class HttpHandler {
         return lastHttpResponseCode;
     }
 
+    @Future.Method
     public final HttpHandler addBodyContent(Content... contents) {
-        Arrays.stream(contents).forEach(c -> {
-            _content.add(c.c1, c.c2);
-        });
+        Arrays.stream(contents).forEach(c -> _content.add(c.c1, c.c2));
         return this;
     }
 
@@ -104,6 +110,7 @@ public class HttpHandler {
         _requestBuilder.header("Content-type", "application/json");
     }
 
+    @Future.Method
     public HttpHandler setBodyContent(JsonElement json) {
         if (json instanceof JsonObject object) {
             _content = object;
@@ -115,6 +122,7 @@ public class HttpHandler {
         return response_;
     }
 
+    @Future.Method
     public Timer getTimer() {
         return _timer;
     }
@@ -240,11 +248,12 @@ public class HttpHandler {
             };
         }
 
-        public JsonElement toJson();
+        JsonElement toJson();
 
-        public String toString();
+        String toString();
 
-        public String prettyPrint();
+        @Future.Parameter
+        String prettyPrint();
     }
 
 }
@@ -284,5 +293,6 @@ class HtmlToJson {
         return json;
     }
 }
+
 
 

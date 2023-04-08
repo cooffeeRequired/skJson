@@ -39,7 +39,7 @@ public class Updater {
         HttpHandler handler = new HttpHandler(Updater.apiLink, "GET");
         handler.asyncSend();
         try {
-            success = handler.isSucccessfull();
+            success = handler.isSuccessful();
             handler.asyncSend();
         } finally {
             if (handler.getBody() != null) element = handler.getBody().toJson();
