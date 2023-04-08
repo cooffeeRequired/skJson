@@ -51,8 +51,8 @@ public class EffExecuteRequest extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffExecuteRequest.class,
-                "execute GET request to %string% [(:with headers) %-string/json%]",
-                "execute POST request to %string% [:(with headers) %-string/json%] [[and] [with] (:body) %-string/json%]"
+                "execute GET request to %string% [(:with headers) %-objects%]",
+                "execute POST request to %string% [:(with headers) %-objects%] [[and] [with] (:body) %-string/json%]"
         );
     }
 
@@ -64,25 +64,35 @@ public class EffExecuteRequest extends AsyncEffect {
 
     @Override
     protected void execute(@NotNull Event e) {
+        response = null;
         final String url = urlExpression.getSingle(e);
         HttpHandler handler;
-        Object headers;
+        Object[] headers;
         Object body;
         try {
             if (pattern == 0) {
-                JsonObject finalHeaders;
                 handler = new HttpHandler(url, "GET");
                 if (withHeaders) {
-                    headers = headersExpression.getSingle(e);
-                    if (headers instanceof String s) {
-                        finalHeaders = JsonParser.parseString(s).getAsJsonObject();
-                    } else {
-                        finalHeaders = (JsonObject) headers;
-                    }
-                    if (finalHeaders != null && finalHeaders.isJsonObject()) {
-                        finalHeaders.getAsJsonObject().entrySet().forEach(entry -> {
-                            handler.addHeader(entry.getKey(), entry.getValue().toString());
-                        });
+                    headers = headersExpression.getAll(e);
+                    for (Object headerLine : headers) {
+                        if (headerLine instanceof String header) {
+                            if (header.startsWith("{") && header.endsWith("}")) {
+                                // JSON
+                                JsonObject object = JsonParser.parseString(header).getAsJsonObject();
+                                object.entrySet().forEach(entry -> {
+                                    handler.addHeader(entry.getKey(), entry.getValue().toString());
+                                });
+                            } else {
+                                // PAIRS
+                                String[] hrs = header.split(":");
+                                handler.addHeader(hrs[0], hrs[1]);
+                            }
+                        } else if (headerLine instanceof JsonElement jsonHeader) {
+                            JsonObject object = jsonHeader.getAsJsonObject();
+                            object.getAsJsonObject().entrySet().forEach(entry -> {
+                                handler.addHeader(entry.getKey(), entry.getValue().toString());
+                            });
+                        }
                     }
                 }
                 handler.asyncSend();
@@ -93,16 +103,26 @@ public class EffExecuteRequest extends AsyncEffect {
                 JsonObject finalHeaders;
                 JsonObject finalBody;
                 if (withHeaders) {
-                    headers = headersExpression.getSingle(e);
-                    if (headers instanceof String s) {
-                        finalHeaders = JsonParser.parseString(s).getAsJsonObject();
-                    } else {
-                        finalHeaders = (JsonObject) headers;
-                    }
-                    if (finalHeaders != null && finalHeaders.isJsonObject()) {
-                        finalHeaders.getAsJsonObject().entrySet().forEach(entry -> {
-                            handler.addHeader(entry.getKey(), entry.getValue().toString());
-                        });
+                    headers = headersExpression.getAll(e);
+                    for (Object headerLine : headers) {
+                        if (headerLine instanceof String header) {
+                            if (header.startsWith("{") && header.endsWith("}")) {
+                                // JSON
+                                JsonObject object = JsonParser.parseString(header).getAsJsonObject();
+                                object.entrySet().forEach(entry -> {
+                                    handler.addHeader(entry.getKey(), entry.getValue().toString());
+                                });
+                            } else {
+                                // PAIRS
+                                String[] hrs = header.split(":");
+                                handler.addHeader(hrs[0], hrs[1]);
+                            }
+                        } else if (headerLine instanceof JsonElement jsonHeader) {
+                            JsonObject object = jsonHeader.getAsJsonObject();
+                            object.getAsJsonObject().entrySet().forEach(entry -> {
+                                handler.addHeader(entry.getKey(), entry.getValue().toString());
+                            });
+                        }
                     }
                 }
                 if (withBody) {
@@ -142,16 +162,6 @@ public class EffExecuteRequest extends AsyncEffect {
         withBody = parseResult.hasTag("body");
         withHeaders = parseResult.hasTag("with headers");
 
-        if (withHeaders) {
-            if (LiteralUtils.canInitSafely(headersExpression)) {
-                if (!headersExpression.getReturnType().isAssignableFrom(String.class) || !headersExpression.getReturnType().isAssignableFrom(JsonElement.class)) {
-                    Skript.error("Invalid headers input, you can use only raw json string, or Json");
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
         if (pattern == 1) {
             bodyExpression = LiteralUtils.defendExpression(exprs[2]);
             if (withBody) {

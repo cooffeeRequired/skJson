@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -44,13 +45,23 @@ public class HttpHandler {
     private JsonObject _content = new JsonObject();
     private final WeakHashMap<String, String> _headers = new WeakHashMap<>();
     private HandlerBody response_;
+    private HttpRequest _request;
     protected static int lastHttpResponseCode;
 
+
     public HttpHandler(String url, String method) {
+        response_ = null;
         _method = method;
         _timer = null;
         _client = java.net.http.HttpClient.newHttpClient();
-        _requestBuilder = HttpRequest.newBuilder().uri(URI.create(url));
+        URI _uri = null;
+        try {
+            _uri = URI.create(url.replaceAll(" ", "%20"));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        _requestBuilder = HttpRequest.newBuilder().uri(_uri);
     }
     public boolean isSucccessfull() {
        return lastHttpResponseCode == 200;
@@ -67,8 +78,15 @@ public class HttpHandler {
     }
 
     public HttpHandler addBodyContent(String key, Object value) {
-        _content.add(key, new Gson().toJsonTree(value, value.getClass()));;
+        _content.add(key, new Gson().toJsonTree(value, value.getClass()));
         return this;
+    }
+
+    public Map<?,?> getHeaders() {
+        if (_request != null) {
+            return _request.headers().map();
+        }
+        return null;
     }
 
     public static int getLastHttpResponseCode() {
@@ -109,7 +127,7 @@ public class HttpHandler {
 
     private HttpRequest makeRequest() {
         if (_requestBuilder != null) {
-            return switch (_method.toUpperCase()) {
+            _request =  switch (_method.toUpperCase()) {
                 case "GET" -> _requestBuilder.GET().build();
                 case "POST" ->  {
                     jsonEncoded();
@@ -118,7 +136,7 @@ public class HttpHandler {
                 default -> _requestBuilder.build();
             };
         }
-        return null;
+        return _request;
     }
 
 
