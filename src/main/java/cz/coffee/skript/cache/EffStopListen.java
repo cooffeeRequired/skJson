@@ -81,6 +81,7 @@ public class EffStopListen extends AsyncEffect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         exprId = (Expression<String>) expressions[0];
         return true;
     }

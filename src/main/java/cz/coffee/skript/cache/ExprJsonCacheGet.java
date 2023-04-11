@@ -53,7 +53,7 @@ public class ExprJsonCacheGet extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(ExprJsonCacheGet.class, JsonElement.class, ExpressionType.SIMPLE,
-                "cached json %string%"
+                "[cached] json %string%"
         );
     }
     private Expression<String> storedKeyExpr;

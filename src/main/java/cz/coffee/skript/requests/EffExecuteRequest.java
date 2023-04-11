@@ -40,8 +40,10 @@ import org.jetbrains.annotations.NotNull;
 @Name("Execute a http (post|get) request")
 @Description("You can execute a web request to rest api. with json encoded body/headers")
 @Examples({
-        "set {_headers} to json from text \"{'Content-type': 'application/json}\"",
+        "set {_headers} to json from text \"{'Content-type': 'application/json'}\"",
         "execute GET request to \"https://dummyjson.com/products/1\" with headers {_headers}",
+        "execute GET request to \"https://dummyjson.com/products/ with headers \"Content-type: application/json\"",
+        "execute POST request to \"https://dummyjson.com/products/add\" with headers \"Content-type: application/json\" and with data \"title: TEST\"",
         "send request's body with pretty print"
 })
 @Since("2.8.0 performance & clean")

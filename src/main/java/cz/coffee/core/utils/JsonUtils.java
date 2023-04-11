@@ -42,8 +42,15 @@ public class JsonUtils {
          try {
              if (object == null) return null;
              Class<?> clazz = object.getClass();
-             if (clazz.equals(String.class))
-                 return JsonParser.parseString((String) object);
+             if (clazz.equals(String.class)) {
+                 if (((String) object).contains(" ")) {
+                     // With whitespace
+                     return new Gson().toJsonTree(object, object.getClass());
+                 } else {
+                     // Primitive
+                     return JsonParser.parseString((String) object);
+                 }
+             }
              if (clazz.equals(Integer.class))
                  return new JsonPrimitive((Integer) object);
              if (clazz.equals(Boolean.class))

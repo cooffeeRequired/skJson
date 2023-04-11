@@ -201,11 +201,14 @@ public class HttpHandler {
     }
 
     public interface HandlerBody {
+
         static HandlerBody of(Object obj) {
+
             return new HandlerBody() {
                 final Gson gson = new GsonBuilder()
                         .disableHtmlEscaping()
                         .serializeNulls()
+                        .setLenient()
                         .setPrettyPrinting()
                         .create();
 
@@ -216,7 +219,12 @@ public class HttpHandler {
                         parsed = JsonParser.parseString(obj.toString());
                     } catch (Exception e) {
                         if (getLastHttpResponseCode() == 200) {
-                            return null;
+                            try {
+                                return JsonParser.parseString(obj.toString());
+                            } catch (Exception e2) {
+                                String msg = "{'OR': 'You can try use \"raw request's body\", 'message': '"+e2.getMessage()+"', 'help': 'Try any of Json Lints for check more information', 'link': 'https://jsonlint.com/'}";
+                                return JsonParser.parseString(msg);
+                            }
                         } else {
                             JsonElement main = JsonParser.parseString("{'message': 'connection refused'}");
                             main.getAsJsonObject().add("result", HtmlToJson.of(obj.toString()));

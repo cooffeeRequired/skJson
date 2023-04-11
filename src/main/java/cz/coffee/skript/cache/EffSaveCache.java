@@ -52,8 +52,8 @@ public class EffSaveCache extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffSaveCache.class,
-                "[:async] save cached json %string%",
-                "[:async] save all cached jsons"
+                "[:async] save [cached] json %string%",
+                "[:async] save all [cached] jsons"
         );
     }
 
@@ -94,6 +94,7 @@ public class EffSaveCache extends AsyncEffect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         async = parseResult.hasTag(("async"));
         line = matchedPattern;
         if (line == 0) {

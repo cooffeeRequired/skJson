@@ -44,7 +44,7 @@ import static cz.coffee.SkJson.JSON_STORAGE;
 @Description("You can unload the json file.")
 @Examples({
         "on load:",
-        "\tlunink json \"mine.id\""
+        "\tunlink json \"mine.id\""
 })
 @Since("2.8.0 - performance & clean")
 public class EffUnlinkJsonFile extends AsyncEffect {
@@ -76,6 +76,7 @@ public class EffUnlinkJsonFile extends AsyncEffect {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+        getParser().setHasDelayBefore(Kleenean.TRUE);
         exprID = (Expression<String>) expressions[0];
         return true;
     }

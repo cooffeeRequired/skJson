@@ -49,8 +49,8 @@ public class CondJsonIsLoaded extends Condition {
 
     static {
         Skript.registerCondition(CondJsonIsLoaded.class,
-                "cached json %string% is (load|linked)",
-                "cached json %string% is(n't| not) (load|linked)"
+                "[cached] json %string% is (load|linked)",
+                "[cached] json %string% is(n't| not) (load|linked)"
         );
     }
 

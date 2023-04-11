@@ -2,6 +2,9 @@ package cz.coffee.skript.changer;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -49,6 +52,20 @@ import static cz.coffee.core.utils.Util.jsonToObject;
  */
 
 @Since("2.8 - b2")
+@Name("Default changer of skJson (SET/REMOVE/ADD)")
+@Description({
+        "Default changer you can change your current's jsons by those expressions",
+        "More information you can found here.. : https://github.com/cooffeeRequired/skJson"
+})
+@Examples({
+        "remove diamond sword from {_json}",
+        "remove 2nd element from json list \"pathxys\" in {_json}",
+        "remove player's location from json list \"pathxys\" in {_json}",
+        "remove \"hello\" from keys of json object \"pathxys\" in {_json}",
+        "remove diamond sword from values of json object \"pathxys\" in {_json}",
+        "set json value \"test:A\" in {_json} to diamond sword",
+        "add player's location to json list \"pathxys\" in {_json}"
+})
 public class JsonChanger extends SimpleExpression<Object> {
 
     static {
@@ -89,9 +106,7 @@ public class JsonChanger extends SimpleExpression<Object> {
             } else if (result.hasTag("values")) {
                 if (in == null) return new JsonElement[0];
                 if (in instanceof JsonObject object) {
-                    object.entrySet().forEach(entry -> {
-                        objects.add(entry.getValue());
-                    });
+                    object.entrySet().forEach(entry -> objects.add(entry.getValue()));
                 }
             }
             return objects.toArray(new Object[0]);

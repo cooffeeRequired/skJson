@@ -68,9 +68,7 @@ public class AdapterUtils {
             return (JsonElement) item;
         }
         if (item == null) return null;
-        if (isClassic(item)) {
-            return JsonUtils.convert(item);
-        }
+        if (isClassic(item)) return JsonUtils.convert(item);
         Class<?> clazz = item.getClass();
         if (isItem) {
             if (!isDefined) {
