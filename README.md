@@ -6,6 +6,8 @@
 ![License](https://img.shields.io/github/license/SkJsonTeam/skJson?style=for-the-badge)
 [![CodeFactor](https://www.codefactor.io/repository/github/SkJsonTeam/skjson/badge)](https://www.codefactor.io/repository/github/SkJsonTeam/skjson)
 
+<iframe src="https://discord.com/widget?id=1033624578653683723&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+
 
 <p align="center" width="100%">
     <img width="60%" size="64" src="https://media.discordapp.net/attachments/967325659523321926/1089508231329624215/skJsonBanner.png"> 
