@@ -1,10 +1,10 @@
-![GitHub release](https://img.shields.io/github/release/cooffeeRequired/skJson?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues-raw/cooffeeRequired/skJson?style=for-the-badge)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/cooffeeRequired/skJson.svg?style=for-the-badge)
-![GitHub All Downloads](https://img.shields.io/github/downloads/cooffeeRequired/skJson/total?style=for-the-badge)
-[![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/skript)
-![License](https://img.shields.io/github/license/cooffeeRequired/skJson?style=for-the-badge)
-[![CodeFactor](https://www.codefactor.io/repository/github/SkJsonTeam/skjson/badge)](https://www.codefactor.io/repository/github/cooffeerequired/skjson)
+![GitHub release](https://img.shields.io/github/release/SkJsonTeam/skJson?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/SkJsonTeam/skJson?style=for-the-badge)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/SkJsonTeam/skJson.svg?style=for-the-badge)
+![GitHub All Downloads](https://img.shields.io/github/downloads/SkJsonTeam/skJson/total?style=for-the-badge)
+[![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/dsZq5Cs9fd)
+![License](https://img.shields.io/github/license/SkJsonTeam/skJson?style=for-the-badge)
+[![CodeFactor](https://www.codefactor.io/repository/github/SkJsonTeam/skjson/badge)](https://www.codefactor.io/repository/github/SkJsonTeam/skjson)
 
 
 <p align="center" width="100%">
