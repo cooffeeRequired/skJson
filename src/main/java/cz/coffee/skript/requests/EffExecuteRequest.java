@@ -66,7 +66,9 @@ public class EffExecuteRequest extends AsyncEffect {
     @Override
     protected void execute(@NotNull Event e) {
         response = null;
-        final String url = urlExpression.getSingle(e);
+        String url = urlExpression.getSingle(e);
+        if (url != null) url = url.replace('§', '&');
+
         HttpHandler handler;
         Object[] headers;
         try {

@@ -1,7 +1,7 @@
 package cz.coffee.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -47,7 +47,8 @@ import static cz.coffee.core.utils.Util.jsonToObject;
  * Created: Friday (3/10/2023)
  */
 
-@NoDoc
+@Since("2.8.0 - performance & clean")
+
 public class ExprJsonLoopExpressions extends SimpleExpression<Object> {
 
     static {
