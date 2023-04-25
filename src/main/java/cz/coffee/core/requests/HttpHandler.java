@@ -1,56 +1,143 @@
 package cz.coffee.core.requests;
 
 import com.google.gson.*;
+import cz.coffee.skript.requests.EffExecuteRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-/**
-* This file is part of CoffeeThing.
-* <p>
-* Skript is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* <p>
-* Skript is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* <p>
-* You should have received a copy of the GNU General Public License
-* along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
-* <p>
-* Copyright coffeeRequired nd contributors
-* <p>
-* Created: neděle (02.04.2023)
-*/
-
-
+import static cz.coffee.SkJson.console;
 
 public class HttpHandler {
+    public static class RequestContent {
+        private final List<String> keys;
+        private final List<String> values;
+
+        RequestContent(List<String> keys, List<String> values) {
+            this.keys = keys;
+            this.values = values;
+        }
+
+        RequestContent(JsonElement json) {
+            if (json.isJsonObject()) {
+                this.keys = json.getAsJsonObject().keySet().stream().toList();
+                this.values = json.getAsJsonObject().asMap().values().stream().map(JsonElement::toString).map(EffExecuteRequest::sanitize).collect(Collectors.toList());
+            } else {
+                this.keys = new ArrayList<>();
+                this.values = new ArrayList<>();
+            }
+        }
+
+        public List<String> getKeys() {
+            return keys;
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        public static RequestContent process(Object o, boolean fullJson) {
+            JsonElement json = JsonNull.INSTANCE;
+            List<String> values = new ArrayList<>(), keys = new ArrayList<>();
+
+            if (fullJson) {
+                JsonElement[] e = (JsonElement[]) o;
+                for (JsonElement jsonElement : e) {
+                    return new RequestContent(jsonElement);
+                }
+                return null;
+            } else {
+                if (o.toString().startsWith("{") && o.toString().endsWith("}")) {
+                    // JSON
+                    if (o instanceof String str) {
+                        try {
+                            json = JsonParser.parseString(str);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    } else if (o instanceof JsonElement element) {
+                        json = element;
+                    }
+                    if (json.isJsonObject()) {
+                        json.getAsJsonObject().entrySet().forEach(entry -> {
+                            values.add(EffExecuteRequest.sanitize(entry.getValue()));
+                            keys.add(entry.getKey());
+                        });
+                    }
+                } else {
+                    // PAIRS
+                    List<Object> objects = Arrays.asList((Object[]) o);
+                    objects.forEach(object -> {
+                        String str = object.toString();
+                        String[] pairs = str.split("(:|: )");
+                        values.add(pairs[1]);
+                        keys.add(pairs[0]);
+                    });
+                }
+
+                return new RequestContent(keys, values);
+            }
+        }
+
+        @Override
+        public String toString() {
+            if (keys.size() != values.size()) throw new IllegalArgumentException("Lists must have same length");
+            StringBuilder resultBuilder = new StringBuilder();
+            for (int i = 0; i < keys.size(); i++) {
+                resultBuilder.append(keys.get(i)).append("=").append(values.get(i));
+                if (i < keys.size() - 1) resultBuilder.append(", ");
+            }
+            return "RequestContent{"+resultBuilder+"}";
+        }
+
+
+        @SuppressWarnings("rawtypes")
+        public Set entrySet() {
+            if (values.size() == keys.size()) {
+                Map<String, String> entry = new WeakHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    entry.put(keys.get(i), values.get(i));
+                }
+                return entry.entrySet();
+            }
+            return null;
+        }
+
+        public Map<String, String> flatMap() {
+            if (values.size() == keys.size()) {
+                Map<String, String> entry = new WeakHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    entry.put(keys.get(i), values.get(i));
+                }
+                return entry;
+            }
+            return null;
+        }
+    }
     private String _method;
-    private Timer _timer;
+    private final Timer _timer;
     private java.net.http.HttpClient _client;
     private HttpRequest.Builder _requestBuilder;
     private JsonObject _content = new JsonObject();
     private final WeakHashMap<String, String> _headers = new WeakHashMap<>();
-    private HandlerBody response_;
+    protected String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
+    private Response _response;
     private HttpRequest _request;
-    protected static int lastHttpResponseCode;
 
 
     public HttpHandler(String url, String method) {
-        response_ = null;
+        _response = null;
         _method = method;
         _timer = null;
         _client = java.net.http.HttpClient.newHttpClient();
@@ -64,70 +151,7 @@ public class HttpHandler {
         _requestBuilder = HttpRequest.newBuilder().uri(_uri);
     }
     public boolean isSuccessful() {
-       return lastHttpResponseCode == 200;
-    }
-
-
-
-    @Future.Constructor
-    public HttpHandler(String url, String method, Timer timer) {
-        this(url, method);
-        _timer = timer;
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public HttpHandler addHeader(String key, String value) {
-        _headers.put(key, value);
-        return this;
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public HttpHandler addBodyContent(String key, Object value) {
-        if (value instanceof JsonElement element) {
-            _content.add(key.strip(), element);
-        } else {
-            _content.addProperty(key.strip(), value.toString().strip());
-        }
-        return this;
-    }
-
-    @Future.Method
-    public Map<?,?> getHeaders() {
-        if (_request != null) {
-            return _request.headers().map();
-        }
-        return null;
-    }
-
-    public static int getLastHttpResponseCode() {
-        return lastHttpResponseCode;
-    }
-
-    @Future.Method
-    public final HttpHandler addBodyContent(Content... contents) {
-        Arrays.stream(contents).forEach(c -> _content.add(c.c1, c.c2));
-        return this;
-    }
-
-    private void jsonEncoded() {
-        _requestBuilder.header("Content-type", "application/json");
-    }
-
-    @Future.Method
-    public HttpHandler setBodyContent(JsonElement json) {
-        if (json instanceof JsonObject object) {
-            _content = object;
-        }
-        return this;
-    }
-
-    public HandlerBody getBody() {
-        return response_;
-    }
-
-    @Future.Method
-    public Timer getTimer() {
-        return _timer;
+        return _response.getStatusCode() == 200;
     }
 
     private void setHeaders() {
@@ -136,13 +160,53 @@ public class HttpHandler {
         }
     }
 
+    public Response getAll() {
+        return _response;
+    }
+
+    private void jsonEncoded() {
+        _requestBuilder.header("Content-type", "application/json");
+    }
+
+
+    @SuppressWarnings("UnusedReturnValue")
+    public HttpHandler setBodyContent(RequestContent body) {
+        final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
+        _content = gson.toJsonTree(body.flatMap(), Map.class).getAsJsonObject();
+        return this;
+    }
+
+    @Future.Method
+    public Timer getTimer() {
+        return _timer;
+    }
+
+
+    @SuppressWarnings("UnusedReturnValue")
+    public HttpHandler setMainHeaders(RequestContent headers) {
+        _headers.putAll(headers.flatMap());
+        return this;
+    }
+
     private HttpRequest makeRequest() {
+        final String _METHOD = _method.toUpperCase();
+        if (!Arrays.asList(allowedMethods).contains(_METHOD)) {
+            console("Invalid request method &c" + _METHOD + "&r allowed methods are &f" + Arrays.toString(allowedMethods));
+            return null;
+        }
         if (_requestBuilder != null) {
             _request =  switch (_method.toUpperCase()) {
                 case "GET" -> _requestBuilder.GET().build();
                 case "POST" ->  {
                     jsonEncoded();
                     yield _requestBuilder.POST(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                }
+                case "PUT" -> _requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                case "DELETE" -> _requestBuilder.DELETE().build();
+                case "HEAD" -> _requestBuilder.HEAD().build();
+                case "PATCH" -> {
+                    jsonEncoded();
+                    yield _requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(_content.toString())).build();
                 }
                 default -> _requestBuilder.build();
             };
@@ -151,19 +215,22 @@ public class HttpHandler {
     }
 
 
-    public void asyncSend() throws Exception {
+    public void asyncSend() {
         setHeaders();
         HttpRequest request = makeRequest();
         long startTime = System.nanoTime();
         CompletableFuture<HttpResponse<String>> future = _client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         long endTime = System.nanoTime();
         if (_timer != null) _timer.addTime(endTime - startTime);
-        HttpResponse<String> result = future.get();
-        lastHttpResponseCode = result.statusCode();
-        response_ = HandlerBody.of(result.body());
+        try {
+            HttpResponse<String> result = future.get();
+            _response = Response.of(request.headers(), result.body(), result.headers(), result.uri(), result.statusCode());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
-    public void send() throws Exception {
+/*    public void send() throws Exception {
         setHeaders();
         HttpRequest request = makeRequest();
         long startTime = System.nanoTime();
@@ -172,8 +239,9 @@ public class HttpHandler {
         if (_timer != null) {
             _timer.addTime(endTime - startTime);
         }
-        response_ = HandlerBody.of(response.body());
+        _response = Response.of(request.headers(), response.body(), response.headers(), response.uri(), response.previousResponse(), response.statusCode());
     }
+*/
 
     public void disconnect() {
         if (_client == null && _requestBuilder == null) {
@@ -182,90 +250,58 @@ public class HttpHandler {
         _client = null;
         _requestBuilder = null;
         _method = null;
-        response_ = null;
+        _response = null;
     }
 
-    public static class Content {
-
-        final String c1;
-        final JsonElement c2;
-
-        public static Content of(String c1, String c2) {
-            return new Content(c1, c2);
-        }
-
-        public Content(String c1, String c2) {
-            this.c1 = c1;
-            this.c2 = new Gson().toJsonTree(c2, c2.getClass());
-        }
-    }
-
-    public interface HandlerBody {
-
-        static HandlerBody of(Object obj) {
-
-            return new HandlerBody() {
-                final Gson gson = new GsonBuilder()
-                        .disableHtmlEscaping()
-                        .serializeNulls()
-                        .setLenient()
-                        .setPrettyPrinting()
-                        .create();
-
-                @Override
-                public JsonElement toJson() {
-                    JsonElement parsed;
-                    try {
-                        parsed = JsonParser.parseString(obj.toString());
-                    } catch (Exception e) {
-                        if (getLastHttpResponseCode() == 200) {
-                            try {
-                                return JsonParser.parseString(obj.toString());
-                            } catch (Exception e2) {
-                                String msg = "{'OR': 'You can try use \"raw request's body\", 'message': '"+e2.getMessage()+"', 'help': 'Try any of Json Lints for check more information', 'link': 'https://jsonlint.com/'}";
-                                return JsonParser.parseString(msg);
-                            }
-                        } else {
-                            JsonElement main = JsonParser.parseString("{'message': 'connection refused'}");
-                            main.getAsJsonObject().add("result", HtmlToJson.of(obj.toString()));
-                            return main;
-                        }
-                    }
-                    return parsed;
-                }
-
-                @Override
-                public String prettyPrint() {
-                    JsonElement parsed;
-                    try {
-                        parsed = JsonParser.parseString(obj.toString());
-                    } catch (Exception e) {
-                        if (getLastHttpResponseCode() == 200) {
-                            return obj.toString();
-                        } else {
-                            JsonElement main = JsonParser.parseString("{'message': 'connection refused'}");
-                            main.getAsJsonObject().add("result", HtmlToJson.of(obj.toString()));
-                            return gson.toJson(main);
-                        }
-                    }
-                    return gson.toJson(parsed);
-                }
-
+    public interface Response {
+        static Response of(HttpHeaders connHeaders, String body, HttpHeaders headers, URI uri, int statusCode) {
+            return new Response() {
                 @Override
                 public String toString() {
-                    return obj.toString();
+                    return "HttpHandler.Response{body="+body+", uri="+uri+", statusCode="+statusCode+"}";
+                }
+                @Override
+                public String rawBody() {
+                    return body;
+                }
+
+                @Override
+                public String connHeaders(boolean jsonEncoded) {
+                    if (jsonEncoded) {
+                        return new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create().toJson(headers.map());
+                    } else {
+                        return headers.toString();
+                    }
+                }
+
+                @Override
+                public String headers(boolean jsonEncoded) {
+                    if (jsonEncoded) {
+                        return new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create().toJson(connHeaders.map());
+                    } else {
+                        return connHeaders.toString();
+                    }
+                }
+
+                @Override
+                public int getStatusCode() {
+                    return statusCode;
+                }
+
+                @Override
+                public URL getUrl() throws MalformedURLException {
+                    return uri.toURL();
                 }
             };
         }
 
-        JsonElement toJson();
-
+        String rawBody();
+        String connHeaders(boolean jsonEncoded);
+        String headers(boolean jsonEncoded);
+        int getStatusCode();
+        URL getUrl() throws MalformedURLException;
         String toString();
-
-        @Future.Parameter
-        String prettyPrint();
     }
-
 }
 class HtmlToJson {
     public static JsonObject of(String html) {
@@ -303,6 +339,5 @@ class HtmlToJson {
         return json;
     }
 }
-
 
 

@@ -26,27 +26,6 @@ import static cz.coffee.core.utils.JsonUtils.getNestedElements;
 import static cz.coffee.core.utils.Util.extractKeys;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
-/**
- * This file is part of skJson.
- * <p>
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
- * <p>
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: Friday (3/10/2023)
- */
-
 @Name("Elements/Values of the json")
 @Description({"You can get the main json values, or you can also get the use values for a given object/array you can also get a single value",
         "<pre>loop-value, loop-element, loop-key</pre>",
