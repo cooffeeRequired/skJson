@@ -2,6 +2,7 @@ package cz.coffee.core.utils;
 
 import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,26 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * This file is part of skJson.
- * <p>
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
- * <p>
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: Saturday (3/4/2023)
- */
 @SuppressWarnings("unused")
 public class FileUtils {
 
@@ -51,6 +32,26 @@ public class FileUtils {
         } catch (IOException | JsonSyntaxException ignored) {
             return null;
         }
+    }
+
+
+    static public JsonElement getFromYaml(@NotNull File file) {
+        System.out.println(file);
+
+
+        if (!file.exists() || !file.isFile()) return null;
+        if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml")) {
+            try (var reader = new BufferedReader(new FileReader(file))) {
+                Yaml yaml = new Yaml();
+                Object yamlMap = yaml.load(reader);
+                return new GsonBuilder().create().toJsonTree(yamlMap);
+            } catch (IOException | JsonSyntaxException ignored) {
+                return null;
+            }
+        } else {
+            System.out.println("HERE");
+        }
+        return null;
     }
 
     static public void write(@NotNull File file, JsonElement element, boolean async) {

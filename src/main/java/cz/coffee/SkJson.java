@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.core.Updater;
 import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.cache.JsonWatcher;
+import cz.coffee.core.requests.HttpHandler;
 import de.tr7zw.nbtapi.NBTContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -23,26 +24,6 @@ import java.util.logging.Logger;
 import static cz.coffee.core.utils.Util.color;
 import static cz.coffee.core.utils.Util.hex;
 
-/**
- * This file is part of skJson.
- * <p>
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
- * <p>
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: Saturday (3/4/2023)
- */
 @SuppressWarnings({"unused", "deprecation"})
 public final class SkJson extends JavaPlugin {
     public static final boolean PROJECT_DEBUG = true;
@@ -56,7 +37,7 @@ public final class SkJson extends JavaPlugin {
     private static PluginDescriptionFile descriptionFile;
     static final boolean legacy = version.isSmallerThan(new Version(1,16,5));
     static final String prefix = legacy ? color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
-
+    public static HttpHandler.Response[] RESPONSES = new HttpHandler.Response[2];
     public static SkJson getInstance() {
         if (instance == null) throw new IllegalStateException("SkJson is not initialized!");
         return instance;

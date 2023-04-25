@@ -17,38 +17,16 @@ import static cz.coffee.core.utils.NumberUtils.parsedNumber;
 import static cz.coffee.core.utils.Util.arrayIsSafe;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
-/**
- * This file is part of skJson.
- * <p>
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <<a href="http://www.gnu.org/licenses/">...</a>>.
- * <p>
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: Saturday (3/4/2023)
- */
 public class JsonUtils {
     public static JsonElement convert(Object object) {
          try {
              if (object == null) return null;
              Class<?> clazz = object.getClass();
              if (clazz.equals(String.class)) {
-                 if (((String) object).contains(" ")) {
-                     // With whitespace
-                     return new Gson().toJsonTree(object, object.getClass());
-                 } else {
-                     // Primitive
+                 try {
                      return JsonParser.parseString((String) object);
+                 } catch (Exception e) {
+                     return new Gson().toJsonTree(object, object.getClass());
                  }
              }
              if (clazz.equals(Integer.class))
