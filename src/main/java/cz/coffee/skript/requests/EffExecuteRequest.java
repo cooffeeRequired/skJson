@@ -76,7 +76,7 @@ public class EffExecuteRequest extends AsyncEffect {
             Skript.error("This method " + parsedMethod + " is not allowed. Only these methods are allowed: " + allowedMethods);
             return;
         }
-        HttpHandler handler = new HttpHandler(parsedUrl, parsedMethod);
+        HttpHandler handler = HttpHandler.of(parsedUrl, parsedMethod);
         if (withHeaders) {
             Object[] h = headersExpression.getAll(e);
             Class<?> cl = headersExpression.getReturnType();

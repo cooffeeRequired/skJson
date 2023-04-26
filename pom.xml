@@ -104,7 +104,9 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>D:\Server\plugins\${project.artifactId}-${project.version}.jar</outputFile>
+<!-- Desktop                            <outputFile>D:\Server\plugins\${project.artifactId}-${project.version}.jar</outputFile>-->
+<!-- Notebook -->           <outputFile>E:\server\plugins\${project.artifactId}.jar</outputFile>
+
                         </configuration>
                     </execution>
                 </executions>

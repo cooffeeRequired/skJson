@@ -14,14 +14,14 @@ import org.jetbrains.annotations.NotNull;
 @Examples({
         "set {_json} to json from text \"{'A': 1, 'B': 2, 'C': {'A': 'B', 'X': 'Y'}}\"",
         "if json size of {_json} > 1:",
-        "\tsend \"JSON's size is bigger the 1\"
+        "\tsend \"JSON's size is bigger the 1\""
 })
 @Since("2.8.3, 2.8.0 - performance & clean")
 
 public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {
 
     static {
-        register(ExprJsonSize.class, Integer.class, "json size", "jsons");
+        register(ExprJsonSize.class, Integer.class, "json size", "json");
     }
     @Override
     protected @NotNull String getPropertyName() {

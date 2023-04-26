@@ -19,7 +19,16 @@ import java.util.stream.Collectors;
 
 import static cz.coffee.SkJson.console;
 
-public class HttpHandler {
+public abstract class HttpHandler {
+    public static HttpHandler of(final String url, final String method) {
+        return new HttpHandler(url, method) {
+            @Override
+            public void asyncSend() {
+                super.asyncSend();
+            }
+        };
+    }
+
     public static class RequestContent {
         private final List<String> keys;
         private final List<String> values;

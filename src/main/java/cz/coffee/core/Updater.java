@@ -16,7 +16,7 @@ public class Updater {
 
     private static JsonElement getGithubConfig() throws Exception {
         JsonElement element = null;
-        HttpHandler handler = new HttpHandler(Updater.apiLink, "GET");
+        HttpHandler handler = HttpHandler.of(Updater.apiLink, "GET");
         handler.asyncSend();
         try {
             success = handler.isSuccessful();
