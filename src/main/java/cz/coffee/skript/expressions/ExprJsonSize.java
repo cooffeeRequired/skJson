@@ -10,20 +10,18 @@ import com.google.gson.JsonObject;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-@Name("Json size of current element")
+@Name("Json size of given Json")
 @Examples({
-        "command SizeJson:",
-        "  trigger:",
-        "    set {_json} to json from text \"{'A': 1, 'B': 2, 'C': {'A': 'B', 'X': 'Y'}}\"",
-        "    send size of {_json} # = 3 (A, B, C)",
-        "    send size of (element \"C\" of {_json}) # = 2 (A, X)",
+        "set {_json} to json from text \"{'A': 1, 'B': 2, 'C': {'A': 'B', 'X': 'Y'}}\"",
+        "if json size of {_json} > 1:",
+        "\tsend \"JSON's size is bigger the 1\""
 })
-@Since("2.8.0 - performance & clean")
+@Since("2.8.3, 2.8.0 - performance & clean")
 
 public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {
 
     static {
-        register(ExprJsonSize.class, Integer.class, "size", "jsons");
+        register(ExprJsonSize.class, Integer.class, "json size", "json");
     }
     @Override
     protected @NotNull String getPropertyName() {

@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.core.Updater;
 import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.cache.JsonWatcher;
-import cz.coffee.core.requests.HttpHandler;
+import cz.coffee.core.requests.HttpHandler.Response;
 import de.tr7zw.nbtapi.NBTContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -37,7 +37,7 @@ public final class SkJson extends JavaPlugin {
     private static PluginDescriptionFile descriptionFile;
     static final boolean legacy = version.isSmallerThan(new Version(1,16,5));
     static final String prefix = legacy ? color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
-    public static HttpHandler.Response[] RESPONSES = new HttpHandler.Response[2];
+    public static Response[] RESPONSES = new Response[2];
     public static SkJson getInstance() {
         if (instance == null) throw new IllegalStateException("SkJson is not initialized!");
         return instance;

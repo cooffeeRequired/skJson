@@ -1,9 +1,18 @@
 {
-  "Array": "A",
-  "Booleans": [1,2,3],
-  "Test": true,
-  "False": false,
-  "Test2": {
-      "X": true
-  }
+  "$scheme": "DEFAULT",
+  "String (str)": "String",
+  "Integer (int)": 10,
+  "Float": 23.3,
+  "Double": 20020020,
+  "Boolean": false,
+  "Empty Object": {},
+  "Empty array": [],
+  "Object": {
+    "Item 0": "Something",
+    "Object": {}
+  },
+  "Array": [
+    10,
+    [1,2,3,false,"Array"]
+  ]
 }
