@@ -56,12 +56,6 @@ public abstract class JsonMap {
                     toList(name + (index+1), array.get(index), isLocal, event);
             }
         }
-
-        private static void main(@NotNull String name, @NotNull JsonElement input, boolean isLocal, Event e) {
-            final Object o = GSON.fromJson(input.toString(), Object.class);
-            Variables.setVariable(name, o, e, isLocal);
-        }
-
     }
     public static class Json {
 

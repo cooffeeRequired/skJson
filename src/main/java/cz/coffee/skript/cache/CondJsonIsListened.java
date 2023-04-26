@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("ALL")
 @Name("Json file is listening")
 @Description("Check if the file for given id is listening via JsonWatcher")
 @Examples({

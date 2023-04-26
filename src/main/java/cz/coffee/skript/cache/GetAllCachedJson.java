@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("unused")
 @Name("All cached jsons")
 @Description("That will return jsons from your cache.")
 @Examples({

@@ -20,6 +20,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.JsonUtils.countKeys;
 import static cz.coffee.core.utils.JsonUtils.countValues;
 
+@SuppressWarnings("unused")
 @Name("Count of objects/phrases")
 @Description("You can get the exact number of identical keys or values from the entire json because `count of` works recursively.")
 @Examples({

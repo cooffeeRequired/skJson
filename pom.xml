@@ -19,7 +19,7 @@
     </scm>
 
     <properties>
-        <java.version>15</java.version>
+        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -45,21 +45,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm</artifactId>
-                        <version>9.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm-commons</artifactId>
-                        <version>9.2</version>
-                    </dependency>
-                </dependencies>
+                <version>3.4.0</version>
                 <configuration>
-<!--                    <minimizeJar>true</minimizeJar>-->
+                    <minimizeJar>true</minimizeJar>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
@@ -104,8 +92,8 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-<!-- Desktop                            <outputFile>D:\Server\plugins\${project.artifactId}-${project.version}.jar</outputFile>-->
-<!-- Notebook -->           <outputFile>E:\server\plugins\${project.artifactId}.jar</outputFile>
+<!-- Desktop -->             <outputFile>D:\Server\plugins\${project.artifactId}-${project.version}.jar</outputFile>
+<!-- Notebook           <outputFile>E:\server\plugins\${project.artifactId}.jar</outputFile> -->
 
                         </configuration>
                     </execution>
@@ -116,9 +104,6 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/_*.class</exclude>
-                </excludes>
             </resource>
         </resources>
     </build>

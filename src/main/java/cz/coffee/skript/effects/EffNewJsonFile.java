@@ -21,6 +21,7 @@ import java.io.File;
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
 
+@SuppressWarnings("ALL")
 @Name("New json file")
 @Description({"You can create a new json file."})
 @Since("2.8.0 - performance & clean")
@@ -51,7 +52,7 @@ public class EffNewJsonFile extends AsyncEffect {
         } else {
             content = new JsonObject();
         }
-        FileUtils.write(file, content, async);
+        FileUtils.write(file, content);
     }
 
     @Override

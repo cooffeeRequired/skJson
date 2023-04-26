@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import static cz.coffee.core.utils.FileUtils.isJsonFile;
 
 
+@SuppressWarnings("ALL")
 @Name("Json file exists")
 @Description({"You can check if the json file already exists or not."})
 @Examples("""

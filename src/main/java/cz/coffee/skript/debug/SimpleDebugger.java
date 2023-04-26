@@ -1,10 +1,7 @@
 package cz.coffee.skript.debug;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -27,8 +24,7 @@ import static cz.coffee.core.utils.Util.codeRunTime;
         "send {_json} with pretty print",
         "timer stop and debug off",
 })
-@Since("")
-
+@NoDoc
 public class SimpleDebugger extends Effect {
 
     static boolean isDebuggingEnabled = false;

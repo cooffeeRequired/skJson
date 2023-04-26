@@ -2,14 +2,13 @@ package cz.coffee.skript.types;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import cz.coffee.core.utils.JsonFile;
 import org.jetbrains.annotations.NotNull;
-
-@Since("2.8.0 - performance & clean")
+@NoDoc
 public class JsonFileType {
     static {
         Classes.registerClass(

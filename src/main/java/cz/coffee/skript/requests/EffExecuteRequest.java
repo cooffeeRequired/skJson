@@ -22,6 +22,7 @@ import static cz.coffee.SkJson.RESPONSES;
 import static cz.coffee.core.requests.HttpHandler.RequestContent.process;
 
 
+@SuppressWarnings("ALL")
 @Name("Execute a http request")
 @Description("You can execute a web request to rest api. with json encoded body/headers")
 @Examples({

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 
+@SuppressWarnings("ALL")
 @Name("Json file is empty")
 @Description("You can check if the json file empty")
 @Examples("""

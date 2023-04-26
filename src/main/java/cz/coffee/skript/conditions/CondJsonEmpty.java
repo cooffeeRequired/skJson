@@ -17,6 +17,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("ALL")
 @Name("Json is empty")
 @Description("You can check if the json empty")
 @Examples("""

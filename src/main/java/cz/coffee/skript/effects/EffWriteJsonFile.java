@@ -17,9 +17,12 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
+
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
 
+@SuppressWarnings("unused")
 @Name("Write json file with contents")
 @Description("You can write/re-write to jsons")
 @Examples({
@@ -51,7 +54,9 @@ public class EffWriteJsonFile  extends AsyncEffect {
             file = new JsonFile((String) o);
         }
         final Object data =  inputEx.getSingle(e);
-        if (file != null) FileUtils.write(file, parseItem(data, inputEx, e), true);
+        if (file != null) {
+            CompletableFuture<Boolean> result =  FileUtils.write(file, parseItem(data, inputEx, e));
+        }
     }
 
     @Override

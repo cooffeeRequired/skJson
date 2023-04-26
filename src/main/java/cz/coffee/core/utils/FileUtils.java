@@ -38,7 +38,6 @@ public class FileUtils {
     static public JsonElement getFromYaml(@NotNull File file) {
         System.out.println(file);
 
-
         if (!file.exists() || !file.isFile()) return null;
         if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml")) {
             try (var reader = new BufferedReader(new FileReader(file))) {
@@ -48,45 +47,32 @@ public class FileUtils {
             } catch (IOException | JsonSyntaxException ignored) {
                 return null;
             }
-        } else {
-            System.out.println("HERE");
         }
         return null;
     }
 
-    static public void write(@NotNull File file, JsonElement element, boolean async) {
+
+
+    static public CompletableFuture<Boolean> write(@NotNull File file, JsonElement element) {
         if (element == null || element instanceof JsonNull) {
             element = new JsonObject();
         }
         String dataToWrite = gson.toJson(element);
-        try {
-            if (!file.getParentFile().exists() && !file.getParentFile().mkdir()) {
-                if (!file.createNewFile()) {
-                    CompletableFuture.completedFuture(false);
-                    return;
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                if (!file.getParentFile().exists() && !file.getParentFile().mkdir()) {
+                    throw new IOException("Cannot create directory: " + file.getParentFile().getAbsolutePath());
                 }
+                if (!file.createNewFile() || !file.exists()) {
+                    return false;
+                } else {
+                    Files.writeString(file.toPath(), dataToWrite);
+                }
+                return true;
+            } catch (IOException exception) {
+                exception.printStackTrace();
+                return false;
             }
-            if (async) {
-                CompletableFuture.supplyAsync(() -> {
-                    try {
-                        //noinspection ReadWriteStringCanBeUsed
-                        Files.write(file.toPath(), dataToWrite.getBytes(StandardCharsets.UTF_8));
-                        return true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                });
-            } else {
-                //noinspection ReadWriteStringCanBeUsed
-                Files.write(file.toPath(), dataToWrite.getBytes(StandardCharsets.UTF_8));
-                CompletableFuture.completedFuture(true);
-                return;
-            }
-            return;
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        CompletableFuture.completedFuture(false);
+        });
     }
 }

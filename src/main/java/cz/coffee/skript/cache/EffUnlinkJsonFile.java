@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static cz.coffee.SkJson.JSON_STORAGE;
 
 
+@SuppressWarnings("ALL")
 @Name("UnLink or Unload json file")
 @Description("You can unload the json file.")
 @Examples({

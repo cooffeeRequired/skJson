@@ -60,7 +60,7 @@ public class ColoredJson {
 
 
     public String getOutput() {
-       return finalOutput;
+       return "\n"+finalOutput;
     }
 
 }

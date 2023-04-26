@@ -14,17 +14,17 @@ public class Updater {
 
     private static boolean success = false;
 
-    private static JsonElement getGithubConfig() throws Exception {
+    private static JsonElement getGithubConfig() {
         JsonElement element = null;
         HttpHandler handler = HttpHandler.of(Updater.apiLink, "GET");
         handler.asyncSend();
+        handler.send();
         try {
             success = handler.isSuccessful();
             handler.asyncSend();
         } finally {
             if (handler.getAll().rawBody() != null) element = parseItem(handler.getAll().rawBody(), handler.getAll().rawBody().getClass());
         }
-        assert element != null;
         return element;
     }
 

@@ -23,6 +23,7 @@ import static cz.coffee.core.utils.Util.extractKeys;
 
 
 
+@SuppressWarnings("ALL")
 @Name("Json has value/key")
 @Description({" You can check if the inserted keys or values already in your specified json"})
 @Examples({"on load:",

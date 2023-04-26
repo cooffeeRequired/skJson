@@ -23,6 +23,7 @@ import java.io.File;
 
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
+@SuppressWarnings("unused")
 @Name("New json")
 @Description({
         "It's allow create json from any source also from the file"

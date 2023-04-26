@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("ALL")
 @Name("Link json file with defined cache.")
 @Description("You can works with the cache instead of reopening the file again & again.")
 @Examples({

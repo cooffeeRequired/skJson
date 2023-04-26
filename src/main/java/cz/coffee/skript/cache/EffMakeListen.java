@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("ALL")
 @Name("JsonWatcher - Start listening to file")
 @Description("You can register listener for json file, and while the file is updated the cache for this file will be also so.")
 @Examples({"on script load",

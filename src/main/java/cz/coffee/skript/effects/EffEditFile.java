@@ -32,6 +32,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.Util.extractKeys;
 
 
+@SuppressWarnings("ALL")
 @Name("change json file")
 @Description({"You can change json file."})
 @Examples({
@@ -51,6 +52,7 @@ public class EffEditFile extends AsyncEffect {
         Parameter<?>[] fileInput = new Parameter[]{new Parameter<>("file", DefaultClasses.STRING, true, null)};
         Functions.registerFunction(new SimpleJavaFunction<>("jsonfile", fileInput, DefaultClasses.OBJECT, true) {
             @Override
+            @SuppressWarnings("NullableProblems")
             public @Nullable JsonFile @NotNull [] executeSimple(@NotNull Object[][] params) {
                 return new JsonFile[]{new JsonFile(String.valueOf(params[0][0]))};
             }
@@ -95,7 +97,7 @@ public class EffEditFile extends AsyncEffect {
                 JsonUtils.changeKey(oldJson, keys, st);
             }
         }
-        FileUtils.write(file, oldJson, async);
+        FileUtils.write(file, oldJson);
     }
 
     @Override

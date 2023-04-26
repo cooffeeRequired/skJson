@@ -30,7 +30,7 @@ import static cz.coffee.core.utils.Util.GSON_ADAPTER;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings("ALL")
 public abstract class Adapters {
     public final static Adapter<World> WorldAdapter = new Adapter<>() {
         @Override

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 
 
+@SuppressWarnings("unused")
 public class JsonFile extends File {
     public JsonFile(@NotNull String pathname) {
         super(pathname);

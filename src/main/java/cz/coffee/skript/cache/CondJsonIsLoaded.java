@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("ALL")
 @Name("Json file is cached")
 @Description("Check if the file for given id is cached")
 @Examples({

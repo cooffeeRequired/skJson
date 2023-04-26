@@ -30,6 +30,7 @@ import static cz.coffee.core.utils.JsonUtils.*;
 import static cz.coffee.core.utils.Util.extractKeys;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
+@SuppressWarnings("unused")
 @Since("2.8 - b2")
 @Name("Default changer of skJson (SET/REMOVE/ADD)")
 @Description({

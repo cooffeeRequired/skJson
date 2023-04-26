@@ -17,6 +17,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 @Name("Pretty json")
 @Description({
         "Allows you to better parse json",
@@ -46,7 +47,7 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
     @Override
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
         JsonElement json = jsonExpression.getSingle(e);
-        return new String[]{"\n"+new ColoredJson(json).getOutput()};
+        return new String[]{new ColoredJson(json).getOutput()};
     }
 
     @Override

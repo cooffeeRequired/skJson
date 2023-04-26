@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import static cz.coffee.core.utils.NumberUtils.parsedNumber;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
+@SuppressWarnings("unused")
 @NoDoc
 public class ExprJsonLoopExpressions extends SimpleExpression<Object> {
 

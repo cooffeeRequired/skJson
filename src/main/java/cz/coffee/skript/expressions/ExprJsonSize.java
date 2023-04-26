@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 @Name("Json size of given Json")
 @Examples({
         "set {_json} to json from text \"{'A': 1, 'B': 2, 'C': {'A': 'B', 'X': 'Y'}}\"",

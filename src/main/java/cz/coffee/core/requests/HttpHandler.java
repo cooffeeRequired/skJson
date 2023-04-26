@@ -2,10 +2,6 @@ package cz.coffee.core.requests;
 
 import com.google.gson.*;
 import cz.coffee.skript.requests.EffExecuteRequest;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -19,16 +15,13 @@ import java.util.stream.Collectors;
 
 import static cz.coffee.SkJson.console;
 
+@SuppressWarnings("unused")
 public abstract class HttpHandler {
     public static HttpHandler of(final String url, final String method) {
-        return new HttpHandler(url, method) {
-            @Override
-            public void asyncSend() {
-                super.asyncSend();
-            }
-        };
+        return new HttpHandler(url, method) {};
     }
 
+    @SuppressWarnings("unused")
     public static class RequestContent {
         private final List<String> keys;
         private final List<String> values;
@@ -107,7 +100,7 @@ public abstract class HttpHandler {
                 resultBuilder.append(keys.get(i)).append("=").append(values.get(i));
                 if (i < keys.size() - 1) resultBuilder.append(", ");
             }
-            return "RequestContent{"+resultBuilder+"}";
+            return "RequestContent{" + resultBuilder + "}";
         }
 
 
@@ -134,13 +127,14 @@ public abstract class HttpHandler {
             return null;
         }
     }
+
     private String _method;
     private final Timer _timer;
     private java.net.http.HttpClient _client;
     private HttpRequest.Builder _requestBuilder;
     private JsonObject _content = new JsonObject();
     private final WeakHashMap<String, String> _headers = new WeakHashMap<>();
-    protected String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
+    protected final String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
     private Response _response;
     private HttpRequest _request;
 
@@ -159,6 +153,7 @@ public abstract class HttpHandler {
 
         _requestBuilder = HttpRequest.newBuilder().uri(_uri);
     }
+
     public boolean isSuccessful() {
         return _response.getStatusCode() == 200;
     }
@@ -204,9 +199,9 @@ public abstract class HttpHandler {
             return null;
         }
         if (_requestBuilder != null) {
-            _request =  switch (_method.toUpperCase()) {
+            _request = switch (_method.toUpperCase()) {
                 case "GET" -> _requestBuilder.GET().build();
-                case "POST" ->  {
+                case "POST" -> {
                     jsonEncoded();
                     yield _requestBuilder.POST(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
                 }
@@ -229,28 +224,36 @@ public abstract class HttpHandler {
         HttpRequest request = makeRequest();
         long startTime = System.nanoTime();
         CompletableFuture<HttpResponse<String>> future = _client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        future.thenApply(result -> {
+            if (request == null) return null;
+            _response = Response.of(request.headers(), result.body(), result.headers(), result.uri(), result.statusCode());
+            return null;
+        }).exceptionally(ex -> {
+            ex.printStackTrace();
+            return null;
+        });
         long endTime = System.nanoTime();
         if (_timer != null) _timer.addTime(endTime - startTime);
-        try {
-            HttpResponse<String> result = future.get();
-            _response = Response.of(request.headers(), result.body(), result.headers(), result.uri(), result.statusCode());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
-/*    public void send() throws Exception {
+    @SuppressWarnings("BlockingMethodInNonBlockingContext")
+    public void send() {
         setHeaders();
         HttpRequest request = makeRequest();
         long startTime = System.nanoTime();
-        HttpResponse<String> response = _client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = null;
+        try {
+            response = _client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         long endTime = System.nanoTime();
         if (_timer != null) {
             _timer.addTime(endTime - startTime);
         }
-        _response = Response.of(request.headers(), response.body(), response.headers(), response.uri(), response.previousResponse(), response.statusCode());
+        if (request == null || response == null) return;
+        _response = Response.of(request.headers(), response.body(), response.headers(), response.uri(), response.statusCode());
     }
-*/
 
     public void disconnect() {
         if (_client == null && _requestBuilder == null) {
@@ -267,8 +270,9 @@ public abstract class HttpHandler {
             return new Response() {
                 @Override
                 public String toString() {
-                    return "HttpHandler.Response{body="+body+", uri="+uri+", statusCode="+statusCode+"}";
+                    return "HttpHandler.Response{body=" + body + ", uri=" + uri + ", statusCode=" + statusCode + "}";
                 }
+
                 @Override
                 public String rawBody() {
                     return body;
@@ -305,47 +309,16 @@ public abstract class HttpHandler {
         }
 
         String rawBody();
+
         String connHeaders(boolean jsonEncoded);
+
         String headers(boolean jsonEncoded);
+
         int getStatusCode();
+
         URL getUrl() throws MalformedURLException;
+
         String toString();
-    }
-}
-class HtmlToJson {
-    public static JsonObject of(String html) {
-        Document doc = Jsoup.parse(html);
-
-        JsonObject json = new JsonObject();
-        Element root = doc.child(0);
-        json.add(root.tagName(), elementToJson(root));
-
-        return json;
-    }
-
-    private static JsonObject elementToJson(Element element) {
-        JsonObject json = new JsonObject();
-
-        // Add element attributes to JSON object
-        for (org.jsoup.nodes.Attribute attr : element.attributes()) {
-            json.addProperty(attr.getKey(), attr.getValue());
-        }
-
-        // Add element content to JSON object
-        String content = element.ownText().trim();
-        if (!content.isEmpty()) {
-            json.addProperty("content", content);
-        }
-        Elements children = element.children();
-        if (!children.isEmpty()) {
-            JsonObject childJson = new JsonObject();
-            for (Element child : children) {
-                childJson.add(child.tagName(), elementToJson(child));
-            }
-            json.add("children", childJson);
-        }
-
-        return json;
     }
 }
 

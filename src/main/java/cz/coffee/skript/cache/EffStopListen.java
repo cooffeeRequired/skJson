@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
+@SuppressWarnings("ALL")
 @Name("JsonWatcher - Stop listening to file")
 @Description("That will be stop listen file for given id")
 @Examples({"on script load",

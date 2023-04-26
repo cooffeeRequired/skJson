@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 
+@SuppressWarnings("ALL")
 @Name("Type of json")
 @Description("You check json type of Json")
 @Examples({
