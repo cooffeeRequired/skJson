@@ -49,13 +49,6 @@ public class EffSaveCache extends AsyncEffect {
                 for (Map.Entry<JsonElement, File> entry : mapEntry.getValue().entrySet()) {
                     if (mapEntry.getKey().equals(id)) {
                         CompletableFuture<Boolean> result = FileUtils.write(entry.getValue(), entry.getKey());
-                        result.thenAccept(success -> {
-                            if (success) {
-                                System.out.println("Zapisovani souboru probehlo uspesne.");
-                            } else {
-                                System.out.println("Chyba pri zapisovani souboru.");
-                            }
-                        });
                         return;
                     }
                 }

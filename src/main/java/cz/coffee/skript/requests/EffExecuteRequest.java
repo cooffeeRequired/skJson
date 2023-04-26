@@ -35,7 +35,7 @@ import static cz.coffee.core.requests.HttpHandler.RequestContent.process;
         "",
         "execute GET request to \"https://dummyjson.com/products/ with headers \"Content-type: application/json\"",
         "if request's code is 200:",
-        "\tsend request's body with pretty print"
+        "\tsend current request's body with pretty print"
 })
 @Since("2.8.3, 2.8.0 performance & clean")
 

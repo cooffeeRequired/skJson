@@ -42,19 +42,25 @@ import static cz.coffee.core.utils.Util.jsonToObject;
 command GetElements:
   trigger:
     set {_json} to json from string "{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}"
-    add diamond sword to {_json} for given path "A[1]:B"
-        loop {_json}'s values:
-            send loop-value
-        loop {_json}'s elements "A[]":
-            send loop-element
 
-        send {_json}'s value "A[1]"
-        loop {_json}'s entries:
-            send loop-key
-            send loop-value
-            send loop-element
-        """
-)
+    # Get single element of json
+    set {_single} to element "A::1" of {_json} # That will return true cause, the first element of the array "A" is true
+
+
+    # Get multiple elements of json
+    set {_array::*} to elements "A" of {_json} # That will return whole array so that mean ({"B": {}}, false, true, 10, 20, 22.22, A)
+
+
+    # Loop through elements
+    loop elements "A" of {_json}:
+        send loop-value
+
+    # loop through entries of json
+    execute GET request "https://api.json.com/producs"
+    loop entries of request's body:
+        if loop-key = "data":
+            set {_data} to element "data" of loop-element
+""")
 @Since("2.8.0 performance & clean")
 
 
