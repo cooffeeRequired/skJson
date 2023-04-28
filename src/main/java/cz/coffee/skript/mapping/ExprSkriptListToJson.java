@@ -14,7 +14,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.SkJson;
 import cz.coffee.core.mapping.JsonMap;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,8 +27,7 @@ import org.jetbrains.annotations.NotNull;
         "\tmap {-json} to {_json::*}",
         "\tsend \"&9%{_json::*}'s form with pretty print%\""
 })
-@Deprecated
-@Since("1.3.0")
+@Since("2.8.3 - Fix mapping for Skript beta, 1.3.0")
 public class ExprSkriptListToJson extends SimpleExpression<JsonElement> {
 
     static {
@@ -44,7 +42,7 @@ public class ExprSkriptListToJson extends SimpleExpression<JsonElement> {
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
         String variableName = variableString.toString(e);
         String var = (variableName.substring(0, variableName.length() - 1));
-        JsonElement element = JsonMap.Json.convert(var, isLocal, false, e);
+        JsonElement element = JsonMap.convert(var, isLocal, true, e);
         return new JsonElement[]{element};
     }
 
@@ -65,7 +63,7 @@ public class ExprSkriptListToJson extends SimpleExpression<JsonElement> {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        SkJson.warning("Using a deprecated API, The form of %objects%. It's may nor works properly with 2.7 Skript");
+        // SkJson.warning("Using a deprecated API, The form of %objects%. It may nor works properly with 2.7 Skript");
         Expression<?> objects = exprs[0];
         if (objects instanceof Variable<?> var) {
             if (var.isList()) {

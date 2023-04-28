@@ -2,6 +2,7 @@ package cz.coffee.core.utils;
 
 import ch.njol.skript.Skript;
 import com.google.gson.*;
+import com.google.gson.internal.LazilyParsedNumber;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Deque;
@@ -29,8 +30,13 @@ public class JsonUtils {
                      return new Gson().toJsonTree(object, object.getClass());
                  }
              }
-             if (clazz.equals(Integer.class))
-                 return new JsonPrimitive((Integer) object);
+             if (clazz.equals(Integer.class) || clazz.equals(LazilyParsedNumber.class)) {
+                 if (clazz.equals(LazilyParsedNumber.class)) {
+                     return new JsonPrimitive(((LazilyParsedNumber) object).intValue());
+                 } else {
+                     return new JsonPrimitive((Integer) object);
+                 }
+             }
              if (clazz.equals(Boolean.class))
                  return new JsonPrimitive((Boolean) object);
              if (clazz.equals(Double.class) || clazz.equals(Float.class))

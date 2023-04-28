@@ -3,94 +3,102 @@ package cz.coffee.core.mapping;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
+import cz.coffee.core.utils.AdapterUtils;
+import cz.coffee.core.utils.JsonUtils;
 import cz.coffee.core.utils.NumberUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static ch.njol.skript.variables.Variables.getVariable;
-import static cz.coffee.core.utils.AdapterUtils.parseItem;
-import static cz.coffee.core.utils.Util.jsonToObject;
+import static cz.coffee.core.utils.NumberUtils.isIncrement;
+import static cz.coffee.core.utils.NumberUtils.isNumber;
 
 public abstract class JsonMap {
     private static final Gson GSON = new GsonBuilder().serializeNulls().enableComplexMapKeySerialization().disableHtmlEscaping().create();
-    private static final JsonObject JSON_OBJECT = new JsonObject();
-    private static final JsonArray JSON_ARRAY = new JsonArray();
     private static final String SEPARATOR = Variable.SEPARATOR;
-    public static class Skript {
-        public static void toList(@NotNull String name, JsonElement input, boolean isLocal, Event event) {
-            JsonElement current;
-            Queue<JsonElement> elements = new ConcurrentLinkedQueue<>();
-            if (input != null) elements.add(input);
 
-            while ((current = elements.poll()) != null) {
-                if (current instanceof JsonPrimitive primitive) {
-                    primitive(name, primitive, isLocal, event);
-                } else if (current instanceof JsonObject object){
-                    nested(name, object, isLocal, event);
-                } else if (current instanceof JsonArray array) {
-                    nested(name, array, isLocal, event);
+
+    public static void toList(@NotNull String name, JsonElement input, boolean isLocal, Event event) {
+        if (input.isJsonPrimitive()) {
+            primitive(name, input.getAsJsonPrimitive(), isLocal, event);
+        } else if (input.isJsonObject() || input.isJsonArray()) {
+            if (input instanceof JsonArray list) {
+                for (int index = 0; index < list.size(); index++) {
+                    JsonElement element = list.get(index);
+                    if (element.isJsonPrimitive()) {
+                        primitive(name + (index + 1), element.getAsJsonPrimitive(), isLocal, event);
+                    } else {
+                        if (element.isJsonObject()) star(name + (index + 1), element, isLocal, event);
+                        toList(name + (index + 1) + SEPARATOR, element, isLocal, event);
+                    }
                 }
-            }
-        }
-
-        private static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
-            if (input.isBoolean()) Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
-            else if (input.isNumber()) Variables.setVariable(name, input.getAsNumber(), event, isLocal);
-            else if  (input.isString()) Variables.setVariable(name, input.getAsString(), event, isLocal);
-        }
-
-        private static void nested(@NotNull String name, @NotNull JsonElement input, boolean isLocal, Event event) {
-            if (input instanceof JsonObject object) {
-                //main(name + "*", object, isLocal, event);
-                object.keySet().forEach(key -> {
-                    if (key != null)
-                        toList(name + key, object.get(key), isLocal, event);
+            } else if (input instanceof JsonObject map) {
+                map.keySet().stream().filter(Objects::nonNull).forEach(key -> {
+                    JsonElement element = map.get(key);
+                    if (element.isJsonPrimitive()) {
+                        primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
+                    } else {
+                        if (element.isJsonObject()) star(name + key, element, isLocal, event);
+                        toList(name + key + SEPARATOR, element, isLocal, event);
+                    }
                 });
-            } else if (input instanceof JsonArray array) {
-                //main(name  + "*", array, isLocal, event);
-                for (int index = 0; array.size() > index; index++)
-                    toList(name + (index+1), array.get(index), isLocal, event);
             }
         }
     }
-    public static class Json {
+    static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
+        if (input.isBoolean())
+            Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
+        else if (input.isNumber())
+            Variables.setVariable(name, input.getAsNumber(), event, isLocal);
+        else if (input.isString())
+            Variables.setVariable(name, input.getAsString(), event, isLocal);
+    }
 
-        @SuppressWarnings("unchecked")
-        public static JsonElement convert(@NotNull String name, boolean isLocal, boolean nullable, Event event) {
-            final Object varObject = getVariable(name + "*", event, isLocal);
-            Map<String, Object> variable = (Map<String, Object>) varObject;
-            if (variable == null) return nullable ? null : JSON_OBJECT;
-            Stream<String> keys = variable.keySet().stream().filter(Objects::nonNull);
+    static void star(String name, JsonElement input, boolean isLocal, Event event) {
+        name = name + SEPARATOR + "*";
+        Variables.setVariable(name, input, event, isLocal);
+    }
 
-            if (variable.keySet().stream().filter(Objects::nonNull).allMatch(NumberUtils::isNumber)) {
-                final List<String> checkKeys = new ArrayList<>();
-                variable.keySet().stream().filter(Objects::nonNull).forEach(checkKeys::add);
-                if (NumberUtils.isIncrement(checkKeys.toArray())) {
-                    final JsonArray jsonStructure = JSON_ARRAY;
-                    keys.forEach(key -> {
-                        Object rawValue = subList(name + key, isLocal, event);
-                        JsonElement valueData = GSON.toJsonTree(rawValue);
-                        if (valueData instanceof JsonPrimitive primitive) {
-                            if (NumberUtils.isNumber(jsonToObject(primitive))) {
-                                JsonElement jsonPrimitive = JsonParser.parseString(jsonToObject(primitive).toString());
-                                jsonStructure.add(jsonPrimitive);
-                            } else {
-                                jsonStructure.add(primitive);
-                            }
+    /**
+     * @param name     Variable name {@link NotNull} {@link String}
+     * @param isLocal  value contain if variable is local or nah
+     * @param nullable can it be nullable?
+     * @param event    {@link Event}
+     * @return {@link JsonElement}
+     */
+    @SuppressWarnings("unchecked")
+    public static JsonElement convert(@NotNull String name, boolean isLocal, boolean nullable, Event event) {
+
+        Map<String, Object> variable = (Map<String, Object>) getVariable(name + "*", event, isLocal);
+        if (variable == null) return nullable ? null : new JsonObject();
+        List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).toList();
+
+        if (checkKeys.stream().allMatch(NumberUtils::isNumber)) {
+            if (isIncrement(checkKeys.toArray())) {
+                JsonArray jsonStructure = new JsonArray();
+                checkKeys.forEach(key -> {
+                    Object rawValue = subNode(name + key, isLocal, event);
+                    JsonElement valueData = GSON.toJsonTree(rawValue);
+                    if (valueData instanceof JsonPrimitive) {
+                        JsonElement primitive = JsonUtils.convert(valueData);
+                        if (isNumber(primitive)) {
+                            jsonStructure.add(JsonUtils.convert(valueData));
                         } else {
-                            jsonStructure.add(valueData);
+                            jsonStructure.add(primitive);
                         }
-                    });
-                    return jsonStructure;
-                }
+                    } else {
+                        jsonStructure.add(valueData);
+                    }
+                });
+                return jsonStructure;
             } else {
-                final JsonObject jsonStructure = JSON_OBJECT;
-                keys.forEach(key -> {
-                    JsonElement data = GSON.toJsonTree(subList(name + key, isLocal, event));
+                JsonObject jsonStructure = new JsonObject();
+                checkKeys.forEach(key -> {
+                    JsonElement data = GSON.toJsonTree(subNode(name + key, isLocal, event));
                     if (data instanceof JsonPrimitive primitive) {
                         jsonStructure.add(key, primitive);
                     } else {
@@ -99,20 +107,37 @@ public abstract class JsonMap {
                 });
                 return jsonStructure;
             }
-            return null;
-        }
-
-        private static Object subList(String name, boolean isLocal, Event event) {
-            Object variable = getVariable(name, event, isLocal);
-            if (variable == null) convert(name + SEPARATOR, isLocal, false, event);
-            else if (variable == Boolean.TRUE) {
-                Object subVar = convert(name + SEPARATOR, isLocal, true, event);
-                if (subVar != null) variable = subVar;
-            }
-            if (!(variable instanceof String || variable instanceof Number || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
-                if (variable != null) variable = parseItem(variable, variable.getClass());
-            }
-            return variable;
+        } else {
+            JsonObject jsonStructure = new JsonObject();
+            checkKeys.forEach(key -> {
+                JsonElement data = GSON.toJsonTree(subNode(name + key, isLocal, event));
+                if (data instanceof JsonPrimitive) {
+                    JsonPrimitive primitive = data.getAsJsonPrimitive();
+                    jsonStructure.add(key, primitive);
+                } else {
+                    jsonStructure.add(key, data);
+                }
+            });
+            return jsonStructure;
         }
     }
+
+     static Object subNode(String name, boolean isLocal, Event event) {
+        Object variable = getVariable(name, event, isLocal);
+        if (variable == null) {
+            variable = convert(name + SEPARATOR, isLocal, false, event);
+        } else if (variable == Boolean.TRUE) {
+            Object subVariable = convert(name + SEPARATOR, isLocal, true, event);
+            if (subVariable != null) {
+                variable = subVariable;
+            }
+        }
+
+        if (!(variable instanceof String || variable instanceof Number || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
+            if (variable != null) variable = AdapterUtils.parseItem(variable, variable.getClass());
+        }
+        return variable;
+    }
+
+
 }

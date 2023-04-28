@@ -109,7 +109,7 @@ public class AdapterUtils {
     }
 
 
-    static <T> boolean isClassic(T item) {
+    public static <T> boolean isClassic(T item) {
         return item instanceof String || item instanceof Number || item instanceof Boolean;
     }
 
