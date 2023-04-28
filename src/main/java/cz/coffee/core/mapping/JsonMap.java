@@ -3,24 +3,25 @@ package cz.coffee.core.mapping;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
+import cz.coffee.core.Reflection;
 import cz.coffee.core.utils.AdapterUtils;
 import cz.coffee.core.utils.JsonUtils;
 import cz.coffee.core.utils.NumberUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.core.utils.NumberUtils.isIncrement;
 import static cz.coffee.core.utils.NumberUtils.isNumber;
 
+
 public abstract class JsonMap {
     private static final Gson GSON = new GsonBuilder().serializeNulls().enableComplexMapKeySerialization().disableHtmlEscaping().create();
     private static final String SEPARATOR = Variable.SEPARATOR;
 
+    // Reflection get static intensiveCase field
 
     public static void toList(@NotNull String name, JsonElement input, boolean isLocal, Event event) {
         if (input.isJsonPrimitive()) {
@@ -32,7 +33,7 @@ public abstract class JsonMap {
                     if (element.isJsonPrimitive()) {
                         primitive(name + (index + 1), element.getAsJsonPrimitive(), isLocal, event);
                     } else {
-                        if (element.isJsonObject()) star(name + (index + 1), element, isLocal, event);
+                        //if (element.isJsonObject()) star(name + (index + 1), element, isLocal, event);
                         toList(name + (index + 1) + SEPARATOR, element, isLocal, event);
                     }
                 }
@@ -42,7 +43,7 @@ public abstract class JsonMap {
                     if (element.isJsonPrimitive()) {
                         primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
                     } else {
-                        if (element.isJsonObject()) star(name + key, element, isLocal, event);
+                        //if (element.isJsonObject()) star(name + key, element, isLocal, event);
                         toList(name + key + SEPARATOR, element, isLocal, event);
                     }
                 });
@@ -50,17 +51,13 @@ public abstract class JsonMap {
         }
     }
     static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
+        Reflection.Variables.setCaseInsensitiveVariables(false);
         if (input.isBoolean())
             Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
         else if (input.isNumber())
             Variables.setVariable(name, input.getAsNumber(), event, isLocal);
         else if (input.isString())
             Variables.setVariable(name, input.getAsString(), event, isLocal);
-    }
-
-    static void star(String name, JsonElement input, boolean isLocal, Event event) {
-        name = name + SEPARATOR + "*";
-        Variables.setVariable(name, input, event, isLocal);
     }
 
     /**
@@ -73,8 +70,11 @@ public abstract class JsonMap {
     @SuppressWarnings("unchecked")
     public static JsonElement convert(@NotNull String name, boolean isLocal, boolean nullable, Event event) {
 
-        Map<String, Object> variable = (Map<String, Object>) getVariable(name + "*", event, isLocal);
-        if (variable == null) return nullable ? null : new JsonObject();
+        Map<String, Object> v = (Map<String, Object>) getVariable(name + "*", event, isLocal);
+        if (v == null) return nullable ? null : new JsonObject();
+        Map<String, Object> variable = new TreeMap<>(Collections.emptySortedMap());
+        variable.putAll(v);
+
         List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).toList();
 
         if (checkKeys.stream().allMatch(NumberUtils::isNumber)) {

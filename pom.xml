@@ -172,5 +172,12 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.4</version>
         </dependency>
+<!--        <dependency>
+            <groupId>com.github.SkriptLang</groupId>
+            <artifactId>Skript</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/Skript.jar</systemPath>
+        </dependency>-->
     </dependencies>
 </project>
