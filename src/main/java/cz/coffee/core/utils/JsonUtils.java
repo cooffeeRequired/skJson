@@ -102,7 +102,6 @@ public class JsonUtils {
         JsonElement parsedValue = parseItem(value, null, null, value.getClass());
         if (parsedValue == null) return;
 
-
         while ((current = elements.pollFirst()) != null) {
             for (String key : keys) {
                 if (key.isEmpty()) continue;
@@ -130,13 +129,29 @@ public class JsonUtils {
                     current = array.get(index);
                 }
             }
+
             // final...
             if (current instanceof JsonObject object) {
-                object.remove(lastKey);
-                object.add(lastKey == null ? String.valueOf(object.size()) : lastKey, parsedValue);
+                //object.remove(lastKey);
+                String last = lastKey == null ? String.valueOf(object.size()) : lastKey;
+                if (object.has(lastKey)) {
+                    object.add(last, parsedValue);
+                }
+
             } else if (current instanceof JsonArray array) {
-                array.remove(parsedValue);
-                array.add(parsedValue);
+                int index = -1;
+                for (int i = 0; i < array.size(); i++) {
+                    if (i == parsedNumber(lastKey)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    array.set(index, parsedValue);
+                } else {
+                    array.remove(parsedValue);
+                    array.add(parsedValue);
+                }
             }
         }
     }

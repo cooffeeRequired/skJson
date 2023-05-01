@@ -62,7 +62,15 @@ public class FileUtils {
                 if (!file.getParentFile().exists() && !file.getParentFile().mkdir()) {
                     throw new IOException("Cannot create directory: " + file.getParentFile().getAbsolutePath());
                 }
-                if (!file.createNewFile() || !file.exists()) {
+
+                if (!file.exists()) {
+                    if (!file.createNewFile()) {
+                        return false;
+                    }
+                }
+
+
+                if (!file.exists()) {
                     return false;
                 } else {
                     Files.writeString(file.toPath(), dataToWrite);

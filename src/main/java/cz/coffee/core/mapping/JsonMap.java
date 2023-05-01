@@ -10,7 +10,9 @@ import cz.coffee.core.utils.NumberUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.core.utils.NumberUtils.isIncrement;
@@ -51,7 +53,6 @@ public abstract class JsonMap {
         }
     }
     static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
-        Reflection.Variables.setCaseInsensitiveVariables(false);
         if (input.isBoolean())
             Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
         else if (input.isNumber())
@@ -69,12 +70,8 @@ public abstract class JsonMap {
      */
     @SuppressWarnings("unchecked")
     public static JsonElement convert(@NotNull String name, boolean isLocal, boolean nullable, Event event) {
-
-        Map<String, Object> v = (Map<String, Object>) getVariable(name + "*", event, isLocal);
-        if (v == null) return nullable ? null : new JsonObject();
-        Map<String, Object> variable = new TreeMap<>(Collections.emptySortedMap());
-        variable.putAll(v);
-
+        Map<String, Object> variable = (Map<String, Object>) getVariable(name + "*", event, isLocal);
+        if (variable == null) return nullable ? null : new JsonObject();
         List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).toList();
 
         if (checkKeys.stream().allMatch(NumberUtils::isNumber)) {

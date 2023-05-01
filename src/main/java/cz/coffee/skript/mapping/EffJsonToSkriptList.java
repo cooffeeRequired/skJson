@@ -10,6 +10,8 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffee.SkJson;
+import cz.coffee.core.Reflection;
 import cz.coffee.core.mapping.JsonMap;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
