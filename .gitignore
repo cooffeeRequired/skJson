@@ -21,6 +21,7 @@
 hs_err_pid*
 replay_pid*
 *gradle*
+*.xml
 
 # Package Files #
 *.jar
@@ -34,3 +35,6 @@ replay_pid*
 *.bin
 build.___gradle
 *.lang
+*.iml
+*.gitignore
+*.gitattributes
