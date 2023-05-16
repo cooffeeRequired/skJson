@@ -8,6 +8,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import cz.coffee.core.utils.JsonFile;
 import org.jetbrains.annotations.NotNull;
+
 @NoDoc
 public class JsonFileType {
     static {

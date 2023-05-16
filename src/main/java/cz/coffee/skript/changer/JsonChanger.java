@@ -66,7 +66,7 @@ public class JsonChanger extends SimpleExpression<Object> {
         ArrayList<Object> objects = new ArrayList<>();
         final JsonElement json = jsonExpression.getSingle(e);
         final String pathString = pathExpression.getSingle(e);
-        if (json ==  null) return new Object[0];
+        if (json == null) return new Object[0];
         if (pattern == 0) {
             LinkedList<String> keys = extractKeys(pathString, null, true);
             final JsonElement in = getByKey(json, keys);
@@ -82,7 +82,9 @@ public class JsonChanger extends SimpleExpression<Object> {
             final JsonElement in = getByKey(json, keys);
             if (result.hasTag("keys")) {
                 if (in == null) return new JsonElement[0];
-                if (in instanceof JsonObject object) objects.addAll(object.keySet());
+                if (in instanceof JsonObject object) {
+                    objects.addAll(object.keySet());
+                }
             } else if (result.hasTag("values")) {
                 if (in == null) return new JsonElement[0];
                 if (in instanceof JsonObject object) {
@@ -109,19 +111,23 @@ public class JsonChanger extends SimpleExpression<Object> {
         return Classes.getDebugMessage(e);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public Class<?> @NotNull [] acceptChange(Changer.@NotNull ChangeMode mode) {
-        return switch (mode) {
-            case SET, ADD, REMOVE -> CollectionUtils.array(Object.class);
-            default -> //noinspection DataFlowIssue
-                    null;
-        };
+        switch (mode) {
+            case SET:
+            case ADD:
+            case REMOVE:
+                return CollectionUtils.array(Object.class);
+            default:
+                return null;
+        }
     }
 
     @Override
     public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
         Object[] delta = null;
-        if (inputDelta != null && inputDelta.length ==1)
+        if (inputDelta != null && inputDelta.length == 1)
             delta = inputDelta;
         else if (inputDelta != null && inputDelta.length > 1) {
             final JsonArray array = new JsonArray();
@@ -133,11 +139,11 @@ public class JsonChanger extends SimpleExpression<Object> {
         }
 
         switch (mode) {
-            case ADD -> {
-                final JsonElement input = jsonExpression.getSingle(e);
-                final String pathString = pathExpression.getSingle(e);
+            case ADD:
+                JsonElement input = jsonExpression.getSingle(e);
+                String pathString = pathExpression.getSingle(e);
                 LinkedList<String> keys = extractKeys(pathString, null, true);
-                final JsonElement json = getByKey(input, keys);
+                JsonElement json = getByKey(input, keys);
                 if (json != null) {
                     if (json.isJsonObject()) {
                         Skript.error("You can add object only to JsonArray.types", ErrorQuality.SEMANTIC_ERROR);
@@ -149,11 +155,11 @@ public class JsonChanger extends SimpleExpression<Object> {
                         }
                     }
                 }
-            }
-            case SET -> {
-                final JsonElement input = jsonExpression.getSingle(e);
-                final String pathString = pathExpression.getSingle(e);
-                final LinkedList<String> keys = extractKeys(pathString, null, true);
+                break;
+            case SET:
+                input = jsonExpression.getSingle(e);
+                pathString = pathExpression.getSingle(e);
+                keys = extractKeys(pathString, null, true);
                 if (keys == null) {
                     Skript.error("Unsupported input for square bracket " + 0 + ", index start with 1,2,3...", ErrorQuality.SEMANTIC_ERROR);
                     return;
@@ -167,24 +173,26 @@ public class JsonChanger extends SimpleExpression<Object> {
                             changeKey(input, keys, o.toString());
                         }
                     }
-                } catch (Exception ignored) {}
-            }
-            case REMOVE -> {
+                } catch (Exception ignored) {
+                }
+                break;
+            case REMOVE:
                 boolean type = false;
                 Object value = null;
                 if (inputDelta == null) {
                     Skript.error("You cannot remove a null", ErrorQuality.SEMANTIC_ERROR);
                     return;
                 }
-                final JsonElement json = jsonExpression.getSingle(e);
+                json = jsonExpression.getSingle(e);
                 if (pathExpression == null) return;
                 String string = pathExpression.getSingle(e);
-                LinkedList<String> keys = extractKeys(string, null);
+                keys = extractKeys(string, null);
 
-                if (keys == null) {
-                    Skript.error("Unsupported input for square bracket " + 0 + ", index start with 1,2,3...", ErrorQuality.SEMANTIC_ERROR);
+                if (keys == null && string != null) {
+                    Skript.error("Unsupported input", ErrorQuality.SEMANTIC_ERROR);
                     return;
                 }
+
                 for (Object o : inputDelta) {
                     if (o instanceof JsonObject object) {
                         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
@@ -207,7 +215,7 @@ public class JsonChanger extends SimpleExpression<Object> {
                             int size = element.getAsJsonArray().size();
                             if (value == null) return;
                             if (value instanceof JsonElement jsonElement) {
-                                if (jsonElement.getAsInt() == -100) value = (size-1);
+                                if (jsonElement.getAsInt() == -100) value = (size - 1);
                                 keys.add(value.toString());
                                 removeByIndex(json, keys);
                             }
@@ -245,8 +253,9 @@ public class JsonChanger extends SimpleExpression<Object> {
                         }
                     }
                 }
-
-            }
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + mode);
         }
     }
 

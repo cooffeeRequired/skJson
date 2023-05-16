@@ -62,7 +62,7 @@ public class CondJsonIsListened extends Condition {
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return String.format("json id %s %s listened",exprId.toString(event,b), (line == 0 ? "is": "isn't"));
+        return String.format("json id %s %s listened", exprId.toString(event, b), (line == 0 ? "is" : "isn't"));
     }
 
     @Override

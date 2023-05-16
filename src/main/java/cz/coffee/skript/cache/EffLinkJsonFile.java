@@ -47,7 +47,7 @@ public class EffLinkJsonFile extends Effect {
         String fileString = exprFileString.getSingle(event);
         String id = expressionID.getSingle(event);
         if (id == null || fileString == null) return;
-        final File file =  new File(fileString);
+        final File file = new File(fileString);
         JsonElement json = FileUtils.get(file);
         assert json != null;
         map.put(json, file);

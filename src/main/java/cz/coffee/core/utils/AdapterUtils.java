@@ -41,8 +41,8 @@ public class AdapterUtils {
         return assignTo(item);
     }
 
-    public static <T> JsonElement parseItem(T item, Expression<?> expression, Event event, Class<?> ...clazzInput) {
-        boolean isDefined = (clazzInput.length >0 && (clazzInput[0] == ItemType.class || clazzInput[0] == Slot.class));
+    public static <T> JsonElement parseItem(T item, Expression<?> expression, Event event, Class<?>... clazzInput) {
+        boolean isDefined = (clazzInput.length > 0 && (clazzInput[0] == ItemType.class || clazzInput[0] == Slot.class));
         boolean isItem = item instanceof ItemType || item instanceof ItemStack || item instanceof Slot;
         if (item instanceof JsonElement) {
             return (JsonElement) item;
@@ -126,8 +126,7 @@ public class AdapterUtils {
             if (potentialClass != null) {
                 clazz = Class.forName(potentialClass);
             }
-        }
-        catch (ClassNotFoundException notFoundException) {
+        } catch (ClassNotFoundException notFoundException) {
             notFoundException.printStackTrace();
         }
         if (clazz != null) {
@@ -155,7 +154,7 @@ public class AdapterUtils {
     }
 
 
-     static <T> JsonElement assignTo(T item) {
+    static <T> JsonElement assignTo(T item) {
         if (item == null) return JsonNull.INSTANCE;
         boolean isSerializable = (item instanceof YggdrasilSerializable || item instanceof ConfigurationSerializable);
 

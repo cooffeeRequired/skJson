@@ -52,12 +52,13 @@ public class SimpleDebugger extends Effect {
                 // TODO detect console or player
                 if (line == 1) {
                     Object[] objects = objectExpression.getArray(event);
-                    for (Object object : objects) SkJson.console("class of " + object + " is " + object.getClass().getName());
-                } else  {
+                    for (Object object : objects)
+                        SkJson.console("class of " + object + " is " + object.getClass().getName());
+                } else {
                     if (isStart) codeRunTime(true);
                     else {
                         if (isDebuggingStopped) isDebuggingEnabled = false;
-                        SkJson.console("&c&lDEBUG&f timer: execution takes &e"+codeRunTime(false) + "&f seconds");
+                        SkJson.console("&c&lDEBUG&f timer: execution takes &e" + codeRunTime(false) + "&f seconds");
                     }
                 }
             } else {

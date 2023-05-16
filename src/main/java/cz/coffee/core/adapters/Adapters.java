@@ -85,31 +85,6 @@ public abstract class Adapters {
         public NBTContainer fromJson(JsonObject json) {
             return new NBTContainer(json.get("nbt").getAsString());
         }
-    };    @SuppressWarnings("deprecation")
-    public final static Adapter<Block> BlockAdapter = new Adapter<>() {
-        @Override
-        public @NotNull JsonElement toJson(Block source) {
-            final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            jsonObject.addProperty("type", source.getType().name());
-            jsonObject.addProperty("data", source.getData());
-            jsonObject.add("location", parseItem(source.getLocation(), null, null));
-            jsonObject.addProperty("world", source.getWorld().getName());
-            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
-        }
-
-        @Override
-        public Block fromJson(JsonObject json) {
-            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
-                World world;
-                if ((world = getWorld(json.get("world").getAsString()))!= null) {
-                    Block block = world.getBlockAt(GSON_ADAPTER.fromJson(json.get("location"), Location.class));
-                    block.setType(Material.valueOf(json.get("type").getAsString()));
-                    return block;
-                }
-            }
-            return null;
-        }
     };
 
     public static class TypeAdapter {
@@ -151,6 +126,35 @@ public abstract class Adapters {
             }
         }
     }    @SuppressWarnings("deprecation")
+    public final static Adapter<Block> BlockAdapter = new Adapter<>() {
+        @Override
+        public @NotNull JsonElement toJson(Block source) {
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            jsonObject.addProperty("type", source.getType().name());
+            jsonObject.addProperty("data", source.getData());
+            jsonObject.add("location", parseItem(source.getLocation(), null, null));
+            jsonObject.addProperty("world", source.getWorld().getName());
+            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
+        }
+
+        @Override
+        public Block fromJson(JsonObject json) {
+            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
+                World world;
+                if ((world = getWorld(json.get("world").getAsString())) != null) {
+                    Block block = world.getBlockAt(GSON_ADAPTER.fromJson(json.get("location"), Location.class));
+                    block.setType(Material.valueOf(json.get("type").getAsString()));
+                    return block;
+                }
+            }
+            return null;
+        }
+    };
+
+
+
+    @SuppressWarnings("deprecation")
     public final static Adapter<ItemStack> ItemStackAdapter = new Adapter<>() {
         private ItemStack setEnchants(final ItemStack i, final JsonObject META) {
             final String enchants = "enchants";
@@ -225,7 +229,7 @@ public abstract class Adapters {
             put(9, "TropicalFishBucketMeta");
         }};
 
-        private static BannerMeta bannerMeta(final JsonObject rawMeta) {
+        private BannerMeta bannerMeta(final JsonObject rawMeta) {
             final String _BANNER_PATTERNS = "patterns";
             if (rawMeta.has(_BANNER_PATTERNS)) {
                 JsonArray _PATTERN_ARRAY = rawMeta.getAsJsonArray(_BANNER_PATTERNS);
@@ -247,7 +251,7 @@ public abstract class Adapters {
             return null;
         }
 
-        private static AxolotlBucketMeta axolotlMeta(final JsonObject rawMeta) {
+        private AxolotlBucketMeta axolotlMeta(final JsonObject rawMeta) {
             final String _AXOLOTL_B_VARIANT = "axolotl-variant";
             final HashMap<Integer, Axolotl.Variant> axolotlVariants = new HashMap<>() {{
                 put(0, Axolotl.Variant.LUCY);
@@ -269,7 +273,7 @@ public abstract class Adapters {
         }
 
         @SuppressWarnings("UnstableApiUsage")
-        private static BundleMeta bundleMeta(final JsonObject rawMeta) {
+        private BundleMeta bundleMeta(final JsonObject rawMeta) {
             final String _BUNDLE_ITEMS = "items";
             if (rawMeta.has(_BUNDLE_ITEMS)) {
                 final JsonArray JSON_ITEMS_ = rawMeta.getAsJsonArray(_BUNDLE_ITEMS);
@@ -284,14 +288,14 @@ public abstract class Adapters {
             return null;
         }
 
-        private static CompassMeta compassMeta(final JsonObject rawMeta) {
+        private CompassMeta compassMeta(final JsonObject rawMeta) {
             final String _COMPASS_P_WORLD = "LodestonePosWorld";
             final String _COMPASS_P_X = "LodestonePosX";
             final String _COMPASS_P_Y = "LodestonePosY";
             final String _COMPASS_P_Z = "LodestonePosZ";
             final String _COMPASS_P_TRACKED = "LodestoneTracked";
 
-            if(rawMeta.has(_COMPASS_P_WORLD) && rawMeta.has(_COMPASS_P_TRACKED)) {
+            if (rawMeta.has(_COMPASS_P_WORLD) && rawMeta.has(_COMPASS_P_TRACKED)) {
                 Location loc = new Location(
                         SkJson.getInstance().getServer().getWorlds().get(0),
                         rawMeta.get(_COMPASS_P_X).getAsDouble(),
@@ -314,7 +318,7 @@ public abstract class Adapters {
             return null;
         }
 
-        private static CrossbowMeta crossbowMeta(final JsonObject rawMeta) {
+        private CrossbowMeta crossbowMeta(final JsonObject rawMeta) {
             final String _CROSSBOW_PROJECTILES = "charged-projectiles";
             if (rawMeta.has(_CROSSBOW_PROJECTILES)) {
                 ArrayList<ItemStack> _PROJECTILES = new ArrayList<>();
@@ -327,7 +331,7 @@ public abstract class Adapters {
             return null;
         }
 
-        private static Damageable damageableMeta(final JsonObject rawMeta) {
+        private Damageable damageableMeta(final JsonObject rawMeta) {
             final String _DMG_DAMAGE = "Damage";
             if (rawMeta.has(_DMG_DAMAGE)) {
                 int damage = rawMeta.get(_DMG_DAMAGE).getAsInt();
@@ -341,7 +345,7 @@ public abstract class Adapters {
         }
 
         @SuppressWarnings("unchecked")
-        private static FireworkMeta fireworkMeta(final JsonObject rawMeta) {
+        private FireworkMeta fireworkMeta(final JsonObject rawMeta) {
             final String _FIREWORK_EFFECTS = "firework-effects";
             final String _FIREWORK_POWER = "power";
 
@@ -387,7 +391,7 @@ public abstract class Adapters {
                     fireworkEffectList.add(fireworkEffect);
                 }
 
-                ItemMeta meta =  GSON_ADAPTER.fromJson(rawMeta, ItemMeta.class);
+                ItemMeta meta = GSON_ADAPTER.fromJson(rawMeta, ItemMeta.class);
                 FireworkMeta FireworkMeta = ((FireworkMeta) meta);
                 FireworkMeta.addEffects(fireworkEffectList);
                 FireworkMeta.setPower(power);
@@ -397,14 +401,14 @@ public abstract class Adapters {
         }
 
         @SuppressWarnings("deprecation")
-        private static MapMeta mapMeta(final JsonObject rawMeta) {
+        private MapMeta mapMeta(final JsonObject rawMeta) {
             final String _MAP_ID = "map-id";
 
             if (rawMeta.has(_MAP_ID)) {
                 int mapID = rawMeta.get(_MAP_ID).getAsInt();
                 rawMeta.remove(_MAP_ID);
 
-                ItemMeta meta =  GSON_ADAPTER.fromJson(rawMeta, ItemMeta.class);
+                ItemMeta meta = GSON_ADAPTER.fromJson(rawMeta, ItemMeta.class);
                 MapMeta mapMeta = ((MapMeta) meta);
                 mapMeta.setMapId(mapID);
                 return mapMeta;
@@ -413,7 +417,7 @@ public abstract class Adapters {
         }
 
         @SuppressWarnings("deprecation")
-        private static SuspiciousStewMeta suspiciousStewMeta(final JsonObject rawMeta) {
+        private SuspiciousStewMeta suspiciousStewMeta(final JsonObject rawMeta) {
             final String _S_STEW_EFFECTS = "effects";
 
             if (rawMeta.has(_S_STEW_EFFECTS)) {
@@ -439,7 +443,7 @@ public abstract class Adapters {
         }
 
         @SuppressWarnings("deprecation")
-        private static TropicalFishBucketMeta tropicalFishBucketMeta(final JsonObject rawMeta) {
+        private TropicalFishBucketMeta tropicalFishBucketMeta(final JsonObject rawMeta) {
             final String _FISH_MODEL = "custom-fish";
             final String _FISH_PATTERN = "pattern";
             final String _FISH_PATTERN_COLOR = "pattern-color";
@@ -538,7 +542,7 @@ public abstract class Adapters {
             String sourceHolder;
             if (source.getViewers().isEmpty()) {
                 sourceHolder = "DEFAULT";
-                sourceTitle =  source.getType().getDefaultTitle();
+                sourceTitle = source.getType().getDefaultTitle();
             } else {
                 sourceHolder = source.getViewers().get(0).getName();
                 sourceTitle = source.getViewers().get(0).getOpenInventory().getTitle();
@@ -552,7 +556,7 @@ public abstract class Adapters {
                 jsonInventory.add(slot, (item != null ? ItemStackAdapter.toJson(item) : JsonNull.INSTANCE));
             }
             object.addProperty("title", sourceTitle);
-            object.addProperty("rows", source.getSize()/9);
+            object.addProperty("rows", source.getSize() / 9);
             object.addProperty("size", source.getSize());
             object.addProperty("type", sourceType);
             object.addProperty("holder", sourceHolder);
@@ -586,8 +590,6 @@ public abstract class Adapters {
             return inventory;
         }
     };
-
-
 
 
 }

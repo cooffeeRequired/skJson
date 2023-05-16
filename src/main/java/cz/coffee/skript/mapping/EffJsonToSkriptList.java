@@ -10,8 +10,6 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffee.SkJson;
-import cz.coffee.core.Reflection;
 import cz.coffee.core.mapping.JsonMap;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -44,7 +42,7 @@ public class EffJsonToSkriptList extends Effect {
     protected void execute(@NotNull Event e) {
         Object jsonObject = jsonElementExpression.getSingle(e);
         JsonElement json = parseItem(jsonObject, jsonElementExpression, e);
-        String var = variableString.toString(e).substring(0, variableString.toString().length()-3);
+        String var = variableString.toString(e).substring(0, variableString.toString().length() - 3);
         if (json == null) return;
         JsonMap.toList(var, json, isLocal, e);
     }
@@ -53,6 +51,7 @@ public class EffJsonToSkriptList extends Effect {
     public @NotNull String toString(@Nullable Event e, boolean debug) {
         return "map " + jsonElementExpression.toString(e, debug) + " to " + variableString.toString(e);
     }
+
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         Expression<Object> objectExpression = LiteralUtils.defendExpression(exprs[1]);

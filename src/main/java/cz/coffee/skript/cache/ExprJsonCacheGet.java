@@ -36,6 +36,7 @@ public class ExprJsonCacheGet extends SimpleExpression<JsonElement> {
                 "[cached] json %string%"
         );
     }
+
     private Expression<String> storedKeyExpr;
 
     @Override

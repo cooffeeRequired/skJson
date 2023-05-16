@@ -24,6 +24,7 @@ public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer>
     static {
         register(ExprJsonSize.class, Integer.class, "json size", "json");
     }
+
     @Override
     protected @NotNull String getPropertyName() {
         return "json size";

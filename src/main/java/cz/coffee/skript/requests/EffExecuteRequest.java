@@ -40,26 +40,25 @@ import static cz.coffee.core.requests.HttpHandler.RequestContent.process;
 @Since("2.8.3, 2.8.0 performance & clean")
 
 public class EffExecuteRequest extends AsyncEffect {
-    private final List<String>  allowedMethods = List.of("POST", "GET", "PUT", "DELETE", "MOCK", "HEAD", "PATCH");
+    static {
+        Skript.registerEffect(EffExecuteRequest.class,
+                "(execute|send|make) [new] (<.+>|%-string%) request to %string% [(:with headers) %-strings/json%] [and with (:body|:data) %-strings/json%]",
+                "(execute|send|make) [new] (<.+>|%-string%) request to %string% [with (:body|:data) %-strings/json%] [and (:with headers) %-strings/json%]"
+        );
+    }
+
+    private final List<String> allowedMethods = List.of("POST", "GET", "PUT", "DELETE", "MOCK", "HEAD", "PATCH");
     private Expression<?> bodyExpression, headersExpression;
     private Expression<String> urlExpression, methodExpression;
     private String parsedMethod;
     private boolean withHeaders, withBody;
 
     /**
-    Sanitize missing or forgot ", also sanitize the bukkit colors
+     * Sanitize missing or forgot ", also sanitize the bukkit colors
      */
     public static String sanitize(Object o) {
         final String st = o.toString();
         return st.replace('§', '&').replace("\"", "");
-    }
-
-
-    static {
-        Skript.registerEffect(EffExecuteRequest.class,
-                "(execute|send|make) [new] (<.+>|%-string%) request to %string% [(:with headers) %-strings/json%] [and with (:body|:data) %-strings/json%]",
-                "(execute|send|make) [new] (<.+>|%-string%) request to %string% [with (:body|:data) %-strings/json%] [and (:with headers) %-strings/json%]"
-        );
     }
 
     @Override

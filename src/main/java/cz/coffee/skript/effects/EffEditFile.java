@@ -60,6 +60,7 @@ public class EffEditFile extends AsyncEffect {
                 .examples("jsonfile(\"plugins/test/test.json\")")
                 .since("2.8.0 - performance & clean"));
     }
+
     private Expression<?> fileExpression, expressionObjects;
     private Expression<String> pathExpression;
     private boolean isValue, jsonFileExpression, isArray, async;

@@ -22,7 +22,6 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.Util.extractKeys;
 
 
-
 @SuppressWarnings("ALL")
 @Name("Json has value/key")
 @Description({" You can check if the inserted keys or values already in your specified json"})
@@ -88,7 +87,7 @@ public class CondJsonHas extends Condition {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return jsonElementExpression.toString(e, debug) +" has " + (isValues ? "values" : "keys") + " " + expressionRaw.toString(e, debug);
+        return jsonElementExpression.toString(e, debug) + " has " + (isValues ? "values" : "keys") + " " + expressionRaw.toString(e, debug);
     }
 
     @Override

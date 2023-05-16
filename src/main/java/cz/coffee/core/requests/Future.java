@@ -2,9 +2,14 @@ package cz.coffee.core.requests;
 
 @SuppressWarnings("unused")
 public @interface Future {
-    @interface Method { }
+    @interface Method {
+    }
+
     @SuppressWarnings("unused")
-    @interface Parameter { }
+    @interface Parameter {
+    }
+
     @SuppressWarnings("unused")
-    @interface Constructor {}
+    @interface Constructor {
+    }
 }

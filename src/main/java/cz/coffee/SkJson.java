@@ -29,15 +29,16 @@ public final class SkJson extends JavaPlugin {
     public static final boolean PROJECT_DEBUG = true;
     public static final CacheMap<String, JsonElement, File> JSON_STORAGE = new CacheMap<>();
     public static final WeakHashMap<File, JsonWatcher> WATCHERS = new WeakHashMap<>();
+    public static final Response[] RESPONSES = new Response[2];
     private static final String[] dependencies = {"Skript"};
     private static final Version version = Skript.getMinecraftVersion();
+    static final boolean legacy = version.isSmallerThan(new Version(1, 16, 5));
+    static final String prefix = legacy ? color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
     private static Logger logger;
     private static PluginManager pluginManager;
     private static SkJson instance;
     private static PluginDescriptionFile descriptionFile;
-    static final boolean legacy = version.isSmallerThan(new Version(1,16,5));
-    static final String prefix = legacy ? color("&7[&ask&2Json&7]") : "&7[" + hex("#B6E69Cs#9BD97Ek#80CC61J#65BF43s#4AB226o#2FA508n") + "&7]";
-    public static final Response[] RESPONSES = new Response[2];
+
     public static SkJson getInstance() {
         if (instance == null) throw new IllegalStateException("SkJson is not initialized!");
         return instance;
@@ -48,7 +49,7 @@ public final class SkJson extends JavaPlugin {
     }
 
     public static void error(@NotNull Object message) {
-        logger.info(color("&c"+message));
+        logger.info(color("&c" + message));
     }
 
     public static void error(String message, Node node) {
@@ -98,14 +99,15 @@ public final class SkJson extends JavaPlugin {
             pluginManager.disablePlugin(this);
         }
         JsonWatcher.init();
-        console(JsonWatcher.getLogger().getName() +  " was &ainitialized");
+        console(JsonWatcher.getLogger().getName() + " was &ainitialized");
         new Updater();
         loadMetrics();
         console("&aFinished loading.");
     }
+
     @Override
     public void onDisable() {
-        console(JsonWatcher.getLogger().getName() +  " &7trying unload a JsonWatchers!");
+        console(JsonWatcher.getLogger().getName() + " &7trying unload a JsonWatchers!");
         JsonWatcher.shutdown();
         console("&7Unload &aDone");
     }

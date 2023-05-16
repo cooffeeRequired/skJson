@@ -20,16 +20,12 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("ALL")
 @Name("Json is empty")
 @Description("You can check if the json empty")
-@Examples("""
-        Command jsonIsEmpty:
-            trigger:
-                set {_json} to json object
-                if {_json} is empty:
-                    send true
-                else:
-                    send false
-        """
-)
+@Examples({
+        "Command jsonIsEmpty",
+        "\ttrigger",
+        "\t\tset {_json} to json object",
+        "\t\tsend true if {_json} is empty"
+})
 @Since("2.8.0 - performance & clean")
 
 public class CondJsonEmpty extends Condition {
@@ -50,14 +46,14 @@ public class CondJsonEmpty extends Condition {
         boolean result = false;
         if (JSON == null) return true;
         if (JSON instanceof JsonNull) result = true;
-        if (JSON instanceof JsonObject object) result = object.isEmpty();
-        if (JSON instanceof JsonArray array) result = array.isEmpty();
+        if (JSON instanceof JsonObject) result = JSON.getAsJsonObject().isEmpty();
+        if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
         return (line == 0) == result;
     }
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json" + jsonElementExpression.toString(e, debug)+ " " + (line == 0 ? "is" : "does not") + " empty";
+        return "json" + jsonElementExpression.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
     }
 
     @Override

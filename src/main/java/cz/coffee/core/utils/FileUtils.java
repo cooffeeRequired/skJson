@@ -51,7 +51,6 @@ public class FileUtils {
     }
 
 
-
     static public CompletableFuture<Boolean> write(@NotNull File file, JsonElement element) {
         if (element == null || element instanceof JsonNull) {
             element = new JsonObject();

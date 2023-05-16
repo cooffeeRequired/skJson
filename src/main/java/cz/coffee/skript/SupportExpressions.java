@@ -22,6 +22,8 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 @NoDoc
 public class SupportExpressions extends SimpleExpression<JsonElement> {
 
+    private static final JsonObject JSON_OBJECT = new JsonObject();
+
     static {
         Skript.registerExpression(SupportExpressions.class, JsonElement.class, ExpressionType.SIMPLE,
                 "(:1st|:first|:2nd|:second|:3rd|:third|:last|%integer%) element"
@@ -31,8 +33,6 @@ public class SupportExpressions extends SimpleExpression<JsonElement> {
     private int pattern;
     private SkriptParser.ParseResult result;
     private Expression<Integer> intExpression;
-    private static final JsonObject JSON_OBJECT = new JsonObject();
-
 
     @Override
     protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
@@ -40,14 +40,29 @@ public class SupportExpressions extends SimpleExpression<JsonElement> {
         if (pattern == 0) {
             String type = result.tags.size() > 0 ? result.tags.get(0) : "expression";
             int i;
-            i = switch (type) {
-                case "1st", "first" -> 1;
-                case "2nd", "second" -> 2;
-                case "3rd", "third" -> 3;
-                case "last" -> -99;
-                case "expression" -> -2;
-                default -> -1;
-            };
+            switch (type) {
+                case "1st":
+                case "first":
+                    i = 1;
+                    break;
+                case "2nd":
+                case "second":
+                    i = 2;
+                    break;
+                case "3rd":
+                case "third":
+                    i = 3;
+                    break;
+                case "last":
+                    i = -99;
+                    break;
+                case "expression":
+                    i = -2;
+                    break;
+                default:
+                    i = -1;
+                    break;
+            }
             if (i == -1 || i == -2) {
                 Integer iIndex = intExpression.getSingle(e);
                 if (iIndex != null) i = iIndex;

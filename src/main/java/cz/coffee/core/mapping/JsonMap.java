@@ -3,7 +3,6 @@ package cz.coffee.core.mapping;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
-import cz.coffee.core.Reflection;
 import cz.coffee.core.utils.AdapterUtils;
 import cz.coffee.core.utils.JsonUtils;
 import cz.coffee.core.utils.NumberUtils;
@@ -13,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.core.utils.NumberUtils.isIncrement;
@@ -52,6 +52,7 @@ public abstract class JsonMap {
             }
         }
     }
+
     static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
         if (input.isBoolean())
             Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
@@ -72,7 +73,7 @@ public abstract class JsonMap {
     public static JsonElement convert(@NotNull String name, boolean isLocal, boolean nullable, Event event) {
         Map<String, Object> variable = (Map<String, Object>) getVariable(name + "*", event, isLocal);
         if (variable == null) return nullable ? null : new JsonObject();
-        List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).toList();
+        List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).collect(Collectors.toList());
 
         if (checkKeys.stream().allMatch(NumberUtils::isNumber)) {
             if (isIncrement(checkKeys.toArray())) {
@@ -119,7 +120,7 @@ public abstract class JsonMap {
         }
     }
 
-     static Object subNode(String name, boolean isLocal, Event event) {
+    static Object subNode(String name, boolean isLocal, Event event) {
         Object variable = getVariable(name, event, isLocal);
         if (variable == null) {
             variable = convert(name + SEPARATOR, isLocal, false, event);

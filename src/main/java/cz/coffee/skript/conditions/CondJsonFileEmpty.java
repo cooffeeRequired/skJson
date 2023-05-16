@@ -24,15 +24,11 @@ import java.io.File;
 @SuppressWarnings("ALL")
 @Name("Json file is empty")
 @Description("You can check if the json file empty")
-@Examples("""
-        Command jsonFileIsEmpty:
-            trigger:
-                if json file "plugins/raw/test.json" is empty:
-                    send true
-                else:
-                    send false
-        """
-)
+@Examples({
+        "Command jsonFileIsEmpty:",
+        "\ttrigger",
+        "\t\tsend true if json file \"plugins/raw/test.json\" is empty:"
+})
 @Since("2.8.0 - performance & clean")
 
 public class CondJsonFileEmpty extends Condition {
@@ -57,8 +53,8 @@ public class CondJsonFileEmpty extends Condition {
             final JsonElement JSON = FileUtils.get(file);
             if (JSON == null) return true;
             if (JSON instanceof JsonNull) result = true;
-            if (JSON instanceof JsonObject object) result = object.isEmpty();
-            if (JSON instanceof JsonArray array) result = array.isEmpty();
+            if (JSON instanceof JsonObject) result = JSON.getAsJsonArray().isEmpty();
+            if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
         }
         return (line == 0) == result;
     }

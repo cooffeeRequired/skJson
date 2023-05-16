@@ -43,8 +43,8 @@ public class ExprGetResponse extends SimpleExpression<Object> {
         );
     }
 
-    private int tag;
     boolean isCurrent;
+    private int tag;
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
@@ -56,23 +56,29 @@ public class ExprGetResponse extends SimpleExpression<Object> {
             if (!isCurrent && RESPONSES[1] != null) previous = RESPONSES[1];
 
             switch (tag) {
-                case 2 -> {
+                case 2:
                     String st = isCurrent ? current.rawBody() : previous.rawBody();
                     if (!isCurrent && st == null)
                         return new Object[0];
                     else
                         result[0] = parseItem(st, st.getClass());
-                }
-                case 3 -> result[0] = isCurrent ? current.getStatusCode() : previous.getStatusCode();
-                case 4 -> result[0] = isCurrent ? current.connHeaders(true) : previous.connHeaders(true);
-                case 5 -> result[0] = isCurrent ? current.headers(false) : previous.headers(true);
-                case 6 -> {
+                    break;
+                case 3:
+                    result[0] = isCurrent ? current.getStatusCode() : previous.getStatusCode();
+                    break;
+                case 4:
+                    result[0] = isCurrent ? current.connHeaders(true) : previous.connHeaders(true);
+                    break;
+                case 5:
+                    result[0] = isCurrent ? current.headers(false) : previous.headers(true);
+                    break;
+                case 6:
                     try {
                         result[0] = isCurrent ? current.getUrl() : previous.getUrl();
                     } catch (MalformedURLException ex) {
                         return new Object[0];
                     }
-                }
+                    break;
             }
         }
         return result;

@@ -15,6 +15,7 @@ public interface Adapter<T> {
      * </p>
      */
     @NotNull JsonElement toJson(T source);
+
     /**
      * <p>
      * This method will return a serialization {@link JsonElement} from {@link T}

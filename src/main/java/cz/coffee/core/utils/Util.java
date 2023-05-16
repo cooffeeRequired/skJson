@@ -19,11 +19,10 @@ import static cz.coffee.core.utils.NumberUtils.parsedNumber;
 
 public class Util {
 
-    private static long START_TIME;
     public static final String DEFAULT_DELIMITER = "::";
-
     public static final Gson GSON_ADAPTER = new GsonBuilder().serializeNulls().enableComplexMapKeySerialization().disableHtmlEscaping()
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Adapters.TypeAdapter.BukkitAdapter()).create();
+    private static long START_TIME;
 
     public static String color(Object message) {
         return ChatColor.translateAlternateColorCodes('&', message.toString());
@@ -70,7 +69,7 @@ public class Util {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
-    public static LinkedList<String> extractKeys(String string, String delimiter, boolean ...rawAdd) {
+    public static LinkedList<String> extractKeys(String string, String delimiter, boolean... rawAdd) {
         boolean add = rawAdd != null && rawAdd.length > 0 && rawAdd[0];
         delimiter = delimiter == null ? (DEFAULT_DELIMITER + "(?![{}])") : delimiter;
         if (string == null) return null;
@@ -90,13 +89,13 @@ public class Util {
                         String num1 = number.group(1);
                         if (!(num1.isEmpty())) {
                             if (Objects.equals(number.group(1), "0")) return null;
-                            nestedIndex = String.valueOf(parsedNumber(number.group(1)) -1);
+                            nestedIndex = String.valueOf(parsedNumber(number.group(1)) - 1);
                             if (parsedNumber(nestedIndex) < 0) nestedIndex = "0";
                         }
                     }
                 }
                 extractedKeys.add(add ? nestedKey + "->List" : nestedKey);
-                if (nestedIndex != null)  extractedKeys.add(nestedIndex);
+                if (nestedIndex != null) extractedKeys.add(nestedIndex);
             } else {
                 extractedKeys.add(item);
             }

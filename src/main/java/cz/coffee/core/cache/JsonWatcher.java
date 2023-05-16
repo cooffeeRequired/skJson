@@ -15,11 +15,20 @@ import static cz.coffee.SkJson.*;
 
 public class JsonWatcher {
     private static Logger LOGGER;
+    private static UUID uuid;
+    private static ScheduledExecutorService service;
     private final File file;
     private final String identifier;
-    private static UUID uuid;
     private final ScheduledFuture<?> future;
-    private static ScheduledExecutorService service;
+    private final Map<File, JsonElement> cachedData = new ConcurrentHashMap<>();
+    private long lastCheckedTimeStamp;
+
+    public JsonWatcher(File fileInput, String identifier) {
+        long interval = 1L;
+        this.file = fileInput;
+        this.identifier = identifier;
+        future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.SECONDS);
+    }
 
     public static void init() {
         LOGGER = LoggerFactory.getLogger("AsyncJsonWatcher");
@@ -42,7 +51,7 @@ public class JsonWatcher {
         JsonWatcher watcher = new JsonWatcher(file, identifier);
         WATCHERS.put(file, watcher);
         if (watcher.isActive()) {
-            SkJson.console("JsonWatcher registered with id&a: "+uuid+"&f for file &7(&e"+file+"&7)");
+            SkJson.console("JsonWatcher registered with id&a: " + uuid + "&f for file &7(&e" + file + "&7)");
         }
     }
 
@@ -57,7 +66,7 @@ public class JsonWatcher {
         if (assignedWatcher != null && assignedWatcher.isActive()) {
             assignedWatcher.setCancelled(true);
             if (assignedWatcher.isCancelled() && assignedWatcher.isDone()) {
-                SkJson.console("File &7(&e"+file+"&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher ("+uuid+")");
+                SkJson.console("File &7(&e" + file + "&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher (" + uuid + ")");
             }
         }
     }
@@ -66,15 +75,6 @@ public class JsonWatcher {
         service.shutdown();
     }
 
-    public JsonWatcher (File fileInput, String identifier) {
-        long interval = 1L;
-        this.file = fileInput;
-        this.identifier = identifier;
-        future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.SECONDS);
-    }
-
-    private final Map<File,JsonElement> cachedData = new ConcurrentHashMap<>();
-    private long lastCheckedTimeStamp;
     private void watch() {
         try {
             long fileModifiedTime = file.lastModified();
@@ -97,11 +97,12 @@ public class JsonWatcher {
         }
     }
 
-    public void setCancelled(boolean cancelled) {
-        future.cancel(cancelled);
-    }
     public boolean isCancelled() {
         return future.isCancelled();
+    }
+
+    public void setCancelled(boolean cancelled) {
+        future.cancel(cancelled);
     }
 
     public boolean isActive() {

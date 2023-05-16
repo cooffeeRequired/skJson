@@ -7,5 +7,5 @@ depend:
 prefix: skJson
 load: POSTWORLD
 authors: [ coffeeRequired ]
-description: skJson - simple work with Json in Script
-website: https://github.com/cooffeeRequired/skJson
+description: skJson - simple work with Json in Skript
+website: https://github.com/SkJsonTeam/skJson

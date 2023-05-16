@@ -32,45 +32,43 @@ import static cz.coffee.core.utils.Util.jsonToObject;
         "<pre>loop-value, loop-element, loop-key</pre>",
         "",
         "Means :  -> entries entries mean the entry for the looped element, for example we have element {\"B\": false}",
-                "    its entry will be loop-key = B, loop-element = false, loop-value = {B=false}",
-                "!Warnings: loop-key or loop-element you can use only for entries!",
+        "    its entry will be loop-key = B, loop-element = false, loop-value = {B=false}",
+        "!Warnings: loop-key or loop-element you can use only for entries!",
 
         "LOOP-PATTERNS ->",
         "\t<pre>loop-value, loop-element, loop-key</pre>"
 })
-@Examples("""
-command GetElements:
-  trigger:
-    set {_json} to json from string "{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}"
 
-    # Get single element of json
-    set {_single} to element "A::1" of {_json} # That will return true cause, the first element of the array "A" is true
+@Examples({
+        "command GetElements:\n" +
+                "  trigger:\n" +
+                "    set {_json} to json from string \"{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}\"\n" +
+                "\n" +
+                "    # Get single element of json\n" +
+                "    set {_single} to element \"A::1\" of {_json} # That will return true cause, the first element of the array \"A\" is true\n" +
+                "\n" +
+                "\n" +
+                "    # Get multiple elements of json\n" +
+                "    set {_array::*} to elements \"A\" of {_json} # That will return whole array so that mean ({\"B\": {}}, false, true, 10, 20, 22.22, A)\n" +
+                "\n" +
+                "\n" +
+                "    # Loop through elements\n" +
+                "    loop elements \"A\" of {_json}:\n" +
+                "        send loop-value\n" +
+                "\n" +
+                "    # loop through entries of json\n" +
+                "    execute GET request \"https://api.json.com/producs\"\n" +
+                "    loop entries of request's body:\n" +
+                "        if loop-key = \"data\":\n" +
+                "            set {_data} to element \"data\" of loop-element"
+})
 
-
-    # Get multiple elements of json
-    set {_array::*} to elements "A" of {_json} # That will return whole array so that mean ({"B": {}}, false, true, 10, 20, 22.22, A)
-
-
-    # Loop through elements
-    loop elements "A" of {_json}:
-        send loop-value
-
-    # loop through entries of json
-    execute GET request "https://api.json.com/producs"
-    loop entries of request's body:
-        if loop-key = "data":
-            set {_data} to element "data" of loop-element
-""")
 @Since("2.8.0 performance & clean")
 
 
 public class ExprJsonElements extends SimpleExpression<Object> {
 
     private static final List<String> loopEntriesStrings = new ArrayList<>();
-
-    private boolean isValues, isEntries;
-    private Expression<JsonElement> jsonElementExpression;
-    private Expression<String> stringExpression;
     private static boolean loopEntries = false;
 
     static {
@@ -83,6 +81,22 @@ public class ExprJsonElements extends SimpleExpression<Object> {
 
     }
 
+    private boolean isValues, isEntries;
+    private Expression<JsonElement> jsonElementExpression;
+    private Expression<String> stringExpression;
+
+    public static boolean isChangedLoopOf(@NotNull String s) {
+        boolean result = false;
+        if (loopEntries) {
+            for (String loopEntriesString : loopEntriesStrings) {
+                if (loopEntriesString.equals(s)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
@@ -120,31 +134,24 @@ public class ExprJsonElements extends SimpleExpression<Object> {
         return !isValues;
     }
 
-    public static boolean isChangedLoopOf(@NotNull String s) {
-        boolean result = false;
-        if (loopEntries) {
-            for (String loopEntriesString : loopEntriesStrings) {
-                if (loopEntriesString.equals(s)) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
     @Override
     public @Nullable Iterator<?> iterator(@NotNull Event e) {
         if (!isEntries) return super.iterator(e);
         Object object = null;
+        JsonElement finalObject;
 
         Iterator<?> oldIterator = super.iterator(e);
         if (oldIterator == null) return null;
         if (oldIterator.hasNext()) object = oldIterator.next();
-        if (!(object instanceof JsonElement finalObject)) return null;
+        if (!(object instanceof JsonElement))
+            return null;
+        else {
+            finalObject = (JsonElement) object;
+        }
 
         return new Iterator<>() {
             int index = 0;
+
             @Override
             public boolean hasNext() {
                 if (finalObject.isJsonArray()) {
@@ -191,7 +198,7 @@ public class ExprJsonElements extends SimpleExpression<Object> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return (!isEntries ? (isValues ? "values " : "value ") : "entries ")  + (stringExpression != null ? stringExpression.toString(e, debug)+" " : " ") + "of " + jsonElementExpression.toString(e, debug);
+        return (!isEntries ? (isValues ? "values " : "value ") : "entries ") + (stringExpression != null ? stringExpression.toString(e, debug) + " " : " ") + "of " + jsonElementExpression.toString(e, debug);
     }
 
     @Override

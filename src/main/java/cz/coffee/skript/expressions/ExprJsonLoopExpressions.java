@@ -41,7 +41,7 @@ public class ExprJsonLoopExpressions extends SimpleExpression<Object> {
     private String name;
 
     private SecLoop loop;
-    private boolean isCanceled =  false;
+    private boolean isCanceled = false;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -57,7 +57,7 @@ public class ExprJsonLoopExpressions extends SimpleExpression<Object> {
         if (o == null) return new Object[0];
 
         for (Map.Entry<String, Object> entry : o.entrySet()) {
-            if (isKey) return new String[] {entry.getKey()};
+            if (isKey) return new String[]{entry.getKey()};
             Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
             if (entry.getValue() instanceof JsonElement) {
                 Object assigned = AdapterUtils.assignFrom((JsonElement) entry.getValue());
@@ -88,9 +88,10 @@ public class ExprJsonLoopExpressions extends SimpleExpression<Object> {
         if (e == null) return name;
         return Classes.getDebugMessage(loop.getCurrent(e));
     }
+
     @Override
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        MatchResult mResult = parseResult.regexes.size() >0 ? parseResult.regexes.get(0) : null;
+        MatchResult mResult = parseResult.regexes.size() > 0 ? parseResult.regexes.get(0) : null;
         Object group = -1;
         if (mResult != null) {
             group = mResult.group(0);

@@ -41,15 +41,17 @@ import static cz.coffee.core.utils.JsonUtils.convert;
 @SuppressWarnings({"unused", "deprecation"})
 public class JsonElementType {
     public static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
+
     static {
         try {
-            if (Skript.getVersion().isLargerThan(new Version(2,6,4))) {
+            if (Skript.getVersion().isLargerThan(new Version(2, 6, 4))) {
                 allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
             } else {
                 allowedTypes.forEach(clazz -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, AdapterUtils::assignFrom));
             }
 
-        } catch (ArrayStoreException ignored) {}
+        } catch (ArrayStoreException ignored) {
+        }
 
         Classes.registerClass(
                 new ClassInfo<>(JsonElement.class, "json")
@@ -109,17 +111,20 @@ public class JsonElementType {
                             @SuppressWarnings("NullableProblems")
                             @Override
                             public @Nullable Class<?>[] acceptChange(@NotNull ChangeMode mode) {
-                                return switch (mode) {
-                                    case ADD, REMOVE -> CollectionUtils.array(Object[].class, JsonElement.class);
-                                    default -> null;
-                                };
+                                switch (mode) {
+                                    case ADD:
+                                    case REMOVE:
+                                        return CollectionUtils.array(Object[].class, JsonElement.class);
+                                    default:
+                                        return null;
+                                }
                             }
 
                             @Override
                             public void change(JsonElement @NotNull [] what, @Nullable Object @NotNull [] delta, @NotNull ChangeMode mode) {
                                 for (JsonElement json : what) {
                                     switch (mode) {
-                                        case ADD -> {
+                                        case ADD:
                                             for (Object o : delta) {
                                                 if (o != null) {
                                                     if (json.isJsonObject()) {
@@ -130,8 +135,8 @@ public class JsonElementType {
                                                         ((JsonArray) json).add(parseItem(o, o.getClass()));
                                                 }
                                             }
-                                        }
-                                        case REMOVE -> {
+                                            break;
+                                        case REMOVE:
                                             for (Object o : delta) {
                                                 if (o != null) {
                                                     try {
@@ -171,7 +176,7 @@ public class JsonElementType {
                                                     }
                                                 }
                                             }
-                                        }
+                                            break;
                                     }
                                 }
                             }

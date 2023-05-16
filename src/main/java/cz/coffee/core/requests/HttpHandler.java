@@ -17,128 +17,15 @@ import static cz.coffee.SkJson.console;
 
 @SuppressWarnings("unused")
 public abstract class HttpHandler {
-    public static HttpHandler of(final String url, final String method) {
-        return new HttpHandler(url, method) {};
-    }
-
-    @SuppressWarnings("unused")
-    public static class RequestContent {
-        private final List<String> keys;
-        private final List<String> values;
-
-        RequestContent(List<String> keys, List<String> values) {
-            this.keys = keys;
-            this.values = values;
-        }
-
-        RequestContent(JsonElement json) {
-            if (json.isJsonObject()) {
-                this.keys = json.getAsJsonObject().keySet().stream().toList();
-                this.values = json.getAsJsonObject().asMap().values().stream().map(JsonElement::toString).map(EffExecuteRequest::sanitize).collect(Collectors.toList());
-            } else {
-                this.keys = new ArrayList<>();
-                this.values = new ArrayList<>();
-            }
-        }
-
-        public List<String> getKeys() {
-            return keys;
-        }
-
-        public List<String> getValues() {
-            return values;
-        }
-
-        public static RequestContent process(Object o, boolean fullJson) {
-            JsonElement json = JsonNull.INSTANCE;
-            List<String> values = new ArrayList<>(), keys = new ArrayList<>();
-
-            if (fullJson) {
-                JsonElement[] e = (JsonElement[]) o;
-                for (JsonElement jsonElement : e) {
-                    return new RequestContent(jsonElement);
-                }
-                return null;
-            } else {
-                if (o.toString().startsWith("{") && o.toString().endsWith("}")) {
-                    // JSON
-                    if (o instanceof String str) {
-                        try {
-                            json = JsonParser.parseString(str);
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    } else if (o instanceof JsonElement element) {
-                        json = element;
-                    }
-                    if (json.isJsonObject()) {
-                        json.getAsJsonObject().entrySet().forEach(entry -> {
-                            values.add(EffExecuteRequest.sanitize(entry.getValue()));
-                            keys.add(entry.getKey());
-                        });
-                    }
-                } else {
-                    // PAIRS
-                    List<Object> objects = Arrays.asList((Object[]) o);
-                    objects.forEach(object -> {
-                        String str = object.toString();
-                        String[] pairs = str.split("(:|: )");
-                        values.add(pairs[1]);
-                        keys.add(pairs[0]);
-                    });
-                }
-
-                return new RequestContent(keys, values);
-            }
-        }
-
-        @Override
-        public String toString() {
-            if (keys.size() != values.size()) throw new IllegalArgumentException("Lists must have same length");
-            StringBuilder resultBuilder = new StringBuilder();
-            for (int i = 0; i < keys.size(); i++) {
-                resultBuilder.append(keys.get(i)).append("=").append(values.get(i));
-                if (i < keys.size() - 1) resultBuilder.append(", ");
-            }
-            return "RequestContent{" + resultBuilder + "}";
-        }
-
-
-        @SuppressWarnings("rawtypes")
-        public Set entrySet() {
-            if (values.size() == keys.size()) {
-                Map<String, String> entry = new WeakHashMap<>();
-                for (int i = 0; i < values.size(); i++) {
-                    entry.put(keys.get(i), values.get(i));
-                }
-                return entry.entrySet();
-            }
-            return null;
-        }
-
-        public Map<String, String> flatMap() {
-            if (values.size() == keys.size()) {
-                Map<String, String> entry = new WeakHashMap<>();
-                for (int i = 0; i < values.size(); i++) {
-                    entry.put(keys.get(i), values.get(i));
-                }
-                return entry;
-            }
-            return null;
-        }
-    }
-
-    private String _method;
+    protected final String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
     private final Timer _timer;
+    private final WeakHashMap<String, String> _headers = new WeakHashMap<>();
+    private String _method;
     private java.net.http.HttpClient _client;
     private HttpRequest.Builder _requestBuilder;
     private JsonObject _content = new JsonObject();
-    private final WeakHashMap<String, String> _headers = new WeakHashMap<>();
-    protected final String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
     private Response _response;
     private HttpRequest _request;
-
-
     public HttpHandler(String url, String method) {
         _response = null;
         _method = method;
@@ -152,6 +39,11 @@ public abstract class HttpHandler {
         }
 
         _requestBuilder = HttpRequest.newBuilder().uri(_uri);
+    }
+
+    public static HttpHandler of(final String url, final String method) {
+        return new HttpHandler(url, method) {
+        };
     }
 
     public boolean isSuccessful() {
@@ -172,7 +64,6 @@ public abstract class HttpHandler {
         _requestBuilder.header("Content-type", "application/json");
     }
 
-
     @SuppressWarnings("UnusedReturnValue")
     public HttpHandler setBodyContent(RequestContent body) {
         final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
@@ -184,7 +75,6 @@ public abstract class HttpHandler {
     public Timer getTimer() {
         return _timer;
     }
-
 
     @SuppressWarnings("UnusedReturnValue")
     public HttpHandler setMainHeaders(RequestContent headers) {
@@ -198,26 +88,36 @@ public abstract class HttpHandler {
             console("Invalid request method &c" + _METHOD + "&r allowed methods are &f" + Arrays.toString(allowedMethods));
             return null;
         }
+
         if (_requestBuilder != null) {
-            _request = switch (_method.toUpperCase()) {
-                case "GET" -> _requestBuilder.GET().build();
-                case "POST" -> {
+            switch (_method.toUpperCase()) {
+                case "GET":
+                    _request = _requestBuilder.GET().build();
+                    break;
+                case "POST":
                     jsonEncoded();
-                    yield _requestBuilder.POST(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                }
-                case "PUT" -> _requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                case "DELETE" -> _requestBuilder.DELETE().build();
-                case "HEAD" -> _requestBuilder.HEAD().build();
-                case "PATCH" -> {
+                    _request = _requestBuilder.POST(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                    break;
+                case "PUT":
+                    _request = _requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                    break;
+                case "DELETE":
+                    _request = _requestBuilder.DELETE().build();
+                    break;
+                case "HEAD":
+                    _request = _requestBuilder.method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+                    break;
+                case "PATCH":
                     jsonEncoded();
-                    yield _requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                }
-                default -> _requestBuilder.build();
-            };
+                    _request = _requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                    break;
+                default:
+                    _request = _requestBuilder.build();
+                    break;
+            }
         }
         return _request;
     }
-
 
     public void asyncSend() {
         setHeaders();
@@ -319,6 +219,113 @@ public abstract class HttpHandler {
         URL getUrl() throws MalformedURLException;
 
         String toString();
+    }
+
+    @SuppressWarnings("unused")
+    public static class RequestContent {
+        private final List<String> keys;
+        private final List<String> values;
+
+        RequestContent(List<String> keys, List<String> values) {
+            this.keys = keys;
+            this.values = values;
+        }
+
+        RequestContent(JsonElement json) {
+            if (json.isJsonObject()) {
+                this.keys = new ArrayList<>(json.getAsJsonObject().keySet());
+                this.values = json.getAsJsonObject().asMap().values().stream().map(JsonElement::toString).map(EffExecuteRequest::sanitize).collect(Collectors.toList());
+            } else {
+                this.keys = new ArrayList<>();
+                this.values = new ArrayList<>();
+            }
+        }
+
+        public static RequestContent process(Object o, boolean fullJson) {
+            JsonElement json = JsonNull.INSTANCE;
+            List<String> values = new ArrayList<>(), keys = new ArrayList<>();
+
+            if (fullJson) {
+                JsonElement[] e = (JsonElement[]) o;
+                for (JsonElement jsonElement : e) {
+                    return new RequestContent(jsonElement);
+                }
+                return null;
+            } else {
+                if (o.toString().startsWith("{") && o.toString().endsWith("}")) {
+                    // JSON
+                    if (o instanceof String str) {
+                        try {
+                            json = JsonParser.parseString(str);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    } else if (o instanceof JsonElement) {
+                        json = (JsonElement) o;
+                    }
+                    if (json.isJsonObject()) {
+                        json.getAsJsonObject().entrySet().forEach(entry -> {
+                            values.add(EffExecuteRequest.sanitize(entry.getValue()));
+                            keys.add(entry.getKey());
+                        });
+                    }
+                } else {
+                    // PAIRS
+                    List<Object> objects = Arrays.asList((Object[]) o);
+                    objects.forEach(object -> {
+                        String str = object.toString();
+                        String[] pairs = str.split("(:|: )");
+                        values.add(pairs[1]);
+                        keys.add(pairs[0]);
+                    });
+                }
+
+                return new RequestContent(keys, values);
+            }
+        }
+
+        public List<String> getKeys() {
+            return keys;
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        @Override
+        public String toString() {
+            if (keys.size() != values.size()) throw new IllegalArgumentException("Lists must have same length");
+            StringBuilder resultBuilder = new StringBuilder();
+            for (int i = 0; i < keys.size(); i++) {
+                resultBuilder.append(keys.get(i)).append("=").append(values.get(i));
+                if (i < keys.size() - 1) resultBuilder.append(", ");
+            }
+            return "RequestContent{" + resultBuilder + "}";
+        }
+
+
+        @SuppressWarnings("rawtypes")
+        public Set entrySet() {
+            if (values.size() == keys.size()) {
+                Map<String, String> entry = new WeakHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    entry.put(keys.get(i), values.get(i));
+                }
+                return entry.entrySet();
+            }
+            return null;
+        }
+
+        public Map<String, String> flatMap() {
+            if (values.size() == keys.size()) {
+                Map<String, String> entry = new WeakHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    entry.put(keys.get(i), values.get(i));
+                }
+                return entry;
+            }
+            return null;
+        }
     }
 }
 

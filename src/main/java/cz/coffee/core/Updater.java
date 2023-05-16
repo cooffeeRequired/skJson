@@ -14,20 +14,6 @@ public class Updater {
 
     private static boolean success = false;
 
-    private static JsonElement getGithubConfig() {
-        JsonElement element = null;
-        HttpHandler handler = HttpHandler.of(Updater.apiLink, "GET");
-        handler.asyncSend();
-        handler.send();
-        try {
-            success = handler.isSuccessful();
-            handler.asyncSend();
-        } finally {
-            if (handler.getAll().rawBody() != null) element = parseItem(handler.getAll().rawBody(), handler.getAll().rawBody().getClass());
-        }
-        return element;
-    }
-
     static {
         JsonElement apiJson;
         try {
@@ -50,7 +36,7 @@ public class Updater {
                     SkJson.console("&cskJson is not up to date!");
                     SkJson.console("&8 > &7Current version: &cv" + currVersionString);
                     SkJson.console("&8 > &7Available version: &av" + lVersionString);
-                    SkJson.console("&8 > &7Download available at link: &bhttps://github.com/cooffeeRequired/skJson/releases/latest");
+                    SkJson.console("&8 > &7Download available at link: &bhttps://github.com/SkJsonTeam/skJson/releases/latest");
                 } else {
                     SkJson.console("You're running on non-public version, so checking is not necessary &bv" + currVersionString + "&r!");
                 }
@@ -58,5 +44,20 @@ public class Updater {
         } else {
             SkJson.console("You're running on beta version, so checking is not necessary &bv" + currentVersion + "&r!");
         }
+    }
+
+    private static JsonElement getGithubConfig() {
+        JsonElement element = null;
+        HttpHandler handler = HttpHandler.of(Updater.apiLink, "GET");
+        handler.asyncSend();
+        handler.send();
+        try {
+            success = handler.isSuccessful();
+            handler.asyncSend();
+        } finally {
+            if (handler.getAll().rawBody() != null)
+                element = parseItem(handler.getAll().rawBody(), handler.getAll().rawBody().getClass());
+        }
+        return element;
     }
 }

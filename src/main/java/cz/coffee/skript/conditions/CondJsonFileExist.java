@@ -19,13 +19,11 @@ import static cz.coffee.core.utils.FileUtils.isJsonFile;
 @SuppressWarnings("ALL")
 @Name("Json file exists")
 @Description({"You can check if the json file already exists or not."})
-@Examples("""
-        command FileExists:
-          trigger:
-            if json file "plugins/test/main.json" already exists:
-                set {_json} to json from string "{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}"
-        """
-)
+@Examples({
+        "command FileExists:",
+        "\ttrigger",
+        "\t\tset {_json} to json from string \"{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}\" if json file \"plugins/test/main.json\" already exists"
+})
 @Since("2.8.0 - performance & clean")
 
 public class CondJsonFileExist extends Condition {

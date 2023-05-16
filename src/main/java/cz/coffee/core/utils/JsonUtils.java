@@ -19,43 +19,46 @@ import static cz.coffee.core.utils.Util.arrayIsSafe;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
 public class JsonUtils {
+    private static final String KEY_SUFFIX = "->List";
+
     public static JsonElement convert(Object object) {
-         try {
-             if (object == null) return null;
-             Class<?> clazz = object.getClass();
-             if (clazz.equals(String.class)) {
-                 try {
-                     return JsonParser.parseString((String) object);
-                 } catch (Exception e) {
-                     return new Gson().toJsonTree(object, object.getClass());
-                 }
-             }
-             if (clazz.equals(Integer.class) || clazz.equals(LazilyParsedNumber.class)) {
-                 if (clazz.equals(LazilyParsedNumber.class)) {
-                     return new JsonPrimitive(((LazilyParsedNumber) object).intValue());
-                 } else {
-                     return new JsonPrimitive((Integer) object);
-                 }
-             }
-             if (clazz.equals(Boolean.class))
-                 return new JsonPrimitive((Boolean) object);
-             if (clazz.equals(Double.class) || clazz.equals(Float.class))
-                 return new JsonPrimitive(((Number) object).doubleValue());
-             if (clazz.equals(Long.class))
-                 return new JsonPrimitive((Long) object);
-             if (clazz.equals(Byte.class))
-                 return new JsonPrimitive((Byte) object);
-             if (clazz.equals(Short.class))
-                 return new JsonPrimitive((Short) object);
-             if (clazz.equals(Character.class))
-                 return new JsonPrimitive((Character) object);
-             if (object instanceof JsonElement)
-                 return (JsonElement) object;
-             return null;
-         } catch (JsonSyntaxException ignored) {
-             return null;
-         }
+        try {
+            if (object == null) return null;
+            Class<?> clazz = object.getClass();
+            if (clazz.equals(String.class)) {
+                try {
+                    return JsonParser.parseString((String) object);
+                } catch (Exception e) {
+                    return new Gson().toJsonTree(object, object.getClass());
+                }
+            }
+            if (clazz.equals(Integer.class) || clazz.equals(LazilyParsedNumber.class)) {
+                if (clazz.equals(LazilyParsedNumber.class)) {
+                    return new JsonPrimitive(((LazilyParsedNumber) object).intValue());
+                } else {
+                    return new JsonPrimitive((Integer) object);
+                }
+            }
+            if (clazz.equals(Boolean.class))
+                return new JsonPrimitive((Boolean) object);
+            if (clazz.equals(Double.class) || clazz.equals(Float.class))
+                return new JsonPrimitive(((Number) object).doubleValue());
+            if (clazz.equals(Long.class))
+                return new JsonPrimitive((Long) object);
+            if (clazz.equals(Byte.class))
+                return new JsonPrimitive((Byte) object);
+            if (clazz.equals(Short.class))
+                return new JsonPrimitive((Short) object);
+            if (clazz.equals(Character.class))
+                return new JsonPrimitive((Character) object);
+            if (object instanceof JsonElement)
+                return (JsonElement) object;
+            return null;
+        } catch (JsonSyntaxException ignored) {
+            return null;
+        }
     }
+
     public static int countKeys(@NotNull String key, @NotNull JsonElement json) {
         int count = 0;
         JsonElement value;
@@ -74,6 +77,7 @@ public class JsonUtils {
         }
         return count;
     }
+
     public static int countValues(@NotNull JsonElement value, @NotNull JsonElement json) {
         int count = 0;
         JsonElement jsonElement;
@@ -92,7 +96,7 @@ public class JsonUtils {
         }
         return count;
     }
-    private static final String KEY_SUFFIX = "->List";
+
     public static void changeValue(JsonElement obj, LinkedList<String> keys, Object value) {
         Deque<JsonElement> elements = new ConcurrentLinkedDeque<>();
         JsonElement current;
@@ -131,8 +135,8 @@ public class JsonUtils {
             }
 
             // final...
-            if (current instanceof JsonObject object) {
-                //object.remove(lastKey);
+            if (current instanceof JsonObject) {
+                JsonObject object = (JsonObject) current;
                 String last = lastKey == null ? String.valueOf(object.size()) : lastKey;
                 if (object.has(lastKey)) {
                     object.add(last, parsedValue);
@@ -155,6 +159,7 @@ public class JsonUtils {
             }
         }
     }
+
     public static void changeKey(JsonElement obj, LinkedList<String> keys, String newKey) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(obj);
@@ -192,6 +197,7 @@ public class JsonUtils {
             }
         }
     }
+
     private static boolean isNewArray(final String value) {
         return value.endsWith("->List");
     }
@@ -254,6 +260,7 @@ public class JsonUtils {
             }
         }
     }
+
     public static void removeByValue(JsonElement obj, LinkedList<String> keys, JsonElement value) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         JsonElement current;
@@ -288,6 +295,7 @@ public class JsonUtils {
             jsonArray.remove(value);
         }
     }
+
     public static void removeByIndex(JsonElement obj, List<String> keys) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(obj);
@@ -318,6 +326,7 @@ public class JsonUtils {
             array.remove(index);
         }
     }
+
     public static void removeByKey(JsonElement obj, LinkedList<String> keys) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(obj);
@@ -352,6 +361,7 @@ public class JsonUtils {
             }
         }
     }
+
     public static JsonElement getByKey(JsonElement obj, LinkedList<String> keys) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         if (obj != null) currentElements.offerLast(obj);
@@ -375,30 +385,29 @@ public class JsonUtils {
 
         return currentElements.pollLast();
     }
+
     public static LinkedList<Object> getNestedElements(JsonElement current) {
-         LinkedList<Object> results = new LinkedList<>();
-         if (current == null || current.isJsonPrimitive() || current.isJsonNull()) return null;
-         if (current.isJsonObject())
-         {
-             ((JsonObject) current).entrySet().forEach(entry -> {
-                 JsonElement value = entry.getValue();
-                 if (value != null) {
-                     Object assign = assignFrom(value);
-                     results.add(value.isJsonPrimitive() ? jsonToObject(value) : assign == null ? value : assign);
-                 }
-             });
-         }
-         else if (current.isJsonArray())
-         {
-             ((JsonArray) current).forEach(value -> {
-                 if (value != null) {
-                     Object assign = assignFrom(value);
-                     results.add(value.isJsonPrimitive() ? jsonToObject(value) : assign == null ? value : assign);
-                 }
-             });
-         }
-         return results;
+        LinkedList<Object> results = new LinkedList<>();
+        if (current == null || current.isJsonPrimitive() || current.isJsonNull()) return null;
+        if (current.isJsonObject()) {
+            ((JsonObject) current).entrySet().forEach(entry -> {
+                JsonElement value = entry.getValue();
+                if (value != null) {
+                    Object assign = assignFrom(value);
+                    results.add(value.isJsonPrimitive() ? jsonToObject(value) : assign == null ? value : assign);
+                }
+            });
+        } else if (current.isJsonArray()) {
+            ((JsonArray) current).forEach(value -> {
+                if (value != null) {
+                    Object assign = assignFrom(value);
+                    results.add(value.isJsonPrimitive() ? jsonToObject(value) : assign == null ? value : assign);
+                }
+            });
+        }
+        return results;
     }
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean checkKeys(@NotNull String key, @NotNull JsonElement json) {
         boolean found = false;
@@ -419,8 +428,9 @@ public class JsonUtils {
         }
         return found;
     }
+
     public static boolean checkValues(@NotNull JsonElement value, @NotNull JsonElement json) {
-         boolean found = false;
+        boolean found = false;
         JsonElement jsonElement;
         Deque<JsonElement> elements = new ConcurrentLinkedDeque<>();
         elements.add(json);

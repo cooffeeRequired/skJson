@@ -32,7 +32,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
         "\t\twrite {_json} to json file \"*.json\"",
 })
 @Since("2.8.0 performance & clean")
-public class EffWriteJsonFile  extends AsyncEffect {
+public class EffWriteJsonFile extends AsyncEffect {
 
     static {
         Skript.registerEffect(EffWriteJsonFile.class,
@@ -53,9 +53,9 @@ public class EffWriteJsonFile  extends AsyncEffect {
         } else if (o instanceof String) {
             file = new JsonFile((String) o);
         }
-        final Object data =  inputEx.getSingle(e);
+        final Object data = inputEx.getSingle(e);
         if (file != null) {
-            CompletableFuture<Boolean> result =  FileUtils.write(file, parseItem(data, inputEx, e));
+            CompletableFuture<Boolean> result = FileUtils.write(file, parseItem(data, inputEx, e));
         }
     }
 
