@@ -16,12 +16,15 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.SkJson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -50,7 +53,7 @@ public class JsonChanger extends SimpleExpression<Object> {
 
     static {
         Skript.registerExpression(JsonChanger.class, Object.class, ExpressionType.COMBINED,
-                "json list %string% in %json%",
+                "json list [%-string%] in %json%",
                 "(:keys|:values) of json object [%-string%] in %json%",
                 "json (:value|:key) %string% in %json%"
         );
@@ -68,15 +71,25 @@ public class JsonChanger extends SimpleExpression<Object> {
         final String pathString = pathExpression.getSingle(e);
         if (json == null) return new Object[0];
         if (pattern == 0) {
-            LinkedList<String> keys = extractKeys(pathString, null, true);
-            final JsonElement in = getByKey(json, keys);
+            JsonElement in = JsonNull.INSTANCE;
+            if (pathString == null) {
+                LinkedList<String> keys = extractKeys(pathString, null, true);
+                in = getByKey(json, keys);
+            } else {
+                in = json;
+            }
+
             if (in == null) return new JsonElement[0];
             if (in instanceof JsonArray array) {
                 for (JsonElement a : array) {
                     objects.add(jsonToObject(a));
                 }
+
+                System.out.println(objects);
+
                 return objects.toArray(new Object[0]);
             }
+
         } else if (pattern == 1) {
             LinkedList<String> keys = extractKeys(pathString, null, true);
             final JsonElement in = getByKey(json, keys);
@@ -140,10 +153,20 @@ public class JsonChanger extends SimpleExpression<Object> {
 
         switch (mode) {
             case ADD:
+                String pathString = null;
                 JsonElement input = jsonExpression.getSingle(e);
-                String pathString = pathExpression.getSingle(e);
+                if (pathExpression != null) {
+                    pathString = pathExpression.getSingle(e);
+                }
                 LinkedList<String> keys = extractKeys(pathString, null, true);
-                JsonElement json = getByKey(input, keys);
+                JsonElement json;
+
+                if (pathString == null) {
+                    json = input;
+                } else {
+                    json = getByKey(input, keys);
+                }
+
                 if (json != null) {
                     if (json.isJsonObject()) {
                         Skript.error("You can add object only to JsonArray.types", ErrorQuality.SEMANTIC_ERROR);
@@ -159,12 +182,15 @@ public class JsonChanger extends SimpleExpression<Object> {
             case SET:
                 input = jsonExpression.getSingle(e);
                 pathString = pathExpression.getSingle(e);
+
                 keys = extractKeys(pathString, null, true);
                 if (keys == null) {
                     Skript.error("Unsupported input for square bracket " + 0 + ", index start with 1,2,3...", ErrorQuality.SEMANTIC_ERROR);
                     return;
                 }
+
                 assert delta != null;
+
                 try {
                     for (Object o : delta) {
                         if (result.hasTag("value")) {
@@ -173,8 +199,7 @@ public class JsonChanger extends SimpleExpression<Object> {
                             changeKey(input, keys, o.toString());
                         }
                     }
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) {}
                 break;
             case REMOVE:
                 boolean type = false;

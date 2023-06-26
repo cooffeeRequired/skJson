@@ -3,6 +3,7 @@ package cz.coffee.core.utils;
 import ch.njol.skript.Skript;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
+import cz.coffee.SkJson;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Deque;
@@ -106,6 +107,7 @@ public class JsonUtils {
         JsonElement parsedValue = parseItem(value, null, null, value.getClass());
         if (parsedValue == null) return;
 
+
         while ((current = elements.pollFirst()) != null) {
             for (String key : keys) {
                 if (key.isEmpty()) continue;
@@ -138,9 +140,8 @@ public class JsonUtils {
             if (current instanceof JsonObject) {
                 JsonObject object = (JsonObject) current;
                 String last = lastKey == null ? String.valueOf(object.size()) : lastKey;
-                if (object.has(lastKey)) {
-                    object.add(last, parsedValue);
-                }
+                object.add(last, parsedValue);
+
 
             } else if (current instanceof JsonArray array) {
                 int index = -1;
