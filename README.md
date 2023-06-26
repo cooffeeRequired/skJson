@@ -20,7 +20,7 @@
 ### 📑 Requirements
 * Java 16+
 * Minecraft 1.16.5+
-* Skript 2.6.4+
+* Skript 2.6.4, 2.7.0 beta3+
 
 ### 🔑 Recommended
 * VSCode = [Download link](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)
@@ -80,3 +80,4 @@ Here are some example syntax:
 3. `remove player's location from json list "pathxys" in {_json}`
 4. `remove "hello" from keys of json object "pathxys" in {_json}`
 5. `remove diamond sword from values of json object "pathxys" in {_json}`
+
