@@ -526,6 +526,7 @@ public abstract class Adapters {
             } else {
                 meta = GSON_ADAPTER.fromJson(JsonMeta, ItemMeta.class);
                 setModel(CustomModelData, meta);
+                setModifiers(JsonMeta, meta);
                 return meta;
             }
             setModel(CustomModelData, meta);

@@ -35,8 +35,6 @@ public class FileUtils {
 
 
     static public JsonElement getFromYaml(@NotNull File file) {
-        System.out.println(file);
-
         if (!file.exists() || !file.isFile()) return null;
         if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml")) {
             try (var reader = new BufferedReader(new FileReader(file))) {

@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.SkJson;
 import cz.coffee.core.utils.FileUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -59,8 +60,10 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
         if (isFile) {
             String fileString = this.file.getSingle(e);
             if (fileString == null) return new JsonElement[0];
-            if (isYAML)
-                return new JsonElement[]{FileUtils.getFromYaml(new File(fileString))};
+            if (isYAML) {
+                final JsonElement element = FileUtils.getFromYaml(new File(fileString));
+                return new JsonElement[]{element};
+            }
             return new JsonElement[]{FileUtils.get(new File(fileString))};
         } else if (line == 2) {
             if (isArray) return new JsonElement[]{new JsonArray()};
