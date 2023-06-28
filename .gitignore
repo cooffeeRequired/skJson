@@ -2,4 +2,6 @@
 *.xml
 .idea/codeStyles/codeStyleConfig.xml
 /.idea
-
+/target
+/target*
+/*target*
