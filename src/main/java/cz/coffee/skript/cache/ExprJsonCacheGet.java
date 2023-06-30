@@ -20,7 +20,6 @@ import java.util.Map;
 
 import static cz.coffee.SkJson.JSON_STORAGE;
 
-@SuppressWarnings("unused")
 @Name("Get cached json")
 @Description({"You can get json from cached internal storage by with a key defined by you"})
 @Examples({"on script load:",

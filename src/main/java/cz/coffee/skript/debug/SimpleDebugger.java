@@ -49,7 +49,6 @@ public class SimpleDebugger extends Effect {
     protected void execute(@NotNull Event event) {
         if (line == 0 || line == 1) {
             if (isDebuggingEnabled) {
-                // TODO detect console or player
                 if (line == 1) {
                     Object[] objects = objectExpression.getArray(event);
                     for (Object object : objects)

@@ -566,7 +566,6 @@ public abstract class Adapters {
         @Override
         public Inventory fromJson(JsonObject json) {
             final String jsonTitle = json.get("title").getAsString();
-            final String jsonType = json.get("type").getAsString();
             final String jsonHolder = json.get("holder").getAsString();
             final int jsonSize = json.get("size").getAsInt();
             final ArrayList<ItemStack> items = new ArrayList<>();

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static cz.coffee.SkJson.console;
 
-@SuppressWarnings("unused")
 public abstract class HttpHandler {
     protected final String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "MOCK"};
     private final Timer _timer;
@@ -221,7 +220,6 @@ public abstract class HttpHandler {
         String toString();
     }
 
-    @SuppressWarnings("unused")
     public static class RequestContent {
         private final List<String> keys;
         private final List<String> values;

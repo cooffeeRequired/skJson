@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import static cz.coffee.core.utils.Util.color;
 import static cz.coffee.core.utils.Util.hex;
 
-@SuppressWarnings({"unused", "deprecation"})
+@SuppressWarnings({"deprecation"})
 public final class SkJson extends JavaPlugin {
     public static final boolean PROJECT_DEBUG = true;
     public static final CacheMap<String, JsonElement, File> JSON_STORAGE = new CacheMap<>();

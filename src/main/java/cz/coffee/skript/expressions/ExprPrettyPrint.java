@@ -17,7 +17,6 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unused")
 @Name("Pretty json")
 @Description({
         "Allows you to better parse json",

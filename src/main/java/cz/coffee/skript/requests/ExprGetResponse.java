@@ -22,7 +22,6 @@ import static cz.coffee.SkJson.RESPONSES;
 import static cz.coffee.core.utils.AdapterUtils.parseItem;
 
 
-@SuppressWarnings("unused")
 @Name("Get last response")
 @Description("Get last response of executed request")
 @Examples({

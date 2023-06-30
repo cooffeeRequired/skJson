@@ -26,7 +26,6 @@ import static cz.coffee.core.utils.JsonUtils.getNestedElements;
 import static cz.coffee.core.utils.Util.extractKeys;
 import static cz.coffee.core.utils.Util.jsonToObject;
 
-@SuppressWarnings("unused")
 @Name("Elements/Values of the json")
 @Description({"You can get the main json values, or you can also get the use values for a given object/array you can also get a single value",
         "<pre>loop-value, loop-element, loop-key</pre>",

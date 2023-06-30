@@ -1,6 +1,5 @@
 package cz.coffee.core.requests;
 
-@SuppressWarnings("unused")
 public class Timer {
     private long _elapsedTime;
 

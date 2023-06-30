@@ -38,7 +38,7 @@ import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.JsonUtils.convert;
 
 @Since("2.8.0")
-@SuppressWarnings({"unused", "deprecation"})
+@SuppressWarnings({"deprecation"})
 public class JsonElementType {
     public static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
 

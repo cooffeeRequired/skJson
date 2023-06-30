@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings("unused")
 public class FileUtils {
 
     static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create();
