@@ -54,6 +54,8 @@ public abstract class JsonMap {
     }
 
     static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
+        if (name == null || input == null || event == null) return;
+
         if (input.isBoolean())
             Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
         else if (input.isNumber())

@@ -152,8 +152,6 @@ public abstract class Adapters {
         }
     };
 
-
-
     @SuppressWarnings("deprecation")
     public final static Adapter<ItemStack> ItemStackAdapter = new Adapter<>() {
         private ItemStack setEnchants(final ItemStack i, final JsonObject META) {
