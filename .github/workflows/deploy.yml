@@ -21,13 +21,14 @@ jobs:
         with:
           node-version: 16
           cache: npm
+          cache-depedency-path: subdir/package-lock.json
       - run: npm ci
       - name: Build
         run: npm run docs:build
       - uses: actions/configure-pages@v2
       - uses: actions/upload-pages-artifact@v1
         with:
-          path: docs/.vitepress/dist
+          path: docs/vipress
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v1
