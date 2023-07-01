@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: 16
           cache: npm
-          cache-dependency-path: 'docs/vipress/package-lock.json'
-      - run: npm c
+          cache-dependency-path: '../docs/vipress/package-lock.json'
+      - run: npm ci
       - name: Build
         run: npm run docs:build
       - uses: actions/configure-pages@v2
