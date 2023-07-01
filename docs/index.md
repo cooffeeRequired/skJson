@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "SkJson Docs"
-  text: "docs"
+  name: "SkJson docs"
+  text: "A VitePress Site"
   tagline: My great project tagline
   actions:
     - theme: brand
