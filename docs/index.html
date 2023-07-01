@@ -1,28 +1,76 @@
-<!DOCTYPE html 5>
+<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" type="text/css" href="assets/css/root.css" /> 
-        <link rel="icon" type="image/x-icon" href="assets/fav.png">
-        <title>SkJson</title>
-    </head>
 
-    <body class="gradient__bg">
-        <nav class="navbar">
-            <div class="navbar-logo">
-              <img src="assets/fav.png" alt="Logo">
-            </div>
-            <div class="navbar-links">
-              <a href="#">Link 1</a>
-              <a href="#">Link 2</a>
-            </div>
-          </nav>          
-    </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="assets/css/root.css" />
+  <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.1/dist/showdown.min.js"></script>
+  <!-- <script type="module" src="assets/js/root.js"></script> -->
+  <title>SkJson | Official </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+  <link rel="icon" type="image/x-icon" href="assets/fav.png">
+  <script>hljs.highlightAll();</script>
+</head>
 
-    <footer>
+<body>
+  <div class="navbar">
+    <div class="navbar-links">
+      <a href="#started" onclick="changeSelectedPage('get-started')">Get started</a>
+      <a href="https://discord.gg/dsZq5Cs9fd">Discord</a>
+    </div>
+    <img class="navbar-logo" src="assets/fav.png" alt="">
+    <div class="navbar-links">
+      <a href="#about" onclick="changeSelectedPage('about-coder')">About coder</a>
+      <a href="#skjson" onclick="changeSelectedPage('about-skjson')">About skJson</a>
+    </div>
+  </div>
+  
 
-    </footer>
+
+  <div class="container">
+    <h1>Welcome to the SkJson Website</h1>
+    <p>This website is primarily for documentation</p>
+    <p id="page-name"></p>
+    <br>
+    <section>
+      <div id="page-content">
+        <p id="article-latest" class="article-latest">Latest</p>
+        <div class="articles-container">
+        </div>
+        <br>
+      </div>
+    </section>
+  </div>
+
+  <button class="sidebar-toggle" id="sidebar-toggle"></button>
+  <div class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebar-close">&times;</button>
+    <ul class="main">
+      <li class="active"><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Services</a></li>
+      <li><a href="#">Contact</a></li>
+      <li>
+        <a href="#">Dropdown</a>
+        <ul class="sub-list">
+          <li><a href="#">Sublink 1</a></li>
+          <li><a href="#">Sublink 2</a></li>
+          <li><a href="#">Sublink 3</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <footer>
+    <a href="#" class="skunity-logo"></a>
+    <a href="#" class="github-logo"></a>
+    <a href="#" class="skripthub-logo"></a>
+  </footer>
+  <p name="welcome" class="footer-text">© 2023 All rights reserved | Coded by CoffeeRequired</p>
+</body>
+
+<script src="assets/js/root.js"></script>
 
 </html>
