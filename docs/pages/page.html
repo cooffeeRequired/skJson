@@ -1,72 +1,61 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Moje moderní stránka</title>
-  <style>
-    /* Globální styly */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Hlavička stránky */
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin: 0;
-    }
-
-    /* Obsah stránky */
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 0 20px;
-    }
-
-    p {
-      line-height: 1.5;
-    }
-
-    /* Odkazy */
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    /* Patička stránky */
-    footer {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-
-  </style>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="../assets/css/root.css" />
+  <script type="module" src="../assets/js/root.js"></script>
+  <title>SkJson | Official </title>
+  <link rel="icon" type="image/x-icon" href="../assets/fav.png">
 </head>
-<body>
-  <header>
-    <h1>Vítejte na mé moderní stránce!</h1>
-  </header>
 
-  <div class="container">
-    <h2>O nás</h2>
-    <p>Toto je moderní stránka vytvořená pomocí HTML a CSS.</p>
-    <p>Pro více informací navštivte naše <a href="#">webové stránky</a>.</p>
+<body>
+  <div class="navbar">
+    <div class="navbar-links">
+      <a href="#">Link 1</a>
+      <a href="#">Link 2</a>
+    </div>
+    <img class="navbar-logo" src="../assets/fav.png" alt="">
+    <div class="navbar-links">
+      <a href="#">Link 3</a>
+      <a href="#">Link 4</a>
+    </div>
   </div>
 
+  <div class="container">
+    <h1>Welcome to the SkJson Website</h1>
+    <p>This website is primarily for documentation</p>
+    <p style="font-size: 12px;">News</p>
+    <br>
+    <div class="articles-container"></div>
+  </div>
+
+  <button class="sidebar-toggle" id="sidebar-toggle"></button>
+  <div class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebar-close">&times;</button>
+    <ul class="main">
+      <li class="active"><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Services</a></li>
+      <li><a href="#">Contact</a></li>
+      <li>
+        <a href="#">Dropdown</a>
+        <ul class="sub-list">
+          <li><a href="#">Sublink 1</a></li>
+          <li><a href="#">Sublink 2</a></li>
+          <li><a href="#">Sublink 3</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
   <footer>
-    &copy; 2023 Moje moderní stránka. Všechna práva vyhrazena.
+    <a href="#" class="skunity-logo"></a>
+    <a href="#" class="github-logo"></a>
+    <a href="#" class="skripthub-logo"></a>
   </footer>
+  <p class="footer-text">© 2023 All rights reserved | Coded by CoffeeRequired</p>
 </body>
+
 </html>

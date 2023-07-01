@@ -1,87 +1,183 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Moje futuristická stránka</title>
   <style>
-    /* Globální styly */
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      color: #fff;
-    }
-
-    /* Hlavička stránky */
-    header {
-      background-color: #000;
-      padding: 20px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 48px;
-      margin: 0;
-      letter-spacing: 2px;
-    }
-
-    /* Obsah stránky */
-    .container {
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 0 20px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 36px;
-      margin: 30px 0;
-      text-transform: uppercase;
-    }
-
-    p {
-      line-height: 1.8;
-      color: #ccc;
-    }
-
-    /* Odkazy */
-    a {
-      color: #fff;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    a:hover {
-      color: #007bff;
-    }
-
-    /* Patička stránky */
-    footer {
-      background-color: #000;
-      color: #888;
-      padding: 20px;
-      text-align: center;
-      font-size: 14px;
-    }
+    /* Styly zde */
 
   </style>
+  <script>
+    // JavaScript kód zde
+
+  </script>
 </head>
 <body>
-  <header>
-    <h1>Vítejte na mé futuristické stránce!</h1>
-  </header>
-
-  <div class="container">
-    <h2>O nás</h2>
-    <p>Toto je futuristická stránka s moderním designem vytvořená pomocí HTML a CSS. Využívá tmavý režim, minimalistický layout a přehlednou typografii.</p>
-    <p>Pro více informací navštivte naše <a href="#">webové stránky</a>.</p>
+  <div class="navbar">
+    <!-- Obsah navigačního panelu -->
   </div>
 
+  <div class="container">
+    <h1>Vítejte na dokumentační stránce</h1>
+    <p>Toto je hlavní obsah stránky.</p>
+    <br>
+    <div class="articles-container"></div>
+  </div>
+
+  <button class="sidebar-toggle" id="sidebar-toggle"></button>
+  <div class="sidebar" id="sidebar">
+    <!-- Obsah bočního panelu -->
+  </div>
   <footer>
-    &copy; 2023 Moje futuristická stránka. Všechna práva vyhrazena.
+    <!-- Obsah zápatí stránky -->
+  </footer>
+</body>
+</html>
+Toto je základní kostra dokumentační stránky. Nyní je třeba doplnit styly a funkcionalitu pro rozpoznávání a zvýraznění code blocků.
+
+
+
+
+
+User
+nový celý soubor
+ChatGPT
+Samozřejmě, zde je nový celý soubor s rozšířenou funkcionalitou pro rozpoznávání a zvýrazňování code blocků:
+
+html
+Copy code
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* Styly pro dokumentační stránku */
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+    }
+
+    .navbar h1 {
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    .container h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .container p {
+      margin-bottom: 20px;
+    }
+
+    .articles-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .code-block {
+      background-color: #f4f4f4;
+      padding: 10px;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #f4f4f4;
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    footer {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+  <script>
+    // JavaScript pro dokumentační stránku
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const codeBlocks = document.querySelectorAll('.code-block');
+      codeBlocks.forEach(codeBlock => {
+        const code = codeBlock.innerText;
+        const highlightedCode = hljs.highlightAuto(code).value;
+        codeBlock.innerHTML = highlightedCode;
+      });
+
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('sidebar');
+
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+    });
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+</head>
+<body>
+  <div class="navbar">
+    <h1>Dokumentační stránka</h1>
+  </div>
+
+  <div class="container">
+    <h1>Vítejte na dokumentační stránce</h1>
+    <p>Toto je hlavní obsah stránky.</p>
+    <br>
+    <div class="articles-container">
+      <h2>Code block:</h2>
+      <pre class="code-block"><code class="language-javascript">
+function greet(name) {
+  console.log('Hello, ' + name + '!');
+}
+
+greet('World');
+      </code></pre>
+    </div>
+  </div>
+
+  <button class="sidebar-toggle" id="sidebar-toggle"></button>
+  <div class="sidebar" id="sidebar">
+    <h2>Boční panel</h2>
+    <p>Obsah bočního panelu.</p>
+  </div>
+  <footer>
+    &copy; 2023 Dokumentační stránka
   </footer>
 </body>
 </html>
