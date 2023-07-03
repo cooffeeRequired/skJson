@@ -1,28 +1,10 @@
 const pages = {
     "get-started": {
-        title: 'Get Started',
-        color: '#0000',
-        html: `
-        <div class="container-page-docs">
-            <p> something nice </p>
-            #code
-        </div>
-        `,
-        codes: [
-            {
-                't': 'javascript',
-                'code': 
-                `
-                    function greeting(name) {
-                        console.log('Hello, ' + name + '!');
-                    }
-                
-                    greeting('John');
-                `
-            }
-        ]
+		linked: true,
+		home: '/'
     },
     "about-coder": {
+        linked: false,
         title: 'About coder',
         color: '#0000',
         html: `
@@ -34,6 +16,7 @@ const pages = {
         </div>`,
     },
     "about-skjson": {
+        linked: false,
         title: 'About SkJson',
         color: '#0000',
         html: `
@@ -44,6 +27,10 @@ const pages = {
             <p>SkJson is designed to be lightweight and efficient, making it a great choice for working with JSON data in scripts. It was created last year.</p>
             <p>It is primarily an add-on to the well-known Skript plugin.</p>
         </div>`,
+    },
+    "home": {
+        linked: true,
+        home: '/web'
     }
 }
 
@@ -55,19 +42,6 @@ function changeSelectedPage(pageCH=String) {
     const pageTitle = document.getElementById('page-name');
     if(pages[pageCH] != null) {
         pageTitle.innerHTML = pages[pageCH].title
-        if (pageCH === 'get-started') {
-            let cs = pages[pageCH].codes
-            if (cs.length != 0) {
-                // const pagedocs = document.querySelectorAll('.container-page-docs')
-                // const pre = document.createElement('pre')
-                // const code = document.createElement('code')
-
-                // pagedocs.appendChild(pre)
-                // pagedocs.appendChild(code)
-
-            }
-
-        }
         page.innerHTML = pages[pageCH].html
     }
 }
@@ -117,7 +91,6 @@ function addArticle(title, image, url, text) {
     })
 }
 
-// Zaregistrujeme událost kliknutí na všechny odkazy "Read More"
 document.addEventListener('DOMContentLoaded', () => {
     const readMoreLinks = document.querySelectorAll('.article-read-more');
     readMoreLinks.forEach((link) => {
@@ -183,18 +156,18 @@ function loadArticles() {
 function cleanMD(mdString, maxSize) {
     const converter = new showdown.Converter();
     let cleanText = converter.makeHtml(mdString);;
-    let cleanen = cleanText.replace(/<\/?[^>]+(>|$)/g, '');
-    if (cleanen.length >= 100) cleanen = cleanen.slice(0, maxSize);
-    cleanen = cleanen.replace(/<code>/g, '&lt;code&gt;');
-    cleanen = cleanen.replace(/<\/code>/g, '&lt;/code&gt;');
-    return cleanen;
+    let cleaned = cleanText.replace(/<\/?[^>]+(>|$)/g, '');
+    if (cleaned.length >= 100) cleaned = cleaned.slice(0, maxSize);
+    cleaned = cleaned.replace(/<code>/g, '&lt;code&gt;');
+    cleaned = cleaned.replace(/<\/code>/g, '&lt;/code&gt;');
+    return cleaned;
 }
 
 
 
 async function getData() {
     let static_logo =  "assets/fav.png"
-    let max_lengh  = 6;
+    let max_length  = 6;
     let array = []
     fetch('https://api.github.com/repos/SkJsonTeam/SkJson/releases', {
         method: 'GET',
@@ -202,7 +175,7 @@ async function getData() {
             'Accept': 'application/vnd.github+json'
         }
     }).then(rsp => rsp.json()).then(json => {
-        for (var i = 0; i < max_lengh; i++) {
+        for (var i = 0; i < max_length ; i++) {
             let j = json[i]
             addArticle
             (
