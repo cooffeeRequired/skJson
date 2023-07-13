@@ -113,7 +113,6 @@ public class JsonUtils {
                 if (key.isEmpty()) continue;
                 String sanitizedKey = key.replaceAll(KEY_SUFFIX, "");
                 int index = isNumber(sanitizedKey) ? parsedNumber(sanitizedKey) : -1;
-                //SkJson.console("&cKey: &f" + key + "  &bSanitized: &f" + sanitizedKey + "  &eMAIN: &f" + current);
 
                 if (current instanceof JsonObject object) {
                     if (!object.has(sanitizedKey)) {

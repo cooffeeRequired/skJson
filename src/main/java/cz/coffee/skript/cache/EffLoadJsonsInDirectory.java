@@ -1,4 +1,4 @@
-package cz.coffee.skript.effects;
+package cz.coffee.skript.cache;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
