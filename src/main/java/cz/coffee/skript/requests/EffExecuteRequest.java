@@ -17,6 +17,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.SkJson.RESPONSES;
 import static cz.coffee.core.requests.HttpHandler.RequestContent.process;
@@ -52,6 +53,7 @@ public class EffExecuteRequest extends AsyncEffect {
     private Expression<String> urlExpression, methodExpression;
     private String parsedMethod;
     private boolean withHeaders, withBody;
+    private boolean async;
 
     /**
      * Sanitize missing or forgot ", also sanitize the bukkit colors
@@ -91,9 +93,8 @@ public class EffExecuteRequest extends AsyncEffect {
             assert body != null;
             handler.setBodyContent(body);
         }
-        handler.asyncSend();
-        if (RESPONSES[1] == null) RESPONSES[1] = RESPONSES[0];
-        RESPONSES[0] = handler.getAll();
+       CompletableFuture<HttpHandler.Response> ft = handler.asyncSend();
+        RESPONSES.add(ft);
         handler.disconnect();
     }
 

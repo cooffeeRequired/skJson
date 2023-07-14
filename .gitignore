@@ -2,7 +2,8 @@
 *.xml
 .idea/codeStyles/codeStyleConfig.xml
 /.idea
-/target
-/target*
-/*target*
-/.vscode
+target
+.github
+.gitignore
+pom.xml
+SkJson.iml

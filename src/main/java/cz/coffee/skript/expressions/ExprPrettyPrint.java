@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
 import cz.coffee.core.ColoredJson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,18 +35,19 @@ import org.jetbrains.annotations.NotNull;
 @Since("2.8.0 - performance & clean")
 
 
-public class ExprPrettyPrint extends SimpleExpression<String> {
+@SuppressWarnings("unused")
+public class ExprPrettyPrint extends SimpleExpression<Object> {
 
-    static Expression<JsonElement> jsonExpression;
+    static Expression<Object> jsonExpression;
 
     static {
-        Skript.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% with pretty print");
+        Skript.registerExpression(ExprPrettyPrint.class, Object.class, ExpressionType.SIMPLE, "%json% with pretty print");
     }
 
     @Override
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
-        JsonElement json = jsonExpression.getSingle(e);
-        return new String[]{new ColoredJson(json).getOutput()};
+        Object json = jsonExpression.getSingle(e);
+        return new String[]{new ColoredJson(new Gson().toJsonTree(json)).getOutput()};
     }
 
     @Override

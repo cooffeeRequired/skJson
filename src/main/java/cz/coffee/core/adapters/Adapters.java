@@ -3,7 +3,7 @@ package cz.coffee.core.adapters;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import cz.coffee.SkJson;
-import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;

@@ -6,7 +6,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;

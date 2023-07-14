@@ -9,7 +9,7 @@ import cz.coffee.core.Updater;
 import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.cache.JsonWatcher;
 import cz.coffee.core.requests.HttpHandler.Response;
-import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,7 +18,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 import static cz.coffee.core.utils.Util.color;
@@ -29,7 +32,7 @@ public final class SkJson extends JavaPlugin {
     public static final boolean PROJECT_DEBUG = true;
     public static final CacheMap<String, JsonElement, File> JSON_STORAGE = new CacheMap<>();
     public static final WeakHashMap<File, JsonWatcher> WATCHERS = new WeakHashMap<>();
-    public static final Response[] RESPONSES = new Response[2];
+    public static final List<CompletableFuture<Response>> RESPONSES = new ArrayList<>(2);
     private static final String[] dependencies = {"Skript"};
     private static final Version version = Skript.getMinecraftVersion();
     static final boolean legacy = version.isSmallerThan(new Version(1, 16, 5));
@@ -57,6 +60,7 @@ public final class SkJson extends JavaPlugin {
         logger.info(color("&c" + message));
     }
 
+    @SuppressWarnings("unused")
     public static void warning(@NotNull Object message) {
         logger.warning(color(message));
     }
@@ -69,6 +73,7 @@ public final class SkJson extends JavaPlugin {
         Bukkit.getServer().getConsoleSender().sendMessage(color(prefix + " " + (legacy ? color(string) : hex(string))));
     }
 
+    @SuppressWarnings("unused")
     public @NotNull Logger logger() {
         if (logger == null) throw new IllegalStateException("The logger has not been initialized!");
         return logger;
@@ -135,6 +140,7 @@ public final class SkJson extends JavaPlugin {
         return canContinue;
     }
 
+    @SuppressWarnings("unused")
     public PluginManager getManager() {
         return instance.getPluginManager();
     }

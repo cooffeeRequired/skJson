@@ -48,36 +48,30 @@ public class ExprGetResponse extends SimpleExpression<Object> {
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
         Object[] result = new Object[1];
-
-        if (RESPONSES[0] != null) {
-            HttpHandler.Response current = RESPONSES[0];
+        final HttpHandler.Response current_ = RESPONSES.get(0).join();
+        final HttpHandler.Response previous_ = (RESPONSES.size() > 1) ? RESPONSES.get(1).join() : null;
+        if (current_ != null) {
             HttpHandler.Response previous = HttpHandler.Response.of(null, null, null, null, 0);
-            if (!isCurrent && RESPONSES[1] != null) previous = RESPONSES[1];
+            if (!isCurrent && previous_ != null) previous = previous_;
 
             switch (tag) {
-                case 2:
-                    String st = isCurrent ? current.rawBody() : previous.rawBody();
+                case 2 -> {
+                    String st = isCurrent ? current_.rawBody() : previous.rawBody();
                     if (!isCurrent && st == null)
                         return new Object[0];
                     else
                         result[0] = parseItem(st, st.getClass());
-                    break;
-                case 3:
-                    result[0] = isCurrent ? current.getStatusCode() : previous.getStatusCode();
-                    break;
-                case 4:
-                    result[0] = isCurrent ? current.connHeaders(true) : previous.connHeaders(true);
-                    break;
-                case 5:
-                    result[0] = isCurrent ? current.headers(false) : previous.headers(true);
-                    break;
-                case 6:
+                }
+                case 3 -> result[0] = isCurrent ? current_.getStatusCode() : previous.getStatusCode();
+                case 4 -> result[0] = isCurrent ? current_.connHeaders(true) : previous.connHeaders(true);
+                case 5 -> result[0] = isCurrent ? current_.headers(false) : previous.headers(true);
+                case 6 -> {
                     try {
-                        result[0] = isCurrent ? current.getUrl() : previous.getUrl();
+                        result[0] = isCurrent ? current_.getUrl() : previous.getUrl();
                     } catch (MalformedURLException ex) {
                         return new Object[0];
                     }
-                    break;
+                }
             }
         }
         return result;

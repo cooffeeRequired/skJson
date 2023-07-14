@@ -70,11 +70,6 @@ public abstract class HttpHandler {
         return this;
     }
 
-    @Future.Method
-    public Timer getTimer() {
-        return _timer;
-    }
-
     @SuppressWarnings("UnusedReturnValue")
     public HttpHandler setMainHeaders(RequestContent headers) {
         _headers.putAll(headers.flatMap());
@@ -90,49 +85,36 @@ public abstract class HttpHandler {
 
         if (_requestBuilder != null) {
             switch (_method.toUpperCase()) {
-                case "GET":
-                    _request = _requestBuilder.GET().build();
-                    break;
-                case "POST":
+                case "GET" -> _request = _requestBuilder.GET().build();
+                case "POST" -> {
                     jsonEncoded();
                     _request = _requestBuilder.POST(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                    break;
-                case "PUT":
-                    _request = _requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                    break;
-                case "DELETE":
-                    _request = _requestBuilder.DELETE().build();
-                    break;
-                case "HEAD":
-                    _request = _requestBuilder.method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
-                    break;
-                case "PATCH":
+                }
+                case "PUT" ->
+                        _request = _requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(_content.toString())).build();
+                case "DELETE" -> _request = _requestBuilder.DELETE().build();
+                case "HEAD" -> _request = _requestBuilder.method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+                case "PATCH" -> {
                     jsonEncoded();
                     _request = _requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(_content.toString())).build();
-                    break;
-                default:
-                    _request = _requestBuilder.build();
-                    break;
+                }
+                default -> _request = _requestBuilder.build();
             }
         }
         return _request;
     }
 
-    public void asyncSend() {
+    public CompletableFuture<Response> asyncSend() {
         setHeaders();
         HttpRequest request = makeRequest();
-        long startTime = System.nanoTime();
-        CompletableFuture<HttpResponse<String>> future = _client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-        future.thenApply(result -> {
+        return _client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        .thenApply(result -> {
             if (request == null) return null;
-            _response = Response.of(request.headers(), result.body(), result.headers(), result.uri(), result.statusCode());
-            return null;
+            return Response.of(request.headers(), result.body(), result.headers(), result.uri(), result.statusCode());
         }).exceptionally(ex -> {
             ex.printStackTrace();
             return null;
         });
-        long endTime = System.nanoTime();
-        if (_timer != null) _timer.addTime(endTime - startTime);
     }
 
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
@@ -280,14 +262,6 @@ public abstract class HttpHandler {
 
                 return new RequestContent(keys, values);
             }
-        }
-
-        public List<String> getKeys() {
-            return keys;
-        }
-
-        public List<String> getValues() {
-            return values;
         }
 
         @Override
