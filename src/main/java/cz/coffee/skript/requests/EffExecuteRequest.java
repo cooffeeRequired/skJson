@@ -94,7 +94,15 @@ public class EffExecuteRequest extends AsyncEffect {
             handler.setBodyContent(body);
         }
        CompletableFuture<HttpHandler.Response> ft = handler.asyncSend();
-        RESPONSES.add(ft);
+        if (RESPONSES.isEmpty()) RESPONSES.add(ft);
+        else if (RESPONSES.size() == 1) {
+            RESPONSES.add(null);
+            if (RESPONSES.get(1) == null) RESPONSES.set(1, RESPONSES.get(0));
+            RESPONSES.set(0, ft);
+        } else if (RESPONSES.size() == 2) {
+            RESPONSES.set(1, RESPONSES.get(0));
+            RESPONSES.set(0, ft);
+        }
         handler.disconnect();
     }
 

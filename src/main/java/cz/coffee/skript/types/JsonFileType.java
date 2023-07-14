@@ -7,7 +7,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import cz.coffee.core.utils.JsonFile;
-import lombok.NonNull;
+import org.eclipse.jdt.annotation.NonNull;
 
 @NoDoc
 public class JsonFileType {
