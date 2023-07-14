@@ -5,5 +5,5 @@ target
 *.xml
 .idea/modules.xml
 /target
-target
 *.idea
+.idea/*
