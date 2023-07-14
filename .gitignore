@@ -1,9 +1,9 @@
-
-*.xml
-.idea/codeStyles/codeStyleConfig.xml
-/.idea
 target
+.idea
 .github
-.gitignore
-pom.xml
-SkJson.iml
+.git
+*.xml
+.idea/modules.xml
+/target
+target
+*.idea

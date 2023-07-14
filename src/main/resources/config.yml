@@ -1,0 +1,38 @@
+# SkJson configuration file
+
+settings:
+  # Never change it!
+  version: 1
+
+  # Enable this if you would like to see more verbose debug messages
+  debug: false
+
+  # Enable this if you would like use a test command /skjson run-tests
+  test-allowed: false
+
+  # Enabled this if you would get a tests result each time when server starts.
+  run-tests-on-startup: false
+
+  # 0 - Basic debug mode
+  # 1 - More verbose debug mode
+  # 2 - All debug messaged, also the request response.
+  logging-level: 2
+
+  # Path variable delimiter
+  # for example. `value "test::command" of {_json}`
+  # Default value : "::"
+  path-delimiter: "::"
+
+  # The timeout for checking change in file in milliseconds.
+  # Default value : 150
+  watcher-interval: 150
+
+  # Prefixes for logging, fully support hex and colors also unicodes
+  # hex: &#00000
+  # colors: Minecraft format (&b) - light blue
+  prefixes:
+    plugin: "&l&8[&#6efa6eS&#77d658k&#76b447J&#6e943as&#627531o&#51582an&8] &r"
+    error: "&#bb0c19E&#b91826r&#b62131r&#b22a3bo&#ad3244r &r"
+    watcher: "&l&#8e12e5J&#ca00bes&#ea0094o&#f9006dn&#fa0049W&#f23429a&#e25c00t&#ce7800c&#b78d00h&#9f9f00e&#86ad32r &r"
+    request: "&#6efa9cR&#2de1a5e&#00c8a9q&#00aea6u&#00939ce&#00798bs&#1d6073t&#2a4858s &r"
+    webhook: "&#fab36eW&#f0eb52e&#97e23ab&#38c92ch&#2fa05co&#2e7a70o&#2a4858k &r "

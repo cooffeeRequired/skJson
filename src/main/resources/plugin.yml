@@ -1,11 +1,14 @@
-name: skJson
+name: SkJson
 version: '${project.version}'
-main: cz.coffee.SkJson
-api-version: 1.13
+main: cz.coffee.skjson.SkJson
+api-version: '1.20'
 depend:
   - Skript
-prefix: skJson
-load: POSTWORLD
-authors: [ coffeeRequired ]
-description: skJson - simple work with Json in Skript
-website: https://github.com/SkJsonTeam/skJson
+prefix: SkJson
+author: CoffeeRequired
+description: ''
+website: https://github.com/SkJsonTeam/SkJson
+commands:
+  skjson:
+    description: basic skjson
+    usage: /skjson

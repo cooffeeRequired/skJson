@@ -1,0 +1,10 @@
+version: ${project.version}
+
+request method:
+	get: GET
+	post: POST
+	put: PUT
+	delete: DELETE
+	mock: MOCK
+	head: HEAD
+	patch: PATCH

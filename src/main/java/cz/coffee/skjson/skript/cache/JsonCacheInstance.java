@@ -1,0 +1,391 @@
+package cz.coffee.skjson.skript.cache;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.AsyncEffect;
+import ch.njol.util.Kleenean;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import cz.coffee.skjson.api.Cache.JsonCache;
+import cz.coffee.skjson.api.Cache.JsonWatcher;
+import cz.coffee.skjson.api.Config;
+import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.utils.Util;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+
+import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
+
+public abstract class JsonCacheInstance {
+    @Name("Json storage")
+    @Description("You can create virtual json in memory")
+    @Examples({
+            "on script load:",
+            "\tcreate new json storage named \"json-storage\"",
+            "\tsend json \"json-storage\""
+    })
+    @Since("2.9")
+    public static class JsonStorage extends Effect {
+
+        static {
+            Skript.registerEffect(JsonStorage.class, "[create] new json storage [named] %string%");
+        }
+
+        private Expression<String> nameOfStorageExp;
+
+        @Override
+        protected void execute(@NotNull Event e) {
+            String nameOfStorage = nameOfStorageExp.getSingle(e);
+            if (nameOfStorage == null) if (LOGGING_LEVEL > 1) Util.error("The name of the storage is not specified.");
+            JsonCache<String, JsonElement, File> cache = Config.getCache();
+            cache.addValue(nameOfStorage, new JsonObject(), new File("Undefined"));
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            return "create new json storage named " + nameOfStorageExp.toString(e, debug);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            nameOfStorageExp = (Expression<String>) exprs[0];
+            return true;
+        }
+    }
+
+
+
+
+    @Name("Link json file with defined cache.")
+    @Description("You can works with the cache instead of reopening the file again & again.")
+    @Examples({
+            "on load:",
+            "\tlink json file \"<path to file>\" as \"mine.id\"",
+            "\tlink json file \"<path to file>\" as \"mine.id\" and make json watcher listen"
+    })
+    @Since("2.8.0 - performance & clean")
+    public static class LinkFile extends Effect {
+
+        static {
+            Skript.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
+        }
+        private Expression<String> exprFileString, expressionID;
+        private boolean asAlive;
+
+
+
+        @Override
+        protected void execute(@NotNull Event e) {
+            String fileString = exprFileString.getSingle(e);
+            String id = expressionID.getSingle(e);
+            if (id == null || fileString == null) return;
+            JsonCache<String, JsonElement, File> cache = Config.getCache();
+            File file = new File(fileString);
+            FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
+                JsonElement json = cFile.get();
+                if (json == null) return;
+                cache.addValue(id, json, file);
+                if (asAlive) if (!JsonWatcher.isRegistered(file)) JsonWatcher.register(id, file);
+            });
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            return "link json file " + exprFileString.toString(e, debug) + " as " + expressionID.toString(e, debug) + (asAlive ? " and make json watcher listen" : "");
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+            asAlive = parseResult.hasTag("and make");
+            exprFileString = (Expression<String>) exprs[0];
+            expressionID = (Expression<String>) exprs[1];
+            return true;
+        }
+    }
+
+    @Name("link and load all json files from given folder")
+    @Since("2.8.6")
+    @Description({"Handle all files from folder"})
+    @Examples({
+            "load json files from \"plugins/raw/\" and save it in \"raw\"",
+            "\tloop values of json \"raw\":",
+            "\t\tsend json-value",
+    })
+    public static class AllJsonFromDirectory extends AsyncEffect {
+
+        static {
+            Skript.registerEffect(AllJsonFromDirectory.class, "load json files from %string% and save it in %string%");
+        }
+
+        private Expression<String> expressionPathDirectory, expressionCacheDirectory;
+
+        @Override
+        protected void execute(@NotNull Event e) {
+            String pathDirectory = expressionPathDirectory.getSingle(e);
+            String cacheDirectory = expressionCacheDirectory.getSingle(e);
+
+            if (pathDirectory == null) return;
+            if (cacheDirectory == null) cacheDirectory = pathDirectory;
+
+            final File folder = new File(pathDirectory); // directory to walk
+            String finalCacheDirectory = cacheDirectory;
+
+            final JsonObject jsonFiles = new JsonObject();
+            File[] files = folder.listFiles(f -> f.getName().endsWith(".json"));
+            if (files == null || files.length == 0) return;
+            CompletableFuture.runAsync(() -> {
+                Stream.of(files)
+                        .filter(file -> !file.isDirectory())
+                        .map(File::getName)
+                        .toList().forEach(potentialFile -> {
+                            File potential = new File(pathDirectory + File.pathSeparator + potentialFile);
+                            CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
+                            if (ct != null) {
+                                JsonElement json = ct.join().get();
+                                jsonFiles.add(potentialFile, json);
+                            }
+                        });
+                cz.coffee.skjson.api.Cache.JsonCache<String, JsonElement, File> cache = Config.getCache();
+                cache.addValue(finalCacheDirectory, jsonFiles, folder);
+            });
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            return "load json file from " + expressionPathDirectory.toString(e, debug) + " and save it in " + expressionCacheDirectory.toString(e, debug);
+
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull SkriptParser.ParseResult parseResult) {
+            expressionPathDirectory = (Expression<String>) exprs[0];
+            expressionCacheDirectory = (Expression<String>) exprs[1];
+            return true;
+        }
+    }
+
+    @Name("Json file is cached")
+    @Description("Check if the file for given id is cached")
+    @Examples({
+            "on load:",
+            "\tsend true if json \"test\" is linked "
+    })
+    @Since("2.8.0 - performance & clean")
+    public static class CondJsonIsCached extends Condition {
+        static {
+            Skript.registerCondition(CondJsonIsCached.class,
+                    "json %string% is (load|linked)",
+                    "json %string% is(n't| not) (load|linked)"
+            );
+        }
+
+        private Expression<String> exprId;
+        private int line;
+
+        @Override
+        public boolean check(@NotNull Event event) {
+            final String id = exprId.getSingle(event);
+            return (line == 0) == Config.getCache().containsKey(id);
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event event, boolean b) {
+            return "cached json " + exprId.toString(event, b) + (line == 0 ? " is " : " is not") + "loaded";
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?>[] expressions, int i, @NotNull Kleenean kleenean, SkriptParser.@NotNull ParseResult parseResult) {
+            line = i;
+            setNegated(i == 1);
+            exprId = (Expression<String>) expressions[0];
+            return true;
+        }
+    }
+
+    @Name("Save cached json to file")
+    @Description("It's allow save cached json back to the file")
+    @Examples({
+            "on unload:",
+            "\tsave json \"test\"",
+            "\tsave all jsons"
+    })
+    @Since("2.8.0 - performance & clean")
+    public static class SaveCache extends AsyncEffect {
+        static {
+            Skript.registerEffect(SaveCache.class,
+                    "save json %string%",
+                    "save all jsons"
+            );
+        }
+
+        private int line;
+        private Expression<String> externalExprID;
+
+        @Override
+        protected void execute(@NotNull Event e) {
+            CompletableFuture.runAsync(() -> {
+                JsonCache<String, JsonElement, File> cache = Config.getCache();
+                if (line == 0) {
+                    String id = externalExprID.getSingle(e);
+                    if (cache.containsKey(id)) {
+                        ConcurrentHashMap<JsonElement, File> jsonMap = cache.get(id);
+                        jsonMap.forEach((json, file) -> {
+                            if (file.getName().equals("Undefined")) {
+                                Util.error("You cannot save virtual storage of json.");
+                                return;
+                            }
+                            FileWrapper.write(file.toString(), json);
+                        });
+                    }
+                } else {
+                    cache.forEach((key, map) -> map.forEach((json, file) -> {
+                        if (!file.getName().equals("Undefined")) FileWrapper.write(file.toString(), json);
+                    }));
+                }
+            });
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            if (line == 0) return "save cached json " + externalExprID.toString(e, debug);
+            else return "save all cached jsons";
+        }
+
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            line = matchedPattern;
+            if (line == 0) {
+                externalExprID = (Expression<String>) exprs[0];
+            }
+            return true;
+        }
+    }
+
+    @Name("Unlink or unload json file from cache")
+    @Description("You can unload the json file.")
+    @Examples({
+            "on load:",
+            "\tunlink json \"mine.id\""
+    })
+    @Since("2.8.0 - performance & clean")
+    public static class UnlinkFile extends Effect {
+        static {
+            Skript.registerEffect(UnlinkFile.class, "unlink json %string%");
+        }
+
+        private Expression<String> exprID;
+
+        @Override
+        protected void execute(@NotNull Event e) {
+            String id = exprID.getSingle(e);
+            if (id == null) return;
+            cz.coffee.skjson.api.Cache.JsonCache<String, JsonElement, File> cache = Config.getCache();
+            if (cache.containsKey(id)) {
+                AtomicReference<File> finalFile = new AtomicReference<>();
+                cache.get(id).forEach((json, file) -> finalFile.set(file));
+                if (JsonWatcher.isRegistered(finalFile.get())) JsonWatcher.unregister(finalFile.get());
+                cache.remove(id);
+            }
+
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event event, boolean b) {
+            return "unlink json " + exprID.toString(event, b);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
+            exprID = (Expression<String>) expressions[0];
+            return true;
+        }
+    }
+
+    @Name("Get cached json")
+    @Description({"You can get json from cache storage by key defined by you"})
+    @Examples({"on script load:",
+            "\tset {_json} to json \"your\"",
+            "\tsend {_json} with pretty print"
+    })
+    @Since("2.8.0 - performance & clean")
+    public static class GetCachedJson extends SimpleExpression<JsonElement> {
+
+        static {
+            Skript.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
+                    "json %string%",
+                    "all cached jsons"
+            );
+        }
+        private Expression<String> storedKeyExpr;
+        private int line;
+
+
+        @Override
+        protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
+            String storedKey = storedKeyExpr.getSingle(e);
+            cz.coffee.skjson.api.Cache.JsonCache<String, JsonElement, File> cache = Config.getCache();
+            if (line == 0) {
+                if (storedKey != null) {
+                    if (cache.containsKey(storedKey)) {
+                        AtomicReference<JsonElement> element = new AtomicReference<>();
+                        cache.get(storedKey).forEach((json, file) -> element.set(json));
+                        return new JsonElement[]{element.get()};
+                    }
+                }
+            } else if (line == 1) {
+                ArrayList<JsonElement> finalElements = new ArrayList<>();
+                cache.forEach((key, map) -> map.forEach((json, file) -> finalElements.add(json)));
+                return finalElements.toArray(JsonElement[]::new);
+            }
+
+            return new JsonElement[0];
+        }
+
+        @Override
+        public boolean isSingle() {
+            return true;
+        }
+
+        @Override
+        public @NotNull Class<JsonElement> getReturnType() {
+            return JsonElement.class;
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event event, boolean b) {
+            if (line == 0) {
+                return "get cached json " + storedKeyExpr.toString(event, b);
+            } else {
+                return "all cached jsons";
+            }
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            line = matchedPattern;
+            storedKeyExpr = (Expression<String>) exprs[0];
+            return true;
+        }
+    }
+
+ }
