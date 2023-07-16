@@ -483,7 +483,7 @@
         "reset"
       ],
       "patterns": [
-        "json from [2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
+        "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
       ]
     },
     {
@@ -608,11 +608,20 @@
   ],
   "functions": [
     {
-      "id": "function_skJsonGetDelimiter",
-      "name": "skJsonGetDelimiter",
+      "id": "function_skjson_getdelim",
+      "name": "skjson_getdelim",
+      "description": [
+        "Return a your defined delimiter in the config.yml"
+      ],
+      "examples": [
+        "send \"my delimiter is: %skjson_getdelim()%\""
+      ],
+      "since": [
+        "2.9"
+      ],
       "return type": "Text",
       "patterns": [
-        "skJsonGetDelimiter(bool: boolean)"
+        "skjson_getdelim(bool: boolean)"
       ]
     }
   ],
