@@ -19,7 +19,9 @@ import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,11 +64,12 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
+                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects% [%player%]"
         );
     }
 
     private boolean isFile, isYaml, isWebFile;
+    private Expression<Object> exprSender;
     private int mark;
     private Expression<?> input;
     private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
@@ -116,7 +119,18 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                         if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
                             type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
                         } else {
-                            output.add(parse(value));
+                            if (value instanceof Inventory) {
+                                Object v;
+                                Object o = exprSender.getSingle(e);
+                                if (o instanceof HumanEntity hm) {
+                                    v = new JsonInventory(hm, (Inventory) value);
+                                } else {
+                                    v = new JsonInventory(null, (Inventory) value);
+                                }
+                                output.add(parse(v));
+                            } else {
+                                output.add(parse(value));
+                            }
                         }
                     } catch (Exception ex) {
                         if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
@@ -148,7 +162,9 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
+        exprSender = (Expression<Object>) exprs[1];
         mark = parseResult.mark;
         isFile = mark == 2;
         isWebFile = mark == 3;

@@ -8,13 +8,13 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffee.skjson.skript.base.Converter;
+import cz.coffee.skjson.skript.base.JsonInventory;
 import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -223,8 +223,8 @@ public abstract class ParserUtil {
             if (object instanceof ItemStack) {
                 return ItemStackConverter.toJson((ItemStack) object);
             }
-            if (object instanceof Inventory) {
-                return InventoryConverter.toJson((Inventory) object);
+            if (object instanceof JsonInventory) {
+                return InventoryConverter.toJson((JsonInventory) object);
             }
             if (object instanceof NBTContainer) {
                 return NBTContainerConverter.toJson((NBTContainer) object);
@@ -267,8 +267,8 @@ public abstract class ParserUtil {
                     return (T) ChunkConverter.fromJson(json.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ItemStackConverter.fromJson(json.getAsJsonObject()));
-                else if (Inventory.class.isAssignableFrom(clazz))
-                    return (T) InventoryConverter.fromJson(json.getAsJsonObject());
+                else if (JsonInventory.class.isAssignableFrom(clazz))
+                    return (T) ((JsonInventory) InventoryConverter.fromJson(json.getAsJsonObject())).inv();
                 else if (Block.class.isAssignableFrom(clazz))
                     return (T) BlockConverter.fromJson(json.getAsJsonObject());
                 else if (NBTContainer.class.isAssignableFrom(clazz))

@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -455,32 +454,39 @@ public abstract class Converter {
         }
     };
 
-    public final static SimpleConverter<Inventory> InventoryConverter = new SimpleConverter<Inventory>() {
+    public final static SimpleConverter<JsonInventory> InventoryConverter = new SimpleConverter<JsonInventory>() {
+
         @Override
-        public @NotNull JsonElement toJson(Inventory source) throws Exception {
+        public @NotNull JsonElement toJson(JsonInventory inv) throws Exception {
+
+            Inventory source = inv.inv();
+            boolean iOfPlayer = inv.isInstanceOfPlayer();
+
+            if (iOfPlayer) inv.player().openInventory(source);
+
             final String sourceType = source.getType().toString();
-            Component stringifyInvetoryTitle;
+            String invJsonTitle;
             String stringifyInventoryHolder;
+
             if (source.getViewers().isEmpty()) {
                 stringifyInventoryHolder = "DEFAULT";
-                stringifyInvetoryTitle = source.getType().defaultTitle();
+                invJsonTitle = source.getType().name();
             } else {
                 Entity viewer = source.getViewers().get(0);
                 stringifyInventoryHolder = viewer.getName();
-                Util.log(((HumanEntity) viewer).getOpenInventory().title());
-
-
-                stringifyInvetoryTitle = ((HumanEntity) viewer).getOpenInventory().title();
+                invJsonTitle = ((HumanEntity) viewer).getOpenInventory().getTitle();
             }
+
+            if (iOfPlayer) inv.player().closeInventory();
 
             final JsonObject outputJson = new JsonObject();
             final JsonObject jsonInventory = new JsonObject();
-            outputJson.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            outputJson.addProperty(SERIALIZED_JSON_TYPE_KEY, inv.getClass().getName());
             for (ItemStack item : source.getContents()) {
                 String slot = "Slot " + jsonInventory.size();
                 jsonInventory.add(slot, (item != null ? ItemStackConverter.toJson(item) : JsonNull.INSTANCE));
             }
-            outputJson.addProperty("title", Component.textOfChildren(stringifyInvetoryTitle).content());
+            outputJson.addProperty("title", invJsonTitle);
             outputJson.addProperty("type", sourceType);
             outputJson.addProperty("holder", stringifyInventoryHolder);
             outputJson.add("contents", jsonInventory);
@@ -488,15 +494,16 @@ public abstract class Converter {
         }
 
         @Override
-        public Inventory fromJson(JsonObject json) {
+        public JsonInventory fromJson(JsonObject json) {
             final Component jsonTitle = Component.text(json.get("title").getAsString());
             final String jsonHolder = json.get("holder").getAsString();
             final ArrayList<ItemStack> items = new ArrayList<ItemStack>();
             Inventory inventory;
-            if (jsonHolder.equals("DEFAULT")) inventory = Bukkit.createInventory(null, InventoryType.CHEST, jsonTitle);
+            if (jsonHolder.equals("DEFAULT")) {
+                inventory = JsonInventory.newInventory(null, InventoryType.CHEST, json.get("title").getAsString());
+            }
             else {
-                Player p = Bukkit.getPlayer(jsonHolder);
-                inventory = Bukkit.createInventory(p, InventoryType.PLAYER, jsonTitle);
+                inventory = JsonInventory.newInventory(jsonHolder, InventoryType.PLAYER, json.get("title").getAsString());
             }
             json.getAsJsonObject("contents").entrySet().forEach(item -> {
                 if (item.getValue().equals(JsonNull.INSTANCE)) {
@@ -506,7 +513,7 @@ public abstract class Converter {
                 }
             });
             inventory.setContents(items.toArray(new ItemStack[0]));
-            return inventory;
+            return new JsonInventory(null, inventory);
         }
     };
     public static class BukkitConverter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {

@@ -16,6 +16,7 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.skript.base.JsonInventory;
 import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Chunk;
@@ -40,9 +41,10 @@ import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 
 @Since("2.9")
+@SuppressWarnings("")
 abstract class Types {
     // JsonElement type
-     static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
+     static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, JsonInventory.class, Inventory.class, ConfigurationSerializable.class);
 
      static {
          try {
@@ -122,7 +124,7 @@ abstract class Types {
                              public void change(JsonElement @NotNull [] jsonInput, @Nullable Object @NotNull [] dataInput, @NotNull ChangeMode mode) {
                                  switch (mode) {
                                      case REMOVE -> {
-                                         ParsedJson pj = null;
+                                         ParsedJson pj;
                                          for (JsonElement mainJson : jsonInput) {
                                              for (Object unparsed : dataInput) {
                                                  try {
@@ -155,7 +157,7 @@ abstract class Types {
                                                                      assert path != null;
                                                                      for (Object item : items) {
                                                                          JsonElement parsed = ParserUtil.parse(item);
-                                                                         if (isValue) {;
+                                                                         if (isValue) {
                                                                              pj.removeByValue(path, parsed);
                                                                          } else {
                                                                              path.add(item.toString());
@@ -201,13 +203,12 @@ abstract class Types {
                                          }
                                      }
                                      case REMOVE_ALL -> {
-                                         ParsedJson pj = null;
+                                         ParsedJson pj;
                                          for (JsonElement mainJson : jsonInput) {
                                              for (Object unparsed : dataInput) {
                                                  try {
                                                      pj = new ParsedJson(mainJson);
                                                      if (unparsed instanceof List<?> list) {
-                                                         String type = (String) list.get(0);
                                                          String pathString = (String) list.get(2);
                                                          Object[] items = (Object[]) list.get(1);
                                                          LinkedList<String> path;
