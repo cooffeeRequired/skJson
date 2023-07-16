@@ -18,7 +18,6 @@ import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
-import net.kyori.adventure.util.Index;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -31,11 +30,13 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.StreamCorruptedException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
-import static cz.coffee.skjson.parser.ParserUtil.checkKeys;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 
 @Since("2.9")
@@ -68,10 +69,9 @@ abstract class Types {
                              public @NotNull String toString(JsonElement o, int flags) {
                                  return o.toString();
                              }
-
                              @Override
                              public @NotNull String toVariableNameString(JsonElement o) {
-                                 return toString(o, 0);
+                                 return toString(o, 1);
                              }
                              @Override
                              public boolean canParse(@NotNull ParseContext context) {
@@ -192,12 +192,10 @@ abstract class Types {
                                                      }
                                                  } catch (Exception ex) {
                                                      if (LOGGING_LEVEL > 1 && !PROJECT_DEBUG) {
-                                                         Util.error("Something happened in the Changer! If you wanna more information");
-                                                         if (!PROJECT_DEBUG) Util.error("Turn on debug in your config.");
-                                                         else
-                                                             Util.enchantedError(ex, ex.getStackTrace(), "Types-Changer[0]");
+                                                         Util.error(null, false, "Something happened in the Changer! If you wanna more information");
+                                                         if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
                                                      }
-                                                     if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "Types-Changer[0]");
+                                                     if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
                                                  }
                                              }
                                          }
@@ -229,7 +227,7 @@ abstract class Types {
                                                          }
                                                      }
                                                  } catch (Exception ex) {
-                                                     ex.printStackTrace();
+                                                     Util.error(null, false, ex.getMessage());
                                                  }
                                              }
                                          }

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
@@ -14,7 +13,6 @@ import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -37,6 +35,11 @@ public class Config {
      * The constant RUN_TEST_ON_START.
      */
     public static boolean RUN_TEST_ON_START;
+    /**
+     * The constant TEST_START_UP_DELAY.
+     * Can be only 1, 2, 3
+     */
+    public static int TEST_START_UP_DELAY;
 
     /**
      * The constant TESTS_ALOWED.
@@ -254,6 +257,16 @@ public class Config {
         PATH_VARIABLE_DELIMITER = getString("path-delimiter");
         TESTS_ALOWED = getSetting("test-allowed");
         RUN_TEST_ON_START = getSetting("run-tests-on-startup");
+        int delayStart = getInt("startup-tests-delay");
+        if (delayStart == 1) {
+            TEST_START_UP_DELAY = 10_000;
+        } else if (delayStart == 2) {
+            TEST_START_UP_DELAY = 25_000;
+        } else if (delayStart == 3) {
+            TEST_START_UP_DELAY = 35_000;
+        } else {
+            TEST_START_UP_DELAY = 5000;
+        }
 
         if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
             Util.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");

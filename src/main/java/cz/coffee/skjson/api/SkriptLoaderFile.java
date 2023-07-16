@@ -5,14 +5,14 @@ import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.util.OpenCloseable;
-import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.utils.Util;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -22,11 +22,10 @@ import java.util.Set;
  */
 public class SkriptLoaderFile {
 
-    private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
+    private static Set<File> toggleFiles(@NotNull File folder, boolean enable) throws IOException {
         FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
-
         Set<File> changed = new HashSet<>();
-        for (File file : folder.listFiles()) {
+        for (File file : Objects.requireNonNull(folder.listFiles())) {
             if (file.isDirectory()) {
                 changed.addAll(toggleFiles(file, enable));
             } else {
@@ -50,6 +49,10 @@ public class SkriptLoaderFile {
     }
 
     public void load() {
+        if ((!folder.exists()) || !folder.isDirectory()) {
+            Util.error("Could not load ..tests folder for test runner... tests will be skipped");
+            return;
+        }
         try (var handler = new RetainingLogHandler().start()) {
             try (var skTiming = new TimingLogHandler()) {
                 ScriptLoader.loadScripts(folder, OpenCloseable.combine(handler, skTiming))

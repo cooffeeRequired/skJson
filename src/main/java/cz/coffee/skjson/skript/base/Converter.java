@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -466,6 +467,9 @@ public abstract class Converter {
             } else {
                 Entity viewer = source.getViewers().get(0);
                 stringifyInventoryHolder = viewer.getName();
+                Util.log(((HumanEntity) viewer).getOpenInventory().title());
+
+
                 stringifyInvetoryTitle = ((HumanEntity) viewer).getOpenInventory().title();
             }
 

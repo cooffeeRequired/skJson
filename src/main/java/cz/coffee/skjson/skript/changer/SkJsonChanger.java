@@ -54,8 +54,14 @@ public abstract class SkJsonChanger {
     @SuppressWarnings("unused")
     @Since("2.9")
     @Name("Changer - JsonArray set/add/remove/removeAll")
-    @Description({""})
-    @Examples({})
+    @Description({"The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults", "A very general effect that can change many json array. The json object can be only add/set/remove/removeAll"})
+    @Examples({
+            "set value of json list \"1::list[1]::data\" in {_json} to \"[]\"",
+            "remove values 1 and \"Hello true\" of json list from {_json}",
+            "remove 2nd element of json list from {_json}",
+            "add diamond sword to json list \"0::list\" in {_json}",
+            "remove all \"new test key\" of json list \"array[0]\" from {_json}"
+    })
     public static class JsonArrayChanger extends SimpleExpression<Object> {
 
         static {
@@ -135,13 +141,13 @@ public abstract class SkJsonChanger {
             switch (mode) {
                 case ADD -> {
                     if (inputDelta == null|| inputJsonExpression == null) {
-                        Util.error("Input or json cannot be null");
+                        Util.error(null, false, "Input or json cannot be null");
                         return;
                     }
                     JsonElement json = JsonNull.INSTANCE;
-                    Object parsedJson = null;
-                    String path;
-                    ParsedJson pj = null;
+                    Object parsedJson;
+                    String path = null;
+                    ParsedJson pj;
                     for (Object delta : inputDelta) {
                         parsedJson = parseAliases(delta);
                         if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
@@ -170,24 +176,21 @@ public abstract class SkJsonChanger {
                                 return;
                             }
                         } catch (Exception ex) {
-                            Util.error("Something happened in the Changer! If you wanna more information");
-                            Util.error(ex.getLocalizedMessage());
-                            if (!PROJECT_DEBUG) Util.error("Turn on debug in your config.");
-                            else
-                                Util.enchantedError(ex, ex.getStackTrace(), "Inner Types-Changer");
-                            if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "Types-Changer[0]");
+                            Util.error(null, false, "Something happened in the Changer! If you wanna more information");
+                            if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
+                            if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
                         }
                     }
                 }
                 case SET -> {
                     if (inputDelta == null|| inputJsonExpression == null) {
-                        Util.error("Input or json cannot be null");
+                        Util.error(null, false, "Input or json cannot be null");
                         return;
                     }
-                    JsonElement json = JsonNull.INSTANCE;
-                    Object parsedJson = null;
-                    String path;
-                    ParsedJson pj = null;
+                    JsonElement json = null;
+                    Object parsedJson;
+                    String path = null;
+                    ParsedJson pj;
                     boolean isValue = result.mark == 1 && line == 1;
                     try {
                         path = pathExpression.getSingle(e);
@@ -212,12 +215,9 @@ public abstract class SkJsonChanger {
                         }
 
                     } catch (Exception ex) {
-                        Util.error("Something happened in the Changer! If you wanna more information");
-                        Util.error(ex.getLocalizedMessage());
-                        if (!PROJECT_DEBUG) Util.error("Turn on debug in your config.");
-                        else
-                            Util.enchantedError(ex, ex.getStackTrace(), "Inner Types-Changer");
-                        if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "Types-Changer[0]");
+                        Util.error(null, false, "Something happened in the Changer! If you wanna more information");
+                        if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
+                        if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
                     }
                 }
             }
@@ -252,8 +252,15 @@ public abstract class SkJsonChanger {
 
     @Since("2.9")
     @Name("Changer - JsonObject set/remove/removeAll")
-    @Description("A very general effect that can change many json object. The json object can be only set/removed/removedAll")
-    @Examples({})
+    @Description({"The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults", "A very general effect that can change many json object. The json object can be only set/remove/removeAll"})
+    @Examples({
+            "set value of json object \"data::key\" in {_json} to \"new test key\"",
+            "set key of json object \"data::key\" in {_json} to \"test key\"",
+            "set key of json object \"list\" in {_json} to \"array\"",
+            "set value of json object \"this-a test-what i need to <>-_::data\" in {_json} to iron sword",
+            "remove value \"test key\" of json object \"data\" from {_json}",
+            "remove all \"new test key\" of json object \"data\" from {_json}"
+    })
     public static class JsonObjectChanger extends SimpleExpression<Object> {
         static {
             Skript.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
@@ -330,18 +337,16 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             if (mode == Changer.ChangeMode.SET) {
                 if (inputDelta == null || jsonInput == null) {
-                    Util.error("Input or json cannot be null");
+                    Util.error(null, false, "Input or json cannot be null");
                     return;
                 }
                 boolean isValue = result.hasTag("value");
 
                 JsonElement json;
-                Object parsedJson = null;
+                Object parsedJson;
                 String path;
-                ParsedJson pj = null;
+                ParsedJson pj;
                 for (Object delta : inputDelta) {
-                    parsedJson = parseAliases(delta);
-                    if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
                     try {
                         path = pathInput.getSingle(e);
                         LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);

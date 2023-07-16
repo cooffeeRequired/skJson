@@ -2,13 +2,17 @@
 
 settings:
   # Never change it!
-  version: 1
+  version: 1.2
 
   # Enable this if you would like to see more verbose debug messages
   debug: false
 
   # Enable this if you would like use a test command /skjson run-tests
   test-allowed: false
+
+  # Change to more than 1 if you have any addons/plugins that slow down the start..
+  # 0 = 500s, 1 = 10s, 2 = 25s, 3 = 40s, test delay
+  startup-tests-delay: 0
 
   # Enabled this if you would get a tests result each time when server starts.
   run-tests-on-startup: false

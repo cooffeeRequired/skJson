@@ -26,6 +26,7 @@ import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
+import org.checkerframework.checker.units.qual.N;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,13 @@ import static cz.coffee.skjson.utils.Util.parseNumber;
 
 @SuppressWarnings({"Unchecked", "unused"})
 public abstract class JsonBase {
+
+    @Name("Count values/elements in the Json.")
+    @Description("You can get the count values in the given json")
+    @Examples({
+            "number of key \"test\" in %json%"
+    })
+    @Since("2.9")
     public static class CountElements extends SimpleExpression<Integer> {
 
         static {
@@ -786,6 +794,14 @@ public abstract class JsonBase {
             return true;
         }
     }
+
+    @Name("Type of Json")
+    @Since("2.7")
+    @Examples({
+            "set {_j} to json from \"{data: {}}\"",
+            "if type of {_j} is json object"
+    })
+    @Description("You can get type of given Json.")
     public static class CondJsonType extends Condition {
 
         static {

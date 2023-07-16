@@ -224,7 +224,7 @@ public abstract class ParserUtil {
                 return ItemStackConverter.toJson((ItemStack) object);
             }
             if (object instanceof Inventory) {
-                //return InvetoryConverter.toJson((Inventory) object);
+                return InventoryConverter.toJson((Inventory) object);
             }
             if (object instanceof NBTContainer) {
                 return NBTContainerConverter.toJson((NBTContainer) object);

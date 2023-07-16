@@ -1,7 +1,7 @@
 name: SkJson
 version: '${project.version}'
 main: cz.coffee.skjson.SkJson
-api-version: '1.20'
+api-version: '1.13'
 depend:
   - Skript
 prefix: SkJson

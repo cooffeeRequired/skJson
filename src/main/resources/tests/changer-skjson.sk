@@ -85,7 +85,7 @@ local function testREMOVEALL(json: json, d: string) :: boolean:
 on script load:
 	send "Running tests of changer! (Array,JsonObject) (SET/ADD/REMOVE/REMOVE ALL)"
 	send "Skript 2.7.0 - beta 3 (&a tested &r)"
-	set {_d} to skJsonGetDelimiter(false)
+	set {_d} to skjson_getdelim(false)
 
 	set {_failed} to 0
 	if testArrayListADD(jsonPayload(), {_d}) is true:
@@ -124,7 +124,7 @@ on script load:
 		send "&7&lTEST --> &8[&b&l Object&7/&e&lArray &8] &fRemover(ALL) &cFailed."
 		add 1 to {_failed}
 
-	tryChangeCached(skJsonGetDelimiter(false), sender)
+	tryChangeCached(skjson_getdelim(false), sender)
 
 	if {_failed} is 0:
 		send "&aAll test of changer was successfully."

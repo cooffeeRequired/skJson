@@ -29,7 +29,8 @@ public final class SkJson extends JavaPlugin {
             CompletableFuture.runAsync(() -> {
                 if (RUN_TEST_ON_START) {
                     try {
-                        Thread.sleep(2500);
+                        Util.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
+                        Thread.sleep(Config.TEST_START_UP_DELAY);
                         var loader = new SkriptLoaderFile(new File(this.getDataFolder() + "/" + "..tests"));
                         loader.load();
                         Thread.sleep(200);

@@ -45,6 +45,7 @@ public class Util {
     public static void enchantedError(Exception ex, StackTraceElement[] traceElements, String errorID) {
         Util.error("&4--------------------------- &l&cSkJson error handling &4---------------------------");
         Util.error("          " + ex.getLocalizedMessage() + "          ");
+        Util.error("          " + errorID + "          ");
         Util.error("&4------------------------------------------------------------------------------------");
         Util.errorWithoutPrefix("");
         int i = traceElements.length;
@@ -102,8 +103,9 @@ public class Util {
     public static LinkedList<String> extractKeysToList(String string, String delimiter, boolean ...rawAdding) {
         if (string == null) return null;
         try {
+            String finalString = string;
             checkDelimiter(string).forEach((ch, b) -> {
-                if (!b) throw new IllegalArgumentException("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + string + " \n  \t\t\t&f- Wrong delimiter &c" + ch);
+                if (!b) throw new IllegalArgumentException("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + finalString + " \n  \t\t\t&f- Wrong delimiter &c" + ch);
             });
         } catch (IllegalArgumentException ex) {
             Util.error("Configuration error!", true, ex.getLocalizedMessage());
@@ -113,6 +115,12 @@ public class Util {
         delimiter = sanitizeDelimiter(delimiter == null ? PATH_VARIABLE_DELIMITER + "(?![{}])" : delimiter);
 
         LinkedList<String> extractedKeys = new LinkedList<>();
+
+        if (string.endsWith("*")) {
+            string = string.replace("*", "");
+        } else if (string.endsWith(PATH_VARIABLE_DELIMITER + "*")) {
+            string = string.replace(PATH_VARIABLE_DELIMITER + "*", "");
+        }
 
         final Pattern squareBrackets = Pattern.compile(".*\\[((\\d+|)])");
         final Pattern subPattern = Pattern.compile("^([^\\[.*]+)");
@@ -216,12 +224,11 @@ public class Util {
      * @param quality the quality
      */
     public static void error(String msg, ErrorQuality ...quality) {
-        Skript.error(msg, ErrorQuality.NONE);
+
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+msg));
     }
 
     public static void error(String SkriptErrorMessage, boolean skript, String e) {
-        if (skript) Skript.error(SkriptErrorMessage, ErrorQuality.NONE);
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+e));
     }
 

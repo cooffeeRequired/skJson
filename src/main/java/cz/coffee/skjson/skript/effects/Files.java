@@ -119,6 +119,7 @@ public abstract class Files {
         protected void execute(@NotNull Event e) {
             String path = fileInput.getSingle(e);
             if (path == null) return;
+            Object unparsedValue = unparsedInput.getSingle(e);
             FileWrapper.from(new File(path)).whenComplete((cFile, cThrow) -> {
                 ParsedJson parsedJson = null;
                 if (cFile == null) return;
@@ -126,7 +127,6 @@ public abstract class Files {
                 String key = pathInput.getSingle(e);
                 LinkedList<String> keys = Util.extractKeysToList(key, Config.PATH_VARIABLE_DELIMITER);
                 if (keys == null) return;
-                Object unparsedValue = unparsedInput.getSingle(e);
                 try {
                     parsedJson = new ParsedJson(json);
                 } catch (ParsedJsonException exception) {
@@ -157,6 +157,7 @@ public abstract class Files {
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            System.out.println("here?");
             pathInput = (Expression<String>) exprs[0];
             fileInput = (Expression<String>) exprs[1];
             unparsedInput = LiteralUtils.defendExpression(exprs[2]);
