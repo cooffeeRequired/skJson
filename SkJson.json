@@ -1,14 +1,6 @@
 {
   "conditions": [
     {
-      "id": "CondJsonType",
-      "name": "CondJsonType",
-      "patterns": [
-        "type of %json% (is|=) (1:primitive|2:json object|3:json array)",
-        "type of %json% (is(n't| not)|!=) (1:primitive|2:json object|3:json array)"
-      ]
-    },
-    {
       "id": "CondFileExists",
       "name": "Json file exists",
       "description": [
@@ -102,6 +94,24 @@
       "patterns": [
         "json %json% is empty",
         "json %json% is(n't| not) empty"
+      ]
+    },
+    {
+      "id": "CondJsonType",
+      "name": "Type of Json",
+      "description": [
+        "You can get type of given Json."
+      ],
+      "examples": [
+        "set {_j} to json from \"{data: {}}\"",
+        "if type of {_j} is json object"
+      ],
+      "since": [
+        "2.7"
+      ],
+      "patterns": [
+        "type of %json% (is|=) (1:primitive|2:json object|3:json array)",
+        "type of %json% (is(n't| not)|!=) (1:primitive|2:json object|3:json array)"
       ]
     }
   ],
@@ -297,7 +307,15 @@
       "id": "JsonArrayChanger",
       "name": "Changer - JsonArray set/add/remove/removeAll",
       "description": [
-        ""
+        "The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults",
+        "A very general effect that can change many json array. The json object can be only add/set/remove/removeAll"
+      ],
+      "examples": [
+        "set value of json list \"1::list[1]::data\" in {_json} to \"[]\"",
+        "remove values 1 and \"Hello true\" of json list from {_json}",
+        "remove 2nd element of json list from {_json}",
+        "add diamond sword to json list \"0::list\" in {_json}",
+        "remove all \"new test key\" of json list \"array[0]\" from {_json}"
       ],
       "since": [
         "2.9"
@@ -318,7 +336,16 @@
       "id": "JsonObjectChanger",
       "name": "Changer - JsonObject set/remove/removeAll",
       "description": [
-        "A very general effect that can change many json object. The json object can be only set/removed/removedAll"
+        "The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults",
+        "A very general effect that can change many json object. The json object can be only set/remove/removeAll"
+      ],
+      "examples": [
+        "set value of json object \"data::key\" in {_json} to \"new test key\"",
+        "set key of json object \"data::key\" in {_json} to \"test key\"",
+        "set key of json object \"list\" in {_json} to \"array\"",
+        "set value of json object \"this-a test-what i need to <>-_::data\" in {_json} to iron sword",
+        "remove value \"test key\" of json object \"data\" from {_json}",
+        "remove all \"new test key\" of json object \"data\" from {_json}"
       ],
       "since": [
         "2.9"
@@ -335,7 +362,16 @@
     },
     {
       "id": "CountElements",
-      "name": "CountElements",
+      "name": "Count values/elements in the Json.",
+      "description": [
+        "You can get the count values in the given json"
+      ],
+      "examples": [
+        "number of key \"test\" in %json%"
+      ],
+      "since": [
+        "2.9"
+      ],
       "return type": "integer",
       "patterns": [
         "number of (0:key|1:value) %objects% in %json%"
@@ -455,7 +491,13 @@
       "name": "Pretty print",
       "description": [
         "Allows you to better parse json",
-        "<pre><code class=\"language-vb\">{\"test\": \"skJson\"}</code></pre>"
+        "<pre>",
+        "{",
+        "\t\"test\": \"skJson\"",
+        "\t\"Object\": {",
+        "\t\t\"new\": \"data\"",
+        "\t}",
+        "</pre>"
       ],
       "examples": [
         "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
