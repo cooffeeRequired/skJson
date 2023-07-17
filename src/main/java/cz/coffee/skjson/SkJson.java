@@ -2,7 +2,6 @@ package cz.coffee.skjson;
 
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.api.SkriptLoaderFile;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Bukkit;

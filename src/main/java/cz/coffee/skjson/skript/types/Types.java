@@ -44,7 +44,7 @@ import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 @SuppressWarnings("")
 abstract class Types {
     // JsonElement type
-     static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, JsonInventory.class, Inventory.class, ConfigurationSerializable.class);
+     static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
 
      static {
          try {

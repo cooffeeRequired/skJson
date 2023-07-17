@@ -64,7 +64,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     static {
         Skript.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects% [%player%]"
+                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
         );
     }
 
@@ -119,18 +119,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                         if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
                             type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
                         } else {
-                            if (value instanceof Inventory) {
-                                Object v;
-                                Object o = exprSender.getSingle(e);
-                                if (o instanceof HumanEntity hm) {
-                                    v = new JsonInventory(hm, (Inventory) value);
-                                } else {
-                                    v = new JsonInventory(null, (Inventory) value);
-                                }
-                                output.add(parse(v));
-                            } else {
-                                output.add(parse(value));
-                            }
+                            output.add(parse(value));
                         }
                     } catch (Exception ex) {
                         if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
@@ -162,9 +151,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
-        exprSender = (Expression<Object>) exprs[1];
         mark = parseResult.mark;
         isFile = mark == 2;
         isWebFile = mark == 3;

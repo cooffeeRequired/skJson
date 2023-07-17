@@ -15,6 +15,7 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -194,7 +195,8 @@ public abstract class ParserUtil {
                 if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
             }
         } else {
-            return assign(o);
+            JsonElement e = assign(o);
+            return e;
         }
         return null;
     }
@@ -223,8 +225,8 @@ public abstract class ParserUtil {
             if (object instanceof ItemStack) {
                 return ItemStackConverter.toJson((ItemStack) object);
             }
-            if (object instanceof JsonInventory) {
-                return InventoryConverter.toJson((JsonInventory) object);
+            if (object instanceof Inventory) {
+                return InventoryConverter.toJson((Inventory) object);
             }
             if (object instanceof NBTContainer) {
                 return NBTContainerConverter.toJson((NBTContainer) object);
@@ -267,8 +269,8 @@ public abstract class ParserUtil {
                     return (T) ChunkConverter.fromJson(json.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ItemStackConverter.fromJson(json.getAsJsonObject()));
-                else if (JsonInventory.class.isAssignableFrom(clazz))
-                    return (T) ((JsonInventory) InventoryConverter.fromJson(json.getAsJsonObject())).inv();
+                else if (Inventory.class.isAssignableFrom(clazz))
+                    return (T) InventoryConverter.fromJson(json.getAsJsonObject());
                 else if (Block.class.isAssignableFrom(clazz))
                     return (T) BlockConverter.fromJson(json.getAsJsonObject());
                 else if (NBTContainer.class.isAssignableFrom(clazz))
