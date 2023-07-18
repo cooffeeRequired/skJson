@@ -300,7 +300,7 @@ public class Config {
             Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully", ErrorQuality.SEMANTIC_ERROR);
         }
         try {
-            if (!Util.versionError(Skript.getVersion(), new Version(2, 7), true, manager, plugin)) return;
+            if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta1"), true, manager, plugin)) return;
 
             ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";
