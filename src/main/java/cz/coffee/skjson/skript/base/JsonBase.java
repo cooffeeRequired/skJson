@@ -26,7 +26,6 @@ import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.checkerframework.checker.units.qual.N;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -459,7 +458,6 @@ public abstract class JsonBase {
             );
         }
 
-        private ParseResult result;
         private Expression<Integer> intExpression;
         private Expression<JsonElement> jsonInput;
         private Integer tag;
@@ -528,12 +526,12 @@ public abstract class JsonBase {
         }
 
         @Override
-        public Class<?> getReturnType() {
+        public @NotNull Class<?> getReturnType() {
             return Object.class;
         }
 
         @Override
-        public String toString(@Nullable Event e, boolean debug) {
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
             return switch (tag) {
                 case 1 -> "first";
                 case 2 -> "second";
@@ -545,8 +543,8 @@ public abstract class JsonBase {
         }
 
         @Override
-        public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-            result = parseResult;
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
             tag = parseResult.mark;
             intExpression = (Expression<Integer>) exprs[0];
             jsonInput = LiteralUtils.defendExpression(exprs[1]);
@@ -581,9 +579,7 @@ public abstract class JsonBase {
             String var = variableString.toString(e).substring(0, variableString.toString().length() - 3);
             if (json == null) return;
             if (async) {
-                CompletableFuture.runAsync(() -> {
-                    toList(var, json, isLocal, e);
-                });
+                CompletableFuture.runAsync(() ->toList(var, json, isLocal, e));
             } else {
                 toList(var, json, isLocal, e);
             }

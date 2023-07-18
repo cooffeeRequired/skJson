@@ -19,9 +19,7 @@ import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

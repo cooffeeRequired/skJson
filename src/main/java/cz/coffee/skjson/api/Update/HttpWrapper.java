@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.coffee.skjson.api.Config.*;
 
@@ -47,6 +46,7 @@ public class HttpWrapper implements AutoCloseable {
     /**
      * The type Header.
      */
+    @SuppressWarnings("unused")
     public static class Header {
         private final HttpHeaders headers;
 
@@ -92,6 +92,8 @@ public class HttpWrapper implements AutoCloseable {
     /**
      * The interface Response.
      */
+
+    @SuppressWarnings("unused")
     public interface Response {
 
         /**
@@ -186,6 +188,7 @@ public class HttpWrapper implements AutoCloseable {
         boolean isSuccessfully();
     }
 
+    @SuppressWarnings("unused")
     private final ConcurrentHashMap<String, String> _headers = new ConcurrentHashMap<>();
     private Requests.RequestMethods method;
     private HttpClient client;
@@ -201,6 +204,7 @@ public class HttpWrapper implements AutoCloseable {
      * @param URL    the url
      * @param method the method
      */
+    @SuppressWarnings("unused")
     public HttpWrapper(String URL, String method) {
         this(URL, Requests.RequestMethods.valueOf(method.toUpperCase()));
     }
@@ -236,7 +240,7 @@ public class HttpWrapper implements AutoCloseable {
 
     public void postAttachments(String body) {
         AtomicInteger i = new AtomicInteger(0);
-        MimeMultipartData data = null;
+        MimeMultipartData data;
         var mmd = MimeMultipartData.newBuilder().withCharset(StandardCharsets.UTF_8);
         attachments.forEach(attachment -> {
             try {mmd.addFile(String.valueOf(i.incrementAndGet()),attachment.toPath(), Files.probeContentType(attachment.toPath()));
@@ -327,6 +331,7 @@ public class HttpWrapper implements AutoCloseable {
 
         return tempFile;
     }
+    @SuppressWarnings("all")
     public HttpWrapper addAttachment(String pathToAttachment) {
         File file;
         if (pathToAttachment.startsWith("*")) {
@@ -370,6 +375,7 @@ public class HttpWrapper implements AutoCloseable {
      *
      * @return the time
      */
+    @SuppressWarnings("unused")
     public String getTime() {
         return timer.toHumanTime();
     }
@@ -393,6 +399,7 @@ public class HttpWrapper implements AutoCloseable {
      * @param headers the headers
      * @return the headers
      */
+    @SuppressWarnings("all")
     public HttpWrapper setHeaders(final JsonElement headers) {
         if (!headers.isJsonNull()) {
             if (headers.isJsonObject()) {

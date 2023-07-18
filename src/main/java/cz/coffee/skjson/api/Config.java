@@ -3,13 +3,16 @@ package cz.coffee.skjson.api;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
 import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
+import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -297,6 +300,9 @@ public class Config {
             Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully", ErrorQuality.SEMANTIC_ERROR);
         }
         try {
+            if (!Util.versionError(Skript.getVersion(), new Version(2, 7), true, manager, plugin)) return;
+
+            ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";
             setupMetrics(17374, (JavaPlugin) plugin);
             Util.log(metricsPrefix + "Was loaded &asuccessfully.");
@@ -322,7 +328,6 @@ public class Config {
             errors.add("JsonWatcher Couldn't been &cinitialized.");
         }
 
-        ready = classesRegistration(plugin);
         ready = new UpdateCheck((JavaPlugin) plugin, this).getReady();
         ready = registerCommand(plugin, "skjson");
         loadTests("changer-skjson.sk");

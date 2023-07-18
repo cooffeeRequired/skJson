@@ -1,21 +1,21 @@
 package cz.coffee.skjson.utils;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.util.Version;
 import cz.coffee.skjson.api.ColorWrapper;
 import cz.coffee.skjson.api.Config;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static cz.coffee.skjson.api.Config.PATH_VARIABLE_DELIMITER;
-import static cz.coffee.skjson.api.Config.REQUESTS_PREFIX;
+import static cz.coffee.skjson.api.Config.*;
 
 /**
  * The type Util.
@@ -59,13 +59,26 @@ public class Util {
         Util.error("&4--------------------------- &l&cEnd of error handling &4---------------------------");
     }
 
+    public static boolean versionError(Version userVersion, Version neededVersion, boolean disablePlugin, PluginManager manager, JavaPlugin plugin) {
+        if (userVersion.isSmallerThan(neededVersion)) {
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&cThis version doesn't support a older version of srkipt " + userVersion));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&eUse older version &fhttps://github.com/SkJsonTeam/skJson/releases/tag/2.8.6"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "Or update skript to &f2.7+"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
+            if (disablePlugin) manager.disablePlugin(plugin);
+            return false;
+        }
+        return true;
+    }
+
     private static String sanitizeDelimiter(String st) {
         if (st.contains(".")) st = st.replace(".", "\\" + ".");
         return st;
     }
     private static Map<String, Boolean> checkDelimiter(String st) {
         Map<String, Boolean> message = new HashMap<>();
-        List<String> chars = new ArrayList<String>();
+        List<String> chars = new ArrayList<>();
 
         if (!st.matches("[\\p{L}\\p{N}\\\\p{\\d.+}\\s_\\-<>]+")) {
             // contains special chars
@@ -160,7 +173,7 @@ public class Util {
      * @param msg the msg
      */
     public static void log(Object msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + msg));
     }
 
     /**
@@ -205,7 +218,7 @@ public class Util {
      * @param msg the msg
      */
     public static void watcherLog(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.WATCHER_PREFIX + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.WATCHER_PREFIX + msg));
     }
 
     /**
@@ -214,7 +227,7 @@ public class Util {
      * @param msg the msg
      */
     public static void webhookLog(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.WEBHOOK_PREFIX + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.WEBHOOK_PREFIX + msg));
     }
 
     /**
@@ -225,11 +238,11 @@ public class Util {
      */
     public static void error(String msg, ErrorQuality ...quality) {
 
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+msg));
     }
 
     public static void error(String SkriptErrorMessage, boolean skript, String e) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+e));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+e));
     }
 
     /**
@@ -238,7 +251,7 @@ public class Util {
      * @param msg the msg
      */
     public static void errorWithoutPrefix(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&l&c"+msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&l&c"+msg));
     }
 
     /**
@@ -250,7 +263,7 @@ public class Util {
      */
     public static void error(String msg, ErrorQuality quality, @Nullable Node node) {
         int line = node == null ? 0 : node.getLine();
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&c&lLine "+line + ":&8 ("+node.getConfig().getFileName() + ")"));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&c&lLine "+line + ":&8 ("+node.getConfig().getFileName() + ")"));
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate("&#f27813\t" + msg));
     }
 
