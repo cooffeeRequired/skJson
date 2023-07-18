@@ -135,12 +135,12 @@ public class Config {
     /**
      * Load config file.
      */
-    public void loadConfigFile() {
+    public void loadConfigFile(boolean replace) {
         if (configFile == null) {
             configFile = new File(plugin.getDataFolder(), "config.yml");
         }
         if (!configFile.exists()) {
-            plugin.saveResource("config.yml", false);
+            plugin.saveResource("config.yml", replace);
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         matchConfig();
@@ -249,32 +249,41 @@ public class Config {
     }
 
     private void loadConfigs() {
-        PROJECT_DEBUG = getSetting("debug");
-        LOGGING_LEVEL = getInt("logging-level");
-        DEFAULT_WATCHER_INTERVAL = getLong("watcher-interval");
-        PLUGIN_PREFIX = getPrefix("plugin");
-        ERROR_PREFIX = getPrefix("error");
-        WATCHER_PREFIX = getPrefix("watcher");
-        REQUESTS_PREFIX = getPrefix("request");
-        WEBHOOK_PREFIX = getPrefix("webhook");
-        PATH_VARIABLE_DELIMITER = getString("path-delimiter");
-        TESTS_ALOWED = getSetting("test-allowed");
-        RUN_TEST_ON_START = getSetting("run-tests-on-startup");
-        int delayStart = getInt("startup-tests-delay");
-        if (delayStart == 1) {
-            TEST_START_UP_DELAY = 10_000;
-        } else if (delayStart == 2) {
-            TEST_START_UP_DELAY = 25_000;
-        } else if (delayStart == 3) {
-            TEST_START_UP_DELAY = 35_000;
-        } else {
-            TEST_START_UP_DELAY = 5000;
-        }
+        try {
+            PROJECT_DEBUG = getSetting("debug");
+            LOGGING_LEVEL = getInt("logging-level");
+            DEFAULT_WATCHER_INTERVAL = getLong("watcher-interval");
+            PLUGIN_PREFIX = getPrefix("plugin");
+            ERROR_PREFIX = getPrefix("error");
+            WATCHER_PREFIX = getPrefix("watcher");
+            REQUESTS_PREFIX = getPrefix("request");
+            WEBHOOK_PREFIX = getPrefix("webhook");
+            PATH_VARIABLE_DELIMITER = getString("path-delimiter");
+            TESTS_ALOWED = getSetting("test-allowed");
+            RUN_TEST_ON_START = getSetting("run-tests-on-startup");
+            int delayStart = getInt("startup-tests-delay");
+            if (delayStart == 1) {
+                TEST_START_UP_DELAY = 10_000;
+            } else if (delayStart == 2) {
+                TEST_START_UP_DELAY = 25_000;
+            } else if (delayStart == 3) {
+                TEST_START_UP_DELAY = 35_000;
+            } else {
+                TEST_START_UP_DELAY = 5000;
+            }
 
-        if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
-            Util.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-            Util.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
-            manager.disablePlugin(plugin);
+            if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
+                Util.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+                Util.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+                manager.disablePlugin(plugin);
+            }
+        } catch (Exception ignored) {
+            try {
+                Util.log("&e&lConfig.yaml was fixed... Cause missing entry");
+                loadConfigFile(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -289,7 +298,7 @@ public class Config {
     public void init() throws IOException {
         manager = Bukkit.getPluginManager();
         try {
-            loadConfigFile();
+            loadConfigFile(false);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

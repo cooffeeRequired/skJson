@@ -27,7 +27,7 @@ public class SkJsonCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("reload")) {
                 sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "⚠️ &econfig reloading..."));
                 try {
-                    Config.getConfig().loadConfigFile();
+                    Config.getConfig().loadConfigFile(false);
                     sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7New path delimiter: &e" + Config.PATH_VARIABLE_DELIMITER));
                     sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &asuccessfully."));
                     return true;
