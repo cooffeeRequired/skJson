@@ -13,14 +13,18 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.SkJson;
 import cz.coffee.core.utils.AdapterUtils;
+import cz.coffee.core.utils.JsonUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static cz.coffee.core.utils.AdapterUtils.parseItem;
 import static cz.coffee.core.utils.JsonUtils.getByKey;
 import static cz.coffee.core.utils.JsonUtils.getNestedElements;
 import static cz.coffee.core.utils.Util.extractKeys;
@@ -81,7 +85,7 @@ public class ExprJsonElements extends SimpleExpression<Object> {
     }
 
     private boolean isValues, isEntries;
-    private Expression<JsonElement> jsonElementExpression;
+    private Expression<Object> jsonElementExpression;
     private Expression<String> stringExpression;
 
     public static boolean isChangedLoopOf(@NotNull String s) {
@@ -99,7 +103,17 @@ public class ExprJsonElements extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object @NotNull [] get(@NotNull Event e) {
-        JsonElement json = jsonElementExpression.getSingle(e);
+        JsonElement json = JsonNull.INSTANCE;
+        Object input = jsonElementExpression.getSingle(e);
+
+        if (input instanceof String str) {
+            json = parseItem(str, this.jsonElementExpression, e);
+        } else if (input instanceof JsonElement element)  {
+            json = element;
+        } else {
+            SkJson.error("Unsupported input, use string or json either");
+        }
+
         if (json == null) return new Object[0];
         boolean emptyKeys = stringExpression == null;
         String keys = !emptyKeys ? stringExpression.getSingle(e) : null;
