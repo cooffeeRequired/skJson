@@ -21,13 +21,17 @@
             <id>maven-snapshots</id>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </pluginRepository>
+            <pluginRepository>
+                <id>bytecode.space</id>
+                <url>https://repo.bytecode.space/repository/maven-public/</url>
+            </pluginRepository>
     </pluginRepositories>
 
 
     <repositories>
         <repository>
-            <id>purpur</id>
-            <url>https://repo.purpurmc.org/snapshots</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
             <id>sonatype</id>
@@ -37,6 +41,10 @@
             <id>code-mc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
             <layout>default</layout>
+        </repository>
+        <repository>
+            <id>skript</id>
+            <url>https://repo.skriptlang.org/releases</url>
         </repository>
     </repositories>
 
@@ -126,7 +134,7 @@
                     </filters>
                     <relocations combine.children="append">
                         <relocation>
-                            <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                            <pattern>de.tr7zw.changeme</pattern>
                             <shadedPattern>cz.coffee.api.nbt</shadedPattern>
                         </relocation>
                         <relocation>

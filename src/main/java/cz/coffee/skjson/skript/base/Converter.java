@@ -4,7 +4,11 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.skript.base.nbts.NBTConvert;
+import cz.coffee.skjson.utils.Util;
+import de.tr7zw.changeme.nbtapi.NBTCompound;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -72,7 +76,19 @@ public abstract class Converter {
             }
             JsonObject o = new JsonObject();
             o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            return GsonConverter.toJsonTree(source, ItemStack.class);
+            JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
+
+            if (source.toString().contains("internal")) {
+                i.getAsJsonObject().getAsJsonObject("meta").remove("internal");
+                final JsonObject tags = new JsonObject();
+                final List<String> ignored = List.of("Enchantments", "display", "Damage");
+                NBTCompound cmp = NBTItem.convertItemtoNBT(source).getCompound("tag");
+                cmp.getKeys().stream().filter(cmpkey -> !ignored.contains(cmpkey)).forEach(cmpkey -> {
+                    tags.add(cmpkey, NBTConvert.parse(cmpkey, cmp));
+                });
+                i.getAsJsonObject().getAsJsonObject("meta").add("tags", tags);
+            }
+            return i;
         }
 
         @Override
@@ -80,9 +96,11 @@ public abstract class Converter {
             if (json.has("meta")) {
                 ItemMeta im = ItemMetaConverter.fromJson(json);
                 final JsonObject meta = json.remove("meta").getAsJsonObject();
+                final JsonObject tags = meta.remove("tags").getAsJsonObject();
                 ItemStack stack = GsonConverter.fromJson(json, ItemStack.class);
                 stack.setItemMeta(im);
                 stack = enchants(stack, meta);
+                stack = NBTConvert.parseFromJson(stack, tags);
                 return stack;
             }
             return GsonConverter.fromJson(json, ItemStack.class);
