@@ -33,6 +33,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
@@ -73,22 +74,23 @@ public abstract class Converter {
         public @NotNull JsonElement toJson(ItemStack source) {
             if (source.getItemMeta() == null) {
                 return GsonConverter.toJsonTree(source, ItemStack.class);
-            }
-            JsonObject o = new JsonObject();
-            o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
+            } else {
+                JsonObject o = new JsonObject();
+                o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+                JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
 
-            if (source.toString().contains("internal")) {
-                i.getAsJsonObject().getAsJsonObject("meta").remove("internal");
-                final JsonObject tags = new JsonObject();
-                final List<String> ignored = List.of("Enchantments", "display", "Damage");
-                NBTCompound cmp = NBTItem.convertItemtoNBT(source).getCompound("tag");
-                cmp.getKeys().stream().filter(cmpkey -> !ignored.contains(cmpkey)).forEach(cmpkey -> {
-                    tags.add(cmpkey, NBTConvert.parse(cmpkey, cmp));
-                });
-                i.getAsJsonObject().getAsJsonObject("meta").add("tags", tags);
+                if (source.toString().contains("internal")) {
+                    i.getAsJsonObject().getAsJsonObject("meta").remove("internal");
+                    final JsonObject tags = new JsonObject();
+                    final List<String> ignored = List.of("Enchantments", "display", "Damage", "AttributeModifiers", "CustomModelData", "DamageEquation");
+                    NBTCompound cmp = NBTItem.convertItemtoNBT(source).getCompound("tag");
+                    cmp.getKeys().stream().filter(cmpkey -> !ignored.contains(cmpkey)).forEach(cmpkey -> {
+                        tags.add(cmpkey, NBTConvert.parse(cmpkey, cmp));
+                    });
+                    i.getAsJsonObject().getAsJsonObject("meta").add("custom_tags", tags);
+                }
+                return i;
             }
-            return i;
         }
 
         @Override
@@ -96,7 +98,7 @@ public abstract class Converter {
             if (json.has("meta")) {
                 ItemMeta im = ItemMetaConverter.fromJson(json);
                 final JsonObject meta = json.remove("meta").getAsJsonObject();
-                final JsonObject tags = meta.remove("tags").getAsJsonObject();
+                final JsonObject tags = meta.remove("custom_tags").getAsJsonObject();
                 ItemStack stack = GsonConverter.fromJson(json, ItemStack.class);
                 stack.setItemMeta(im);
                 stack = enchants(stack, meta);

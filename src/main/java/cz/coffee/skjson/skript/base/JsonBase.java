@@ -302,7 +302,6 @@ public abstract class JsonBase {
             try {
                 json = jsonInput.getSingle(e);
             } catch (Exception ignored) {}
-
             if (json == null) return new Object[0];
             boolean emptyPath = pathInput == null;
             String keys = !emptyPath ? pathInput.getSingle(e) : null;

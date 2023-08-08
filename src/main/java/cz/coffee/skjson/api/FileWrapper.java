@@ -147,15 +147,13 @@ public class FileWrapper {
     public static void write(String fileString, JsonElement json) {
         if (json == null || json instanceof JsonNull) json = new JsonObject();
         final String data = gson.toJson(json);
-        CompletableFuture.runAsync(() -> {
-            try {
-                File file = new File(fileString);
-                if (!file.exists() && !file.isFile()) return;
-                Files.writeString(file.toPath(), data);
-            } catch (Exception ex) {
-                if (LOGGING_LEVEL >= 1) Util.error(ex.getLocalizedMessage());
-            }
-        });
+        try {
+            File file = new File(fileString);
+            if (!file.exists() && !file.isFile()) return;
+            Files.writeString(file.toPath(), data);
+        } catch (Exception ex) {
+            if (LOGGING_LEVEL >= 1) Util.error(ex.getLocalizedMessage());
+        }
     }
 
     public static File serchFile(String filename) {

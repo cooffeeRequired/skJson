@@ -193,6 +193,7 @@ public abstract class ParserUtil {
             } catch (Exception ex)
             {
                 if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) ex.printStackTrace();
             }
         } else {
             JsonElement e = assign(o);
@@ -235,6 +236,7 @@ public abstract class ParserUtil {
                 return GsonConverter.toJsonTree(object, ConfigurationSerializable.class);
             }
         } catch (Exception exception) {
+            if (PROJECT_DEBUG) exception.printStackTrace();
             return null;
         }
         return null;
@@ -249,6 +251,7 @@ public abstract class ParserUtil {
      */
     public static <T> T from(JsonElement json) {
         if (json == null || json.isJsonArray() || json.isJsonNull() || json.isJsonPrimitive()) return null;
+        final JsonElement finalJson = json.deepCopy();
         Class<?> clazz = null;
         String potentialClass = null;
         if (json.getAsJsonObject().has(SERIALIZED_JSON_TYPE_KEY))
@@ -261,25 +264,27 @@ public abstract class ParserUtil {
             if (PROJECT_DEBUG) Util.error(notFoundException.getLocalizedMessage(), ErrorQuality.NONE);
             return null;
         }
+
         if (clazz != null) {
             try {
                 if (World.class.isAssignableFrom(clazz))
-                    return (T) WorldConverter.fromJson(json.getAsJsonObject());
+                    return (T) WorldConverter.fromJson(finalJson.getAsJsonObject());
                 else if (Chunk.class.isAssignableFrom(clazz))
-                    return (T) ChunkConverter.fromJson(json.getAsJsonObject());
+                    return (T) ChunkConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
-                    return ((T) ItemStackConverter.fromJson(json.getAsJsonObject()));
+                    return ((T) ItemStackConverter.fromJson(finalJson.getAsJsonObject()));
                 else if (Inventory.class.isAssignableFrom(clazz))
-                    return (T) InventoryConverter.fromJson(json.getAsJsonObject());
+                    return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
                 else if (Block.class.isAssignableFrom(clazz))
-                    return (T) BlockConverter.fromJson(json.getAsJsonObject());
+                    return (T) BlockConverter.fromJson(finalJson.getAsJsonObject());
                 else if (NBTContainer.class.isAssignableFrom(clazz))
-                    return (T) NBTContainerConverter.fromJson(json.getAsJsonObject());
+                    return (T) NBTContainerConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
-                    return (T) GsonConverter.fromJson(json, clazz);
+                    return (T) GsonConverter.fromJson(finalJson, clazz);
                 else return null;
             } catch (Exception ex) {
                 if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) ex.printStackTrace();
                 return null;
             }
         }

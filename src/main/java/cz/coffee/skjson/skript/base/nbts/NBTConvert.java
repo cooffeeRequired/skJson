@@ -2,9 +2,7 @@ package cz.coffee.skjson.skript.base.nbts;
 
 import com.google.gson.*;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.*;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayDeque;
@@ -91,7 +89,7 @@ public class NBTConvert {
                         });
                         yield object;
                     }
-                    case NBTTagString -> JsonParser.parseString(cmp.getString(key));
+                    case NBTTagString -> new Gson().toJsonTree(cmp.getString(key));
                     case NBTTagByteArray -> {
                         final JsonArray array = new JsonArray();
                         for (byte b : cmp.getByteArray(key)) {
@@ -125,13 +123,13 @@ public class NBTConvert {
             cont.setByte(key, (Byte) data);
         } else if (data instanceof Number) {
             if (data instanceof Integer i) {
-                cont.setInteger(key, (Integer) data);
+                cont.setInteger(key, i);
             } else if (data instanceof Double d) {
-                cont.setDouble(key, (Double) data);
+                cont.setDouble(key, d);
             } else if (data instanceof Float f) {
-                cont.setFloat(key, (Float) data);
+                cont.setFloat(key, f);
             } else if (data instanceof Long l) {
-                cont.setLong(key, (Long) data);
+                cont.setLong(key, l);
             }
         } else if (clazz.equals(Boolean.class)) {
             cont.setBoolean(key, (Boolean) data);
@@ -162,7 +160,7 @@ public class NBTConvert {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Float f) inList.add(f);
-                };
+                }
             } else if (single instanceof Double) {
                 NBTList<Double> inList = main.getDoubleList(mainKey);
                 inList.clear();
@@ -170,7 +168,7 @@ public class NBTConvert {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Double d) inList.add(d);
-                };
+                }
             } else if (single instanceof Long) {
                 NBTList<Long> inList = main.getLongList(mainKey);
                 inList.clear();
@@ -178,7 +176,7 @@ public class NBTConvert {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Long l) inList.add(l);
-                };
+                }
             } else if (single instanceof Integer) {
                 NBTList<Integer> inList = main.getIntegerList(mainKey);
                 inList.clear();
@@ -186,37 +184,37 @@ public class NBTConvert {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Integer ii) inList.add(ii);
-                };
+                }
             } else if (single instanceof Byte) {
                 byte[] inList = main.getByteArray(mainKey);
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Byte bb) inList[i] = bb;
-                };
-            } else if (single instanceof String str) {
+                }
+            } else if (single instanceof String) {
                 NBTList<String> inList = main.getStringList(mainKey);
                 inList.clear();
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof String s) inList.add(s);
-                };
-            } else if (single instanceof Boolean bb) {
+                }
+            } else if (single instanceof Boolean) {
                 byte[] inList = main.getByteArray(mainKey);
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement unparsed = array.get(i);
                     Object data = ParserUtil.jsonToType(unparsed);
                     if (data instanceof Boolean s)
                         inList[i] = (byte) (s ? 0x1b : 0x0b);
-                };
-            } else if (single instanceof NBTCompound) {
+                }
             }
         }
         //
     }
 
     static void processObject(NBTCompound main, JsonObject object, String mainKey) {
+        if (main == null) return;
         main.addCompound(mainKey);
         object.keySet().forEach(key -> {
             JsonElement unparsed = object.get(key);
@@ -231,8 +229,7 @@ public class NBTConvert {
     }
 
     static NBTContainer processJson(JsonObject e) {
-        final Gson gson = new GsonBuilder().serializeNulls().create();
-        Deque<JsonElement> elements = new ArrayDeque<JsonElement>();
+        Deque<JsonElement> elements = new ArrayDeque<>();
         final NBTContainer container = new NBTContainer();
         JsonElement element;
         elements.add(e);
@@ -240,7 +237,7 @@ public class NBTConvert {
         while ((element = elements.pollFirst()) != null) {
             if (element instanceof JsonObject compound) {
                 compound.entrySet().forEach(entry -> {
-                    String key = (String) entry.getKey();
+                    String key = entry.getKey();
                     JsonElement value = entry.getValue();
                     if (value.isJsonPrimitive()) {
                         setValue(key, value, container);

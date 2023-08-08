@@ -1,11 +1,11 @@
 package cz.coffee.skjson.skript.base.nbts;
 
-import ch.njol.util.StringUtils;
 import de.tr7zw.changeme.nbtapi.NBTCompound;
 import de.tr7zw.changeme.nbtapi.NBTType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -56,17 +56,10 @@ public enum NBTCustom {
         return this.name;
     }
 
-    public Class<?> getTypeClass() {
-        return this.typeClass;
-    }
-
-    private static final Map<String, NBTCustom> BY_NAME = new HashMap<>();
     private static final Map<NBTType, NBTCustom> BY_TYPE = new HashMap<>();
 
     static {
         for (NBTCustom type : NBTCustom.values()) {
-            if (type != NBTTagEnd)
-                BY_NAME.put(type.name, type);
             BY_TYPE.put(type.nbtType, type);
         }
     }
@@ -93,11 +86,5 @@ public enum NBTCustom {
             return BY_TYPE.get(nbtType);
         }
         return null;
-    }
-
-    public static String getNames() {
-        List<String> names = new ArrayList<>(BY_NAME.keySet());
-        Collections.sort(names);
-        return StringUtils.join(names, ", ");
     }
 }
