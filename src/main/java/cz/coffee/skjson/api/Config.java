@@ -2,17 +2,14 @@ package cz.coffee.skjson.api;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
 import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
-import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -306,7 +303,7 @@ public class Config {
             new NBTContainer("{a:0}");
             logger.info("[NBTAPI] Was loaded &asuccessfully.");
         } catch (Exception ignored) {
-            Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully", ErrorQuality.SEMANTIC_ERROR);
+            Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
         try {
             if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta1"), true, manager, plugin)) return;
@@ -322,7 +319,7 @@ public class Config {
         ready = initializeSkript(manager, plugin.getPluginMeta().getPluginDependencies().get(0));
 
         if (errors.size() > 0) {
-            Util.error("&cFound errors while skJson starting, SkJson will be &cdisabled", ErrorQuality.SEMANTIC_ERROR);
+            Util.error("&cFound errors while skJson starting, SkJson will be &cdisabled");
             for (int i = 0; i < errors.size(); i++) {
                 String error = errors.get(i);
                 Util.log(String.format("&7→ %s. &c%s", i, error));

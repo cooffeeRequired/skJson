@@ -210,7 +210,6 @@ public class NBTConvert {
                 }
             }
         }
-        //
     }
 
     static void processObject(NBTCompound main, JsonObject object, String mainKey) {

@@ -26,9 +26,6 @@ public class Webhook {
          */
         WEB
     }
-
-    private HttpWrapper http;
-
     private final WebHookType webHookType;
 
     /**
@@ -50,17 +47,15 @@ public class Webhook {
         return create(Requests.RequestMethods.POST, json);
     }
 
-    private List<String> attachments = new ArrayList<String>();
+    private List<String> attachments = new ArrayList<>();
 
     /**
      * Add attachment webhook.
      *
      * @param data the data
-     * @return the webhook
      */
-    public Webhook addAttachment(List<String> data) {
+    public void addAttachment(List<String> data) {
         attachments = data;
-        return this;
     }
 
     /**

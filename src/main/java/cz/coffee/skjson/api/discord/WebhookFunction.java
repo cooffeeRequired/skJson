@@ -3,8 +3,6 @@ package cz.coffee.skjson.api.discord;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 
-import java.util.Map;
-
 /**
  * The interface Webhook function.
  */

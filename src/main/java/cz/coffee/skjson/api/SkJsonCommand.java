@@ -8,13 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.RUN_TEST_ON_START;
-
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
  * Created: středa (12.07.2023)
  */
+@SuppressWarnings("ALL")
 public class SkJsonCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {

@@ -120,9 +120,7 @@ public abstract class Requests {
         @Override
         protected @Nullable TriggerItem walk(@NotNull Event e) {
             if (async) {
-                CompletableFuture.runAsync(() -> {
-                    execute(e);
-                });
+                CompletableFuture.runAsync(() -> execute(e));
             } else {
                 execute(e);
             }

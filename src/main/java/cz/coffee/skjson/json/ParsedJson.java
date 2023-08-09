@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The type Parsed json.
  */
 public class ParsedJson {
-    private JsonElement input;
+    private final JsonElement input;
 
     /**
      * Gets json.
@@ -73,7 +73,7 @@ public class ParsedJson {
                 currentElements.offerLast(jsonObject.get(key));
             } else if (current.isJsonArray()) {
                 JsonArray jsonArray = current.getAsJsonArray();
-                int index = Integer.parseInt(keys.pollFirst());
+                int index = Integer.parseInt(Objects.requireNonNull(keys.pollFirst()));
                 currentElements.offerLast(jsonArray.get(index));
             }
         }
@@ -357,24 +357,6 @@ public class ParsedJson {
      */
     public boolean isObject() {
         return input.isJsonObject();
-    }
-
-    /**
-     * Is array boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isArray() {
-        return input.isJsonArray();
-    }
-
-    /**
-     * Is primitive boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isPrimitive() {
-        return input.isJsonPrimitive();
     }
 
     /**

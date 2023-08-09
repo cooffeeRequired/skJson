@@ -156,10 +156,8 @@ public abstract class JsonCacheInstance {
                         .toList().forEach(potentialFile -> {
                             File potential = new File(pathDirectory + File.pathSeparator + potentialFile);
                             CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                            if (ct != null) {
-                                JsonElement json = ct.join().get();
-                                jsonFiles.add(potentialFile, json);
-                            }
+                            JsonElement json = ct.join().get();
+                            jsonFiles.add(potentialFile, json);
                         });
                 cz.coffee.skjson.api.Cache.JsonCache<String, JsonElement, File> cache = Config.getCache();
                 cache.addValue(finalCacheDirectory, jsonFiles, folder);

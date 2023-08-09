@@ -1,6 +1,5 @@
 package cz.coffee.skjson.api.Update;
 
-import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.skript.requests.Requests;
@@ -19,7 +18,6 @@ public class UpdateCheck {
     private final JavaPlugin plugin;
     private final Config config;
     private final String API;
-    private boolean ready = true;
     private boolean success = false;
 
     /**
@@ -70,7 +68,7 @@ public class UpdateCheck {
                 }
             }
         }
-        return ready;
+        return true;
     }
 
     private int sanitizeVersion(String version) {
@@ -79,7 +77,7 @@ public class UpdateCheck {
             if (replaced.length() == 2) replaced = replaced + 0;
             return Integer.parseInt(replaced);
         } catch (NumberFormatException exception) {
-            if (PROJECT_DEBUG) Util.error(exception.getMessage(), ErrorQuality.NONE);
+            if (PROJECT_DEBUG) Util.error(exception.getMessage());
         }
         return 0;
     }
@@ -94,7 +92,7 @@ public class UpdateCheck {
                         .process();
                 success = response.isSuccessfully();
             } catch (Exception e) {
-                if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) Util.error(e.getMessage());
                 return null;
             } finally {
                 if (response != null) {

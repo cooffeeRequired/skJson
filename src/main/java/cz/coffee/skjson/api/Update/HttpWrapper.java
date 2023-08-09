@@ -1,6 +1,5 @@
 package cz.coffee.skjson.api.Update;
 
-import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.*;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.skript.requests.Requests;
@@ -125,7 +124,7 @@ public class HttpWrapper implements AutoCloseable {
                     try {
                         return JsonParser.parseString(body);
                     } catch (Exception e) {
-                        if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+                        if (PROJECT_DEBUG) Util.error(e.getMessage());
                     }
                     return JsonNull.INSTANCE;
                 }
@@ -134,7 +133,7 @@ public class HttpWrapper implements AutoCloseable {
                     try {
                         return uri.toURL();
                     } catch (MalformedURLException exception) {
-                        if (PROJECT_DEBUG) Util.error(exception.getMessage(), ErrorQuality.SEMANTIC_ERROR);
+                        if (PROJECT_DEBUG) Util.error(exception.getMessage());
                         return null;
                     }
                 }
@@ -217,7 +216,7 @@ public class HttpWrapper implements AutoCloseable {
      */
     public HttpWrapper(String URL, Requests.RequestMethods method) {
         if (method == null) {
-            if (PROJECT_DEBUG) Util.error("HttpWrapper: The method cannot be null", ErrorQuality.NONE);
+            if (PROJECT_DEBUG) Util.error("HttpWrapper: The method cannot be null");
             return;
         }
         this.method = method;
@@ -232,7 +231,7 @@ public class HttpWrapper implements AutoCloseable {
         try {
             requestLink = URI.create(sanitizeLink(URL));
         } catch (Exception e) {
-            if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.SEMANTIC_ERROR);
+            if (PROJECT_DEBUG) Util.error(e.getMessage());
             return;
         }
         builder = HttpRequest.newBuilder().uri(requestLink);
@@ -365,7 +364,7 @@ public class HttpWrapper implements AutoCloseable {
                 return Response.of(request.headers(), future.headers(), future.uri(), future.body(), future.statusCode());
             }).get();
         } catch (Exception e) {
-            if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+            if (PROJECT_DEBUG) Util.error(e.getMessage());
             return null;
         }
     }

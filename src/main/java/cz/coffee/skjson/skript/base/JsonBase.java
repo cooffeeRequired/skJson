@@ -154,7 +154,7 @@ public abstract class JsonBase {
             try {
                 outputMap = (WeakHashMap<String, Object>) loop.getCurrent(e);
             } catch (ClassCastException exception) {
-                if (PROJECT_DEBUG) Util.error(exception.getLocalizedMessage(), ErrorQuality.NONE, getParser().getNode());
+                if (PROJECT_DEBUG) Util.error(exception.getLocalizedMessage(), getParser().getNode());
                 return new Object[0];
             }
 
@@ -312,7 +312,7 @@ public abstract class JsonBase {
             try {
                 parsedJson = new ParsedJson(json);
             } catch (ParsedJsonException ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE, node);
+                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), node);
                 return new Object[0];
             }
 
@@ -647,7 +647,7 @@ public abstract class JsonBase {
             Expression<?> unparsedObject = LiteralUtils.defendExpression(exprs[1]);
             async = parseResult.hasTag("async");
             if (!unparsedObject.getReturnType().isAssignableFrom(JsonElement.class)) {
-                Util.error("You can map only Json or stringify json (String)", ErrorQuality.SEMANTIC_ERROR, getParser().getNode());
+                Util.error("You can map only Json or stringify json (String)", getParser().getNode());
                 return false;
             }
             jsonInput = exprs[0];
@@ -779,7 +779,7 @@ public abstract class JsonBase {
                     isLocal = var.isLocal();
                     variable = var.getName();
                 } else {
-                    Util.error("Variable need to be a list", ErrorQuality.NONE, getParser().getNode());
+                    Util.error("Variable need to be a list", getParser().getNode());
                     return false;
                 }
             } else {

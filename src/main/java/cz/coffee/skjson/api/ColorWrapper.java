@@ -29,6 +29,7 @@ public class ColorWrapper {
      * @param message the message
      * @return the string
      */
+    @SuppressWarnings("deprecation")
     public static String translateLegacy(Object message) {
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }

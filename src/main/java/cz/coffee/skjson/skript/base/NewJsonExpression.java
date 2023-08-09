@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
@@ -67,7 +66,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     }
 
     private boolean isFile, isYaml, isWebFile;
-    private Expression<Object> exprSender;
     private int mark;
     private Expression<?> input;
     private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
@@ -94,7 +92,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                             .request()
                             .process();
                 } catch (Exception ex) {
-                    Util.error(ex.getLocalizedMessage(), ErrorQuality.SEMANTIC_ERROR, Objects.requireNonNull(getParser().getNode()));
+                    Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
 
                 return rp;
@@ -120,7 +118,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                             output.add(parse(value));
                         }
                     } catch (Exception ex) {
-                        if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
+                        if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
                     }
                 }
             }

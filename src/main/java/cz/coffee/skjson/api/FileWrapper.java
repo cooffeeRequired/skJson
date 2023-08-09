@@ -1,15 +1,12 @@
 package cz.coffee.skjson.api;
 
-import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.*;
 import cz.coffee.skjson.utils.Util;
-import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
 
@@ -60,7 +57,7 @@ public class FileWrapper {
                     json = JsonParser.parseReader(reader);
                 } catch (JsonParseException e) {
                     json = JsonNull.INSTANCE;
-                    if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+                    if (PROJECT_DEBUG) Util.error(e.getMessage());
                 }
             } else if (file.getName().endsWith(".yml") || file.getName().endsWith(".yaml")) {
                 try {
@@ -69,13 +66,13 @@ public class FileWrapper {
                     json = new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
                 } catch (Exception e) {
                     json = JsonNull.INSTANCE;
-                    if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+                    if (PROJECT_DEBUG) Util.error(e.getMessage());
                 }
             }
             try {
                 reader.close();
             } catch (IOException e) {
-                if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) Util.error(e.getMessage());
                 return null;
             }
             return json;
@@ -95,7 +92,7 @@ public class FileWrapper {
                 Reader reader = new BufferedReader(new FileReader(file));
                 return new JsonFile(file, reader);
             } catch (IOException exception) {
-                if (PROJECT_DEBUG) Util.error(exception.getMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) Util.error(exception.getMessage());
                 return null;
             }
         });
@@ -106,7 +103,7 @@ public class FileWrapper {
             Reader reader = new BufferedReader(new FileReader(file));
             return new JsonFile(file, reader);
         } catch (IOException exception) {
-            if (PROJECT_DEBUG) Util.error(exception.getMessage(), ErrorQuality.NONE);
+            if (PROJECT_DEBUG) Util.error(exception.getMessage());
             return null;
         }
     }
@@ -116,7 +113,6 @@ public class FileWrapper {
      *
      * @param fileString the file string
      * @param json       the json
-     * @return the completable future
      */
     public static void newFile(String fileString, JsonElement json) {
         if (json == null || json instanceof JsonNull) json = new JsonObject();
@@ -131,10 +127,8 @@ public class FileWrapper {
             if (!file.exists() && !file.createNewFile()) return;
             if (!file.exists()) return;
             Files.writeString(file.toPath(), gson.toJson(finalJson));
-            return;
         } catch (Exception ex) {
             Util.error(ex.getMessage());
-            return;
         }
     }
 
@@ -161,7 +155,7 @@ public class FileWrapper {
     }
 
     public static File serchFile(String filename, File directory) {
-        Deque<File> fileDeque = new ArrayDeque<File>();
+        Deque<File> fileDeque = new ArrayDeque<>();
         File current;
         fileDeque.add(directory);
 

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Version;
 import ch.njol.util.coll.CollectionUtils;
@@ -40,7 +39,7 @@ import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 
 @Since("2.9")
-@SuppressWarnings("")
+@SuppressWarnings("deprecation")
 abstract class Types {
     // JsonElement type
      static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
@@ -53,7 +52,7 @@ abstract class Types {
                  allowedTypes.forEach(clazz -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, clazz, ParserUtil::from));
 
              }
-         } catch (Exception e) {if (PROJECT_DEBUG) Util.error(e.getMessage(), ErrorQuality.NONE);}
+         } catch (Exception e) {if (PROJECT_DEBUG) Util.error(e.getMessage());}
 
          /*
          Registrations for JsonElement
@@ -193,8 +192,8 @@ abstract class Types {
                                                      }
                                                  } catch (Exception ex) {
                                                      if (LOGGING_LEVEL > 1 && !PROJECT_DEBUG) {
-                                                         Util.error(null, false, "Something happened in the Changer! If you wanna more information");
-                                                         if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
+                                                         Util.error(false, "Something happened in the Changer! If you wanna more information");
+                                                         if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
                                                      }
                                                      if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
                                                  }
@@ -227,7 +226,7 @@ abstract class Types {
                                                          }
                                                      }
                                                  } catch (Exception ex) {
-                                                     Util.error(null, false, ex.getMessage());
+                                                     Util.error(false, ex.getMessage());
                                                  }
                                              }
                                          }

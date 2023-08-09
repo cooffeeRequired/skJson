@@ -2,13 +2,11 @@ package cz.coffee.skjson.parser;
 
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffee.skjson.skript.base.Converter;
-import cz.coffee.skjson.skript.base.JsonInventory;
 import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.Chunk;
@@ -192,7 +190,7 @@ public abstract class ParserUtil {
                 }
             } catch (Exception ex)
             {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
             }
         } else {
@@ -261,7 +259,7 @@ public abstract class ParserUtil {
         try {
             if (potentialClass != null) clazz = Class.forName(potentialClass);
         } catch (ClassNotFoundException notFoundException) {
-            if (PROJECT_DEBUG) Util.error(notFoundException.getLocalizedMessage(), ErrorQuality.NONE);
+            if (PROJECT_DEBUG) Util.error(notFoundException.getLocalizedMessage());
             return null;
         }
 
@@ -283,7 +281,7 @@ public abstract class ParserUtil {
                     return (T) GsonConverter.fromJson(finalJson, clazz);
                 else return null;
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE);
+                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
                 return null;
             }

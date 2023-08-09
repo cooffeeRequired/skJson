@@ -5,7 +5,6 @@ import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.nbts.NBTConvert;
-import cz.coffee.skjson.utils.Util;
 import de.tr7zw.changeme.nbtapi.NBTCompound;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
@@ -33,7 +32,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;

@@ -1,7 +1,6 @@
 package cz.coffee.skjson.utils;
 
 import ch.njol.skript.config.Node;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Version;
 import cz.coffee.skjson.api.ColorWrapper;
 import cz.coffee.skjson.api.Config;
@@ -121,7 +120,7 @@ public class Util {
                 if (!b) throw new IllegalArgumentException("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + finalString + " \n  \t\t\t&f- Wrong delimiter &c" + ch);
             });
         } catch (IllegalArgumentException ex) {
-            Util.error("Configuration error!", true, ex.getLocalizedMessage());
+            Util.error(true, ex.getLocalizedMessage());
         }
 
         boolean add = rawAdding != null && rawAdding.length > 0 && rawAdding[0];
@@ -151,7 +150,7 @@ public class Util {
                     if (number.group(1) != null) {
                         String n1 = number.group(1);
                         if (!(n1.isBlank() || n1.isEmpty())) {
-                            if (Objects.equals(number.group(1), 0)) return null;
+                            if (Objects.equals(number.group(1), String.valueOf(0))) return null;
                             nestedIndex = String.valueOf(parseNumber(number.group(1)));
                             if (parseNumber(nestedIndex) < 0) nestedIndex = "0";
                         }
@@ -234,14 +233,14 @@ public class Util {
      * Error.
      *
      * @param msg     the msg
-     * @param quality the quality
      */
-    public static void error(String msg, ErrorQuality ...quality) {
+    public static void error(String msg) {
 
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+msg));
     }
 
-    public static void error(String SkriptErrorMessage, boolean skript, String e) {
+    @SuppressWarnings("unused")
+    public static void error(boolean skript, String e) {
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+e));
     }
 
@@ -258,11 +257,11 @@ public class Util {
      * Error.
      *
      * @param msg     the msg
-     * @param quality the quality
      * @param node    the node
      */
-    public static void error(String msg, ErrorQuality quality, @Nullable Node node) {
+    public static void error(String msg, @Nullable Node node) {
         int line = node == null ? 0 : node.getLine();
+        assert node != null;
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&c&lLine "+line + ":&8 ("+node.getConfig().getFileName() + ")"));
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate("&#f27813\t" + msg));
     }

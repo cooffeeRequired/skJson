@@ -12,7 +12,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -141,7 +140,7 @@ public abstract class SkJsonChanger {
             switch (mode) {
                 case ADD -> {
                     if (inputDelta == null|| inputJsonExpression == null) {
-                        Util.error(null, false, "Input or json cannot be null");
+                        Util.error(false, "Input or json cannot be null");
                         return;
                     }
                     JsonElement json = JsonNull.INSTANCE;
@@ -172,19 +171,19 @@ public abstract class SkJsonChanger {
                                     }
                                 }
                             } else {
-                                if (LOGGING_LEVEL > 1) Util.error("You can add values only to JSON arrays.", ErrorQuality.NONE, getParser().getNode());
+                                if (LOGGING_LEVEL > 1) Util.error("You can add values only to JSON arrays.", getParser().getNode());
                                 return;
                             }
                         } catch (Exception ex) {
-                            Util.error(null, false, "Something happened in the Changer! If you wanna more information");
-                            if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
+                            Util.error(false, "Something happened in the Changer! If you wanna more information");
+                            if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
                             if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
                         }
                     }
                 }
                 case SET -> {
                     if (inputDelta == null|| inputJsonExpression == null) {
-                        Util.error(null, false, "Input or json cannot be null");
+                        Util.error(false, "Input or json cannot be null");
                         return;
                     }
                     JsonElement json = null;
@@ -215,8 +214,8 @@ public abstract class SkJsonChanger {
                         }
 
                     } catch (Exception ex) {
-                        Util.error(null, false, "Something happened in the Changer! If you wanna more information");
-                        if (!PROJECT_DEBUG) Util.error(null, false, "Turn on debug in your config.");
+                        Util.error(false, "Something happened in the Changer! If you wanna more information");
+                        if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
                         if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
                     }
                 }
@@ -337,7 +336,7 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             if (mode == Changer.ChangeMode.SET) {
                 if (inputDelta == null || jsonInput == null) {
-                    Util.error(null, false, "Input or json cannot be null");
+                    Util.error(false, "Input or json cannot be null");
                     return;
                 }
                 boolean isValue = result.hasTag("value");

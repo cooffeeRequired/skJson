@@ -11,7 +11,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -225,7 +224,7 @@ public abstract class Webhooks {
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    if (PROJECT_DEBUG && LOGGING_LEVEL >= 2) Util.error(ex.getLocalizedMessage(), ErrorQuality.NONE, Objects.requireNonNull(getParser().getNode()));
+                    if (PROJECT_DEBUG && LOGGING_LEVEL >= 2) Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
                 return true;
             }
@@ -287,9 +286,7 @@ public abstract class Webhooks {
                     }
                 } else if (unparsed instanceof JsonElement jE) {
                     if (jE.isJsonObject()) {
-                        jE.getAsJsonObject().entrySet().forEach(entry -> {
-                            returnObject.add(entry.getKey(), entry.getValue());
-                        });
+                        jE.getAsJsonObject().entrySet().forEach(entry -> returnObject.add(entry.getKey(), entry.getValue()));
                     }
                 }
             }
@@ -318,7 +315,7 @@ public abstract class Webhooks {
 
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
 
-                HttpWrapper.Response rp = null;
+                HttpWrapper.Response rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;
@@ -368,7 +365,7 @@ public abstract class Webhooks {
             else if (isWeb) {
                 Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
-                HttpWrapper.Response rp = null;
+                HttpWrapper.Response rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;
