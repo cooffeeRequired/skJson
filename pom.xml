@@ -156,7 +156,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>C:/Users/nexti/Desktop/TEST-1.8/plugins/${project.artifactId}-${project.version}.jar</outputFile>
+                            <outputFile>C:/Users/nexti/Desktop/2.8.6 - GET FIX/plugins/${project.artifactId}-${project.version}.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>

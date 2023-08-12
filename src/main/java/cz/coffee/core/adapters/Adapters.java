@@ -482,6 +482,16 @@ public abstract class Adapters {
             }
         }
 
+        private ItemMeta setDamage(JsonObject JSON_META ) {
+            if (JSON_META.has("Damage")) {
+                int damage = JSON_META.remove("Damage").getAsInt();
+                ItemMeta meta = GSON_ADAPTER.fromJson(JSON_META, ItemMeta.class);
+                ((Damageable) meta).setDamage(damage);
+                return meta;
+            }
+            return null;
+        }
+
         @Override
         public @NotNull JsonElement toJson(ItemMeta source) {
             return JsonNull.INSTANCE;
@@ -500,6 +510,7 @@ public abstract class Adapters {
             }
 
             String metaType = "meta-type";
+
 
             if (JsonMeta.get(metaType).getAsString().equals(metaTypes.get(0))) {
                 meta = bannerMeta(JsonMeta);
@@ -522,7 +533,7 @@ public abstract class Adapters {
             } else if (JsonMeta.get(metaType).getAsString().equals(metaTypes.get(9))) {
                 meta = tropicalFishBucketMeta(JsonMeta);
             } else {
-                meta = GSON_ADAPTER.fromJson(JsonMeta, ItemMeta.class);
+                meta = setDamage(JsonMeta);
                 setModel(CustomModelData, meta);
                 setModifiers(JsonMeta, meta);
                 return meta;
