@@ -489,7 +489,7 @@ public abstract class Adapters {
                 ((Damageable) meta).setDamage(damage);
                 return meta;
             }
-            return null;
+            return GSON_ADAPTER.fromJson(JSON_META, ItemMeta.class);
         }
 
         @Override
