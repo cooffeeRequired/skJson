@@ -24,10 +24,10 @@ public class JsonWatcher {
     private long lastCheckedTimeStamp;
 
     public JsonWatcher(File fileInput, String identifier) {
-        long interval = 1L;
+        long interval = 300L;
         this.file = fileInput;
         this.identifier = identifier;
-        future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.SECONDS);
+        future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.MILLISECONDS);
     }
 
     public static void init() {
