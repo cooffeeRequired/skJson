@@ -12,6 +12,19 @@
       "cancellable": false
     }
   ],
+  "tests": [
+    {
+      "id": "TEST",
+      "name": "TEST",
+      "since": [
+        "2.8.6"
+      ],
+      "patterns": [
+        "TEST"
+      ],
+      "cancellable": false
+    }
+  ],
   "events": [
     {
       "id": "jsonwatcher_save",
