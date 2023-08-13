@@ -1,4 +1,28 @@
 {
+  "events": [
+    {
+      "id": "jsonwatcher_save",
+      "name": "JsonWatcher save",
+      "description": [
+        "will only run when the json watcher notices a change in the file"
+      ],
+      "examples": [
+        "on json watcher save"
+      ],
+      "since": [
+        "2.8.6"
+      ],
+      "patterns": [
+        "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
+      ],
+      "event values": [
+        "event-object",
+        "event-json",
+        "event-object"
+      ],
+      "cancellable": false
+    }
+  ],
   "conditions": [
     {
       "id": "CondFileExists",
@@ -378,22 +402,6 @@
       ]
     },
     {
-      "id": "EvtvFile",
-      "name": "EvtvFile",
-      "return type": "Object",
-      "patterns": [
-        "[the] [event-](file|link)"
-      ]
-    },
-    {
-      "id": "EvtvUUID",
-      "name": "EvtvUUID",
-      "return type": "Object",
-      "patterns": [
-        "[the] [event-](uuid|id)"
-      ]
-    },
-    {
       "id": "GetCachedJson",
       "name": "Get cached json",
       "description": [
@@ -591,6 +599,34 @@
       "return type": "Object",
       "patterns": [
         "(0:(value %string% of %json%)|1:(values [%string%] of %json%))"
+      ]
+    },
+    {
+      "id": "EvtvFile",
+      "name": "Watcher event value-expression File",
+      "description": [
+        "value-expression for getting file/link from current watcher event"
+      ],
+      "since": [
+        "2.9"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "[the] [event-](file|link)"
+      ]
+    },
+    {
+      "id": "EvtvUUID",
+      "name": "Watcher event value-expression UUID",
+      "description": [
+        "value-expression for getting uuid from current watcher event"
+      ],
+      "since": [
+        "2.9"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "[the] [event-](uuid|id)"
       ]
     }
   ],
