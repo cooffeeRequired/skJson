@@ -4,11 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import cz.coffee.skjson.utils.Util;
 
 import java.io.File;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,6 +24,7 @@ public class JsonWatcher {
 
     private final File file;
     private final String id;
+    private EventWatcherSave event;
 
     private final WatchService watchService;
 
@@ -89,6 +90,10 @@ public class JsonWatcher {
                 .anyMatch(watcher -> watcher.getFile().equals(file) && watcher.isActive());
     }
 
+    public void setEvent(EventWatcherSave event) {
+        this.event = event;
+    }
+
     /**
      * Register.
      *
@@ -106,6 +111,7 @@ public class JsonWatcher {
         });
         if (!found.get()) {
             JsonWatcher watcher = new JsonWatcher(file, id, DEFAULT_WATCHER_INTERVAL);
+            watcher.setEvent(new EventWatcherSave(file, id, watcher.getUuid()));
             watcherCache.put(file, watcher);
             if (watcher.isActive()) {
                 Util.watcherLog("Registered with id: &a" + watcher.getUuid() + "&f for file &7(&e" + file + "&7)");
@@ -144,12 +150,9 @@ public class JsonWatcher {
         try {
             JsonCache<String, JsonElement, File> cache = getCache();
             FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
-                JsonElement fromFile = JsonNull.INSTANCE;
-                if (cFile.get() != null) {
-                    fromFile = cFile.get();
-                }
+                JsonElement fromFile = cFile != null ? cFile.get() : JsonNull.INSTANCE;
                 final Map<JsonElement, File> fromCache = cache.getValuesByKey(id).join();
-                JsonElement potentialJson = new ArrayList<>(fromCache.keySet()).get(0);
+                JsonElement potentialJson = (JsonElement) fromCache.keySet().toArray()[0];
 
                 WatchKey key;
                 while ((key = watchService.poll()) != null) {
@@ -157,6 +160,7 @@ public class JsonWatcher {
                         if (event.context().equals(file.toPath().getFileName())) {
                             if (!Objects.equals(potentialJson.toString(), fromFile.toString())) {
                                 ConcurrentHashMap<JsonElement, File> map = new ConcurrentHashMap<>(Map.of(fromFile, file));
+                                this.event.setJson(fromFile);
                                 cache.replace(id, map);
                                 if (PROJECT_DEBUG)
                                     Util.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
@@ -166,6 +170,7 @@ public class JsonWatcher {
                             break;
                         }
                     }
+                    this.event.callEvent();
                     key.reset();
                 }
             });

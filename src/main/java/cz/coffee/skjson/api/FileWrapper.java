@@ -54,7 +54,7 @@ public class FileWrapper {
         public JsonElement get() {
             if (file.getName().endsWith(".json")) {
                 try {
-                    json = JsonParser.parseReader(reader);
+                    return JsonParser.parseReader(reader);
                 } catch (JsonParseException e) {
                     json = JsonNull.INSTANCE;
                     if (PROJECT_DEBUG) Util.error(e.getMessage());
@@ -63,7 +63,7 @@ public class FileWrapper {
                 try {
                     Yaml yaml = new Yaml();
                     Object yamlMap = yaml.loadAll(reader);
-                    json = new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
+                    return new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
                 } catch (Exception e) {
                     json = JsonNull.INSTANCE;
                     if (PROJECT_DEBUG) Util.error(e.getMessage());
@@ -71,11 +71,11 @@ public class FileWrapper {
             }
             try {
                 reader.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 if (PROJECT_DEBUG) Util.error(e.getMessage());
                 return null;
             }
-            return json;
+            return null;
         }
     }
 

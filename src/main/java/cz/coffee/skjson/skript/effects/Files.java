@@ -265,15 +265,15 @@ public abstract class Files {
     @Examples({
             "Command jsonIsEmpty",
             "\ttrigger",
-            "\t\tset {_json} to json object",
-            "\t\tsend true if {_json} is empty"
+            "\t\tset {_json} to json from text \"{}\"",
+            "\t\tsend true if json element {_json} is empty"
     })
     @Since("2.8.0 - performance & clean")
     public static class CondJsonEmpty extends Condition {
         static {
             Skript.registerCondition(CondJsonEmpty.class,
-                    "json %json% is empty",
-                    "json %json% is(n't| not) empty"
+                    "json(-| )element %json% is empty",
+                    "json(-| )element %json% is(n't| not) empty"
             );
         }
 

@@ -194,7 +194,7 @@ public abstract class JsonBase {
 
         @Override
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            MatchResult numberOfLoop = parseResult.regexes.size() > 0 ? parseResult.regexes.get(0) : null;
+            MatchResult numberOfLoop = !parseResult.regexes.isEmpty() ? parseResult.regexes.get(0) : null;
             Object group = 0;
             if (numberOfLoop != null) group = numberOfLoop.group(0);
             int i = 0;
@@ -366,7 +366,7 @@ public abstract class JsonBase {
             assert node != null;
             final String key = node.getKey();
             assert key != null;
-            needConvert = getParser().getCurrentSections(SecLoop.class).size() >= 1 || key.startsWith("loop");
+            needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
 
             isValues = parseResult.mark == 1;
             if (isValues) {
