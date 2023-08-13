@@ -85,15 +85,15 @@
       "examples": [
         "Command jsonIsEmpty",
         "\ttrigger",
-        "\t\tset {_json} to json object",
-        "\t\tsend true if {_json} is empty"
+        "\t\tset {_json} to json from text \"{}\"",
+        "\t\tsend true if json element {_json} is empty"
       ],
       "since": [
         "2.8.0 - performance & clean"
       ],
       "patterns": [
-        "json %json% is empty",
-        "json %json% is(n't| not) empty"
+        "json(-| )element %json% is empty",
+        "json(-| )element %json% is(n't| not) empty"
       ]
     },
     {
@@ -375,6 +375,22 @@
       "return type": "integer",
       "patterns": [
         "number of (0:key|1:value) %objects% in %json%"
+      ]
+    },
+    {
+      "id": "EvtvFile",
+      "name": "EvtvFile",
+      "return type": "Object",
+      "patterns": [
+        "[the] [event-](file|link)"
+      ]
+    },
+    {
+      "id": "EvtvUUID",
+      "name": "EvtvUUID",
+      "return type": "Object",
+      "patterns": [
+        "[the] [event-](uuid|id)"
       ]
     },
     {
