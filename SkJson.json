@@ -14,13 +14,13 @@
   ],
   "tests": [
     {
-      "id": "TEST",
-      "name": "TEST",
+      "id": "AAA",
+      "name": "AAA",
       "since": [
         "2.8.6"
       ],
       "patterns": [
-        "TEST"
+        "BBB"
       ],
       "cancellable": false
     }
