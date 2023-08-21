@@ -159,12 +159,18 @@ public abstract class ParserUtil {
      * @return the json element
      */
     public static <T> JsonElement parse(T o) {
+        if (o == null || o instanceof JsonNull) return null;
         return parse(o, o.getClass());
     }
 
     public static <T> JsonElement parse(T o, boolean canBeJson) {
-        if (o == null || o instanceof JsonElement) return null;
-        return parse(o, o.getClass());
+        if (canBeJson) {
+            if (o == null || o instanceof JsonNull) return null;
+            return parse(o, o.getClass());
+        } else {
+            if (o == null) return null;
+            return parse(o, o.getClass());
+        }
     }
     private static <T> JsonElement parse(T o, Class<?> clazz) {
         if (o == null) return null;
@@ -248,7 +254,8 @@ public abstract class ParserUtil {
      * @return the t
      */
     public static <T> T from(JsonElement json) {
-        if (json == null || json.isJsonArray() || json.isJsonNull() || json.isJsonPrimitive()) return null;
+        if (json == null || json.isJsonPrimitive() || json.isJsonArray() || json.isJsonNull()) return null;
+        //if (json instanceof JsonElement) return ParserUtil.jsonToType(json);
         final JsonElement finalJson = json.deepCopy();
         Class<?> clazz = null;
         String potentialClass = null;

@@ -171,8 +171,8 @@ public class Util {
      *
      * @param msg the msg
      */
-    public static void log(Object msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + msg));
+    public static void log(Object ...msg) {
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Arrays.toString(msg)));
     }
 
     /**

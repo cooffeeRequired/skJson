@@ -16,6 +16,7 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import com.google.errorprone.annotations.Var;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -41,6 +42,8 @@ import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
+import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
+import static cz.coffee.skjson.utils.Util.log;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 @SuppressWarnings({"Unchecked", "unused"})
@@ -575,12 +578,13 @@ public abstract class JsonBase {
         protected void execute(@NotNull Event e) {
             Object jsonInputSingle = jsonInput.getSingle(e);
             JsonElement json = ParserUtil.parse(jsonInputSingle);
-            String var = variableString.toString(e).substring(0, variableString.toString().length() - 3);
+            String vv = variableString.getSingle(e);
+            String var = vv.substring(0, vv.length() - 3);
             if (json == null) return;
             if (async) {
-                CompletableFuture.runAsync(() ->toList(var, json, isLocal, e));
+                CompletableFuture.runAsync(() ->toList(var + SEPARATOR, json, isLocal, e));
             } else {
-                toList(var, json, isLocal, e);
+                toList(var + SEPARATOR, json, isLocal, e);
             }
         }
 
@@ -605,17 +609,23 @@ public abstract class JsonBase {
                     }
                 } else if (inputJson instanceof JsonObject map) {
                     map.keySet().stream().filter(Objects::nonNull).forEach(key -> {
-                        JsonElement element = map.get(key);
-                        Object parsed = ParserUtil.from(element);
-                        if (parsed == null) {
-                            if (element.isJsonPrimitive()) {
-                                primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
+                        try {
+                            JsonElement element = map.get(key);
+                            Object parsed = ParserUtil.from(element);
+                            // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
+                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
+                            if (parsed == null) {
+                                if (element.isJsonPrimitive()) {
+                                    primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
+                                } else {
+                                    toList(name + key + SEPARATOR, element, isLocal, event);
+                                }
                             } else {
-                                toList(name + key + SEPARATOR, element, isLocal, event);
+                                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
+                                parsed(name + key, parsed, isLocal, event);
                             }
-                        } else {
-                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
-                            parsed(name + key, parsed, isLocal, event);
+                        } catch (Exception e) {
+                            log(e.getMessage());
                         }
                     });
                 }
@@ -629,12 +639,9 @@ public abstract class JsonBase {
 
         static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
             if (name == null || input == null || event == null) return;
-            if (input.isBoolean())
-                Variables.setVariable(name, input.getAsBoolean(), event, isLocal);
-            else if (input.isNumber())
-                Variables.setVariable(name, input.getAsNumber(), event, isLocal);
-            else if (input.isString())
-                Variables.setVariable(name, input.getAsString(), event, isLocal);
+            Object o = defaultConverter(input);
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("!primitive:: ","&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
+            Variables.setVariable(name, o, event, isLocal);
         }
 
         @Override

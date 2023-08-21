@@ -37,6 +37,7 @@ import java.util.List;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
+import static cz.coffee.skjson.utils.Util.log;
 
 @Since("2.9")
 @SuppressWarnings("deprecation")
