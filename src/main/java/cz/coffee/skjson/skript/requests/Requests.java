@@ -34,9 +34,8 @@ public abstract class Requests {
      * The type Request.
      */
     @Name("Http Request")
-    @Description("Create & handle requests via json")
+    @Description({"Create & handle requests via json", "<b>Checkout this link <a href=\"https://dummyjson.com/docs/carts\">Test json</a> for examples of dummyJson api"})
     @Examples({
-            "**Checkout this link [test json](https://dummyjson.com/docs/carts) for examples of dummyJson api**",
             "on script load:",
             "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
             "\t\theaders: \"Content-Type: application/json\"",

@@ -40,8 +40,7 @@ import static ch.njol.skript.lang.Variable.SEPARATOR;
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
-import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
-import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
+import static cz.coffee.skjson.parser.ParserUtil.*;
 import static cz.coffee.skjson.utils.Util.log;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
@@ -637,7 +636,12 @@ public abstract class JsonBase {
 
         static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
             if (name == null || input == null || event == null) return;
-            Object o = defaultConverter(input);
+            Object o = jsonToType(defaultConverter(input));
+            if (o != null) {
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) log(o.getClass());
+            }
+
+
             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("!primitive:: ","&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, o, event, isLocal);
         }
