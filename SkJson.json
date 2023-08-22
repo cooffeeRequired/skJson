@@ -16,9 +16,9 @@
         "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
       ],
       "event values": [
+        "event-json",
         "event-object",
-        "event-object",
-        "event-json"
+        "event-object"
       ],
       "cancellable": false
     }
@@ -682,10 +682,10 @@
       "id": "Request",
       "name": "Http Request",
       "description": [
-        "Create & handle requests via json"
+        "Create & handle requests via json",
+        "**Checkout this link [test json](https://dummyjson.com/docs/carts) for examples of dummyJson api**"
       ],
       "examples": [
-        "**Checkout this link [test json](https://dummyjson.com/docs/carts) for examples of dummyJson api**",
         "on script load:",
         "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
         "\t\theaders: \"Content-Type: application/json\"",
