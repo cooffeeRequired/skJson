@@ -120,13 +120,24 @@ public class HttpWrapper implements AutoCloseable {
                     return statusCode;
                 }
                 @Override
-                public JsonElement getBodyContent() {
-                    try {
-                        return JsonParser.parseString(body);
-                    } catch (Exception e) {
-                        if (PROJECT_DEBUG) Util.error(e.getMessage());
+                public Object getBodyContent(boolean saveIncorrect) {
+                    if (statusCode >=200 && statusCode <= 340) {
+                        try {
+                            return JsonParser.parseString(body);
+                        } catch (Exception e) {
+                            if (PROJECT_DEBUG) Util.error(e.getMessage());
+                        }
+                        return JsonNull.INSTANCE;
+                    } else {
+                        if (saveIncorrect) {
+                            try {
+                                return body;
+                            } catch (Exception e) {
+                                if (PROJECT_DEBUG) Util.error(e.getMessage());
+                            }
+                        }
                     }
-                    return JsonNull.INSTANCE;
+                    return null;
                 }
                 @Override
                 public URL getRequestURL() {
@@ -165,12 +176,8 @@ public class HttpWrapper implements AutoCloseable {
          */
         int getStatusCode();
 
-        /**
-         * Gets body content.
-         *
-         * @return the body content
-         */
-        JsonElement getBodyContent();
+
+        Object getBodyContent(boolean saveIncorrect);
 
         /**
          * Gets request url.

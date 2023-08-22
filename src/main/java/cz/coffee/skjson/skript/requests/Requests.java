@@ -36,11 +36,12 @@ public abstract class Requests {
     @Name("Http Request")
     @Description("Create & handle requests via json")
     @Examples({
-            "<b>Checkout this link https://dummyjson.com/docs/carts for examples of dummyJson api</b>",
+            "**Checkout this link [test json](https://dummyjson.com/docs/carts) for examples of dummyJson api**",
             "on script load:",
-            "\tasync make POST request to \"https://dummyjson.com/carts/add",
-            "\t\theader: \"Content-Type: application/json\"",
+            "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
+            "\t\theaders: \"Content-Type: application/json\"",
             "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
+            "\t\tsave incorrect response: true",
             "\t\tsave:",
             "\t\t\tcontent: {_content}",
             "\t\t\theader: {_header}",
@@ -70,8 +71,8 @@ public abstract class Requests {
 
         private Expression<RequestMethods> method;
         private Expression<String> url;
-        private Expression<?> content;
-        private Expression<?> header;
+        private Expression<?> content, header;
+        private UnparsedLiteral saveIncorrect;
         private boolean async;
 
         private Variable<?> sContent, sHeader, sCode, sUrl;
@@ -85,6 +86,7 @@ public abstract class Requests {
             EntryValidator validator = EntryValidator.builder()
                     .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class, RequestCreate.class))
                     .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class, RequestCreate.class))
+                    .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class, RequestCreate.class))
                     .addSection("save", true)
                     .build();
 
@@ -99,6 +101,7 @@ public abstract class Requests {
             if (container == null) return false;
             content = (Expression<?>) container.getOptional("content", Expression.class, false);
             header = (Expression<?>) container.getOptional("header", Object.class, false) ;
+            saveIncorrect = (UnparsedLiteral) container.getOptional("save incorrect response", Object.class, false);
             SectionNode s = container.getOptional("save", SectionNode.class, false);
             try {
                 if (s != null) {
@@ -134,6 +137,8 @@ public abstract class Requests {
 
         private void execute(Event e) {
             Object unparsedRequestBody = null;
+            Boolean save = null;
+            if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
             if (content != null) unparsedRequestBody= content.getSingle(e);
             Object[] unparsedRequestHeaders = null;
             if (!(header instanceof UnparsedLiteral)) {
@@ -185,7 +190,8 @@ public abstract class Requests {
                 if (sContent != null) {
                     String name = sContent.getName().getSingle(e);
                     boolean local = sContent.isLocal();
-                    Variables.setVariable(name, rp.getBodyContent(), e, local);
+                    boolean s = save != null ? save : false;
+                    Variables.setVariable(name, rp.getBodyContent(s), e, local);
                 }
 
                 if (sHeader != null) {

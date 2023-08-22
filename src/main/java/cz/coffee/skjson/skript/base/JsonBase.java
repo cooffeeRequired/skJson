@@ -16,7 +16,6 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import com.google.errorprone.annotations.Var;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -571,7 +570,6 @@ public abstract class JsonBase {
         private Expression<?> jsonInput;
         private VariableString variableString;
         private boolean isLocal;
-
         private boolean async;
 
         @Override

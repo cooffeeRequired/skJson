@@ -97,7 +97,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
                 return rp;
             });
-            output.add(ft.join().getBodyContent());
+            output.add((JsonElement) ft.join().getBodyContent(false));
         } else {
             for (Object value : values) {
                 if (value instanceof JsonElement json) {

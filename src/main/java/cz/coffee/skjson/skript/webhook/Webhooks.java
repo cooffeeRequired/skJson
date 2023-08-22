@@ -14,7 +14,10 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.api.discord.WebhookFunction;
@@ -28,7 +31,10 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
@@ -223,7 +229,6 @@ public abstract class Webhooks {
                     }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
                     if (PROJECT_DEBUG && LOGGING_LEVEL >= 2) Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
                 return true;
@@ -337,8 +342,8 @@ public abstract class Webhooks {
                     if (fields.isJsonNull() || !fields.isJsonArray()) fields = new JsonArray();
                     if (author.isJsonNull() || !author.isJsonObject()) author = new JsonObject();
                     if (thumbnail.isJsonNull() || !thumbnail.isJsonObject()) thumbnail = new JsonObject();
-                    if (id.length() < 1 || !Util.isNumber(id)) id = String.valueOf(new Random().nextInt(929233221));
-                    if (color.length() < 1) color = String.valueOf(Long.parseLong("21a7c2".toUpperCase(), 16));
+                    if (id.isEmpty() || !Util.isNumber(id)) id = String.valueOf(new Random().nextInt(929233221));
+                    if (color.isEmpty()) color = String.valueOf(Long.parseLong("21a7c2".toUpperCase(), 16));
                     color = color.replaceAll("[\"#]", "").toUpperCase();
                     color = String.valueOf(Long.parseLong(color, 16));
                     JsonObject embed1 = new JsonObject();
@@ -358,7 +363,7 @@ public abstract class Webhooks {
                 } else {
                     if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                         assert rp != null;
-                        Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent());
+                        Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(false));
                     }
                 }
             }
@@ -371,7 +376,7 @@ public abstract class Webhooks {
                 assert url != null;
                 JsonElement content = parseEmbedValue(event, contentBody);
 
-                if (content.isJsonNull() && contents.size() > 0) {
+                if (content.isJsonNull() && !contents.isEmpty()) {
                     JsonObject json = new JsonObject();
                     int i = 0;
                     for (String s : contents) {
@@ -387,7 +392,7 @@ public abstract class Webhooks {
                 } else {
                     if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                         assert rp != null;
-                        Util.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent());
+                        Util.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
                     }
                 }
             }
@@ -411,7 +416,7 @@ public abstract class Webhooks {
                 }
                 return JsonNull.INSTANCE;
             } catch (Exception exs) {
-                if (PROJECT_DEBUG) exs.printStackTrace();
+                if (PROJECT_DEBUG) Util.enchantedError(exs, exs.getStackTrace(), "Webhooks.parseEmbedValue");
                 return JsonNull.INSTANCE;
             }
         }

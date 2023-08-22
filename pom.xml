@@ -159,7 +159,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>C:\Users\nexti\Desktop\Project-SkJson\server\plugins/${project.artifactId}-${project.version}.jar</outputFile>
+                            <outputFile>C:/Users/nexti/Desktop/Project-SkJson/envioroments/2.9/plugins/${project.artifactId}-${project.version}.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>

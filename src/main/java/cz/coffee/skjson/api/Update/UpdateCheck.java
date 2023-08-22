@@ -96,7 +96,10 @@ public class UpdateCheck {
                 return null;
             } finally {
                 if (response != null) {
-                    element = response.getBodyContent();
+                    Object o = response.getBodyContent(false);
+                    if (o instanceof JsonElement) {
+                        element = (JsonElement) o;
+                    }
                 }
             }
             return element;
