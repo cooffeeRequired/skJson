@@ -10,6 +10,8 @@ import cz.coffee.core.cache.CacheMap;
 import cz.coffee.core.cache.JsonWatcher;
 import cz.coffee.core.requests.HttpHandler.Response;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -118,8 +120,8 @@ public final class SkJson extends JavaPlugin {
     }
 
     private void loadMetrics() {
-        cz.coffee.Metrics metrics = new cz.coffee.Metrics(this, 17374);
-        metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
+        Metrics metrics = new Metrics(this, 17374);
+        metrics.addCustomChart(new SimplePie("skript_version", () -> Skript.getVersion().toString()));
         console("&fMetrics&r: Loaded metrics&a successfully!");
     }
 
@@ -136,7 +138,6 @@ public final class SkJson extends JavaPlugin {
         }
         if (!canContinue)
             severe("Couldn't load " + descriptionFile.getName() + ":\n- " + reason);
-        //new Preload();
         return canContinue;
     }
 

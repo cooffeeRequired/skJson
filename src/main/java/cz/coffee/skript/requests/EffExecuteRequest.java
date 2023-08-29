@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -88,11 +89,13 @@ public class EffExecuteRequest extends AsyncEffect {
         }
         if (withBody) {
             Object[] b = bodyExpression.getAll(e);
-            Class<?> cl = bodyExpression.getReturnType();
-            HttpHandler.RequestContent body = process(b, JsonElement.class.isAssignableFrom(cl));
+            Class<?> cl = b.length > 0 ? b[0].getClass() : Object.class;
+            boolean assignable = JsonElement.class.isAssignableFrom(cl);
+            HttpHandler.RequestContent body = process(b, assignable);
             assert body != null;
             handler.setBodyContent(body);
         }
+
        CompletableFuture<HttpHandler.Response> ft = handler.asyncSend();
         if (RESPONSES.isEmpty()) RESPONSES.add(ft);
         else if (RESPONSES.size() == 1) {

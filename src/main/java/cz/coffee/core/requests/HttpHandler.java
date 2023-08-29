@@ -226,10 +226,11 @@ public abstract class HttpHandler {
             List<String> values = new ArrayList<>(), keys = new ArrayList<>();
 
             if (fullJson) {
-                JsonElement[] e = (JsonElement[]) o;
-                for (JsonElement jsonElement : e) {
-                    return new RequestContent(jsonElement);
-                }
+               for (Object ox : (Object[]) o) {
+                   if (ox instanceof JsonElement e) {
+                       return new RequestContent(e);
+                   }
+               }
                 return null;
             } else {
                 if (o.toString().startsWith("{") && o.toString().endsWith("}")) {
