@@ -689,8 +689,8 @@
       "name": "Http Request",
       "description": [
         "Create & handle requests via json",
-        "Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json  for examples of dummyJson api",
-        " Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] "
+        "Checkout this link https://dummyjson.com/docs/carts Test json  for examples of dummyJson api",
+        "Allowed all basic types of requests GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE"
       ],
       "examples": [
         "on script load:",
