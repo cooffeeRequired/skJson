@@ -34,21 +34,25 @@ public abstract class Requests {
      * The type Request.
      */
     @Name("Http Request")
-    @Description({"Create & handle requests via json", "<b>Checkout this link <a href=\"https://dummyjson.com/docs/carts\">Test json</a> for examples of dummyJson api"})
+    @Description({
+            "Create & handle requests via json",
+            "<b>Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json </a> for examples of dummyJson api",
+            "<b> Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] </b>"
+    })
     @Examples({
             "on script load:",
             "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
-            "\t\theaders: \"Content-Type: application/json\"",
+            "\t\theader: \"Content-Type: application/json\"",
             "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
             "\t\tsave incorrect response: true",
             "\t\tsave:",
-            "\t\t\tcontent: {_content}",
-            "\t\t\theader: {_header}",
-            "\t\t\tstatus code: {_code}",
-            "\t\t\turl: {_url}",
+            "\t\t\tcontent: {-content}",
+            "\t\t\theaders: {-header}",
+            "\t\t\tstatus code: {-code}",
+            "\t\t\turl: {-url}",
             "command response:",
             "\ttrigger:",
-            "\t\tsend {_content} with pretty print"
+            "\t\tsend {-content} with pretty print"
     })
     @Since("2.9")
     public static class Request extends Section {

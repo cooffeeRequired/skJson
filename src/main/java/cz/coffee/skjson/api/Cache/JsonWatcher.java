@@ -24,6 +24,7 @@ public class JsonWatcher {
 
     private final File file;
     private final String id;
+    private final String parentID;
     private EventWatcherSave event;
 
     private final WatchService watchService;
@@ -55,10 +56,11 @@ public class JsonWatcher {
      * @param id       the id
      * @param interval the interval
      */
-    public JsonWatcher(File file, String id, long interval) {
+    public JsonWatcher(File file, String id, String parentID, long interval) {
         this.file = file;
         this.id = id;
         this.uuid = UUID.randomUUID();
+        this.parentID = parentID;
 
         try {
             this.watchService = FileSystems.getDefault().newWatchService();
@@ -100,9 +102,9 @@ public class JsonWatcher {
      * @param id   the id
      * @param file the file
      */
-    public static void register(String id, File file) {
+    public static void register(String id, File file, String ...orgParentCache) {
+        String parent = orgParentCache != null && orgParentCache.length > 0 && orgParentCache[0] != null ? orgParentCache[0] : null;
         AtomicBoolean found = new AtomicBoolean(false);
-
         watcherCache.forEachKey(1, file_ -> {
             if (file_.equals(file)) {
                 Util.watcherLog("Watcher for file " + file + " is already registered!");
@@ -110,7 +112,8 @@ public class JsonWatcher {
             }
         });
         if (!found.get()) {
-            JsonWatcher watcher = new JsonWatcher(file, id, DEFAULT_WATCHER_INTERVAL);
+            String parentFile = parent != null ? parent : file + "";
+            JsonWatcher watcher = new JsonWatcher(file, id, parentFile,  DEFAULT_WATCHER_INTERVAL);
             watcher.setEvent(new EventWatcherSave(file, id, watcher.getUuid()));
             watcherCache.put(file, watcher);
             if (watcher.isActive()) {
@@ -118,6 +121,8 @@ public class JsonWatcher {
             }
         }
     }
+
+
 
     /**
      * Unregister.
@@ -137,13 +142,6 @@ public class JsonWatcher {
     }
 
     /**
-     * Shutdown.
-     */
-    public static void shutdown() {
-        service.shutdown();
-    }
-
-    /**
      * Watch.
      */
     public void watch() {
@@ -151,8 +149,15 @@ public class JsonWatcher {
             JsonCache<String, JsonElement, File> cache = getCache();
             FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
                 JsonElement fromFile = cFile != null ? cFile.get() : JsonNull.INSTANCE;
-                final Map<JsonElement, File> fromCache = cache.getValuesByKey(id).join();
-                JsonElement potentialJson = (JsonElement) fromCache.keySet().toArray()[0];
+                Map<JsonElement, File> fromCache;
+                JsonElement potentialJson;
+                if (parentID.contains(";")) {
+                    fromCache = cache.getValuesByKey(parentID.split(";")[0]).join();
+                    potentialJson = ((JsonElement) fromCache.keySet().toArray()[0]).getAsJsonObject().get(parentID.split(";")[1]);
+                } else {
+                    fromCache = cache.getValuesByKey(id).join();
+                    potentialJson = (JsonElement) fromCache.keySet().toArray()[0];
+                }
 
                 WatchKey key;
                 while ((key = watchService.poll()) != null) {

@@ -37,7 +37,6 @@ import java.util.List;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
-import static cz.coffee.skjson.utils.Util.log;
 
 @Since("2.9")
 @SuppressWarnings("deprecation")
@@ -152,7 +151,7 @@ abstract class Types {
                                                              if (type.equalsIgnoreCase("object")) {
                                                                  boolean isValue = (boolean) list.get(3);
                                                                  if (!pathString.equals("Undefined")) {
-                                                                     path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                     path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER, false);
                                                                      assert path != null;
                                                                      for (Object item : items) {
                                                                          JsonElement parsed = ParserUtil.parse(item);

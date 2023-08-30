@@ -120,20 +120,33 @@ public abstract class JsonCacheInstance {
     }
 
     @Name("link and load all json files from given folder")
-    @Since("2.8.6")
+    @Since("2.9 [30.8.2023] - add support for json watcher to all files")
     @Description({"Handle all files from folder"})
     @Examples({
             "load json files from \"plugins/raw/\" and save it in \"raw\"",
+            "\tloop values of json \"raw\":",
+            "\t\tsend json-value",
+            "*Since 2.9 [30.8.2023]*",
+            "",
+            "load json files from \"plugins/SkJson/jsons\" and let json watcher listen to all with save in \"raw\"",
             "\tloop values of json \"raw\":",
             "\t\tsend json-value",
     })
     public static class AllJsonFromDirectory extends AsyncEffect {
 
         static {
-            Skript.registerEffect(AllJsonFromDirectory.class, "load json files from %string% and save it in %string%");
+            Skript.registerEffect(AllJsonFromDirectory.class,
+                    "[:async] load json files from %string% and save it in %string%",
+                    "[:async] load json files from %string% and let json watcher listen to all with save it in %string%"
+            );
         }
 
         private Expression<String> expressionPathDirectory, expressionCacheDirectory;
+        private boolean letWatching;
+        private boolean isAsynchronous;
+
+        public AllJsonFromDirectory() {
+        }
 
         @Override
         protected void execute(@NotNull Event e) {
@@ -149,19 +162,42 @@ public abstract class JsonCacheInstance {
             final JsonObject jsonFiles = new JsonObject();
             File[] files = folder.listFiles(f -> f.getName().endsWith(".json"));
             if (files == null || files.length == 0) return;
-            CompletableFuture.runAsync(() -> {
+
+            if (isAsynchronous) {
+                CompletableFuture.runAsync(() -> {
+                    Stream.of(files)
+                            .filter(file -> !file.isDirectory())
+                            .map(File::getName)
+                            .toList().forEach(potentialFile -> {
+                                File potential = new File(pathDirectory + "/" + potentialFile);
+                                CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
+                                JsonElement json = ct.join().get();
+                                if (letWatching) {
+                                    String parentID = finalCacheDirectory + ";" + potentialFile;
+                                    if (!JsonWatcher.isRegistered(potential)) JsonWatcher.register(potentialFile, potential, parentID);
+                                }
+                                jsonFiles.add(potentialFile, json);
+                            });
+                    JsonCache<String, JsonElement, File> cache = Config.getCache();
+                    cache.addValue(finalCacheDirectory, jsonFiles, folder);
+                });
+            } else {
                 Stream.of(files)
                         .filter(file -> !file.isDirectory())
                         .map(File::getName)
                         .toList().forEach(potentialFile -> {
-                            File potential = new File(pathDirectory + File.pathSeparator + potentialFile);
+                            File potential = new File(pathDirectory + "/" + potentialFile);
                             CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
                             JsonElement json = ct.join().get();
+                            if (letWatching) {
+                                String parentID = finalCacheDirectory + ";" + potentialFile;
+                                if (!JsonWatcher.isRegistered(potential)) JsonWatcher.register(potentialFile, potential, parentID);
+                            }
                             jsonFiles.add(potentialFile, json);
                         });
-                cz.coffee.skjson.api.Cache.JsonCache<String, JsonElement, File> cache = Config.getCache();
+                JsonCache<String, JsonElement, File> cache = Config.getCache();
                 cache.addValue(finalCacheDirectory, jsonFiles, folder);
-            });
+            }
         }
 
         @Override
@@ -175,6 +211,7 @@ public abstract class JsonCacheInstance {
         public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull SkriptParser.ParseResult parseResult) {
             expressionPathDirectory = (Expression<String>) exprs[0];
             expressionCacheDirectory = (Expression<String>) exprs[1];
+            letWatching = matchedPattern == 1;
             return true;
         }
     }

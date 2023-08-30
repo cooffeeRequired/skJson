@@ -125,7 +125,6 @@ public class Util {
 
         boolean add = rawAdding != null && rawAdding.length > 0 && rawAdding[0];
         delimiter = sanitizeDelimiter(delimiter == null ? PATH_VARIABLE_DELIMITER + "(?![{}])" : delimiter);
-
         LinkedList<String> extractedKeys = new LinkedList<>();
 
         if (string.endsWith("*")) {
@@ -146,6 +145,7 @@ public class Util {
 
             if (squareBrackets.matcher(item).find()) {
                 while (squares.find()) if (squares.group(1) != null) nestedKey = squares.group(1);
+                number.find();
                 while (number.find()) {
                     if (number.group(1) != null) {
                         String n1 = number.group(1);
