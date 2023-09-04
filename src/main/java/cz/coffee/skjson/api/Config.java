@@ -339,6 +339,7 @@ public class Config {
         loadTests("changer-skjson.sk");
     }
 
+
     /**
      * Gets config.
      *

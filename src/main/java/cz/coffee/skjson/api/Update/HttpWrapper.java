@@ -89,8 +89,15 @@ public class HttpWrapper implements AutoCloseable {
 
 
     /**
-     * The interface Response.
-     */
+         * The interface Response.
+         */
+
+        private record JsonFixer(String json) {
+
+        String removeTrailingComma() {
+                return json.replaceAll(",\\s*}", "}").replaceAll(",\\s*]", "]");
+            }
+        }
 
     @SuppressWarnings("unused")
     public interface Response {
@@ -105,7 +112,7 @@ public class HttpWrapper implements AutoCloseable {
          * @param statusCode      the status code
          * @return the response
          */
-        static Response of(HttpHeaders requestHeaders, HttpHeaders responseHeaders, URI uri, String body, int statusCode) {
+        static Response of(HttpHeaders requestHeaders, HttpHeaders responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
             return new Response() {
                 @Override
                 public Header getRequestHeaders() {
@@ -123,9 +130,18 @@ public class HttpWrapper implements AutoCloseable {
                 public Object getBodyContent(boolean saveIncorrect) {
                     if (statusCode >=200 && statusCode <= 340) {
                         try {
-                            return JsonParser.parseString(body);
+                            if (lenient) {
+                                JsonFixer fixer = new JsonFixer(body);
+                                String finalBody = fixer.removeTrailingComma();
+                                return JsonParser.parseString(finalBody);
+                            } else {
+                                return JsonParser.parseString(body);
+                            }
                         } catch (Exception e) {
-                            if (PROJECT_DEBUG) Util.error(e.getMessage());
+                            if (PROJECT_DEBUG) {
+                                Util.error(true, e.getMessage());
+                                if (LOGGING_LEVEL > 2) Util.enchantedError(e, e.getStackTrace(), "Invalid JSON");
+                            }
                         }
                         return JsonNull.INSTANCE;
                     } else {
@@ -359,7 +375,8 @@ public class HttpWrapper implements AutoCloseable {
      *
      * @return the response
      */
-    public Response process() {
+    public Response process(boolean ..._lenient) {
+        boolean lenient = _lenient != null && _lenient.length > 0 && _lenient[0];
         try (var timer = new TimerWrapper(0)) {
             this.timer = timer;
             HttpResponse.BodyHandler<String> body = HttpResponse.BodyHandlers.ofString();
@@ -368,7 +385,7 @@ public class HttpWrapper implements AutoCloseable {
                 if (LOGGING_LEVEL > 1)
                     Util.log(String.format(
                             REQUESTS_PREFIX + ": "+ colorizedMethod(method) +" request was send to &b'%s'&r and takes %s", requestUrl, timer.toHumanTime()));
-                return Response.of(request.headers(), future.headers(), future.uri(), future.body(), future.statusCode());
+                return Response.of(request.headers(), future.headers(), future.uri(), future.body(), future.statusCode(), lenient);
             }).get();
         } catch (Exception e) {
             if (PROJECT_DEBUG) Util.error(e.getMessage());

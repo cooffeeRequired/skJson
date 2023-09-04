@@ -927,7 +927,6 @@ public abstract class JsonBase {
             setNegated(line == 1);
             unparsedInput = LiteralUtils.defendExpression(exprs[1]);
             inputJson = (Expression<JsonElement>) exprs[0];
-            if (!isValues) if (unparsedInput.getReturnType() != String.class) return false;
             return LiteralUtils.canInitSafely(unparsedInput);
         }
     }

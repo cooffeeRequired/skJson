@@ -45,6 +45,7 @@ public abstract class Requests {
             "\t\theader: \"Content-Type: application/json\"",
             "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
             "\t\tsave incorrect response: true",
+            "\t\tlenient: true",
             "\t\tsave:",
             "\t\t\tcontent: {-content}",
             "\t\t\theaders: {-header}",
@@ -75,7 +76,7 @@ public abstract class Requests {
         private Expression<RequestMethods> method;
         private Expression<String> url;
         private Expression<?> content, header;
-        private UnparsedLiteral saveIncorrect;
+        private UnparsedLiteral saveIncorrect, lenient;
         private boolean async;
 
         private Variable<?> sContent, sHeader, sCode, sUrl;
@@ -89,6 +90,7 @@ public abstract class Requests {
             EntryValidator validator = EntryValidator.builder()
                     .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class, RequestCreate.class))
                     .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class, RequestCreate.class))
+                    .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class, RequestCreate.class))
                     .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class, RequestCreate.class))
                     .addSection("save", true)
                     .build();
@@ -105,6 +107,7 @@ public abstract class Requests {
             content = (Expression<?>) container.getOptional("content", Expression.class, false);
             header = (Expression<?>) container.getOptional("header", Object.class, false) ;
             saveIncorrect = (UnparsedLiteral) container.getOptional("save incorrect response", Object.class, false);
+            lenient = (UnparsedLiteral) container.getOptional("lenient", Object.class, false);
             SectionNode s = container.getOptional("save", SectionNode.class, false);
             try {
                 if (s != null) {
@@ -141,6 +144,8 @@ public abstract class Requests {
         private void execute(Event e) {
             Object unparsedRequestBody = null;
             Boolean save = null;
+            boolean lenient = false;
+            if (this.lenient != null) lenient = Boolean.parseBoolean(this.lenient.getData());
             if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
             if (content != null) unparsedRequestBody= content.getSingle(e);
             Object[] unparsedRequestHeaders = null;
@@ -188,7 +193,7 @@ public abstract class Requests {
             try (var http = new HttpWrapper(url, method)) {
                 http.setContent(body);
                 headers.forEach(http::setHeaders);
-                HttpWrapper.Response rp = http.request().process();
+                HttpWrapper.Response rp = http.request().process(lenient);
 
                 if (sContent != null) {
                     String name = sContent.getName().getSingle(e);

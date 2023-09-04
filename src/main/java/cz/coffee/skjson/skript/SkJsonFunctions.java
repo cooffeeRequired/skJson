@@ -20,7 +20,7 @@ public class SkJsonFunctions {
         Parameter<?>[] bool = new Parameter[]{new Parameter<>("bool", DefaultClasses.BOOLEAN, true, null)};
         Functions.registerFunction(new SimpleJavaFunction<>("skjson_getdelim", bool, DefaultClasses.STRING, true) {
             @Override
-            public String @NotNull [] executeSimple(Object[] @NotNull [] params) {
+            public String @NotNull [] executeSimple(Object[][] params) {
                 return new String[]{Config.PATH_VARIABLE_DELIMITER};
             }
         })

@@ -131,6 +131,13 @@
                                 <exclude>META-INF/*.RSA</exclude>
                             </excludes>
                         </filter>
+                        <filter>
+                            <artifact>de.tr7zw:functional-annotations</artifact>
+                            <excludes>
+                                <exclude>LICENSE</exclude>
+                                <exclude>META-INF/maven/de.tr7zw/functional-annotations/*</exclude>
+                            </excludes>
+                        </filter>
                     </filters>
                     <relocations combine.children="append">
                         <relocation>

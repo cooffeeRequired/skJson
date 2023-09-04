@@ -18,11 +18,13 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Axolotl;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.TropicalFish;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -96,11 +98,14 @@ public abstract class Converter {
             if (json.has("meta")) {
                 ItemMeta im = ItemMetaConverter.fromJson(json);
                 final JsonObject meta = json.remove("meta").getAsJsonObject();
-                final JsonObject tags = meta.remove("custom_tags").getAsJsonObject();
+                boolean hasCustomTags = meta.has("custom_tags");
                 ItemStack stack = GsonConverter.fromJson(json, ItemStack.class);
                 stack.setItemMeta(im);
                 stack = enchants(stack, meta);
-                stack = NBTConvert.parseFromJson(stack, tags);
+                if (hasCustomTags) {
+                    final JsonObject tags = meta.remove("custom_tags").getAsJsonObject();
+                    stack = NBTConvert.parseFromJson(stack, tags);
+                }
                 return stack;
             }
             return GsonConverter.fromJson(json, ItemStack.class);

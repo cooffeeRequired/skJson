@@ -263,7 +263,7 @@ public abstract class SkJsonChanger {
     public static class JsonObjectChanger extends SimpleExpression<Object> {
         static {
             Skript.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
-                    "(:key|:value) of json object %-string% in %json%",
+                    "(:key|:value)[2:s] of json object %-string% in %json%",
                     "[by] (:key|:value)[s] %objects% of json object [%-string%]",
                     "%objects% of json (object|array|list) [%-string%]"
             );
@@ -274,6 +274,7 @@ public abstract class SkJsonChanger {
         private Expression<?> objectsInput;
         private ParseResult result;
         private int line;
+        private boolean multipleInputs;
 
 
         @Override
@@ -311,6 +312,7 @@ public abstract class SkJsonChanger {
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             result = parseResult;
             line = matchedPattern;
+            multipleInputs = parseResult.mark == 2;
             if (line == 0) {
                 jsonInput = LiteralUtils.defendExpression(exprs[1]);
                 pathInput = (Expression<String>) exprs[0];
@@ -326,7 +328,7 @@ public abstract class SkJsonChanger {
         @SuppressWarnings("all")
         public Class<?> @NotNull [] acceptChange(Changer.@NotNull ChangeMode mode) {
             return switch (mode) {
-                case SET -> CollectionUtils.array(Object.class);
+                case SET -> CollectionUtils.array(Object.class, Object[].class);
                 default -> null;
             };
         }
@@ -340,7 +342,6 @@ public abstract class SkJsonChanger {
                     return;
                 }
                 boolean isValue = result.hasTag("value");
-
                 JsonElement json;
                 Object parsedJson;
                 String path;
@@ -366,7 +367,7 @@ public abstract class SkJsonChanger {
                             if (delta instanceof String st) pj.changeKey(keys, st);
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        Util.enchantedError(ex, ex.getStackTrace(), "Change event SkJsonChanger, 370");
                     }
                 }
             }

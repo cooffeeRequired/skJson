@@ -35,7 +35,7 @@ public final class SkJson extends JavaPlugin {
                         Thread.sleep(200);
                         loader.unload();
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        Util.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
                     }
                 }
             });

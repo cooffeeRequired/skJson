@@ -39,10 +39,10 @@ public abstract class JsonCacheInstance {
             "\tsend json \"json-storage\""
     })
     @Since("2.9")
-    public static class JsonStorage extends Effect {
+    public static class JsonNonFileStorage extends Effect {
 
         static {
-            Skript.registerEffect(JsonStorage.class, "[create] new json storage [named] %string%");
+            Skript.registerEffect(JsonNonFileStorage.class, "[create] new json storage [named] %string%");
         }
 
         private Expression<String> nameOfStorageExp;
