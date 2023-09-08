@@ -1,1 +1,635 @@
-{"events":[{"id":"jsonwatcher_save","name":"JsonWatcher save","description":["will only run when the json watcher notices a change in the file"],"examples":["on json watcher save"],"since":["2.8.6"],"patterns":["[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"],"event values":["event-json","event-object","event-object"],"cancellable":false}],"conditions":[{"id":"CondFileExists","name":"Json file exists","description":["You can check if the json file already exists or not."],"examples":["command FileExists:","\ttrigger","\t\tset {_json} to json from string \"{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}\" if json file \"plugins/test/main.json\" already exists"],"since":["2.8.0 - performance & clean"],"patterns":["json [file] %string% exists","json [file] %string% does(n't| not) exist"]},{"id":"CondJsonIsCached","name":"Json file is cached","description":["Check if the file for given id is cached"],"examples":["on load:","\tsend true if json \"test\" is linked "],"since":["2.8.0 - performance & clean"],"patterns":["json %string% is (load|linked)","json %string% is(n't| not) (load|linked)"]},{"id":"CondJsonIsListened","name":"Json file is listening","description":["Check if the file for given id is listening via JsonWatcher"],"examples":["on load:","\tif json \"test\" is listen:","\t\tsend true"],"since":["2.8.0 - performance & clean"],"patterns":["json %string% is listen","json %string% is(n't| not) listen"]},{"id":"CondJsonHas","name":"Json has value/keys","description":["You can check if the inserted keys or values already in your specified json"],"examples":["on script load:","\tset {_json} to json from string \"{'test5': [1], 'test6': ['key', 'key2', 'key3']}\"","\tif {_json} has keys \"test5\", \"test6\", \"A\":","\t\tsend true"],"since":["2.8.0"],"patterns":["%json% has [:directly] (:value|:key)[s] %objects%","%json% does(n't| not) have [:directly] (:value|:key)[s] %objects%"]},{"id":"CondJsonEmpty","name":"Json is empty","description":["You can check if the json empty"],"examples":["Command jsonIsEmpty","\ttrigger","\t\tset {_json} to json from text \"{}\"","\t\tsend true if json element {_json} is empty"],"since":["2.8.0 - performance & clean"],"patterns":["json(-| )element %json% is empty","json(-| )element %json% is(n't| not) empty"]},{"id":"CondJsonType","name":"Type of Json","description":["You can get type of given Json."],"examples":["set {_j} to json from \"{data: {}}\"","if type of {_j} is json object"],"since":["2.7"],"patterns":["type of %json% (is|=) (1:primitive|2:json object|3:json array)","type of %json% (is(n't| not)|!=) (1:primitive|2:json object|3:json array)"]}],"effects":[{"id":"Edit","name":"Change json file contents","description":["Its allow to change directly keys/values in the given json file"],"examples":["on script load:","\tnew json file \"plugins\\SkJson\\jsons\\test.json\"","","command edit:","\ttrigger:","edit value \"command\" of json file \"plugins/SkJson/jsons/test.json\" to player's tool"],"since":["2.8.5"],"patterns":["edit (0:value|1:key) %string% of json file %string% to %object%"]},{"id":"JsonStorage","name":"Json storage","description":["You can create virtual json in memory"],"examples":["on script load:","\tcreate new json storage named \"json-storage\"","\tsend json \"json-storage\""],"since":["2.9"],"patterns":["[create] new json storage [named] %string%"]},{"id":"MapJson","name":"Json to Skript variable list","description":["Its allow convert Json to variable skript list"],"examples":["on script load:","\tset {_json} to json from file \"plugins/skript/#.json\"","\tmap {_json} to {_json::*}"],"since":["1.9, 2.9 - Support mapping json from functions"],"patterns":["[:async] (map|copy) %json/string% to %objects%"]},{"id":"MakeStopListen","name":"JsonWatcher - Start/Stop listening to file","description":["You can register listener for json file, and while the file is updated the cache for this file will be also so."],"examples":["on script load","\tmake json watcher listen to \"mine.id\"","\tstop json watcher listen to \"mine.id\""],"since":["2.8.0 - performance & clean"],"patterns":["(:make|:stop) [json] watcher listen to %string%"]},{"id":"LinkFile","name":"Link json file with defined cache.","description":["You can works with the cache instead of reopening the file again & again."],"examples":["on load:","\tlink json file \"<path to file>\" as \"mine.id\"","\tlink json file \"<path to file>\" as \"mine.id\" and make json watcher listen"],"since":["2.8.0 - performance & clean"],"patterns":["link [json] file %string% as %string% [(:and make) [[json] watcher] listen]"]},{"id":"New","name":"New json file with-out content","examples":["on script load:","\tnew json file \"plugins\\SkJson\\test.json\"","","\tset {_json} to json from website \"https://raw.githubusercontent.com/mozilla/node-convict/master/lerna.json\"","\tnew json file \"plugins\\SkJson\\test.json\" with content {_json}"],"since":["2.6.2"],"patterns":["new json file %string% [(:with) content %object%]"]},{"id":"SaveCache","name":"Save cached json to file","description":["It's allow save cached json back to the file"],"examples":["on unload:","\tsave json \"test\"","\tsave all jsons"],"since":["2.8.0 - performance & clean"],"patterns":["save json %string%","save all jsons"]},{"id":"UnlinkFile","name":"Unlink or unload json file from cache","description":["You can unload the json file."],"examples":["on load:","\tunlink json \"mine.id\""],"since":["2.8.0 - performance & clean"],"patterns":["unlink json %string%"]},{"id":"Write","name":"Write content to json file","description":["Write new data directly to json file (File will be rewritten!"],"examples":["on script load:","\tnew json file \"plugins\\SkJson\\jsons\\test.json\"","","command write:","\ttrigger:","write json from website \"api-website\" to json file \"plugins/SkJson/jsons/test.json\""],"since":["2.8.5"],"patterns":["write %object% to json file %string%"]},{"id":"AllJsonFromDirectory","name":"link and load all json files from given folder","description":["Handle all files from folder"],"examples":["load json files from \"plugins/raw/\" and save it in \"raw\"","\tloop values of json \"raw\":","\t\tsend json-value","*Since 2.9 [30.8.2023]*","","load json files from \"plugins/SkJson/jsons\" and let json watcher listen to all with save in \"raw\"","\tloop values of json \"raw\":","\t\tsend json-value"],"since":["2.9 [30.8.2023] - add support for json watcher to all files"],"patterns":["[:async] load json files from %string% and save it in %string%","[:async] load json files from %string% and let json watcher listen to all with save it in %string%"]}],"expressions":[{"id":"JsonArrayChanger","name":"Changer - JsonArray set/add/remove/removeAll","description":["The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults","A very general effect that can change many json array. The json object can be only add/set/remove/removeAll"],"examples":["set value of json list \"1::list[1]::data\" in {_json} to \"[]\"","remove values 1 and \"Hello true\" of json list from {_json}","remove 2nd element of json list from {_json}","add diamond sword to json list \"0::list\" in {_json}","remove all \"new test key\" of json list \"array[0]\" from {_json}"],"since":["2.9"],"return type":"Object","changers":["add","set"],"patterns":["json (list|array) [%string%] in %jsons%","(1:value|2:key) of json (list|array) %string% in %json%","[value[s]] %objects% of json (list|array) [%string%]","(1:(1st|first)|2:(2nd|second)|3:(3rd|third)|4:last|5:%integer%) element of json (list|array) [%string%]"]},{"id":"JsonObjectChanger","name":"Changer - JsonObject set/remove/removeAll","description":["The new documentation you will find here: https://skjsonteam.github.io/skJsonDocs/beta/defaults","A very general effect that can change many json object. The json object can be only set/remove/removeAll"],"examples":["set value of json object \"data::key\" in {_json} to \"new test key\"","set key of json object \"data::key\" in {_json} to \"test key\"","set key of json object \"list\" in {_json} to \"array\"","set value of json object \"this-a test-what i need to <>-_::data\" in {_json} to iron sword","remove value \"test key\" of json object \"data\" from {_json}","remove all \"new test key\" of json object \"data\" from {_json}"],"since":["2.9"],"return type":"Object","changers":["set"],"patterns":["(:key|:value) of json object %string% in %json%","[by] (:key|:value)[s] %objects% of json object [%string%]","%objects% of json (object|array|list) [%string%]"]},{"id":"CountElements","name":"Count values/elements in the Json.","description":["You can get the count values in the given json"],"examples":["number of key \"test\" in %json%"],"since":["2.9"],"return type":"integer","patterns":["number of (0:key|1:value) %objects% in %json%"]},{"id":"GetCachedJson","name":"Get cached json","description":["You can get json from cache storage by key defined by you"],"examples":["on script load:","\tset {_json} to json \"your\"","\tsend {_json} with pretty print"],"since":["2.8.0 - performance & clean"],"return type":"json","changers":["remove","remove all","reset"],"patterns":["json %string%","all cached jsons"]},{"id":"JsonSupportElement","name":"Literals","description":["Represent sort of literals for skJson"],"examples":["on script load:","\tset {_json} to json from location(10,1,1)","\tsend first element of {_json}","\tsend last element of {_json}","\tsend 5 element of {_json}","\tsend 3rd element of {_json}",""],"since":["2.9"],"return type":"Object","patterns":["(1:(1st|first)|2:(2nd|second)|3:(3rd|third)|4:last|5:%integer%) element of %jsons%"]},{"id":"LoopExpression","name":"Loops","description":["loops of values/key for json","","json-value, json-key"],"examples":["on script load:","\tset {_json} to json from location(10,1,1)","\tloop values of {_json}:","\t\tsend json-value, json-key",""],"since":["2.9"],"return type":"Object","patterns":["[the] json-(:value|:key)[-<(\\d+)>]"]},{"id":"NewJsonExpression","name":"New json","description":["latest:","\tversion 2.9:","\t\t- support now also multiple items as input","\t\t- support json content from webpage","\t\t- removed empty json array/object, cause it's not necessary while","skJson know parsing object","original docs: https://skjsonteam.github.io/skJsonDocs/exprs#new-json","skripthub docs:","<br />","It's allow create json from any source also from the file"],"examples":["on script load:","\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"","\tset {_json::*} to json from \"{'test' :true}\", \"B\"","\tset {_json} to json from diamond tools","\tset {_json} to json from player's location","\tset {_json} to json from player's inventory","\tset {_json} to json from yaml file <path>","\tset {_json} to json from website file \"https://json.org/sample.json\""],"since":["2.9"],"return type":"json","changers":["remove","remove all","reset"],"patterns":["json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"]},{"id":"PrettyPrint","name":"Pretty print","description":["Allows you to better parse json","<pre>","{","\t\"test\": \"skJson\"","\t\"Object\": {","\t\t\"new\": \"data\"","\t}","</pre>"],"examples":["set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"","send {_json} with pretty print"],"since":["2.9"],"return type":"Text","patterns":["%jsons% with pretty print"]},{"id":"JsonSize","name":"Size of json object/array","examples":["set {_json} to json from text \"{'sample': {}, 'second': []}\"","if json size of {_json} > 1:","\tsend {_json} is bigger than 1."],"since":["2.9"],"return type":"integer","patterns":["[the] json size of %jsons%","%jsons%'[s] json size"]},{"id":"ParseVariable","name":"Skript variable to Json","description":["Its allow convert Skript list variable to Json"],"examples":["on script load:","\tset {_json::A::1} to false","\tset {_json::A::2} to true","\tset {_json::B::some} to \"some great value\"","\tsend {_json::*}'s form"],"since":["1.3.0"],"return type":"json","changers":["remove","remove all","reset"],"patterns":["[the] form[atted json] of %jsons%","%jsons%'[s] form[atted json]"]},{"id":"Elements","name":"Values of Json","description":["Values/Key of Json"],"examples":["on script load:","\tset {_json} to json from location(10,1,1)","\tsend values of {_json}","\tsend value \"world\" of {_json}","","Checkout <b> Loops </b>"],"since":["2.9"],"return type":"Object","patterns":["(0:(value %string% of %json%)|1:(values [%string%] of %json%))"]},{"id":"EvtvFile","name":"Watcher event value-expression File","description":["value-expression for getting file/link from current watcher event"],"since":["2.9"],"return type":"Object","patterns":["[the] [event-](file|link)"]},{"id":"EvtvUUID","name":"Watcher event value-expression UUID","description":["value-expression for getting uuid from current watcher event"],"since":["2.9"],"return type":"Object","patterns":["[the] [event-](uuid|id)"]}],"types":[{"id":"JsonElement","name":"json","description":["JSON representation in skript"],"since":["2.9"],"patterns":["json"]},{"id":"Webhook","name":"json-webhook","description":["webhooks"],"since":["2.9"],"patterns":["json-webhook"]}],"functions":[{"id":"function_skjson_getdelim","name":"skjson_getdelim","description":["Return a your defined delimiter in the config.yml"],"examples":["send \"my delimiter is: %skjson_getdelim()%\""],"since":["2.9"],"return type":"Text","patterns":["skjson_getdelim(bool: boolean)"]}],"sections":[{"id":"Request","name":"Http Request","description":["Create & handle requests via json","Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json  for examples of dummyJson api"," Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] "],"examples":["on script load:","\tasync make POST request to \"https://dummyjson.com/carts/add\":","\t\theader: \"Content-Type: application/json\"","\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"","\t\tsave incorrect response: true","\t\tsave:","\t\t\tcontent: {-content}","\t\t\theaders: {-header}","\t\t\tstatus code: {-code}","\t\t\turl: {-url}","command response:","\ttrigger:","\t\tsend {-content} with pretty print"],"since":["2.9"],"patterns":["[:async] make [new] %requestmethod% request to %string%"]},{"id":"WebHookSection","name":"Webhook, send webhook request to Discord/Web","description":["You can handle the discord webhooks via this section.","Can handle also embeds, Request method is PATCH/POST/PUT as always.","You can define the content, headers of each request..","Aso the request shall be sent asynchronous","You can use Json/String, also variables and functions in this section.","! Recommended read that  Discord webhooks api documentation","! Recommended read that  Embed generate webpage \"","! Recommended default json payload  Json Payload (Lorem) "],"examples":["* Web *","","command web:","\ttrigger:","\tasync send web request \"https://webhook.site/8bc144e2-785d-479e-a4d2-2eda297a71db\":","\t\theader: \"Content-Type: application/json\" and \"Content-Disposition: form-data\"","\t\tcontent: \"{fromSkJson: '?', ?: true}\"","","* Discord without embed *","","command without-embed:","\ttrigger:","\t\tasync send discord request \"https://discord.com/api/webhooks/1128036190059237396/C2UkVCmweNiGnZDdItt8XVa4FfLzNeLKrvPbFen6nLcHtdTpZTx6YkdT1XAWPQPl35Og\":","\t\t\theader: \"Content-Type: application/json\"","\t\t\tdata:","\t\t\t\ttts: true","\t\t\t\tcontent: {'payload:' true} # this can be any json encoded string or json","","* Discord with embed *","","command embed:","\ttrigger:","\t\tasync send discord request \"https://discord.com/api/webhooks/1128036190059237396/C2UkVCmweNiGnZDdItt8XVa4FfLzNeLKrvPbFen6nLcHtdTpZTx6YkdT1XAWPQPl35Og\":","\t\t\theader: \"Content-Type: application/json\"","\t\t\tdata:","\t\t\t\ttts: true","\t\t\t\tembed:","\t\t\t\t\tid: 102018 # when you put here null, or auto, the value will be generated automatically.","\t\t\t\t\tfields: \"{}\"","\t\t\t\t\tauthor: \"{name: 'CoffeeRequired'}\"","\t\t\t\t\ttitle: \"Hello there\"","\t\t\t\t\tthumbnail: \"{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}\"","\t\t\t\t\t\t\t\t\t\tcolor: \"##21a7c2\" # that support all hex colors.. not minecraft",""," * with attachments and multi-line content","","command embed:","\ttrigger:","\t\tasync send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":","\t\t\tattachments:","\t\t\t\t1: \"plugins/SkJson/jsons/test.json\"","\t\t\tdata:","\t\t\ttts: false","\t\t\t\tcontent: \"hello from attachments\""],"since":["2.9"],"patterns":["[:async] send (:web|:discord) request  %string%"]}]}
+{
+  "conditions": [
+    {
+      "id": "CondJsonFileExist",
+      "name": "Json file exists",
+      "description": [
+        "You can check if the json file already exists or not."
+      ],
+      "examples": [
+        "command FileExists:",
+        "\ttrigger",
+        "\t\tset {_json} to json from string \"{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}\" if json file \"plugins/test/main.json\" already exists"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "json [file] %string% [already] exists",
+        "json [file] %string% [already] does(n't| not) exists"
+      ]
+    },
+    {
+      "id": "CondJsonIsLoaded",
+      "name": "Json file is cached",
+      "description": [
+        "Check if the file for given id is cached"
+      ],
+      "examples": [
+        "on load:",
+        "\tif cached json \"test\" if linked:",
+        "\t\tsend true"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "[cached] json %string% is (load|linked)",
+        "[cached] json %string% is(n't| not) (load|linked)"
+      ]
+    },
+    {
+      "id": "CondJsonFileEmpty",
+      "name": "Json file is empty",
+      "description": [
+        "You can check if the json file empty"
+      ],
+      "examples": [
+        "Command jsonFileIsEmpty:",
+        "\ttrigger",
+        "\t\tsend true if json file \"plugins/raw/test.json\" is empty:"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "json file %string% is empty",
+        "json file %string% is(n't| not) empty"
+      ]
+    },
+    {
+      "id": "CondJsonIsListened",
+      "name": "Json file is listening",
+      "description": [
+        "Check if the file for given id is listening via JsonWatcher"
+      ],
+      "examples": [
+        "on load:",
+        "\tif cached json \"test\" is listen:",
+        "\t\tsend true"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "[cached] json [id] %string% is listen",
+        "[cached] json [id] %string% is(n't| not) listen"
+      ]
+    },
+    {
+      "id": "CondJsonHas",
+      "name": "Json has value/key",
+      "description": [
+        " You can check if the inserted keys or values already in your specified json"
+      ],
+      "examples": [
+        "on load:",
+        "    set {_json} to json from string \"{'test5': [1], 'test6': ['key', 'key2', 'key3']}\"",
+        "    if {_json} has keys \"test5\", \"test6\", \"A\":",
+        "        send true",
+        "    else:",
+        "        send false"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "%json% [:directly] has (:value|:key)[s] %objects%",
+        "%json% [:directly] does(n't| not) have (:value|:key)[s] %objects%"
+      ]
+    },
+    {
+      "id": "CondJsonEmpty",
+      "name": "Json is empty",
+      "description": [
+        "You can check if the json empty"
+      ],
+      "examples": [
+        "Command jsonIsEmpty",
+        "\ttrigger",
+        "\t\tset {_json} to json object",
+        "\t\tsend true if {_json} is empty"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "json %json% is empty",
+        "json %json% is(n't| not) empty"
+      ]
+    },
+    {
+      "id": "CondJsonType",
+      "name": "Type of json",
+      "description": [
+        "You check json type of Json"
+      ],
+      "examples": [
+        "on load:",
+        "\tif type of {_json} is primitive:",
+        "\tsend true"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "type of %json% (is|=) (1:primitive|2:[json]object|3:array)",
+        "type of %json% (is(n't| not)|!=) (1:primitive|2:[json]object|3:array)"
+      ]
+    }
+  ],
+  "effects": [
+    {
+      "id": "EffExecuteRequest",
+      "name": "Execute a http request",
+      "description": [
+        "You can execute a web request to rest api. with json encoded body/headers"
+      ],
+      "examples": [
+        "set {_headers} to json from text \"{'Content-type': 'application/json'}\"",
+        "execute MOCK request to \"https://dummyjson.com/http/200\"",
+        "execute GET request to \"https://dummyjson.com/products/ with headers \"Content-type: application/json\"",
+        "execute POST request to \"https://dummyjson.com/products/add\" with headers \"Content-type: application/json\" and with data \"title: TEST\"",
+        "send request's body with pretty print",
+        "",
+        "",
+        "execute GET request to \"https://dummyjson.com/products/ with headers \"Content-type: application/json\"",
+        "if request's code is 200:",
+        "\tsend current request's body with pretty print"
+      ],
+      "since": [
+        "2.8.3, 2.8.0 performance & clean"
+      ],
+      "patterns": [
+        "(execute|send|make) [new] (<.+>|%string%) request to %string% [(:with headers) %strings/json%] [and with (:body|:data) %strings/json%]",
+        "(execute|send|make) [new] (<.+>|%string%) request to %string% [with (:body|:data) %strings/json%] [and (:with headers) %strings/json%]"
+      ]
+    },
+    {
+      "id": "EffMakeListen",
+      "name": "JsonWatcher - Start listening to file",
+      "description": [
+        "You can register listener for json file, and while the file is updated the cache for this file will be also so."
+      ],
+      "examples": [
+        "on script load",
+        "\tmake jsonwatcher listen to \"mine.id\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "make [json]watcher listen to %string%"
+      ]
+    },
+    {
+      "id": "EffStopListen",
+      "name": "JsonWatcher - Stop listening to file",
+      "description": [
+        "That will be stop listen file for given id"
+      ],
+      "examples": [
+        "on script load",
+        "\tstop jsonwatcher listen to id \"mine.id\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "stop [json]watcher listen to [id] %string%"
+      ]
+    },
+    {
+      "id": "EffLinkJsonFile",
+      "name": "Link json file with defined cache.",
+      "description": [
+        "You can works with the cache instead of reopening the file again & again."
+      ],
+      "examples": [
+        "on load:",
+        "\tlink json file \"<path to file>\" as \"mine.id\"",
+        "\tlink json file \"<path to file>\" as \"mine.id\" and make jsonwatcher listen"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "link [json] file %string% as %string% [(:and make) [json]watcher listen]"
+      ]
+    },
+    {
+      "id": "EffJsonToSkriptList",
+      "name": "Map json to skript list",
+      "description": [
+        "Mapping json to the List and get those values"
+      ],
+      "examples": [
+        "on load:",
+        "\tset {_json} to json from string \"{'test': 'test2': {}}\"",
+        "\tset {_json} to \"{\"\"test\"\": \"\"test2\"\": {}}\"",
+        "\tmap {_json} to {_json::*}",
+        "\tsend {_json::*}"
+      ],
+      "since": [
+        "2.8.3 - b8210 (Fix mapping), 2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "(map|copy) %json/string% to %objects%"
+      ]
+    },
+    {
+      "id": "EffNewJsonFile",
+      "name": "New json file",
+      "description": [
+        "You can create a new json file."
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "[:async] new json file %string% [(:with) (object|content)[s] %object%]"
+      ]
+    },
+    {
+      "id": "EffSaveCache",
+      "name": "Save cached json to file",
+      "description": [
+        "It's allow save cached json back to the file"
+      ],
+      "examples": [
+        "on unload:",
+        "\tsave cached json \"test\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "save [cached] json %string%",
+        "save all [cached] jsons"
+      ]
+    },
+    {
+      "id": "EffUnlinkJsonFile",
+      "name": "UnLink or Unload json file",
+      "description": [
+        "You can unload the json file."
+      ],
+      "examples": [
+        "on load:",
+        "\tunlink json \"mine.id\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "unlink json %string%"
+      ]
+    },
+    {
+      "id": "EffWriteJsonFile",
+      "name": "Write json file with contents",
+      "description": [
+        "You can write/re-write to jsons"
+      ],
+      "examples": [
+        "command sk-example:",
+        "\ttrigger:",
+        "\t\tset {_json} to json from player's world",
+        "\t\twrite {_json} to json file \"*.json\""
+      ],
+      "since": [
+        "2.8.0 performance & clean"
+      ],
+      "patterns": [
+        "[re[-]]write %object% to [json file] %string/jsonfile%"
+      ]
+    },
+    {
+      "id": "EffEditFile",
+      "name": "change json file",
+      "description": [
+        "You can change json file."
+      ],
+      "examples": [
+        "command jsonFileValue:",
+        "\ttrigger:",
+        "\t\tchange key \"A\" of jsonfile(\"plugins/<>/test.json\") to \"B\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "[:async] change (:value|:key) %string% of (%jsonfile/string%|(:json file) %string%) to %objects%"
+      ]
+    },
+    {
+      "id": "EffLoadJsonsInDirectory",
+      "name": "link and load all json files from given folder",
+      "description": [
+        "Handle all files from folder"
+      ],
+      "examples": [
+        "        load json files from \"plugins/raw/\" and save it in \"raw\"\n        loop entries of json \"raw\":\n            send loop-element\n        "
+      ],
+      "since": [
+        "2.8.6"
+      ],
+      "patterns": [
+        "load json files from %string% and save it in %string%"
+      ]
+    }
+  ],
+  "expressions": [
+    {
+      "id": "GetAllCachedJson",
+      "name": "All cached jsons",
+      "description": [
+        "That will return jsons from your cache."
+      ],
+      "examples": [
+        "command AllCachedJsons:",
+        "\ttrigger:",
+        "\t\tsend all cached jsons"
+      ],
+      "since": [
+        "2.8.0 performance & clean"
+      ],
+      "return type": "json element",
+      "changers": [
+        "add",
+        "remove"
+      ],
+      "patterns": [
+        "all cached jsons"
+      ]
+    },
+    {
+      "id": "ExprSkriptListToJson",
+      "name": "Array or List formatted to JSON.",
+      "description": [
+        "It allows you to convert the sheet back to Json!",
+        "Value changes don't work for nested objects, to change the values of a nested object use Change"
+      ],
+      "examples": [
+        "on script load:",
+        "\tset {-json} to json from string \"{'test': [1,2,3,false,null,'some'], 'test2': {'something': false}}\"",
+        "\tmap {-json} to {_json::*}",
+        "\tsend \"&9%{_json::*}'s form with pretty print%\""
+      ],
+      "since": [
+        "2.8.3 - Fix mapping for Skript beta, 1.3.0"
+      ],
+      "return type": "json element",
+      "changers": [
+        "add",
+        "remove"
+      ],
+      "patterns": [
+        "[the] form[atted json] of %objects%",
+        "%objects%'[s] form[atted json]"
+      ]
+    },
+    {
+      "id": "ExprJsonCountOf",
+      "name": "Count of objects/phrases",
+      "description": [
+        "You can get the exact number of identical keys or values from the entire json because `count of` works recursively."
+      ],
+      "examples": [
+        "set {_json} to json from string \"{'A': [{'B': {}}], 'X': {}, 'UN': 'A'}\"",
+        "add diamond sword to {_json} for given path \"A[1]:B\"",
+        "send {_json}",
+        "send count of diamond sword in {_json}",
+        "send number of key \"A\" in {_json}",
+        "send count of \"A\" in {_json}"
+      ],
+      "since": [
+        "2.8.0 performance & clean"
+      ],
+      "return type": "integer",
+      "patterns": [
+        "(count|number) of (:key|[value]) %object% in %json%"
+      ]
+    },
+    {
+      "id": "JsonChanger",
+      "name": "Default changer of skJson (SET/REMOVE/ADD)",
+      "description": [
+        "Default changer you can change your current's jsons by those expressions",
+        "More information you can found here.. : https://github.com/cooffeeRequired/skJson"
+      ],
+      "examples": [
+        "remove diamond sword from {_json}",
+        "remove 2nd element from json list \"pathxys\" in {_json}",
+        "remove player's location from json list \"pathxys\" in {_json}",
+        "remove \"hello\" from keys of json object \"pathxys\" in {_json}",
+        "remove diamond sword from values of json object \"pathxys\" in {_json}",
+        "set json value \"test:A\" in {_json} to diamond sword",
+        "add player's location to json list \"pathxys\" in {_json}"
+      ],
+      "since": [
+        "2.8 - b2"
+      ],
+      "return type": "Object",
+      "changers": [
+        "add",
+        "set",
+        "remove"
+      ],
+      "patterns": [
+        "json list [%string%] in %json%",
+        "(:keys|:values) of json object [%string%] in %json%",
+        "json (:value|:key) %string% in %json%"
+      ]
+    },
+    {
+      "id": "ExprJsonElements",
+      "name": "Elements/Values of the json",
+      "description": [
+        "You can get the main json values, or you can also get the use values for a given object/array you can also get a single value",
+        "loop-value, loop-element, loop-key",
+        "",
+        "Means :  -> entries entries mean the entry for the looped element, for example we have element {\"B\": false}",
+        "    its entry will be loop-key = B, loop-element = false, loop-value = {B=false}",
+        "!Warnings: loop-key or loop-element you can use only for entries!",
+        "LOOP-PATTERNS ->",
+        "\tloop-value, loop-element, loop-key"
+      ],
+      "examples": [
+        "command GetElements:\n  trigger:\n    set {_json} to json from string \"{'A': [{'B': {}}, false, true, 10, 20, 22.22, 'A']}\"\n\n    # Get single element of json\n    set {_single} to element \"A::1\" of {_json} # That will return true cause, the first element of the array \"A\" is true\n\n\n    # Get multiple elements of json\n    set {_array::*} to elements \"A\" of {_json} # That will return whole array so that mean ({\"B\": {}}, false, true, 10, 20, 22.22, A)\n\n\n    # Loop through elements\n    loop elements \"A\" of {_json}:\n        send loop-value\n\n    # loop through entries of json\n    execute GET request \"https://api.json.com/producs\"\n    loop entries of request's body:\n        if loop-key = \"data\":\n            set {_data} to element \"data\" of loop-element"
+      ],
+      "since": [
+        "2.8.0 performance & clean"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "(value|element) %string% of %object%",
+        "(values|elements) [%string%] of %object%",
+        "entr(y|ies) [%string%] of %object%"
+      ]
+    },
+    {
+      "id": "ExprJsonCacheGet",
+      "name": "Get cached json",
+      "description": [
+        "You can get json from cached internal storage by with a key defined by you"
+      ],
+      "examples": [
+        "on script load:",
+        "\tset {_json} to cached json \"your\"",
+        "\tsend {_json} with pretty print"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "return type": "json element",
+      "changers": [
+        "add",
+        "remove"
+      ],
+      "patterns": [
+        "[cached] json %string%"
+      ]
+    },
+    {
+      "id": "ExprGetResponse",
+      "name": "Get last response",
+      "description": [
+        "Get last response of executed request"
+      ],
+      "examples": [
+        "execute HEAD request to \"https://dummyjson.com/products/1\"",
+        "send body of current request with pretty print",
+        "send code of current request",
+        "send connection headers of current request",
+        "send user headers of current requestL",
+        "send url of current request"
+      ],
+      "since": [
+        "2.8.3, 2.8.0 performance & clean"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "[SkJson] [(:current|:previous)] request's (2:body|3:code|4:connection headers|[user] (5:headers)|6:url)",
+        "[skJson] (2:body|3:code|4:connection headers|[user] (5:headers)|6:url) of [(:current|:previous)] request"
+      ]
+    },
+    {
+      "id": "ExprJsonSize",
+      "name": "Json size of given Json",
+      "examples": [
+        "set {_json} to json from text \"{'A': 1, 'B': 2, 'C': {'A': 'B', 'X': 'Y'}}\"",
+        "if json size of {_json} > 1:",
+        "\tsend \"JSON's size is bigger the 1\""
+      ],
+      "since": [
+        "2.8.3, 2.8.0 - performance & clean"
+      ],
+      "return type": "integer",
+      "patterns": [
+        "[the] json size of %json%",
+        "%json%'[s] json size"
+      ]
+    },
+    {
+      "id": "ExprNewJson",
+      "name": "New json",
+      "description": [
+        "It's allow create json from any source also from the file"
+      ],
+      "examples": [
+        "set {_json} to json from file \"plugins/Skript/json-storage/database.json\"",
+        "set {_json} to json from \"{\"\"test\"\":true}\"",
+        "set {_json} to json from diamond sword",
+        "set {_json} to json from player's location",
+        "set {_json} to json from player's inventory",
+        "set {_json} to json from yaml file \"string\""
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "return type": "json element",
+      "changers": [
+        "add",
+        "remove"
+      ],
+      "patterns": [
+        "json[s] from [text|string] %object%",
+        "json from [(json|:yaml)] file %string%",
+        "[empty] json(-| )(0:array|1:object)"
+      ]
+    },
+    {
+      "id": "ExprPrettyPrint",
+      "name": "Pretty json",
+      "description": [
+        "Allows you to better parse json",
+        "<pre>",
+        "{",
+        "\t\"test\": \"skJson\"",
+        "\t\"Object\": {",
+        "\t\t\"new\": \"data\"",
+        "\t}",
+        "</pre>"
+      ],
+      "examples": [
+        "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
+        "send {_json} with pretty print"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "%json% with pretty print"
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "JsonElement",
+      "name": "json element",
+      "description": [
+        "Represent the json class"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "json"
+      ]
+    },
+    {
+      "id": "JsonFile",
+      "name": "json file",
+      "description": [
+        "Represent the json file class"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "patterns": [
+        "jsonfile"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "id": "function_jsonfile",
+      "name": "jsonfile",
+      "description": [
+        "Get json file from string/object input"
+      ],
+      "examples": [
+        "jsonfile(\"plugins/test/test.json\")"
+      ],
+      "since": [
+        "2.8.0 - performance & clean"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "jsonfile(file: string)"
+      ]
+    }
+  ]
+}
