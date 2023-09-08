@@ -65,7 +65,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         );
     }
 
-    private boolean isFile, isYaml, isWebFile;
+    private boolean isFile, isYaml, isWebFile, fileWithTab;
     private int mark;
     private Expression<?> input;
     private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();

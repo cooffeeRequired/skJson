@@ -38,16 +38,18 @@ import static cz.coffee.skjson.api.ColorWrapper.Colors.*;
 @Since("2.9")
 @Examples({
         "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
-        "send {_json} with pretty print"
+        "send {_json} with pretty print",
+        "send {_json} with uncolored pretty print"
 })
 
 public class PrettyPrint extends SimpleExpression<String> {
 
     static {
-        SkJson.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with pretty print");
+        SkJson.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with [(:uncoloured|:uncolored)] pretty print");
     }
 
     static Expression<JsonElement> jsonExpression;
+    private boolean uncoloured_;
     static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
 
 
@@ -55,12 +57,17 @@ public class PrettyPrint extends SimpleExpression<String> {
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
         JsonElement[] jsons = jsonExpression.getAll(e);
         ArrayList<String> coloredJsons = new ArrayList<>();
-        Arrays.stream(jsons).forEach(json -> coloredJsons.add(gson.toJson(json)
-                .replaceAll("(?<=\\W)([+]?([0-9]*[.])?[0-9]+)", AQUA.legacyColor + "$1" + WHITE.legacyColor)
-                .replaceAll("(?i:true)", GREEN.legacyColor + "$0" + WHITE.legacyColor)
-                .replaceAll("(?i:false)", RED.legacyColor + "$0" + WHITE.legacyColor)
-                .replaceAll("(\")((.)|)", DARK_GRAY.legacyColor + "$1" + WHITE.legacyColor + "$2" + WHITE.legacyColor)
-                .replaceAll("([{}])|([\\[\\]])", GRAY.legacyColor + "$1" + YELLOW.legacyColor + "$2" + WHITE.legacyColor)));
+
+        if (uncoloured_) {
+            Arrays.stream(jsons).forEach(json -> coloredJsons.add(gson.toJson(json)));
+        } else {
+            Arrays.stream(jsons).forEach(json -> coloredJsons.add(gson.toJson(json)
+                    .replaceAll("(?<=\\W)([+]?([0-9]*[.])?[0-9]+)", AQUA.legacyColor + "$1" + WHITE.legacyColor)
+                    .replaceAll("(?i:true)", GREEN.legacyColor + "$0" + WHITE.legacyColor)
+                    .replaceAll("(?i:false)", RED.legacyColor + "$0" + WHITE.legacyColor)
+                    .replaceAll("(\")((.)|)", DARK_GRAY.legacyColor + "$1" + WHITE.legacyColor + "$2" + WHITE.legacyColor)
+                    .replaceAll("([{}])|([\\[\\]])", GRAY.legacyColor + "$1" + YELLOW.legacyColor + "$2" + WHITE.legacyColor)));
+        }
 
         return coloredJsons.toArray(new String[0]);
     }
@@ -83,6 +90,7 @@ public class PrettyPrint extends SimpleExpression<String> {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         jsonExpression = LiteralUtils.defendExpression(exprs[0]);
+        uncoloured_ = parseResult.hasTag("uncoloured") || parseResult.hasTag("uncolored");
         return LiteralUtils.canInitSafely(jsonExpression);
     }
 }

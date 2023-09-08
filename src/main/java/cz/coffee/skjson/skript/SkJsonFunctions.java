@@ -41,7 +41,9 @@ public class SkJsonFunctions {
                 String data = params[0][0].toString();
                 return new String[]{Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8))};
             }
-        });
-
+        })
+        .description("Return base64 encoded string")
+        .since("2.9")
+        .examples("serial: b64(\"This is a test\"");
     }
 }
