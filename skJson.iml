@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/ worlds" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/config" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/crash-reports" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/libraries" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/plugins/SkJson" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/plugins/Skript/lang" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/plugins/SkriptHubDocsTool" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/plugins/bStats" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/plugins/skript-reflect" />
+      <excludeFolder url="file://$MODULE_DIR$/gen_server/versions" />
+    </content>
+  </component>
   <component name="FacetManager">
     <facet type="minecraft" name="Minecraft">
       <configuration>

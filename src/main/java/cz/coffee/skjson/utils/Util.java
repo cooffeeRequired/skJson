@@ -34,6 +34,19 @@ public class Util {
         return -9999;
     }
 
+    public static String coloredElement(String input) {
+        return switch (input) {
+            case "Expressions" -> "&aExpressions";
+            case "Effects" -> "&bEffects";
+            case "Events" -> "&5Events";
+            case "Sections" -> "&fSections";
+            case "Conditions" -> "&4Conditions";
+            case "Functions" -> "&7Functions";
+            case "Structures" -> "&9Structures";
+            default -> input;
+        };
+    }
+
     /**
      * Enchanted error.
      *
@@ -172,7 +185,10 @@ public class Util {
      * @param msg the msg
      */
     public static void log(Object ...msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Arrays.toString(msg).replaceAll("[\\[\\]]", "")));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Arrays.toString(msg)
+                .replaceAll("^\\[", "")
+                .replaceAll("]$", "")
+        ));
     }
 
     /**

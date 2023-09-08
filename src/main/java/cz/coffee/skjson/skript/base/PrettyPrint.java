@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import cz.coffee.skjson.SkJson;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ import static cz.coffee.skjson.api.ColorWrapper.Colors.*;
 public class PrettyPrint extends SimpleExpression<String> {
 
     static {
-        Skript.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with pretty print");
+        SkJson.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with pretty print");
     }
 
     static Expression<JsonElement> jsonExpression;

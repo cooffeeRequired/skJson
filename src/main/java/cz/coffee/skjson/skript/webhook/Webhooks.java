@@ -18,6 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.api.discord.WebhookFunction;
@@ -120,7 +121,7 @@ public abstract class Webhooks {
     @Since("2.9")
     public static class WebHookSection extends Section {
         static {
-            Skript.registerSection(WebHookSection.class, "[:async] send (:web|:discord) request  %string%");
+            SkJson.registerSection(WebHookSection.class, "[:async] send :web|:discord) request %string%");
         }
         private EntryValidator getEntryValidator(String section) {
             return switch (section) {
@@ -240,9 +241,15 @@ public abstract class Webhooks {
                 EntryContainer container = validator.validate(sectionNode);
                 if (container == null) return false;
 
+                Expression<?> _attachment = container.getOptional("content", Expression.class, false);
+
+
+
                 SectionNode attachments = container.getOptional("attachments", SectionNode.class, false);
                 if (attachments == null) return false;
                 attachments.convertToEntries(-1);
+
+
                 for (Node attachment : attachments) {
                     String key = attachment.getKey();
                     if (key != null) this.attachments.add(attachments.get(key, "").replaceAll("\"", ""));
@@ -250,14 +257,19 @@ public abstract class Webhooks {
 
                 contentBody = container.getOptional("content", Expression.class, false);
                 contentHeaders = container.getOptional("header", Expression.class, false);
-                if (contentBody == null) {
-                    SectionNode contents = container.getOptional("contents", SectionNode.class, false);
-                    if (contents == null) return false;
-                    contents.convertToEntries(-1);
-                    for (Node content : contents) {
-                        String key = content.getKey();
-                        if (key != null) this.contents.add(contents.get(key, "").replaceAll("\"", ""));
+
+                try {
+                    if (contentBody == null) {
+                        SectionNode contents = container.getOptional("contents", SectionNode.class, false);
+                        if (contents == null) return false;
+                        contents.convertToEntries(-1);
+                        for (Node content : contents) {
+                            String key = content.getKey();
+                            if (key != null) this.contents.add(contents.get(key, "").replaceAll("\"", ""));
+                        }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 return true;
             }
@@ -329,7 +341,8 @@ public abstract class Webhooks {
                 json.add("content", ParserUtil.parse(content));
                 json.addProperty("tts", tts);
                 json.add("components", ParserUtil.parse(components));
-                json.add("actions", ParserUtil.parse(actions));
+                json.add("actions", ParserUtil.parse(actions));;
+
                 if (isEmbed) {
                     String id = embedID;
                     JsonArray embed = new JsonArray();

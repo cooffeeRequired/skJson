@@ -7,3 +7,6 @@ target
 /target
 *.idea
 .idea/*
+/gen_server
+*.jar
+gen_server/plugins/Skript/scripts/test.sk

@@ -19,7 +19,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,6 +35,21 @@ public class HttpWrapper implements AutoCloseable {
      * The constant GSON.
      */
     final static Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().setLenient().create();
+
+    @Override
+    public String toString() {
+        return "HttpWrapper{" +
+                "_headers=" + _headers +
+                ", method=" + method +
+                ", client=" + client +
+                ", builder=" + builder +
+                ", content=" + content +
+                ", timer=" + timer +
+                ", request=" + request +
+                ", attachments=" + attachments +
+                ", requestUrl='" + requestUrl + '\'' +
+                '}';
+    }
 
     @Override
     public void close() {
@@ -88,16 +104,16 @@ public class HttpWrapper implements AutoCloseable {
     }
 
 
-    /**
-         * The interface Response.
-         */
+/**
+     * The interface Response.
+     */
 
-        private record JsonFixer(String json) {
+    private record JsonFixer(String json) {
 
-        String removeTrailingComma() {
-                return json.replaceAll(",\\s*}", "}").replaceAll(",\\s*]", "]");
-            }
+    String removeTrailingComma() {
+            return json.replaceAll(",\\s*}", "}").replaceAll(",\\s*]", "]");
         }
+    }
 
     @SuppressWarnings("unused")
     public interface Response {
@@ -156,12 +172,12 @@ public class HttpWrapper implements AutoCloseable {
                     return null;
                 }
                 @Override
-                public URL getRequestURL() {
+                public Optional<URL> getRequestURL() {
                     try {
-                        return uri.toURL();
+                        return Optional.of(uri.toURL());
                     } catch (MalformedURLException exception) {
-                        if (PROJECT_DEBUG) Util.error(exception.getMessage());
-                        return null;
+                        if (PROJECT_DEBUG) Util.enchantedError(exception, exception.getStackTrace(), "Invalid URL");
+                        return Optional.empty();
                     }
                 }
                 @Override
@@ -200,7 +216,7 @@ public class HttpWrapper implements AutoCloseable {
          *
          * @return the request url
          */
-        URL getRequestURL();
+        Optional<URL> getRequestURL();
 
         /**
          * Is successfully boolean.
@@ -218,7 +234,7 @@ public class HttpWrapper implements AutoCloseable {
     private JsonObject content = new JsonObject();
     private TimerWrapper timer;
     private HttpRequest request;
-    private final ArrayList<File> attachments = new ArrayList<>();
+    private final LinkedList<File> attachments = new LinkedList<>();
 
     /**
      * Instantiates a new Http wrapper.
@@ -252,12 +268,13 @@ public class HttpWrapper implements AutoCloseable {
         // create URL from string
         URI requestLink;
         try {
-            requestLink = URI.create(sanitizeLink(URL));
+            requestLink = new URI(sanitizeLinkSpaces(URL));
         } catch (Exception e) {
-            if (PROJECT_DEBUG) Util.error(e.getMessage());
+            if (PROJECT_DEBUG) Util.enchantedError(e, e.getStackTrace(), "HttpWrapper:sanitizeLinkSpaces");
             return;
         }
         builder = HttpRequest.newBuilder().uri(requestLink);
+        requestUrl = requestLink.toString();
     }
 
     public void postAttachments(String body) {
@@ -329,15 +346,19 @@ public class HttpWrapper implements AutoCloseable {
      * @return the string
      */
     public String colorizedMethod(Requests.RequestMethods method) {
-        return "&l" + switch (method) {
-            case GET -> "&aGET";
-            case POST -> "&bPOST";
-            case PUT -> "&7PUT";
-            case DELETE -> "&cDELETE";
-            case HEAD -> "&3HEAD";
-            case PATCH -> "&ePATCH";
-            case MOCK -> "&5MOCK";
-        } + "&r";
+        StringBuilder sb = new StringBuilder();
+        sb.append("&l");
+        switch (method) {
+            case GET -> sb.append("&aGET");
+            case POST -> sb.append("&bPOST");
+            case PUT -> sb.append("&7PUT");
+            case DELETE -> sb.append("&cDELETE");
+            case HEAD -> sb.append("&3HEAD");
+            case PATCH -> sb.append("&ePATCH");
+            case MOCK -> sb.append("&5MOCK");
+        }
+        sb.append("&r");
+        return sb.toString();
     }
 
     public static File changeExtension(File f, String newExtension) throws IOException {
@@ -345,10 +366,13 @@ public class HttpWrapper implements AutoCloseable {
         String name = f.getName().substring(0, i);
         File tempFile = File.createTempFile(name + ".sk -- ", newExtension);
 
-        try (FileInputStream fis = new FileInputStream(f); FileOutputStream fos = new FileOutputStream(tempFile)) {
+        try (FileInputStream fis = new FileInputStream(f);
+             FileOutputStream fos = new FileOutputStream(tempFile)) {
             byte[] buffer = new byte[1024];
             int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) fos.write(buffer, 0, bytesRead);
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
         }
 
         return tempFile;
@@ -457,7 +481,7 @@ public class HttpWrapper implements AutoCloseable {
         return this;
     }
 
-    private String sanitizeLink(String url) {
+    private String sanitizeLinkSpaces(String url) {
         return url.replace(" ", "%20");
     }
 }

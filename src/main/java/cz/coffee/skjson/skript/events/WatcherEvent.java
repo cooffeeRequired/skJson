@@ -1,13 +1,12 @@
 package cz.coffee.skjson.skript.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import com.google.gson.JsonElement;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -24,10 +23,13 @@ import java.util.UUID;
 public class WatcherEvent extends SkriptEvent {
 
     static {
-        Skript.registerEvent("*JsonWatcher save", WatcherEvent.class, EventWatcherSave.class, "[json-] watcher save")
-                .description("will only run when the json watcher notices a change in the file")
-                .examples("on json watcher save")
-                .since("2.8.6");
+        SkJson.registerEvent(
+                "*Json watcher save", WatcherEvent.class, EventWatcherSave.class,
+                "will only run when the json watcher notices a change in the file",
+                "on json watcher save",
+                "2.9",
+                "[json-] watcher save"
+        );
 
         EventValues.registerEventValue(EventWatcherSave.class, JsonElement.class,
                 new Getter<>() {

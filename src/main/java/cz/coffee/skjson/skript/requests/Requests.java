@@ -12,6 +12,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -70,7 +71,7 @@ public abstract class Requests {
         }
 
         static {
-            Skript.registerSection(Request.class, "[:async] make [new] %requestmethod% request to %string%");
+            SkJson.registerSection(Request.class, "[:async] make [new] %requestmethod% request to %string%");
         }
 
         private Expression<RequestMethods> method;

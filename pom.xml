@@ -50,6 +50,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.7.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.20.1-R0.1-SNAPSHOT</version>
@@ -82,6 +94,12 @@
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.annotation</artifactId>
             <version>2.2.700</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -166,11 +184,60 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>C:/Users/nexti/Desktop/Project-SkJson/envioroments/2.9/plugins/${project.artifactId}-${project.version}.jar</outputFile>
+                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- Před kopírováním se ujistěte, že složka /plugins existuje -->
+                                <mkdir dir="${project.basedir}/gen_server/plugins"/>
+
+                                <!-- Nakopírujte .jar soubor do složky /plugins -->
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="${project.basedir}/gen_server/plugins"/>
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="C:/Users/nexti/Desktop/Project-SkJson/envioroments/2.9/plugins/" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>1.6.0</version>-->
+<!--                <configuration>-->
+<!--                    <executable>C:\Program Files\Java\jdk-20\bin\java</executable>-->
+<!--                    <workingDirectory>${project.basedir}/gen_server</workingDirectory>-->
+<!--                    <arguments>-->
+<!--                        <argument>-Xms1G</argument>-->
+<!--                        <argument>-Xmx1G</argument>-->
+<!--                        <argument>-jar</argument>-->
+<!--                        <argument>paper.jar</argument>-->
+<!--                        <argument>-u worlds</argument>-->
+<!--                        <argument>nogui</argument>-->
+<!--                    </arguments>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
         <resources>
             <resource>

@@ -11,6 +11,8 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
@@ -20,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
@@ -54,9 +57,8 @@ public abstract class JsonBase {
     })
     @Since("2.9")
     public static class CountElements extends SimpleExpression<Integer> {
-
         static {
-            Skript.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE, "number of (0:key|1:value) %objects% in %json%");
+            SkJson.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE, "number of (0:key|1:value) %objects% in %json%");
         }
 
         private Expression<?> inputObjects;
@@ -136,7 +138,7 @@ public abstract class JsonBase {
     })
     public static class LoopExpression extends SimpleExpression<Object> {
         static {
-            Skript.registerExpression(LoopExpression.class, Object.class, ExpressionType.SIMPLE,
+            SkJson.registerExpression(LoopExpression.class, Object.class, ExpressionType.SIMPLE,
                     "[the] json-(:value|:key)[-<(\\d+)>]"
             );
         }
@@ -264,7 +266,7 @@ public abstract class JsonBase {
     })
     public static class Elements extends SimpleExpression<Object> {
         static {
-            Skript.registerExpression(Elements.class, Object.class, ExpressionType.SIMPLE,
+            SkJson.registerExpression(Elements.class, Object.class, ExpressionType.SIMPLE,
                     "(0:(value %-string% of %-json%)|1:(values [%-string%] of %-json%))"
             );
         }
@@ -453,7 +455,7 @@ public abstract class JsonBase {
         public static final int lastElementConst = -928171;
 
         static {
-            Skript.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.SIMPLE,
+            SkJson.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.SIMPLE,
                     "(1:(1st|first)|2:(2nd|second)|3:(3rd|third)|4:last|5:%integer%) element of %jsons%"
             );
         }
@@ -552,6 +554,63 @@ public abstract class JsonBase {
         }
     }
 
+    @Name("Get index of key/value in ListObject")
+    @Description({
+            "Returns the index of the key/value in the ListObject",
+            "What is ListObject? ListObject is shortcut for `[{}, {} ...]`",
+            "That means the object indexed by integer in the list",
+            "This expressions allows you found the key/value in the inner objects in the list."
+    })
+    @Examples({})
+    @Since("2.9")
+    public static class IndexListObject extends SimpleExpression<Integer> {
+
+        static {
+            SkJson.registerExpression(IndexListObject.class, Integer.class, ExpressionType.SIMPLE,
+                    "[get] index of (:key|:value) %object% in [object( |-)list] [%-string%] of [json] %json%"
+            );
+        }
+
+        private Expression<Integer> integerExpression;
+        private boolean isValue;
+        private Expression<JsonElement> jsonElementExpression;
+        private Expression<String> pathExpression;
+        private Expression<?> inputExpression;
+
+        @Override
+        protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
+            Object input = inputExpression.getSingle(e);
+
+            Util.log("Executed...");
+            return new Integer[0];
+        }
+
+        @Override
+        public boolean isSingle() {
+            return true;
+        }
+
+        @Override
+        public @NotNull Class<? extends Integer> getReturnType() {
+            return Integer.class;
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            return "get a index of key/value " + inputExpression.toString(e, debug) + " in " + pathExpression.toString(e, debug) + " of " + jsonElementExpression.toString(e, debug);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            isValue = parseResult.hasTag("value");
+            inputExpression = LiteralUtils.defendExpression(exprs[0]);
+            pathExpression = (Expression<String>) exprs[1];
+            jsonElementExpression = (Expression<JsonElement>) exprs[2];
+            return LiteralUtils.canInitSafely(inputExpression);
+        }
+    }
+
     @Name("Json to Skript variable list")
     @Description("Its allow convert Json to variable skript list")
     @Examples({
@@ -563,7 +622,7 @@ public abstract class JsonBase {
     public static class MapJson extends Effect {
 
         static {
-            Skript.registerEffect(MapJson.class, "[:async] (map|copy) %json/string% to %objects%");
+            SkJson.registerEffect(MapJson.class, "[:async] (map|copy) %json/string% to %objects%");
         }
 
         private Expression<?> jsonInput;
@@ -685,7 +744,7 @@ public abstract class JsonBase {
     public static class ParseVariable extends SimpleExpression<JsonElement> {
 
         static {
-            PropertyExpression.register(ParseVariable.class, JsonElement.class,"form[atted json]", "jsons");
+            SkJson.registerPropertyExpression(ParseVariable.class, JsonElement.class,"form[atted json]", "jsons");
         }
 
         private VariableString variable;
@@ -809,7 +868,7 @@ public abstract class JsonBase {
     public static class CondJsonType extends Condition {
 
         static {
-            Skript.registerCondition(CondJsonType.class,
+            SkJson.registerCondition(CondJsonType.class,
                     "type of %json% (is|=) (1:primitive|2:json object|3:json array)",
                     "type of %json% (is(n't| not)|!=) (1:primitive|2:json object|3:json array)"
             );
@@ -859,7 +918,7 @@ public abstract class JsonBase {
     public static class CondJsonHas extends Condition {
 
         static {
-            Skript.registerCondition(CondJsonHas.class,
+            SkJson.registerCondition(CondJsonHas.class,
                     "%json% has [:directly] (:value|:key)[s] %objects%",
                     "%json% does(n't| not) have [:directly] (:value|:key)[s] %objects%"
             );

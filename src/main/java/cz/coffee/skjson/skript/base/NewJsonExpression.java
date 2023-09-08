@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.base;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,6 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -60,7 +60,7 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     static {
-        Skript.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
+        SkJson.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
                 "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
         );
     }

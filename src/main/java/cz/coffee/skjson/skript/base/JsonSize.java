@@ -7,6 +7,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.SkJson;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class JsonSize extends SimplePropertyExpression<JsonElement, Integer> {
     static {
-        register(JsonSize.class, Integer.class, "json size", "jsons");
+        SkJson.registerSimplePropertyExpression(JsonSize.class, Integer.class, "json size", "jsons");
     }
 
 
