@@ -7,77 +7,163 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/SkJsonTeam/skjson/badge)](https://www.codefactor.io/repository/github/SkJsonTeam/skjson)
 
 
-<p align="center" width="100%">
-    <img width="60%" size="64" src="https://media.discordapp.net/attachments/967325659523321926/1089508231329624215/skJsonBanner.png"> 
+
+<br />
+
+[//]: # (<- Header ->)
+<p align="center" style="align: center; text-align: center">
+<img align="center" alt="SkJson" width="40%" src="https://skjson.xyz/imgs/skjson/banner.png">
 </p>
+<h1 align="center">SkJson</h1>
 
-
-#### This addon uses Google Json (Gson) API to work with Json in Skript, allowing users to edit Json files or even directly Variables that contain json.
-
-<svg height="12px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36"><defs></defs><g id="图层_2" data-name="图层 2"><g id="Discord_Logos" data-name="Discord Logos"><g id="Discord_Logo_-_Large_-_White" data-name="Discord Logo - Large - White"><path class="cls-1" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></g></g></g></svg> **Discord:** https://discord.gg/trwWpUkmQp
-<!-- > **Documentations**: https://cooffeerequireds.gitbook.io/skript-gson/ \ -->
+<h3 align="center">The modern way how to handle JSON in the Skript</h3>
+<h6 align="center">The addon uses GSON &#40;Google JSON&#41; for work with JSON in Skript</h6>
+<hr>
 
 ### 📑 Requirements
-* Java 16+
-* Minecraft 1.16.5+
-* Skript 2.6.4, 2.7.0 beta3+
+* **Java 16+**
+* **Minecraft 1.16.5+**
+* **Skript 2.7.0**
 
 ### 🔑 Recommended
-* VSCode = [Download link](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)
-* Externsion = [Download link](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)
-* The Extension will help you with coding and debugging skJson
-
-[<img height="70px" src="https://skripthub.net/static/addon/ViewTheDocsButton.png">](https://skripthub.net/docs/?addon=skJson)
-[<img height="70px" src="https://skunity.com/branding/buttons/get_on_docs_4.png">](https://docs.skunity.com/syntax/search/addon:skjson)
-[<img height="70px" src="https://static.spigotmc.org/img/spigot.png">](https://www.spigotmc.org/resources/skjson.106019/)
+* **_[**Visual Studio Code**](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)_**
+*  **_[**Extension**](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)_**
 
 
-## ✨ Features
-### 👀 JsonWatcher 
-If the file changes, your json loaded in memory changes.
-```vb
-on load:
-    link json file "plugins/raw/raw.json" as "test"
-    make jsonwatcher listen to "test"
+### 🆘 Where can I get help?
+* **[Discord](https://discord.gg/dsZq5Cs9fd)**
+* **[SkUnity](https://skunity.com/)**
+* **[Email](mailto:nextikczcz@gmail.com)** (Only the biggest projects)
 
-command listenedJson:
-    trigger:
-        send cached json "test"
+### 💡 How can I start with SkJson?
+#### All tutorials are based on the latest version **`2.9`**
+for the first time and recommend working with [SkJson Documentation](https://skjson.xyz/)
+
+#### 🗝️ Create json object/array from sources.
+```shell
+on script load:
+  # From String
+  # We can use escape sequences so two double quotes, or we can use single quote
+  # Or we can define only KEYS without any quotes
+  set {_json} to json from text "{""A"": false}"
+  set {_json} to json from text "{'A': false}"
+  set {_json} to json from text "{A: false}"
+  
+  # From file (json/yaml)
+  # YAML: you can your old yaml file and SkJson will convert that to JSON file
+  set {_json} to json from json file "plugins/SkJson/Files/test.json"
+  set {_json} to json from yaml file "plugins/SkJson/Files/test.yaml"
+  
+  # From website
+  # That will work only for GET! If you want to use other methods you should use requests
+  set {_json} to json from website "https://dummyjson.com/products/1"
+  
+  # From any Skript/Bukkit object
+  set {_json} to json from location(10, 20, 30, world("world"))
 ```
-### 📩 JsonRequest (POST|GET)
-skJson can report POST/GET requests.
-1. `execute GET request to "https://dog.ceo/api/breeds/image/random%20Fetch!" with headers '{"json-encode+": "true"}'`
-2. `execute POST request to "https://dog.ceo/api/breeds/image/random%20Fetch!" with headers '{"json-encode+": "true"}' and with body '{"user": "%player%"}'`
-3. `set {_body} to request's body`
 
-### 📟 Json Parser
-Objects obtained from json will be automatically parsed.
+This depends on what you want to do in SkJson, if you just want to work with JSON you can just use `Map/From` but if you want for example `Request's` or work with files we have a small guide here.
 
-Input: `set {_json} to json from location(0,0,1, world "world")`
-```json
-{
-    "==": "org.bukkit.Location",
-    "world": "world",
-    "x":0.0,
-    "y":0.0,
-    "z":1.0,
-    "pitch":0.0,
-    "yaw":0.0
-}
+#### 🗝️ Example for requests.
+
+Suppose we have some API and we want to use Skript to work with that API and get JSON responses from that API (server), SkJson offers [Request's](https://skjson.xyz/documentation/beta#section-Request) according to its own.
+```sh
+on script load:
+	async make POST request to "https://dummyjson.com/carts/add":
+		header: "Content-Type: application/json"
+		content: json from text "{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}"
+		save incorrect response: true
+		lenient: true
+		save:
+			content: {-content}
+			headers: {-header}
+			status code: {-code}
+			url: {-url}
+command response:
+	trigger:
+		send {-content} with pretty print
 ```
-Output: `x: 0, y: 0, z: 1, yaw: 0, pitch: 0 in 'world'`
+What does mean `lenient` ?
+**__`lenient`__** means attempting to repair corrupted JSON from a server response. (thanks to `@mnight4`)
+<br />
 
-### 📝 Json Changer
-#### ➕ ADD
-Using `add` you will be able to add values only to the json sheet. Here is an example of the syntax: `add player's location to json list "pathxys" in {_json}`
-#### ✔ SET
-With `set` you will be able to add values to json object or to `set`, here is an example of syntax `set json value "test:A" in {_json} to diamond sword`, While `A` is the value of the key, so always the last element in the string is the definition of the key.
-#### ➖ REMOVE
-Using remove you will be able to remove using key or using values or using the defined index of the JsonArray case.
-Here are some example syntax:
-1. `remove diamond sword from {_json}`
-2. `remove 2nd element from json list "pathxys" in {_json}`
-3. `remove player's location from json list "pathxys" in {_json}`
-4. `remove "hello" from keys of json object "pathxys" in {_json}`
-5. `remove diamond sword from values of json object "pathxys" in {_json}`
+#### 🗝️ Example for handling JSON file /wo cache.
+SkJson can work with files whether it is writing, editing or appending. See also [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit)
 
+```sh
+# here we will create a new file
+options:
+    file_path: "plugins/SkJson/jsons/test.json"
+
+on script load:
+    new json file {@file_path} if json file {@file_path} does not exist
+    
+    # here we will work with the json file
+    
+    set {_json} to json from file {@file_path}
+    
+    # writing to file
+    set {_data} to json from location(10, 20, 30, world("world"))
+    write {_data} to json file {@file_path}
+    
+    # editing directly file
+    edit value "world" of json file {@file_path} to "New World"
+    
+    # editing file with step over
+    
+    # getting the json file as Json object
+    set {_json} to json from file {@file_path}
+    set value of json object "world" in {_json} to "New World(By rewrote)"
+    
+    # write file back to JSON
+    write {_json} to json file {@file_path}
+```
+
+#### 🗝️ Example for handling JSON file /w cache.
+What is `cache`? Cache is known for storing JSON in memory instead of SkJson having to open and close the file it puts its reference in memory, and you are working with memory all the time and if you would like to save the file from memory to a real file. you can do it at any time with `save <json-id>`
+
+Check out this documentation.: [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit), [Link File](https://skjson.xyz/documentation/beta#effect-LinkFile), [Save File](https://skjson.xyz/documentation/beta#effect-SaveCache), [Unlink File](https://skjson.xyz/documentation/beta#effect-UnlinkFile), [Get Cached JSON](https://skjson.xyz/documentation/beta#expression-GetCachedJson)
+
+```sh
+options:
+    file_path: "plugins/SkJson/jsons/test.json"
+
+on script load:
+    # here we will create a new file
+    new json file {@file_path} if json file {@file_path} does not exist
+    # here we will linked our file to our memory.
+    link json file {@file_path} as "your_specified_value" if json file {@file_path} exists
+    
+    # here we will set value to memory reference of your file.
+    set value of json objct "location" in (json "your_specified_value") to location(10, 20, 30, world("world"))
+    
+    # here we will get location of memory
+    set {_location} to value "location" of (json "your_specified_value")
+    # that will return {"==":"org.bukkit.Location","yaw":0.0,"world":"world","x":10.0,"y":20.0,"z":30.0,"pitch":0.0}
+    
+    # here we will save memory reference back to file
+    save json "your_specified_value"
+```
+
+#### 🗝️ Now we'll look at is how SkJson works with `Skript/Bukkit` objects
+```sh
+# let's say we have a command test and we work with Player Location. 
+command test:
+  trigger:
+    set {_json_location} to json from location of player
+    teleport player to {_json_location}
+    # that will teleport player to location converted from JSON object to location
+    
+    set {_item} to diamond sword named "Test"
+    set lore of {_item} to "&6Gold" and "&7Silver"
+    enchant {_item} with Sharpness 5
+    set {_json_item} to json from {_item}
+    
+    give {_json_item} to player
+```
+So conclusion, if the Json object contains the correct object key `Skript/SkJson` will try to parse the JSON as a real object.
+<hr />
+
+[<img style="width: 20%" src="https://skripthub.net/static/addon/ViewTheDocsButton.png">](https://skripthub.net/docs/?addon=skJson)
+[<img style="width: 22%" src="https://skunity.com/branding/buttons/get_on_docs_4.png">](https://docs.skunity.com/syntax/search/addon:skjson)
+[<img style="width: 10%" src="https://static.spigotmc.org/img/spigot.png">](https://www.spigotmc.org/resources/skjson.106019/)
