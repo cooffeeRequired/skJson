@@ -1,0 +1,19 @@
+version: ${project.version}
+
+request method:
+	get: GET
+	post: POST
+	put: PUT
+	delete: DELETE
+	mock: MOCK
+	head: HEAD
+	patch: PATCH
+
+types:
+	json: Json
+	jsonwebhook: Webhook
+	requestmethod: Metody
+
+damage causes:
+	kill: This is error what i got!, Defined in .lang
+	world_border: This is world_border
