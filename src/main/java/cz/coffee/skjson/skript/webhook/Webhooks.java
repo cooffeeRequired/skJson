@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.webhook;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
@@ -126,37 +125,37 @@ public abstract class Webhooks {
         private EntryValidator getEntryValidator(String section) {
             return switch (section) {
                 case "web" -> EntryValidator.builder()
-                        .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("attachment", null, true, Object.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("attachment", null, true, Object.class))
                         .addSection("attachments", true)
                         .addSection("contents", true)
                         .missingRequiredEntryMessage(entry -> String.format("field %s need to be set, cause %s doesn't have default value!", entry, entry))
                         .build();
                 case "discord" -> EntryValidator.builder()
-                        .addEntryData(new ExpressionEntryData<>("attachment", null, true, Object.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("attachment", null, true, Object.class))
                         .addSection("attachments", true)
-                        .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("components", null, true, Expression.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("actions", null, true, Expression.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("components", null, true, Expression.class))
+                        .addEntryData(new ExpressionEntryData<>("actions", null, true, Expression.class))
                         .addSection("data", false)
                         .missingRequiredEntryMessage(entry -> String.format("field %s need to be set, cause %s doesn't have default value!", entry, entry))
                         .build();
                 case "discord-data" -> EntryValidator.builder()
-                        .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
                         .addSection("contents", true)
                         .addEntry("tts", null, false)
-                        .addEntryData(new ExpressionEntryData<>("components", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("actions", null, true, Object.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("components", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("actions", null, true, Object.class))
                         .addSection("embed", true)
                         .missingRequiredEntryMessage(entry -> String.format("field %s need to be set, cause %s doesn't have default value!", entry, entry))
                         .build();
                 case "discord-embed" -> EntryValidator.builder()
                         .addEntry("id", String.valueOf(new Random().nextInt(27)), true)
-                        .addEntryData(new ExpressionEntryData<>("fields", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("author", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("title", null, true, Object.class, WebhookEvent.class))
-                        .addEntryData(new ExpressionEntryData<>("thumbnail", null, false, Object.class, WebhookEvent.class))
+                        .addEntryData(new ExpressionEntryData<>("fields", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("author", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("title", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("thumbnail", null, false, Object.class))
                         .addEntry("color", null, true)
                         .missingRequiredEntryMessage(entry -> String.format("field %s need to be set, cause %s doesn't have default value!", entry, entry))
                         .build();
@@ -241,9 +240,6 @@ public abstract class Webhooks {
                 EntryContainer container = validator.validate(sectionNode);
                 if (container == null) return false;
 
-                Expression<?> _attachment = container.getOptional("content", Expression.class, false);
-
-
 
                 SectionNode attachments = container.getOptional("attachments", SectionNode.class, false);
                 if (attachments == null) return false;
@@ -269,7 +265,7 @@ public abstract class Webhooks {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Util.enchantedError(e, e.getStackTrace(), "WebHooks cannot convert to Entries");
                 }
                 return true;
             }
@@ -341,7 +337,7 @@ public abstract class Webhooks {
                 json.add("content", ParserUtil.parse(content));
                 json.addProperty("tts", tts);
                 json.add("components", ParserUtil.parse(components));
-                json.add("actions", ParserUtil.parse(actions));;
+                json.add("actions", ParserUtil.parse(actions));
 
                 if (isEmbed) {
                     String id = embedID;

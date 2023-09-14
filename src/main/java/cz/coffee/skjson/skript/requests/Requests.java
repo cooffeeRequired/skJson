@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.requests;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,7 +15,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -59,17 +57,6 @@ public abstract class Requests {
     @Since("2.9")
     public static class Request extends Section {
 
-        /**
-         * The type Request create.
-         */
-        public static class RequestCreate extends Event {
-
-            @Override
-            public @NotNull HandlerList getHandlers() {
-                throw new IllegalStateException();
-            }
-        }
-
         static {
             SkJson.registerSection(Request.class, "[:async] make [new] %requestmethod% request to %string%");
         }
@@ -89,26 +76,26 @@ public abstract class Requests {
             method = (Expression<RequestMethods>) exprs[0];
             url = (Expression<String>) exprs[1];
             EntryValidator validator = EntryValidator.builder()
-                    .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class, RequestCreate.class))
+                    .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
+                    .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class))
+                    .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class))
+                    .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class))
                     .addSection("save", true)
                     .build();
 
             EntryValidator saveValidator = EntryValidator.builder()
-                    .addEntryData(new ExpressionEntryData<>("content", null, true, Variable.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("headers", null, true, Variable.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("status code", null, true, Variable.class, RequestCreate.class))
-                    .addEntryData(new ExpressionEntryData<>("url", null, true, Variable.class, RequestCreate.class))
+                    .addEntryData(new ExpressionEntryData<>("content", null, true, Variable.class))
+                    .addEntryData(new ExpressionEntryData<>("headers", null, true, Variable.class))
+                    .addEntryData(new ExpressionEntryData<>("status code", null, true, Variable.class))
+                    .addEntryData(new ExpressionEntryData<>("url", null, true, Variable.class))
                     .build();
 
             EntryContainer container = validator.validate(sectionNode);
             if (container == null) return false;
             content = (Expression<?>) container.getOptional("content", Expression.class, false);
-            header = (Expression<?>) container.getOptional("header", Object.class, false) ;
-            saveIncorrect = (UnparsedLiteral) container.getOptional("save incorrect response", Object.class, false);
-            lenient = (UnparsedLiteral) container.getOptional("lenient", Object.class, false);
+            header = container.getOptional("header", Object.class, false);
+            saveIncorrect = container.getOptional("save incorrect response", Object.class, false);
+            lenient = container.getOptional("lenient", Object.class, false);
             SectionNode s = container.getOptional("save", SectionNode.class, false);
             try {
                 if (s != null) {
@@ -174,21 +161,23 @@ public abstract class Requests {
                 return;
             }
 
-            if (unparsedRequestHeaders == null) return;
-
             List<JsonObject> headers = new ArrayList<>();
-            for (Object unparsedHeader : unparsedRequestHeaders) {
-                if (unparsedHeader instanceof JsonObject json) {
-                    headers.add(json);
-                } else if (unparsedHeader instanceof String pair) {
-                    JsonObject map = new JsonObject();
-                    String[] pairs = pair.split(":");
-                    map.addProperty(pairs[0], pairs[1]);
-                    headers.add(map);
-                } else {
-                    Util.requestLog("Please provide Json or Stringify header");
+            if (unparsedRequestHeaders != null) {
+                for (Object unparsedHeader : unparsedRequestHeaders) {
+                    if (unparsedHeader instanceof JsonObject json) {
+                        headers.add(json);
+                    } else if (unparsedHeader instanceof String pair) {
+                        JsonObject map = new JsonObject();
+                        String[] pairs = pair.split(":");
+                        map.addProperty(pairs[0], pairs[1]);
+                        headers.add(map);
+                    } else {
+                        Util.requestLog("Please provide Json or Stringify header");
+                    }
                 }
             }
+
+
             if (body == null) body = new JsonObject();
 
             try (var http = new HttpWrapper(url, method)) {

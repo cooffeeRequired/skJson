@@ -13,7 +13,6 @@ import org.bukkit.inventory.Inventory;
  * Created: neděle (16.07.2023)
  */
 public record JsonInventory(HumanEntity player, Inventory inv) {
-
     public static Inventory newInventory(String holderName, InventoryType type, String title) {
         Player p = null;
         try {
@@ -23,9 +22,4 @@ public record JsonInventory(HumanEntity player, Inventory inv) {
 
         return Bukkit.createInventory(p, type, Component.text(title));
     }
-
-    public boolean isInstanceOfPlayer() {
-        return player != null;
-    }
-
 }
