@@ -1,7 +1,0 @@
-
-*.xml
-.idea/codeStyles/codeStyleConfig.xml
-/.idea
-target
-.github
-.gitignore
