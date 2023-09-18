@@ -82,7 +82,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 // make a sensitization for Failed get from FileWrapper
                 JsonFile jsonFile_ = FileWrapper.fromNormal(file);
                 if (jsonFile_ == null) {
-                    output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! '" + stringifyFile +"}"));
+                    output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile +"'}"));
                 } else {
                     output.add(jsonFile_.get());
                 }
