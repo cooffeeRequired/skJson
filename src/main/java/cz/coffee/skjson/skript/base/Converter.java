@@ -78,7 +78,6 @@ public abstract class Converter {
                 JsonObject o = new JsonObject();
                 o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
                 JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
-
                 if (source.toString().contains("internal")) {
                     i.getAsJsonObject().getAsJsonObject("meta").remove("internal");
                     final JsonObject tags = new JsonObject();
@@ -374,9 +373,8 @@ public abstract class Converter {
         @Override
         public ItemMeta fromJson(JsonObject json) {
             JsonObject jsonMeta = json.getAsJsonObject("meta");
-            ItemMeta meta;
+            ItemMeta meta = null;
             int customModelData = -999;
-
             if (jsonMeta.has("custom-model-data")) customModelData = jsonMeta.remove("custom-model-data").getAsInt();
 
             if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(0))) {
@@ -389,8 +387,6 @@ public abstract class Converter {
                 meta = compassMeta(jsonMeta);
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(4))) {
                 meta = crossbowMeta(jsonMeta);
-            } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(5))) {
-                meta = damageableMeta(jsonMeta);
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(6))) {
                 meta = fireworkMeta(jsonMeta);
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(7))) {
@@ -400,10 +396,17 @@ public abstract class Converter {
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(9))) {
                 meta = tropicalFishBucketMeta(jsonMeta);
             } else {
-                meta = GsonConverter.fromJson(jsonMeta, ItemMeta.class);
+                if (jsonMeta.has("Damage")) {
+                    meta = damageableMeta(jsonMeta);
+                } else {
+                    meta = GsonConverter.fromJson(jsonMeta, ItemMeta.class);
+                }
                 setModel(customModelData, meta);
                 setModifiers(jsonMeta, meta);
                 return meta;
+            }
+            if (jsonMeta.has("Damage")) {
+                meta = damageableMeta(jsonMeta);
             }
             setModel(customModelData, meta);
             setModifiers(jsonMeta, meta);
@@ -476,7 +479,6 @@ public abstract class Converter {
             return null;
         }
     };
-
     public final static SimpleConverter<Inventory> InventoryConverter = new SimpleConverter<Inventory>() {
 
         @Override

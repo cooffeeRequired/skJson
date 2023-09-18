@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.api.FileWrapper.JsonFile;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.requests.Requests;
@@ -36,10 +37,10 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
 @Description({
         "latest:",
         "\tversion 2.9:",
-                "\t\t- support now also multiple items as input",
-                "\t\t- support json content from webpage",
-                "\t\t- removed empty json array/object, cause it's not necessary while",
-                  "skJson know parsing object",
+        "\t\t- support now also multiple items as input",
+        "\t\t- support json content from webpage",
+        "\t\t- removed empty json array/object, cause it's not necessary while",
+        "skJson know parsing object",
         "original docs: https://skjsonteam.github.io/skJsonDocs/exprs#new-json",
         "skripthub docs:",
         "<br />",
@@ -48,28 +49,26 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
 @Since("2.9")
 @Examples({
         "on script load:",
-            "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
-            "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
-            "\tset {_json} to json from diamond tools",
-            "\tset {_json} to json from player's location",
-            "\tset {_json} to json from player's inventory",
-            "\tset {_json} to json from yaml file <path>",
-            "\tset {_json} to json from website file \"https://json.org/sample.json\""
+        "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
+        "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
+        "\tset {_json} to json from diamond tools",
+        "\tset {_json} to json from player's location",
+        "\tset {_json} to json from player's inventory",
+        "\tset {_json} to json from yaml file <path>",
+        "\tset {_json} to json from website file \"https://json.org/sample.json\""
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     static {
         SkJson.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
-        );
+                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%");
     }
 
-    private boolean isFile, isYaml, isWebFile, fileWithTab;
+    private boolean isFile, isYaml, isWebFile;
     private int mark;
     private Expression<?> input;
     private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
-
 
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
@@ -79,7 +78,14 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
             String stringifyFile = values[0].toString();
             if (stringifyFile != null) {
                 final File file = new File(stringifyFile);
-                output.add(Objects.requireNonNull(FileWrapper.fromNormal(file)).get());
+
+                // make a sensitization for Failed get from FileWrapper
+                JsonFile jsonFile_ = FileWrapper.fromNormal(file);
+                if (jsonFile_ == null) {
+                    output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! '" + stringifyFile +"}"));
+                } else {
+                    output.add(jsonFile_.get());
+                }
             }
         } else if (isWebFile) {
             final Object url = input.getSingle(e);
@@ -147,7 +153,8 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed,
+            ParseResult parseResult) {
         mark = parseResult.mark;
         isFile = mark == 2;
         isWebFile = mark == 3;
