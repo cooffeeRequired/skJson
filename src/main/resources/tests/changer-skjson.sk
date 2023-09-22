@@ -4,8 +4,9 @@ options:
 	debug: false
 
 local function cls():
-	loop 200 times:
-		send " " to console
+	if {@debug} is true:
+		loop 200 times:
+			send " " to console
 
 local function jsonPayload() :: json:
     return json from text "[1, {'list': [true]}]"
