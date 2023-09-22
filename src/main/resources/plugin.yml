@@ -1,0 +1,14 @@
+name: SkJson
+version: '${project.version}'
+main: cz.coffee.skjson.SkJson
+api-version: '1.16'
+depend:
+  - Skript
+prefix: SkJson
+author: CoffeeRequired
+description: ''
+website: https://github.com/SkJsonTeam/SkJson
+commands:
+  skjson:
+    description: basic skjson
+    usage: /skjson
