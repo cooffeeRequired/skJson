@@ -5,20 +5,14 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
-import ch.njol.skript.lang.function.SimpleJavaFunction;
-import ch.njol.skript.registrations.DefaultClasses;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.SkriptLoaderFile;
-import cz.coffee.skjson.skript.SkJsonFunctions;
-import cz.coffee.skjson.skript.base.JsonSize;
-import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,38 +38,50 @@ public final class SkJson extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        try {
-            config.init();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (config.ready()) {
-            Util.log("Registered elements..");
-            SkjsonElements.forEach((key, value) -> Util.log("  &8&l - &7Registered " + Util.coloredElement(key) + "&f " +value.size()));
-            Util.log("Hurray! SkJson is &aenabled.");
-            CompletableFuture.runAsync(() -> {
-                if (RUN_TEST_ON_START) {
-                    try {
-                        Util.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
-                        Thread.sleep(Config.TEST_START_UP_DELAY);
-                        var loader = new SkriptLoaderFile(new File(this.getDataFolder() + "/" + "..tests"));
-                        loader.load();
-                        Thread.sleep(200);
-                        loader.unload();
-                    } catch (Exception ex) {
-                        Util.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
-                    }
-                }
-            });
+        if (Bukkit.getServer().getName().equals("CraftBukkit")) {
+            System.out.println("\033[0;31m-------------------------SPIGOT DETECTED------------------------------");
+            System.out.println("Please install SkJson for Spigot version " + this.getDescription().getVersion());
+            System.out.println("---------------------------------------------------------------------\033[0m");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         } else {
-            throw new IllegalStateException("Opps! Something is wrong");
+            try {
+                config.init();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (config.ready()) {
+                Util.log("Registered elements..");
+                SkjsonElements.forEach((key, value) -> Util.log("  &8&l - &7Registered " + Util.coloredElement(key) + "&f " +value.size()));
+                Util.log("Hurray! SkJson is &aenabled.");
+                CompletableFuture.runAsync(() -> {
+                    if (RUN_TEST_ON_START) {
+                        try {
+                            Util.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
+                            Thread.sleep(Config.TEST_START_UP_DELAY);
+                            var loader = new SkriptLoaderFile(new File(this.getDataFolder() + "/" + "..tests"));
+                            loader.load();
+                            Thread.sleep(200);
+                            loader.unload();
+                        } catch (Exception ex) {
+                            Util.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
+                        }
+                    }
+                });
+            } else {
+                throw new IllegalStateException("Opps! Something is wrong");
+            }
         }
     }
 
     @Override
     public void onDisable() {
-        JsonWatcher.unregisterAll();
-        Util.log("Goodbye! SkJson is &#d60f3aDisabled!");
+        if (Bukkit.getServer().getName().equals("CraftBukkit")) {
+            System.out.println("Disabled");
+        } else {
+            JsonWatcher.unregisterAll();
+            Util.log("Goodbye! SkJson is &#d60f3aDisabled!");
+        }
     }
     public static Server getThisServer() {
         return Bukkit.getServer();

@@ -290,39 +290,18 @@ public class Config {
      */
     final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
 
-    public static Boolean useSpigot(){
-        String path = "org.spigotmc.Metrics";
-        try{
-            Class.forName(path);
-            return true;
-        }catch(Exception e){
-            return false;
-        }
-    }
-
     /**
      * Init.
      */
     public void init() throws IOException {
         try {
-            SERVER_TYPE =  useSpigot() ? "SPIGOT" : "FORK OF SPIGOT";
-            if (SERVER_TYPE == "SPIGOT") {
-                if (Class.forName("net/kyori/adventure/text/Component") == null) {
-                    ready = false;
-                    Util.error("Missing required class (Component)");
-                    return;
-                }
-            }
-        } catch (Exception ignored) {
-            ready = false;
-        }
-
-        manager = Bukkit.getPluginManager();
-        try {
             loadConfigFile(false);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        manager = Bukkit.getPluginManager();
+
         try {
             new NBTContainer("{a:0}");
             logger.info("[NBTAPI] Was loaded &asuccessfully.");

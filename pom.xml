@@ -78,21 +78,6 @@
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-api</artifactId>
-            <version>4.14.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.14.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-serializer-legacy</artifactId>
-            <version>4.14.0</version>
-        </dependency>
     </dependencies>
 
 
@@ -165,10 +150,6 @@
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>cz.coffee.api.bstats</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>net.kyori</pattern>
-                            <shadedPattern>cz.coffee.api.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

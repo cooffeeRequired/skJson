@@ -143,11 +143,7 @@ public abstract class JsonCacheInstance {
 
         private Expression<String> expressionPathDirectory, expressionCacheDirectory;
         private boolean letWatching;
-        private final boolean isAsynchronous;
-
-        public AllJsonFromDirectory(boolean isAsynchronous) {
-            this.isAsynchronous = isAsynchronous;
-        }
+        private boolean isAsynchronous;
 
         @Override
         protected void execute(@NotNull Event e) {
