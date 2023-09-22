@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.changer;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
@@ -156,7 +155,7 @@ public abstract class SkJsonChanger {
                                 JsonElement input = inputJsonExpression.getSingle(e);
                                 pj = new ParsedJson(input);
                                 path = pathExpression.getSingle(e);
-                                LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);
+                                LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
                                 if (keys != null) json = pj.byKey(keys);
                             } else {
                                 json = inputJsonExpression.getSingle(e);
@@ -275,7 +274,6 @@ public abstract class SkJsonChanger {
         private Expression<?> objectsInput;
         private ParseResult result;
         private int line;
-        private boolean multipleInputs;
 
 
         @Override
@@ -313,7 +311,6 @@ public abstract class SkJsonChanger {
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             result = parseResult;
             line = matchedPattern;
-            multipleInputs = parseResult.mark == 2;
             if (line == 0) {
                 jsonInput = LiteralUtils.defendExpression(exprs[1]);
                 pathInput = (Expression<String>) exprs[0];

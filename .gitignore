@@ -2,3 +2,4 @@ gen_server/
 .idea/
 *.idea/
 *.iml
+.idea/inspectionProfiles/Project_Default.xml

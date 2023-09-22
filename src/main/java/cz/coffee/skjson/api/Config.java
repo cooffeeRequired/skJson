@@ -306,7 +306,7 @@ public class Config {
             Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
         try {
-            if (!Util.versionError(Skript.getVersion(), new Version("2.7.0"), true, manager, plugin)) return;
+            if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin)) return;
 
             ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";

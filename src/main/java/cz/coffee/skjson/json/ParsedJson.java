@@ -377,6 +377,7 @@ public class ParsedJson {
     public void changeValue(LinkedList<String> keys, JsonElement value) {
         Deque<JsonElement> elements = new ConcurrentLinkedDeque<>();
         JsonElement current;
+        if (keys == null) return;
         elements.offerLast(input);
         String lastKey = keys.removeLast();
         if (value == null) return;

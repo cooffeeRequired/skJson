@@ -137,6 +137,7 @@ public class Util {
         }
 
         boolean add = rawAdding != null && rawAdding.length > 0 && rawAdding[0];
+        if (LOGGING_LEVEL > 3) Util.log("Input path: " + string, "raw? :" + add);
         delimiter = sanitizeDelimiter(delimiter == null ? PATH_VARIABLE_DELIMITER + "(?![{}])" : delimiter);
         LinkedList<String> extractedKeys = new LinkedList<>();
 
@@ -150,33 +151,36 @@ public class Util {
         final Pattern subPattern = Pattern.compile("^([^\\[.*]+)");
         final Pattern insideSquareBrackets = Pattern.compile("\\[(.*?)]");
 
-        String nestedKey = null, nestedIndex = null;
+        try {
+            String nestedKey = null, nestedIndex = null;
+            for (String item : string.split(delimiter)) {
+                Matcher squares = subPattern.matcher(item);
+                Matcher number = insideSquareBrackets.matcher(item);
 
-        for (String item : string.split(delimiter)) {
-            Matcher squares = subPattern.matcher(item);
-            Matcher number = insideSquareBrackets.matcher(item);
-
-            if (squareBrackets.matcher(item).find()) {
-                while (squares.find()) if (squares.group(1) != null) nestedKey = squares.group(1);
-                number.find();
-                while (number.find()) {
-                    if (number.group(1) != null) {
-                        String n1 = number.group(1);
-                        if (!(n1.isBlank() || n1.isEmpty())) {
-                            if (Objects.equals(number.group(1), String.valueOf(0))) return null;
-                            nestedIndex = String.valueOf(parseNumber(number.group(1)));
-                            if (parseNumber(nestedIndex) < 0) nestedIndex = "0";
+                if (squareBrackets.matcher(item).find()) {
+                    while (squares.find()) if (squares.group(1) != null) nestedKey = squares.group(1);
+                    while (number.find()) {
+                        if (number.group(1) != null) {
+                            String n1 = number.group(1);
+                            if (!(n1.isBlank() || n1.isEmpty())) {
+                                nestedIndex = String.valueOf(parseNumber(number.group(1)));
+                                if (parseNumber(nestedIndex) < 0) nestedIndex = "0";
+                            }
                         }
                     }
-                }
 
-                extractedKeys.add(add ? nestedKey + "->List" : nestedKey);
-                if (nestedIndex != null) extractedKeys.add(nestedIndex);
-            } else {
-                extractedKeys.add(item);
+                    extractedKeys.add(add ? nestedKey + "->List" : nestedKey);
+                    if (nestedIndex != null) extractedKeys.add(nestedIndex);
+                } else {
+                    extractedKeys.add(item);
+                }
             }
+            if (LOGGING_LEVEL > 3) Util.log("Extracted: " + extractedKeys);
+            return extractedKeys;
+        } catch (Exception ex) {
+            Util.enchantedError(ex, ex.getStackTrace(), "Utils:181");
+            return null;
         }
-        return extractedKeys;
     }
 
     /**
