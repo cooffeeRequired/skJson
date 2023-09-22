@@ -73,11 +73,11 @@ public class Util {
 
     public static boolean versionError(Version userVersion, Version neededVersion, boolean disablePlugin, PluginManager manager, JavaPlugin plugin) {
         if (userVersion.isSmallerThan(neededVersion)) {
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&cThis version doesn't support a older version of srkipt " + userVersion));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&eUse older version &fhttps://github.com/SkJsonTeam/skJson/releases/tag/2.8.6"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "Or update skript to &f2.7+"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&cThis version doesn't support a older version of srkipt " + userVersion));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&eUse older version &fhttps://github.com/SkJsonTeam/skJson/releases/tag/2.8.6"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "Or update skript to &f2.7+"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
             if (disablePlugin) manager.disablePlugin(plugin);
             return false;
         }

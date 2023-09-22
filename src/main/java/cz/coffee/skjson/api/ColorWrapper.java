@@ -19,8 +19,9 @@ public class ColorWrapper {
      * @param message the message
      * @return the component
      */
-    public static Component translate(String message) {
-        return converter.deserialize(message);
+    public static String translate(String message) {
+        Component translated = converter.deserialize(message);
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', LegacyComponentSerializer.legacyAmpersand().serialize(translated));
     }
 
     /**

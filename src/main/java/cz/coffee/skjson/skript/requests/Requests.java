@@ -15,7 +15,7 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;

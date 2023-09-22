@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -24,8 +23,8 @@ import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.LinkedList;

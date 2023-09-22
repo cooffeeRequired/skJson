@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The type Config.
  */
 public class Config {
+    public static String SERVER_TYPE;
     /**
      * The constant RUN_TEST_ON_START.
      */
@@ -289,10 +290,33 @@ public class Config {
      */
     final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
 
+    public static Boolean useSpigot(){
+        String path = "org.spigotmc.Metrics";
+        try{
+            Class.forName(path);
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
     /**
      * Init.
      */
     public void init() throws IOException {
+        try {
+            SERVER_TYPE =  useSpigot() ? "SPIGOT" : "FORK OF SPIGOT";
+            if (SERVER_TYPE == "SPIGOT") {
+                if (Class.forName("net/kyori/adventure/text/Component") == null) {
+                    ready = false;
+                    Util.error("Missing required class (Component)");
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
+            ready = false;
+        }
+
         manager = Bukkit.getPluginManager();
         try {
             loadConfigFile(false);
@@ -303,8 +327,12 @@ public class Config {
             new NBTContainer("{a:0}");
             logger.info("[NBTAPI] Was loaded &asuccessfully.");
         } catch (Exception ignored) {
+            ready = false;
             Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
+
+
+
         try {
             if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin)) return;
 
@@ -316,7 +344,9 @@ public class Config {
             ready = false;
             errors.add("Couldn't initialize Metrics'");
         }
-        ready = initializeSkript(manager, plugin.getPluginMeta().getPluginDependencies().get(0));
+        ready = initializeSkript(manager, plugin.getDescription().getDepend().get(0));
+
+
 
         if (errors.size() > 0) {
             Util.error("&cFound errors while skJson starting, SkJson will be &cdisabled");

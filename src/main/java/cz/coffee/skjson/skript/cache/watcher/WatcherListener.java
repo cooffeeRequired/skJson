@@ -16,7 +16,7 @@ import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

@@ -6,13 +6,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
@@ -29,8 +26,8 @@ import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -572,7 +569,6 @@ public abstract class JsonBase {
         }
 
         private Expression<Integer> integerExpression;
-        private boolean isValue;
         private Expression<JsonElement> jsonElementExpression;
         private Expression<String> pathExpression;
         private Expression<?> inputExpression;
@@ -603,7 +599,7 @@ public abstract class JsonBase {
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            isValue = parseResult.hasTag("value");
+            boolean isValue = parseResult.hasTag("value");
             inputExpression = LiteralUtils.defendExpression(exprs[0]);
             pathExpression = (Expression<String>) exprs[1];
             jsonElementExpression = (Expression<JsonElement>) exprs[2];

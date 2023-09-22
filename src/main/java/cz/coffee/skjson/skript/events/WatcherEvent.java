@@ -9,7 +9,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -20,6 +20,7 @@ import java.util.UUID;
  * <p>
  * Created: neděle (13.08.2023)
  */
+@SuppressWarnings("unused")
 public class WatcherEvent extends SkriptEvent {
 
     static {

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
-import io.papermc.paper.plugin.configuration.PluginMeta;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +29,7 @@ public class UpdateCheck {
     public UpdateCheck(JavaPlugin plugin, Config config) {
         this.plugin = plugin;
         this.config = config;
-        API = "https://api.github.com/repos/skJsonTeam/" + plugin.getPluginMeta().getName() + "/releases/latest";
+        API = "https://api.github.com/repos/skJsonTeam/" + plugin.getDescription().getName() + "/releases/latest";
     }
 
     /**
@@ -39,7 +39,7 @@ public class UpdateCheck {
      */
     public boolean getReady() {
         final JsonElement apiResponse = getGithubConfig();
-        final PluginMeta meta = plugin.getPluginMeta();
+        final PluginDescriptionFile meta = plugin.getDescription();
         final String currentVersion = meta.getVersion();
         final int sanitizedCurrentVersion = sanitizeVersion(currentVersion);
         boolean beta = currentVersion.startsWith("-");

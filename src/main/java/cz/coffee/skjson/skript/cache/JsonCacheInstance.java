@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.cache;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -19,8 +18,8 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -144,9 +143,10 @@ public abstract class JsonCacheInstance {
 
         private Expression<String> expressionPathDirectory, expressionCacheDirectory;
         private boolean letWatching;
-        private boolean isAsynchronous;
+        private final boolean isAsynchronous;
 
-        public AllJsonFromDirectory() {
+        public AllJsonFromDirectory(boolean isAsynchronous) {
+            this.isAsynchronous = isAsynchronous;
         }
 
         @Override

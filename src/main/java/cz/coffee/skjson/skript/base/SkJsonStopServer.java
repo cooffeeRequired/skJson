@@ -6,8 +6,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import cz.coffee.skjson.SkJson;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
@@ -21,7 +21,7 @@ public class SkJsonStopServer extends Effect {
 
     private Expression<Integer> code;
     @Override
-    protected void execute(Event e) {
+    protected void execute(@NotNull Event e) {
         if (code == null) {
             System.exit(0);
         }
@@ -36,12 +36,14 @@ public class SkJsonStopServer extends Effect {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
+        assert e != null;
         return e.toString();
     }
 
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+    @SuppressWarnings("unchecked")
+    public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         code = (Expression<Integer>) exprs[0];
         return true;
     }

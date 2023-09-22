@@ -1,6 +1,5 @@
 package cz.coffee.skjson.skript.base;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,8 +15,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

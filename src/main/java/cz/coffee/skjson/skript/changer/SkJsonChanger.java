@@ -25,8 +25,8 @@ import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;

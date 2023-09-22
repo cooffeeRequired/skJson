@@ -23,6 +23,6 @@ public class SkJsonLogger extends Logger {
             message = message.replace("[NBTAPI]","&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r");
         }
         ConsoleCommandSender sender = Bukkit.getConsoleSender();
-        sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + message));
+        sender.sendMessage(ColorWrapper.translate((Config.PLUGIN_PREFIX + message)));
     }
 }

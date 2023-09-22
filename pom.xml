@@ -49,11 +49,6 @@
     </repositories>
 
     <dependencies>
-         <dependency>
-           <groupId>com.google.guava</groupId>
-           <artifactId>guava</artifactId>
-           <version>[32.0.0,)</version>
-         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -84,15 +79,19 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>org.eclipse.jdt.annotation</artifactId>
-            <version>2.2.700</version>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>4.14.0</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-minimessage</artifactId>
+            <version>4.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-serializer-legacy</artifactId>
+            <version>4.14.0</version>
         </dependency>
     </dependencies>
 
@@ -166,6 +165,10 @@
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>cz.coffee.api.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>cz.coffee.api.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
