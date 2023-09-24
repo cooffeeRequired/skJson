@@ -73,11 +73,11 @@ public class Util {
 
     public static boolean versionError(Version userVersion, Version neededVersion, boolean disablePlugin, PluginManager manager, JavaPlugin plugin) {
         if (userVersion.isSmallerThan(neededVersion)) {
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&cThis version doesn't support a older version of srkipt " + userVersion));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&eUse older version &fhttps://github.com/SkJsonTeam/skJson/releases/tag/2.8.6"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "Or update skript to &f2.7+"));
-            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX +  "&c-----------------------------------------------------------------------------------------------------------"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX + "&c-----------------------------------------------------------------------------------------------------------"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX + "&cThis version doesn't support a older version of srkipt " + userVersion));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX + "&eUse older version &fhttps://github.com/SkJsonTeam/skJson/releases/tag/2.8.6"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX + "Or update skript to &f2.7+"));
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translateLegacy(PLUGIN_PREFIX + ERROR_PREFIX + "&c-----------------------------------------------------------------------------------------------------------"));
             if (disablePlugin) manager.disablePlugin(plugin);
             return false;
         }
@@ -88,6 +88,7 @@ public class Util {
         if (st.contains(".")) st = st.replace(".", "\\" + ".");
         return st;
     }
+
     private static Map<String, Boolean> checkDelimiter(String st) {
         Map<String, Boolean> message = new HashMap<>();
         List<String> chars = new ArrayList<>();
@@ -125,12 +126,13 @@ public class Util {
      * @param rawAdding the raw adding
      * @return the linked list
      */
-    public static LinkedList<String> extractKeysToList(String string, String delimiter, boolean ...rawAdding) {
+    public static LinkedList<String> extractKeysToList(String string, String delimiter, boolean... rawAdding) {
         if (string == null) return null;
         try {
             String finalString = string;
             checkDelimiter(string).forEach((ch, b) -> {
-                if (!b) throw new IllegalArgumentException("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + finalString + " \n  \t\t\t&f- Wrong delimiter &c" + ch);
+                if (!b)
+                    throw new IllegalArgumentException("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + finalString + " \n  \t\t\t&f- Wrong delimiter &c" + ch);
             });
         } catch (IllegalArgumentException ex) {
             Util.error(true, ex.getLocalizedMessage());
@@ -188,7 +190,7 @@ public class Util {
      *
      * @param msg the msg
      */
-    public static void log(Object ...msg) {
+    public static void log(Object... msg) {
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Arrays.toString(msg)
                 .replaceAll("^\\[", "")
                 .replaceAll("]$", "")
@@ -252,16 +254,16 @@ public class Util {
     /**
      * Error.
      *
-     * @param msg     the msg
+     * @param msg the msg
      */
     public static void error(String msg) {
 
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c" + msg));
     }
 
     @SuppressWarnings("unused")
     public static void error(boolean skript, String e) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c"+e));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c" + e));
     }
 
     /**
@@ -270,19 +272,19 @@ public class Util {
      * @param msg the msg
      */
     public static void errorWithoutPrefix(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&l&c"+msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&l&c" + msg));
     }
 
     /**
      * Error.
      *
-     * @param msg     the msg
-     * @param node    the node
+     * @param msg  the msg
+     * @param node the node
      */
     public static void error(String msg, @Nullable Node node) {
         int line = node == null ? 0 : node.getLine();
         assert node != null;
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&c&lLine "+line + ":&8 ("+node.getConfig().getFileName() + ")"));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&c&lLine " + line + ":&8 (" + node.getConfig().getFileName() + ")"));
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate("&#f27813\t" + msg));
     }
 

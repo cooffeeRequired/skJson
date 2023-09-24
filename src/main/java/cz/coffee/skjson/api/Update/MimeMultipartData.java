@@ -61,7 +61,7 @@ public class MimeMultipartData {
                 byteArrayOutputStream.write(Files.readAllBytes(f.path));
                 byteArrayOutputStream.write(newline);
             }
-            for (var entry: texts.entrySet()) {
+            for (var entry : texts.entrySet()) {
                 byteArrayOutputStream.write(("--" + boundary).getBytes(charset));
                 byteArrayOutputStream.write(newline);
                 byteArrayOutputStream.write(("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"").getBytes(charset));

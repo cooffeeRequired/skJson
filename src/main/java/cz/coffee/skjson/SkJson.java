@@ -43,7 +43,6 @@ public final class SkJson extends JavaPlugin {
             System.out.println("Please install SkJson for Spigot version " + this.getDescription().getVersion());
             System.out.println("---------------------------------------------------------------------\033[0m");
             Bukkit.getPluginManager().disablePlugin(this);
-            return;
         } else {
             try {
                 config.init();
@@ -52,7 +51,7 @@ public final class SkJson extends JavaPlugin {
             }
             if (config.ready()) {
                 Util.log("Registered elements..");
-                SkjsonElements.forEach((key, value) -> Util.log("  &8&l - &7Registered " + Util.coloredElement(key) + "&f " +value.size()));
+                SkjsonElements.forEach((key, value) -> Util.log("  &8&l - &7Registered " + Util.coloredElement(key) + "&f " + value.size()));
                 Util.log("Hurray! SkJson is &aenabled.");
                 CompletableFuture.runAsync(() -> {
                     if (RUN_TEST_ON_START) {
@@ -83,17 +82,18 @@ public final class SkJson extends JavaPlugin {
             Util.log("Goodbye! SkJson is &#d60f3aDisabled!");
         }
     }
+
     public static Server getThisServer() {
         return Bukkit.getServer();
     }
 
-    public static <E extends Effect> void registerEffect(Class<E> c, String ...patterns) {
+    public static <E extends Effect> void registerEffect(Class<E> c, String... patterns) {
         SkjsonElements.get("Effects").add(c.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
         Skript.registerEffect(c, patterns);
     }
 
-    public static <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String ...patterns) {
+    public static <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {
         SkjsonElements.get("Expressions").add(c.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
         Skript.registerExpression(c, returnType, type, patterns);
@@ -108,7 +108,7 @@ public final class SkJson extends JavaPlugin {
         PropertyExpression.register(c, returnType, property, fromType);
     }
 
-    public static void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String ...patterns) {
+    public static void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
         SkjsonElements.get("Events").add(name);
         Skript.registerEvent(name, c, event, patterns)
                 .since(version)
@@ -116,13 +116,13 @@ public final class SkJson extends JavaPlugin {
                 .description(description);
     }
 
-    public static <E extends Condition> void registerCondition(Class<E> c, String ...patterns) {
+    public static <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
         SkjsonElements.get("Conditions").add(c.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
         Skript.registerCondition(c, patterns);
     }
 
-    public static <E extends Section> void registerSection(Class<E> requestClass, String ...patterns) {
+    public static <E extends Section> void registerSection(Class<E> requestClass, String... patterns) {
         SkjsonElements.get("Sections").add(requestClass.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
         Skript.registerSection(requestClass, patterns);

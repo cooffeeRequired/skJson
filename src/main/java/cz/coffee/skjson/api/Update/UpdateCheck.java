@@ -47,18 +47,19 @@ public class UpdateCheck {
         config.setCurrentVersion(sanitizedCurrentVersion);
 
         if (beta) {
-            Util.log("You're running on beta version, so checking is not necessary (&b"+currentVersion+"v.&r)");
+            Util.log("You're running on beta version, so checking is not necessary (&b" + currentVersion + "v.&r)");
         } else {
             if (apiResponse != null) {
                 if (!success) Util.log("&eDo you have internet connection? Version check &c&lFailed");
                 String onlineVersion = "";
                 try {
-                   onlineVersion = apiResponse.getAsJsonObject().get("tag_name").getAsString();
-                } catch (Exception ignored) {}
+                    onlineVersion = apiResponse.getAsJsonObject().get("tag_name").getAsString();
+                } catch (Exception ignored) {
+                }
                 int sanitizeOnlineVersion = sanitizeVersion(onlineVersion);
                 if (sanitizedCurrentVersion == sanitizeOnlineVersion) {
                     Util.log("You're running on &alast&f stable version. " + onlineVersion + "v.");
-                } else if (sanitizeOnlineVersion > sanitizedCurrentVersion ) {
+                } else if (sanitizeOnlineVersion > sanitizedCurrentVersion) {
                     Util.log("&cskJson is not up to date!");
                     Util.log("&8 > &7Current version: &cv" + currentVersion);
                     Util.log("&8 > &7Available version: &av" + onlineVersion);

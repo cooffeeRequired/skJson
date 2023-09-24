@@ -26,6 +26,7 @@ public class Webhook {
          */
         WEB
     }
+
     private final WebHookType webHookType;
 
     /**
@@ -43,7 +44,7 @@ public class Webhook {
      * @param json the json
      * @return the webhook function
      */
-    public WebhookFunction create(JsonElement ...json) {
+    public WebhookFunction create(JsonElement... json) {
         return create(Requests.RequestMethods.POST, json);
     }
 
@@ -65,7 +66,7 @@ public class Webhook {
      * @param headers the headers
      * @return the webhook function
      */
-    public WebhookFunction create(Requests.RequestMethods method, JsonElement ...headers) {
+    public WebhookFunction create(Requests.RequestMethods method, JsonElement... headers) {
         JsonElement header = (headers != null && headers.length > 0 && headers[0] != null) ? headers[0] : null;
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
@@ -73,9 +74,10 @@ public class Webhook {
                 public HttpWrapper.Response process(String web, JsonElement content) {
                     return null;
                 }
+
                 @Override
                 public HttpWrapper.Response process(String id, String hex, JsonElement content) {
-                    String discord_api = "https://discord.com/api/webhooks/" + id  + "/" + hex;
+                    String discord_api = "https://discord.com/api/webhooks/" + id + "/" + hex;
                     HttpWrapper.Response rp;
                     try (var http = new HttpWrapper(discord_api, method)) {
                         http.setContent(content);
@@ -100,6 +102,7 @@ public class Webhook {
                     }
                     return rp;
                 }
+
                 @Override
                 public HttpWrapper.Response process(String id, String hex, JsonElement content) {
                     return null;

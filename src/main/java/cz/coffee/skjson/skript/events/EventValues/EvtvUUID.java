@@ -6,8 +6,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.util.SimpleEvent;
-import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 
 import java.util.UUID;
 
@@ -18,6 +16,7 @@ public class EvtvUUID extends EventValueExpression<UUID> {
     static {
         Skript.registerExpression(EvtvUUID.class, UUID.class, ExpressionType.SIMPLE, "[the] [event-](uuid|id)");
     }
+
     public EvtvUUID() {
         super(UUID.class);
     }

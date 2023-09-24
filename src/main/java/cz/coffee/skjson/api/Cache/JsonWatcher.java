@@ -102,7 +102,7 @@ public class JsonWatcher {
      * @param id   the id
      * @param file the file
      */
-    public static void register(String id, File file, String ...orgParentCache) {
+    public static void register(String id, File file, String... orgParentCache) {
         String parent = orgParentCache != null && orgParentCache.length > 0 && orgParentCache[0] != null ? orgParentCache[0] : null;
         AtomicBoolean found = new AtomicBoolean(false);
         watcherCache.forEachKey(1, file_ -> {
@@ -113,7 +113,7 @@ public class JsonWatcher {
         });
         if (!found.get()) {
             String parentFile = parent != null ? parent : file + "";
-            JsonWatcher watcher = new JsonWatcher(file, id, parentFile,  DEFAULT_WATCHER_INTERVAL);
+            JsonWatcher watcher = new JsonWatcher(file, id, parentFile, DEFAULT_WATCHER_INTERVAL);
             watcher.setEvent(new EventWatcherSave(file, id, watcher.getUuid()));
             watcherCache.put(file, watcher);
             if (watcher.isActive()) {
@@ -121,7 +121,6 @@ public class JsonWatcher {
             }
         }
     }
-
 
 
     /**
@@ -170,7 +169,8 @@ public class JsonWatcher {
                                 if (PROJECT_DEBUG)
                                     Util.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
                             } else {
-                                if (PROJECT_DEBUG) Util.watcherLog("Is cached!  : " + potentialJson + "--> : " + fromFile);
+                                if (PROJECT_DEBUG)
+                                    Util.watcherLog("Is cached!  : " + potentialJson + "--> : " + fromFile);
                             }
                             break;
                         }

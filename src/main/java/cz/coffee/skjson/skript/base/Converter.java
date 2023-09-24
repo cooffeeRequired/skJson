@@ -59,7 +59,7 @@ public abstract class Converter {
             return null;
         }
     };
-    public final static SimpleConverter<ItemStack> ItemStackConverter = new SimpleConverter<ItemStack>(){
+    public final static SimpleConverter<ItemStack> ItemStackConverter = new SimpleConverter<ItemStack>() {
 
         private static ItemStack enchants(ItemStack itemStack, final JsonObject meta) {
             final String enchants = "enchants";
@@ -431,7 +431,7 @@ public abstract class Converter {
             return null;
         }
     };
-    public final static SimpleConverter<Chunk> ChunkConverter = new SimpleConverter<Chunk>(){
+    public final static SimpleConverter<Chunk> ChunkConverter = new SimpleConverter<Chunk>() {
 
         @Override
         public @NotNull JsonElement toJson(Chunk source) {
@@ -454,7 +454,7 @@ public abstract class Converter {
             return null;
         }
     };
-    public final static SimpleConverter<Block> BlockConverter = new SimpleConverter<Block>(){
+    public final static SimpleConverter<Block> BlockConverter = new SimpleConverter<Block>() {
         @Override
         public @NotNull JsonElement toJson(Block source) throws Exception {
             final JsonObject jsonObject = new JsonObject();
@@ -518,8 +518,7 @@ public abstract class Converter {
             Inventory inventory;
             if (jsonHolder.equals("DEFAULT")) {
                 inventory = JsonInventory.newInventory(null, InventoryType.CHEST, json.get("title").getAsString());
-            }
-            else {
+            } else {
                 inventory = JsonInventory.newInventory(jsonHolder, InventoryType.PLAYER, json.get("title").getAsString());
             }
             json.getAsJsonObject("contents").entrySet().forEach(item -> {
@@ -533,9 +532,11 @@ public abstract class Converter {
             return inventory;
         }
     };
+
     public static class BukkitConverter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
 
-        final Type objectStringMapType = new TypeToken<Map<String, Object>>() {}.getType();
+        final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
 
         @Override
         public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {

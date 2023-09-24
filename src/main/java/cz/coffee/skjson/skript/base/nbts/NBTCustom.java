@@ -30,7 +30,7 @@ public enum NBTCustom {
     NBTTagLongList("long list", NBTType.NBTTagList, Number[].class, true),
     NBTTagIntList("int list", NBTType.NBTTagList, Number[].class, true),
     NBTTagCompoundList("compound list", NBTType.NBTTagList, NBTCompound[].class, true),
-    NBTTagStringList("string list", NBTType.NBTTagList, String[].class,true);
+    NBTTagStringList("string list", NBTType.NBTTagList, String[].class, true);
 
 
     final String name;
@@ -52,6 +52,7 @@ public enum NBTCustom {
         this.typeClass = typeClass;
         this.isList = isList;
     }
+
     public String getName() {
         return this.name;
     }

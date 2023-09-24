@@ -137,7 +137,6 @@ public class NBTConvert {
     }
 
 
-
     static void processList(NBTCompound main, JsonArray array, String mainKey) {
         if (array.size() > 0) {
             if (main == null) return;
@@ -259,6 +258,7 @@ public class NBTConvert {
         }
         return container;
     }
+
     public static ItemStack parseFromJson(ItemStack i, JsonObject tags) {
         NBTItem item = new NBTItem(i);
         NBTContainer nbt = processJson(tags);

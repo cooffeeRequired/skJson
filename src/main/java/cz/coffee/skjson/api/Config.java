@@ -311,7 +311,6 @@ public class Config {
         }
 
 
-
         try {
             if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin)) return;
 
@@ -324,7 +323,6 @@ public class Config {
             errors.add("Couldn't initialize Metrics'");
         }
         ready = initializeSkript(manager, plugin.getDescription().getDepend().get(0));
-
 
 
         if (errors.size() > 0) {
@@ -354,7 +352,9 @@ public class Config {
      *
      * @return the config
      */
-    public static Config getConfig() {return staticConfig; }
+    public static Config getConfig() {
+        return staticConfig;
+    }
 
     /**
      * Ready boolean.
@@ -370,7 +370,9 @@ public class Config {
      *
      * @return the cache
      */
-    public static JsonCache<String, JsonElement, File> getCache() {return cache;}
+    public static JsonCache<String, JsonElement, File> getCache() {
+        return cache;
+    }
 
     /**
      * Sets metrics.

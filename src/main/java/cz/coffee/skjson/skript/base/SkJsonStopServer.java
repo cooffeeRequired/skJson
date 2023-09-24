@@ -8,6 +8,7 @@ import cz.coffee.skjson.SkJson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
@@ -20,6 +21,7 @@ public class SkJsonStopServer extends Effect {
     }
 
     private Expression<Integer> code;
+
     @Override
     protected void execute(@NotNull Event e) {
         if (code == null) {

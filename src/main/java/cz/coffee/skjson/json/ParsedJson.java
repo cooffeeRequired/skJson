@@ -97,7 +97,6 @@ public class ParsedJson {
     }
 
 
-
     /**
      * Remove by value.
      *
@@ -144,7 +143,7 @@ public class ParsedJson {
      *
      * @param keys the keys
      */
-    public void removeByIndex( List<String> keys) {
+    public void removeByIndex(List<String> keys) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(input);
 

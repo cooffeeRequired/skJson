@@ -11,6 +11,6 @@ public class ParsedJsonException extends Exception {
 
     @Override
     public String toString() {
-        return "ParsedJsonException: error occurred. stack: " +this.message;
+        return "ParsedJsonException: error occurred. stack: " + this.message;
     }
 }

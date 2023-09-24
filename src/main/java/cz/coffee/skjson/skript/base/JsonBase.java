@@ -116,6 +116,7 @@ public abstract class JsonBase {
             return LiteralUtils.canInitSafely(inputObjects);
         }
     }
+
     /**
      * The type Loop expression.
      */
@@ -139,6 +140,7 @@ public abstract class JsonBase {
                     "[the] json-(:value|:key)[-<(\\d+)>]"
             );
         }
+
         private boolean isKey;
         private String name;
         private SecLoop loop;
@@ -301,7 +303,8 @@ public abstract class JsonBase {
             JsonElement json = null;
             try {
                 json = jsonInput.getSingle(e);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
             if (json == null) return new Object[0];
             boolean emptyPath = pathInput == null;
             String keys = !emptyPath ? pathInput.getSingle(e) : null;
@@ -477,7 +480,7 @@ public abstract class JsonBase {
                 case 5 -> {
                     if (intExpression != null) {
                         int number = intExpression.getSingle(e);
-                        i = number -1;
+                        i = number - 1;
                     }
                 }
             }
@@ -495,7 +498,7 @@ public abstract class JsonBase {
                         JsonObject object = (JsonObject) json;
                         if (i == lastElementConst) {
                             String[] keys = object.keySet().toArray(new String[0]);
-                            jsonResult = object.get(keys[keys.length-1]);
+                            jsonResult = object.get(keys[keys.length - 1]);
                         } else {
                             int c = 0;
                             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
@@ -634,7 +637,7 @@ public abstract class JsonBase {
             String var = vv.substring(0, vv.length() - 3);
             if (json == null) return;
             if (async) {
-                CompletableFuture.runAsync(() ->toList(var + SEPARATOR, json, isLocal, e));
+                CompletableFuture.runAsync(() -> toList(var + SEPARATOR, json, isLocal, e));
             } else {
                 toList(var + SEPARATOR, json, isLocal, e);
             }
@@ -655,7 +658,8 @@ public abstract class JsonBase {
                                 toList(name + (index + 1) + SEPARATOR, element, isLocal, event);
                             }
                         } else {
-                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("List-Element: &b" + element + " &fParsed? ->  &a" + parsed);
+                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                                Util.log("List-Element: &b" + element + " &fParsed? ->  &a" + parsed);
                             parsed(name + (index + 1), parsed, isLocal, event);
                         }
                     }
@@ -665,7 +669,8 @@ public abstract class JsonBase {
                             JsonElement element = map.get(key);
                             Object parsed = ParserUtil.from(element);
                             // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
-                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
+                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                                Util.log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
                             if (parsed == null) {
                                 if (element.isJsonPrimitive()) {
                                     primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
@@ -673,7 +678,8 @@ public abstract class JsonBase {
                                     toList(name + key + SEPARATOR, element, isLocal, event);
                                 }
                             } else {
-                                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
+                                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                                    Util.log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
                                 parsed(name + key, parsed, isLocal, event);
                             }
                         } catch (Exception e) {
@@ -684,8 +690,9 @@ public abstract class JsonBase {
             }
         }
 
-        static  <T> void parsed(String name, T object, boolean isLocal, Event event) {
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("&fNAME: &a" + name + "  &fOBJECT: &a" + object + "  &fISLOCAL: &a" + isLocal);
+        static <T> void parsed(String name, T object, boolean isLocal, Event event) {
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                Util.log("&fNAME: &a" + name + "  &fOBJECT: &a" + object + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, object, event, isLocal);
         }
 
@@ -697,7 +704,8 @@ public abstract class JsonBase {
             }
 
 
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)Util.log("!primitive:: ","&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                Util.log("!primitive:: ", "&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, o, event, isLocal);
         }
 
@@ -740,7 +748,7 @@ public abstract class JsonBase {
     public static class ParseVariable extends SimpleExpression<JsonElement> {
 
         static {
-            SkJson.registerPropertyExpression(ParseVariable.class, JsonElement.class,"form[atted json]", "jsons");
+            SkJson.registerPropertyExpression(ParseVariable.class, JsonElement.class, "form[atted json]", "jsons");
         }
 
         private VariableString variable;

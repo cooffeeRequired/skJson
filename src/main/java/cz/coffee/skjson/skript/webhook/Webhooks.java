@@ -25,8 +25,8 @@ import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
@@ -122,6 +122,7 @@ public abstract class Webhooks {
         static {
             SkJson.registerSection(WebHookSection.class, "[:async] send :web|:discord) request %string%");
         }
+
         private EntryValidator getEntryValidator(String section) {
             return switch (section) {
                 case "web" -> EntryValidator.builder()
@@ -229,7 +230,8 @@ public abstract class Webhooks {
                     }
 
                 } catch (Exception ex) {
-                    if (PROJECT_DEBUG && LOGGING_LEVEL >= 2) Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                    if (PROJECT_DEBUG && LOGGING_LEVEL >= 2)
+                        Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
                 return true;
             }
@@ -375,8 +377,7 @@ public abstract class Webhooks {
                         Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(false));
                     }
                 }
-            }
-            else if (isWeb) {
+            } else if (isWeb) {
                 Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
                 HttpWrapper.Response rp;
@@ -411,6 +412,7 @@ public abstract class Webhooks {
             if (ex == null) return null;
             return ex.getSingle(event);
         }
+
         private JsonElement parseEmbedValue(Event e, Expression<?> ex) {
             try {
                 if (ex == null) return JsonNull.INSTANCE;

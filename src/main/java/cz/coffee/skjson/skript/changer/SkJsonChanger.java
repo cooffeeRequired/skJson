@@ -100,7 +100,7 @@ public abstract class SkJsonChanger {
                     case 5 -> {
                         if (integerExpression != null) {
                             int number = integerExpression.getSingle(e);
-                            i = number -1;
+                            i = number - 1;
                         }
                     }
                 }
@@ -139,7 +139,7 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             switch (mode) {
                 case ADD -> {
-                    if (inputDelta == null|| inputJsonExpression == null) {
+                    if (inputDelta == null || inputJsonExpression == null) {
                         Util.error(false, "Input or json cannot be null");
                         return;
                     }
@@ -171,18 +171,20 @@ public abstract class SkJsonChanger {
                                     }
                                 }
                             } else {
-                                if (LOGGING_LEVEL > 1) Util.error("You can add values only to JSON arrays.", getParser().getNode());
+                                if (LOGGING_LEVEL > 1)
+                                    Util.error("You can add values only to JSON arrays.", getParser().getNode());
                                 return;
                             }
                         } catch (Exception ex) {
                             Util.error(false, "Something happened in the Changer! If you wanna more information");
                             if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
-                            if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
+                            if (PROJECT_DEBUG)
+                                Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
                         }
                     }
                 }
                 case SET -> {
-                    if (inputDelta == null|| inputJsonExpression == null) {
+                    if (inputDelta == null || inputJsonExpression == null) {
                         Util.error(false, "Input or json cannot be null");
                         return;
                     }
@@ -200,7 +202,8 @@ public abstract class SkJsonChanger {
                             if (keys == null) return;
                             if (isValue) {
                                 parsedJson = parseAliases(delta);
-                                if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
+                                if (((LinkedList<JsonElement>) parsedJson).isEmpty())
+                                    parsedJson = ParserUtil.parse(delta);
                                 if (parsedJson instanceof JsonElement element) {
                                     pj.changeValue(keys, element);
                                 } else {
@@ -216,7 +219,8 @@ public abstract class SkJsonChanger {
                     } catch (Exception ex) {
                         Util.error(false, "Something happened in the Changer! If you wanna more information");
                         if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
-                        if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
+                        if (PROJECT_DEBUG)
+                            Util.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
                     }
                 }
             }
@@ -236,7 +240,7 @@ public abstract class SkJsonChanger {
                 isNested = pathExpression != null;
                 return LiteralUtils.canInitSafely(dataExpression);
             } else if (line == 3) {
-                integerExpression  = (Expression<Integer>) exprs[0];
+                integerExpression = (Expression<Integer>) exprs[0];
                 pathExpression = (Expression<String>) exprs[1];
                 return true;
             } else {

@@ -48,6 +48,10 @@ public class SkJsonCommand implements CommandExecutor {
                     });
                 }
                 return true;
+            } else if (args[0].equalsIgnoreCase("about")) {
+                sender.sendMessage(ColorWrapper.translate("SkJson revision version: &a7ac00x14"));
+                sender.sendMessage(ColorWrapper.translate("SkJson version: " + Config.getConfig().plugin.getPluginMeta().getVersion()));
+                return true;
             }
             return false;
         }

@@ -15,8 +15,8 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
@@ -135,7 +135,7 @@ public abstract class Requests {
             boolean lenient = false;
             if (this.lenient != null) lenient = Boolean.parseBoolean(this.lenient.getData());
             if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
-            if (content != null) unparsedRequestBody= content.getSingle(e);
+            if (content != null) unparsedRequestBody = content.getSingle(e);
             Object[] unparsedRequestHeaders = null;
             if (!(header instanceof UnparsedLiteral)) {
                 if (header != null) unparsedRequestHeaders = header.getAll(e);
@@ -153,7 +153,7 @@ public abstract class Requests {
                 try {
                     body = JsonParser.parseString(json);
                     if (body == null) body = gson.toJsonTree(json);
-                } catch ( Exception ex) {
+                } catch (Exception ex) {
                     Util.requestLog(ex.getLocalizedMessage());
                 }
             } else {

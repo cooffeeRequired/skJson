@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public class TimerWrapper implements AutoCloseable{
+public class TimerWrapper implements AutoCloseable {
 
     private final Timer timer;
     private int count;
@@ -24,7 +24,9 @@ public class TimerWrapper implements AutoCloseable{
             @Override
             public void run() {
                 count++;
-                if (count == 1) {stop();}
+                if (count == 1) {
+                    stop();
+                }
             }
         };
 
@@ -57,7 +59,7 @@ public class TimerWrapper implements AutoCloseable{
 
     @Override
     public String toString() {
-        return "TimerWrapper{"+"count="+count+", delay="+delay+ ", elapsedTime="+toHumanTime()+ '}';
+        return "TimerWrapper{" + "count=" + count + ", delay=" + delay + ", elapsedTime=" + toHumanTime() + '}';
     }
 
     @Override

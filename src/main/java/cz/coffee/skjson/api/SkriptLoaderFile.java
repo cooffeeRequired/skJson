@@ -42,6 +42,7 @@ public class SkriptLoaderFile {
 
         return changed;
     }
+
     private final File folder;
 
     public SkriptLoaderFile(File testFolder) throws IOException {

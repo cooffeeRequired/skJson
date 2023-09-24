@@ -62,15 +62,15 @@ public abstract class Files {
         @Override
         protected void execute(@NotNull Event e) {
             String path = filePathInput.getSingle(e);
-           if (path == null) return;
-           JsonElement content;
-           if (withContent) {
-               Object o = unparsedValueInput.getSingle(e);
-               if (o == null) content = new JsonObject();
-               else content = ParserUtil.parse(o);
-           } else {
-               content = new JsonObject();
-           }
+            if (path == null) return;
+            JsonElement content;
+            if (withContent) {
+                Object o = unparsedValueInput.getSingle(e);
+                if (o == null) content = new JsonObject();
+                else content = ParserUtil.parse(o);
+            } else {
+                content = new JsonObject();
+            }
             FileWrapper.newFile(path, content);
         }
 

@@ -58,6 +58,7 @@ public class HttpWrapper implements AutoCloseable {
         builder = null;
         method = null;
     }
+
     /**
      * The type Header.
      */
@@ -104,13 +105,13 @@ public class HttpWrapper implements AutoCloseable {
     }
 
 
-/**
+    /**
      * The interface Response.
      */
 
     private record JsonFixer(String json) {
 
-    String removeTrailingComma() {
+        String removeTrailingComma() {
             return json.replaceAll(",\\s*}", "}").replaceAll(",\\s*]", "]");
         }
     }
@@ -134,17 +135,20 @@ public class HttpWrapper implements AutoCloseable {
                 public Header getRequestHeaders() {
                     return new Header(requestHeaders);
                 }
+
                 @Override
                 public Header getResponseHeader() {
                     return new Header(responseHeaders);
                 }
+
                 @Override
                 public int getStatusCode() {
                     return statusCode;
                 }
+
                 @Override
                 public Object getBodyContent(boolean saveIncorrect) {
-                    if (statusCode >=200 && statusCode <= 340) {
+                    if (statusCode >= 200 && statusCode <= 340) {
                         try {
                             if (lenient) {
                                 JsonFixer fixer = new JsonFixer(body);
@@ -171,6 +175,7 @@ public class HttpWrapper implements AutoCloseable {
                     }
                     return null;
                 }
+
                 @Override
                 public Optional<URL> getRequestURL() {
                     try {
@@ -180,8 +185,9 @@ public class HttpWrapper implements AutoCloseable {
                         return Optional.empty();
                     }
                 }
+
                 @Override
-                public boolean isSuccessfully(){
+                public boolean isSuccessfully() {
                     return statusCode >= 200 && statusCode < 230;
                 }
             };
@@ -282,8 +288,11 @@ public class HttpWrapper implements AutoCloseable {
         MimeMultipartData data;
         var mmd = MimeMultipartData.newBuilder().withCharset(StandardCharsets.UTF_8);
         attachments.forEach(attachment -> {
-            try {mmd.addFile(String.valueOf(i.incrementAndGet()),attachment.toPath(), Files.probeContentType(attachment.toPath()));
-            } catch (Exception e) {if (PROJECT_DEBUG) Util.error(e.getMessage());}
+            try {
+                mmd.addFile(String.valueOf(i.incrementAndGet()), attachment.toPath(), Files.probeContentType(attachment.toPath()));
+            } catch (Exception e) {
+                if (PROJECT_DEBUG) Util.error(e.getMessage());
+            }
         });
         mmd.addText("payload_json", body);
         try {
@@ -377,6 +386,7 @@ public class HttpWrapper implements AutoCloseable {
 
         return tempFile;
     }
+
     @SuppressWarnings("all")
     public HttpWrapper addAttachment(String pathToAttachment) {
         File file;
@@ -399,7 +409,7 @@ public class HttpWrapper implements AutoCloseable {
      *
      * @return the response
      */
-    public Response process(boolean ..._lenient) {
+    public Response process(boolean... _lenient) {
         boolean lenient = _lenient != null && _lenient.length > 0 && _lenient[0];
         try (var timer = new TimerWrapper(0)) {
             this.timer = timer;
@@ -408,7 +418,7 @@ public class HttpWrapper implements AutoCloseable {
                 requestUrl = future.uri().toString();
                 if (LOGGING_LEVEL > 1)
                     Util.log(String.format(
-                            REQUESTS_PREFIX + ": "+ colorizedMethod(method) +" request was send to &b'%s'&r and takes %s", requestUrl, timer.toHumanTime()));
+                            REQUESTS_PREFIX + ": " + colorizedMethod(method) + " request was send to &b'%s'&r and takes %s", requestUrl, timer.toHumanTime()));
                 return Response.of(request.headers(), future.headers(), future.uri(), future.body(), future.statusCode(), lenient);
             }).get();
         } catch (Exception e) {

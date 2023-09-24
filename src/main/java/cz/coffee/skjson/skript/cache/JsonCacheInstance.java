@@ -69,8 +69,6 @@ public abstract class JsonCacheInstance {
     }
 
 
-
-
     @Name("Link json file with defined cache.")
     @Description("You can works with the cache instead of reopening the file again & again.")
     @Examples({
@@ -84,9 +82,9 @@ public abstract class JsonCacheInstance {
         static {
             SkJson.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
         }
+
         private Expression<String> exprFileString, expressionID;
         private boolean asAlive;
-
 
 
         @Override
@@ -171,7 +169,8 @@ public abstract class JsonCacheInstance {
                                 JsonElement json = ct.join().get();
                                 if (letWatching) {
                                     String parentID = finalCacheDirectory + ";" + potentialFile;
-                                    if (!JsonWatcher.isRegistered(potential)) JsonWatcher.register(potentialFile, potential, parentID);
+                                    if (!JsonWatcher.isRegistered(potential))
+                                        JsonWatcher.register(potentialFile, potential, parentID);
                                 }
                                 jsonFiles.add(potentialFile, json);
                             });
@@ -188,7 +187,8 @@ public abstract class JsonCacheInstance {
                             JsonElement json = ct.join().get();
                             if (letWatching) {
                                 String parentID = finalCacheDirectory + ";" + potentialFile;
-                                if (!JsonWatcher.isRegistered(potential)) JsonWatcher.register(potentialFile, potential, parentID);
+                                if (!JsonWatcher.isRegistered(potential))
+                                    JsonWatcher.register(potentialFile, potential, parentID);
                             }
                             jsonFiles.add(potentialFile, json);
                         });
@@ -367,6 +367,7 @@ public abstract class JsonCacheInstance {
                     "all cached jsons"
             );
         }
+
         private Expression<String> storedKeyExpr;
         private int line;
 
@@ -420,4 +421,4 @@ public abstract class JsonCacheInstance {
         }
     }
 
- }
+}

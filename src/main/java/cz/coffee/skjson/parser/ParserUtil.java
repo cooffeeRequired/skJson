@@ -103,8 +103,8 @@ public abstract class ParserUtil {
             .serializeNulls()
             .enableComplexMapKeySerialization()
             .disableHtmlEscaping()
-        .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Converter.BukkitConverter())
-    .create();
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Converter.BukkitConverter())
+            .create();
 
     /**
      * Default converter json element.
@@ -172,6 +172,7 @@ public abstract class ParserUtil {
             return parse(o, o.getClass());
         }
     }
+
     private static <T> JsonElement parse(T o, Class<?> clazz) {
         if (o == null) return null;
         if (o instanceof JsonElement json) return json;
@@ -187,15 +188,14 @@ public abstract class ParserUtil {
                 } else if (clazz.equals(ItemStack.class) || ItemStack.class.isAssignableFrom(clazz)) {
                     final ItemStack stack = (ItemStack) o;
                     return ItemStackConverter.toJson(stack);
-                }  else if (clazz.equals(Slot.class) || Slot.class.isAssignableFrom(clazz)) {
+                } else if (clazz.equals(Slot.class) || Slot.class.isAssignableFrom(clazz)) {
                     final Slot slot = (Slot) o;
                     return ItemStackConverter.toJson(slot.getItem());
                 } else if (clazz.equals(ItemData.class) || ItemData.class.isAssignableFrom(clazz)) {
                     final ItemData data = (ItemData) o;
                     return ItemStackConverter.toJson(data.getStack());
                 }
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
             }

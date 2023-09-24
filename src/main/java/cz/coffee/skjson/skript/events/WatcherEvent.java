@@ -9,8 +9,8 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.UUID;
@@ -56,6 +56,7 @@ public class WatcherEvent extends SkriptEvent {
                     }
                 }, 0);
     }
+
     @Override
     public boolean init(Literal<?> @NotNull [] args, int matchedPattern, SkriptParser.@NotNull ParseResult parseResult) {
         return true;

@@ -17,6 +17,7 @@ public class EvtvFile extends EventValueExpression<File> {
     static {
         Skript.registerExpression(EvtvFile.class, File.class, ExpressionType.SIMPLE, "[the] [event-](file|link)");
     }
+
     public EvtvFile() {
         super(File.class);
     }

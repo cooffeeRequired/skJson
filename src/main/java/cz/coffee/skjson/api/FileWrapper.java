@@ -43,7 +43,7 @@ public class FileWrapper {
 
         @Override
         public String toString() {
-            return "JsonFile{file=" + file +"}";
+            return "JsonFile{file=" + file + "}";
         }
 
         /**
