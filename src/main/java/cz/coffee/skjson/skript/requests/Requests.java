@@ -12,7 +12,8 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Update.HttpWrapper;
+import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -179,12 +181,22 @@ public abstract class Requests {
 
 
             if (body == null) body = new JsonObject();
+//            try (var client = new RequestClient(url)) {
+//                if (method == null) return;
+//                RequestResponse rp = client.method(method.stringMethod)
+//                .setContent(body)
+//                .addHeaders(new WeakHashMap<>())
+//                .request();
+//            } catch (Exception ex) {
+//                Util.enchantedError(ex, ex.getStackTrace(), "Exception - in request");
+//                return;
+//            }
 
-            try (var http = new HttpWrapper(url, method)) {
-                http.setContent(body);
-                headers.forEach(http::setHeaders);
-                HttpWrapper.Response rp = http.request().process(lenient);
-
+            try (var http = new RequestClient(url)) {
+                RequestResponse rp = http.setContent(body)
+                        .addHeaders(new WeakHashMap<>())
+                                .request();
+                //headers.forEach(http::setHeaders);
                 if (sContent != null) {
                     String name = sContent.getName().getSingle(e);
                     boolean local = sContent.isLocal();

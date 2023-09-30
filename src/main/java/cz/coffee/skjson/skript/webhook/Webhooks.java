@@ -18,9 +18,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Update.HttpWrapper;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.api.discord.WebhookFunction;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -330,7 +330,7 @@ public abstract class Webhooks {
 
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
 
-                HttpWrapper.Response rp;
+                RequestResponse rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;
@@ -380,7 +380,7 @@ public abstract class Webhooks {
             } else if (isWeb) {
                 Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
-                HttpWrapper.Response rp;
+                RequestResponse rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;

@@ -1,12 +1,19 @@
 package cz.coffee.skjson.api.discord;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.Update.HttpWrapper;
+import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.skript.requests.Requests;
+import cz.coffee.skjson.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 
 /**
  * The type Webhook.
@@ -71,19 +78,21 @@ public class Webhook {
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
                 @Override
-                public HttpWrapper.Response process(String web, JsonElement content) {
+                public RequestResponse process(String web, JsonElement content) {
                     return null;
                 }
 
                 @Override
-                public HttpWrapper.Response process(String id, String hex, JsonElement content) {
+                public RequestResponse process(String id, String hex, JsonElement content) {
                     String discord_api = "https://discord.com/api/webhooks/" + id + "/" + hex;
-                    HttpWrapper.Response rp;
-                    try (var http = new HttpWrapper(discord_api, method)) {
-                        http.setContent(content);
-                        if (header != null) http.setHeaders(header);
+                    RequestResponse rp = null;
+                    try (var http = new RequestClient(discord_api)) {
+                        http.method(method.name().toUpperCase()).setContent(content);
+                        if (header != null) http.addHeaders(new WeakHashMap<>(new Gson().fromJson(header, Map.class)));
                         if (!attachments.isEmpty()) attachments.forEach(http::addAttachment);
-                        rp = http.request().process();
+                        rp = http.request();
+                    } catch (Exception e) {
+                        if (PROJECT_DEBUG) Util.enchantedError(e, e.getStackTrace(), "Exception-Webhook");
                     }
                     return rp;
                 }
@@ -91,20 +100,22 @@ public class Webhook {
         } else if (webHookType.equals(WebHookType.WEB)) {
             return new WebhookFunction() {
                 @Override
-                public HttpWrapper.Response process(String web, JsonElement content) {
-                    HttpWrapper.Response rp;
-                    try (var http = new HttpWrapper(web, method)) {
+                public RequestResponse process(String web, JsonElement content) {
+                    RequestResponse rp = null;
+                    try (var http = new RequestClient(web)) {
                         if (content == null) content = new JsonObject();
                         http.setContent(content);
-                        if (header != null) http.setHeaders(header);
+                        if (header != null) http.addHeaders(new WeakHashMap<>(new Gson().fromJson(header, Map.class)));
                         if (!attachments.isEmpty()) attachments.forEach(http::addAttachment);
-                        rp = http.request().process();
+                        rp = http.request();
+                    } catch (Exception e) {
+                        if (PROJECT_DEBUG) Util.webhookLog(e.getMessage());
                     }
                     return rp;
                 }
 
                 @Override
-                public HttpWrapper.Response process(String id, String hex, JsonElement content) {
+                public RequestResponse process(String id, String hex, JsonElement content) {
                     return null;
                 }
             };
