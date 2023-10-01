@@ -1,4 +1,4 @@
-package cz.coffee.skjson.api.Update;
+package cz.coffee.skjson.api.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

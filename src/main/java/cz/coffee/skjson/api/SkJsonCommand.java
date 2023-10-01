@@ -19,15 +19,17 @@ public class SkJsonCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("skjson")) {
             if (args.length == 0) {
-                sender.sendMessage(ColorWrapper.translate("&7Usage: &askjson reload"));
-                sender.sendMessage(ColorWrapper.translate("&7Usage: &askjson run-tests"));
+                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson reload"));
+                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson run-tests"));
+                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson about"));
                 return true;
             }
             if (args[0].equalsIgnoreCase("reload")) {
                 sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "⚠️ &econfig reloading..."));
                 try {
                     Config.getConfig().loadConfigFile(false);
-                    sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7New path delimiter: &e" + Config.PATH_VARIABLE_DELIMITER));
+                    sender.sendMessage(ColorWrapper.translate(
+                            Config.PLUGIN_PREFIX + "&7New path delimiter: &e" + Config.PATH_VARIABLE_DELIMITER));
                     sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &asuccessfully."));
                     return true;
                 } catch (Exception ex) {
@@ -38,7 +40,8 @@ public class SkJsonCommand implements CommandExecutor {
                 if (Config.TESTS_ALOWED) {
                     CompletableFuture.runAsync(() -> {
                         try {
-                            var loader = new SkriptLoaderFile(new File(Config.getConfig().plugin.getDataFolder() + "/" + "..tests"));
+                            var loader = new SkriptLoaderFile(
+                                    new File(Config.getConfig().plugin.getDataFolder() + "/" + "..tests"));
                             loader.load();
                             Thread.sleep(200);
                             loader.unload();
@@ -49,8 +52,9 @@ public class SkJsonCommand implements CommandExecutor {
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("about")) {
-                sender.sendMessage(ColorWrapper.translate("SkJson revision version: &a7ac00x14"));
-                sender.sendMessage(ColorWrapper.translate("SkJson version: " + Config.getConfig().plugin.getPluginMeta().getVersion()));
+                sender.sendMessage(ColorWrapper.translate("SkJson revision version: &aa16ac40x44"));
+                sender.sendMessage(ColorWrapper
+                        .translate("SkJson version: " + Config.getConfig().plugin.getPluginMeta().getVersion()));
                 return true;
             }
             return false;

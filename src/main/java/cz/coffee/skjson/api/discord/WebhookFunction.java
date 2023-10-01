@@ -1,7 +1,7 @@
 package cz.coffee.skjson.api.discord;
 
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.api.Update.HttpWrapper;
+import cz.coffee.skjson.api.http.RequestResponse;
 
 /**
  * The interface Webhook function.
@@ -13,7 +13,7 @@ public interface WebhookFunction {
      * @param web     the web
      * @param content the content
      */
-    HttpWrapper.Response process(String web, JsonElement content);
+    RequestResponse process(String web, JsonElement content);
 
     /**
      * Process.
@@ -22,5 +22,5 @@ public interface WebhookFunction {
      * @param hex     the hex
      * @param content the content
      */
-    HttpWrapper.Response process(String id, String hex, JsonElement content);
+    RequestResponse process(String id, String hex, JsonElement content);
 }

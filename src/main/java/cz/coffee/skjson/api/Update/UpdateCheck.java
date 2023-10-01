@@ -2,11 +2,14 @@ package cz.coffee.skjson.api.Update;
 
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.skript.requests.Requests;
+import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
@@ -14,6 +17,7 @@ import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 /**
  * The type Update check.
  */
+@SuppressWarnings("deprecation")
 public class UpdateCheck {
     private final JavaPlugin plugin;
     private final Config config;
@@ -86,11 +90,13 @@ public class UpdateCheck {
     private JsonElement getGithubConfig() {
         CompletableFuture<JsonElement> ft = CompletableFuture.supplyAsync(() -> {
             JsonElement element = null;
-            HttpWrapper.Response response = null;
-            try (var handler = new HttpWrapper(API, Requests.RequestMethods.GET)) {
-                response = handler.addHeader("Accept", "application/json")
-                        .request()
-                        .process();
+            RequestResponse response = null;
+            try {
+                var handler = new RequestClient(API)
+                        .method("GET")
+                        .addHeaders(new WeakHashMap<>(Map.of("Accept", "application/json")))
+                        .request();
+                response = handler.join();
                 success = response.isSuccessfully();
             } catch (Exception e) {
                 if (PROJECT_DEBUG) Util.error(e.getMessage());

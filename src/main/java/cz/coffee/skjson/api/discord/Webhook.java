@@ -1,12 +1,15 @@
 package cz.coffee.skjson.api.discord;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.Update.HttpWrapper;
+import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.skript.requests.Requests;
+import cz.coffee.skjson.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 
 /**
  * The type Webhook.
@@ -67,44 +70,60 @@ public class Webhook {
      * @return the webhook function
      */
     public WebhookFunction create(Requests.RequestMethods method, JsonElement... headers) {
-        JsonElement header = (headers != null && headers.length > 0 && headers[0] != null) ? headers[0] : null;
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
                 @Override
-                public HttpWrapper.Response process(String web, JsonElement content) {
+                public RequestResponse process(String web, JsonElement content) {
                     return null;
                 }
 
                 @Override
-                public HttpWrapper.Response process(String id, String hex, JsonElement content) {
+                public RequestResponse process(String id, String hex, JsonElement content) {
                     String discord_api = "https://discord.com/api/webhooks/" + id + "/" + hex;
-                    HttpWrapper.Response rp;
-                    try (var http = new HttpWrapper(discord_api, method)) {
-                        http.setContent(content);
-                        if (header != null) http.setHeaders(header);
-                        if (!attachments.isEmpty()) attachments.forEach(http::addAttachment);
-                        rp = http.request().process();
+                    RequestResponse[] response = new RequestResponse[1];
+                    RequestClient client = new RequestClient(discord_api).method(method.toString()).setHeaders(headers);
+                    try {
+                        if (!attachments.isEmpty()) {
+                            attachments.forEach(client::addAttachment);
+                            response[0] = client
+                                    .postAttachments(content)
+                                    .request().join();
+                        } else {
+                            response[0] = client.setContent(content).request(true).join();
+                        }
+                    } catch (Exception e) {
+                        if (PROJECT_DEBUG) {
+                            Util.webhookLog(e.getMessage());
+                        }
                     }
-                    return rp;
+                    return response[0];
                 }
             };
         } else if (webHookType.equals(WebHookType.WEB)) {
             return new WebhookFunction() {
                 @Override
-                public HttpWrapper.Response process(String web, JsonElement content) {
-                    HttpWrapper.Response rp;
-                    try (var http = new HttpWrapper(web, method)) {
-                        if (content == null) content = new JsonObject();
-                        http.setContent(content);
-                        if (header != null) http.setHeaders(header);
-                        if (!attachments.isEmpty()) attachments.forEach(http::addAttachment);
-                        rp = http.request().process();
+                public RequestResponse process(String web, JsonElement content) {
+                    RequestResponse[] response = new RequestResponse[1];
+                    try {
+                        RequestClient client = new RequestClient(web).method(method.toString()).setHeaders(headers);
+                        if (!attachments.isEmpty()) {
+                            attachments.forEach(client::addAttachment);
+                            response[0] = client
+                                    .postAttachments(content)
+                                    .request().join();
+                        } else {
+                            response[0] = client.setContent(content).request().join();
+                        }
+                    } catch (Exception e) {
+                        if (PROJECT_DEBUG) {
+                            Util.webhookLog(e.getMessage());
+                        }
                     }
-                    return rp;
+                    return response[0];
                 }
 
                 @Override
-                public HttpWrapper.Response process(String id, String hex, JsonElement content) {
+                public RequestResponse process(String id, String hex, JsonElement content) {
                     return null;
                 }
             };

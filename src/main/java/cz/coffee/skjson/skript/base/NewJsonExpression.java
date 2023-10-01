@@ -15,18 +15,16 @@ import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.api.FileWrapper.JsonFile;
-import cz.coffee.skjson.api.Update.HttpWrapper;
+import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
@@ -90,13 +88,14 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         } else if (isWebFile) {
             final Object url = input.getSingle(e);
             if (url == null) return new JsonElement[0];
-            CompletableFuture<HttpWrapper.Response> ft = CompletableFuture.supplyAsync(() -> {
-                HttpWrapper.Response rp = null;
-                try (var client = new HttpWrapper(url.toString(), Requests.RequestMethods.GET)) {
+            CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
+                RequestResponse rp = null;
+                try {
+                    var client = new RequestClient(url.toString());
                     rp = client
-                            .addHeader("Content-Type", "application/json")
-                            .request()
-                            .process();
+                            .method("GET")
+                            .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
+                            .request().join();
                 } catch (Exception ex) {
                     Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
