@@ -3,7 +3,6 @@ package cz.coffee.skjson.api.http;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
 import cz.coffee.skjson.utils.Util;
-import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
 
 import java.net.MalformedURLException;

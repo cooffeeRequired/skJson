@@ -1,9 +1,6 @@
 package cz.coffee.skjson.api.discord;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.skript.requests.Requests;
@@ -11,8 +8,6 @@ import cz.coffee.skjson.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 
@@ -75,7 +70,6 @@ public class Webhook {
      * @return the webhook function
      */
     public WebhookFunction create(Requests.RequestMethods method, JsonElement... headers) {
-        JsonElement header = (headers != null && headers.length > 0 && headers[0] != null) ? headers[0] : null;
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
                 @Override

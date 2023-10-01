@@ -13,7 +13,6 @@ import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
-import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +23,6 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -212,7 +209,7 @@ public abstract class Requests {
                     .method(method == null ? "GET" : method.stringMethod)
                     .setContent(body)
                     .setHeaders(headers)
-                    .request().join();
+                    .request(lenient).join();
 
 
                 if (sContent != null) {

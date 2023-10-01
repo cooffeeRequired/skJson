@@ -18,7 +18,6 @@ import cz.coffee.skjson.api.FileWrapper.JsonFile;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;

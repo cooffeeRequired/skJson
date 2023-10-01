@@ -53,10 +53,6 @@ public class RequestClient {
         }
     }
 
-    public LinkedList<File> getAttachments() {
-        return attachments;
-    }
-
     private boolean isOk(int statusCode) {
         return statusCode >= 200 && statusCode < 300;
     }
@@ -183,14 +179,12 @@ public class RequestClient {
             return this;
         }
 
-        this.request.headers(x -> {
-            coll.parallelStream().forEach(c -> {
-                c.entrySet().parallelStream().forEach(entry -> {
-                    String value = ParserUtil.jsonToType(entry.getValue());
-                    x.add(entry.getKey().trim(), value.trim());
-                });
+        this.request.headers(x -> coll.parallelStream().forEach(c -> {
+            c.entrySet().parallelStream().forEach(entry -> {
+                String value = ParserUtil.jsonToType(entry.getValue());
+                x.add(entry.getKey().trim(), value.trim());
             });
-        });
+        }));
         return this;
     }
 
@@ -198,17 +192,15 @@ public class RequestClient {
         if (this.request == null) {
             return this;
         }
-        this.request.headers(x -> {
-            Arrays.stream(coll).toList().parallelStream().forEach(c -> {
-                if (c instanceof JsonObject o) {
-                    o.entrySet().parallelStream().forEach(entry -> {
-                        String value = ParserUtil.jsonToType(entry.getValue());
-                        if (!entry.getKey().isBlank() || !entry.getKey().isEmpty())
-                            x.add(entry.getKey().trim(), value.trim());
-                    });
-                }
-            });
-        });
+        this.request.headers(x -> Arrays.stream(coll).toList().parallelStream().forEach(c -> {
+            if (c instanceof JsonObject o) {
+                o.entrySet().parallelStream().forEach(entry -> {
+                    String value = ParserUtil.jsonToType(entry.getValue());
+                    if (!entry.getKey().isBlank() || !entry.getKey().isEmpty())
+                        x.add(entry.getKey().trim(), value.trim());
+                });
+            }
+        }));
         return this;
     }
 

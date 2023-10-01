@@ -1,16 +1,13 @@
 package cz.coffee.skjson.api.Update;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.skript.requests.Requests;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;

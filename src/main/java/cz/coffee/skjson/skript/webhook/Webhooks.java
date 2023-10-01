@@ -321,7 +321,7 @@ public abstract class Webhooks {
 
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
 
-                RequestResponse rp = null;
+                RequestResponse rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;
