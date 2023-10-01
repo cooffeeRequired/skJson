@@ -24,6 +24,7 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -118,10 +119,39 @@ public abstract class Requests {
 
         @Override
         protected @Nullable TriggerItem walk(@NotNull Event e) {
-            if (async) {
-                CompletableFuture.runAsync(() -> execute(e));
+            Object unparsedRequestBody;
+            Boolean save;
+            boolean lenient;
+            if (this.lenient != null) lenient = Boolean.parseBoolean(this.lenient.getData());
+            else {
+                lenient = false;
+            }
+            if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
+            else {
+                save = null;
+            }
+            if (content != null) unparsedRequestBody = content.getSingle(e);
+            else {
+                unparsedRequestBody = null;
+            }
+            Object[] unparsedRequestHeaders;
+            if (!(header instanceof UnparsedLiteral)) {
+                if (header != null) unparsedRequestHeaders = header.getAll(e);
+                else {
+                    unparsedRequestHeaders = null;
+                }
             } else {
-                execute(e);
+                unparsedRequestHeaders = null;
+            }
+
+            String url = this.url.getSingle(e);
+            RequestMethods method = this.method.getSingle(e);
+
+
+            if (async) {
+                CompletableFuture.runAsync(() -> execute(e, url, method, unparsedRequestBody, unparsedRequestHeaders, Boolean.TRUE.equals(save), lenient));
+            } else {
+                execute(e, url, method, unparsedRequestBody, unparsedRequestHeaders, Boolean.TRUE.equals(save), lenient);
             }
             return super.walk(e, false);
         }
@@ -131,20 +161,15 @@ public abstract class Requests {
             return Classes.getDebugMessage(e);
         }
 
-        private void execute(Event e) {
-            Object unparsedRequestBody = null;
-            Boolean save = null;
-            boolean lenient = false;
-            if (this.lenient != null) lenient = Boolean.parseBoolean(this.lenient.getData());
-            if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
-            if (content != null) unparsedRequestBody = content.getSingle(e);
-            Object[] unparsedRequestHeaders = null;
-            if (!(header instanceof UnparsedLiteral)) {
-                if (header != null) unparsedRequestHeaders = header.getAll(e);
-            }
-
-            String url = this.url.getSingle(e);
-            RequestMethods method = this.method.getSingle(e);
+        private void execute(
+                Event e,
+                String url,
+                RequestMethods method,
+                Object unparsedRequestBody,
+                Object[] unparsedRequestHeaders,
+                boolean save,
+                boolean lenient
+            ) {
             JsonElement body = null;
 
             if (unparsedRequestBody == null) unparsedRequestBody = new JsonObject();
@@ -156,7 +181,7 @@ public abstract class Requests {
                     body = JsonParser.parseString(json);
                     if (body == null) body = gson.toJsonTree(json);
                 } catch (Exception ex) {
-                    Util.requestLog(ex.getLocalizedMessage());
+                    Util.enchantedError(ex, ex.getStackTrace(), "Unable to parse (Requests.java - 184)");
                 }
             } else {
                 Util.requestLog("Please provide Json or Stringify json content");
@@ -181,27 +206,19 @@ public abstract class Requests {
 
 
             if (body == null) body = new JsonObject();
-//            try (var client = new RequestClient(url)) {
-//                if (method == null) return;
-//                RequestResponse rp = client.method(method.stringMethod)
-//                .setContent(body)
-//                .addHeaders(new WeakHashMap<>())
-//                .request();
-//            } catch (Exception ex) {
-//                Util.enchantedError(ex, ex.getStackTrace(), "Exception - in request");
-//                return;
-//            }
+            try {
+                var http = new RequestClient(url);
+                var rp = http
+                    .method(method == null ? "GET" : method.stringMethod)
+                    .setContent(body)
+                    .setHeaders(headers)
+                    .request().join();
 
-            try (var http = new RequestClient(url)) {
-                RequestResponse rp = http.setContent(body)
-                        .addHeaders(new WeakHashMap<>())
-                                .request();
-                //headers.forEach(http::setHeaders);
+
                 if (sContent != null) {
                     String name = sContent.getName().getSingle(e);
                     boolean local = sContent.isLocal();
-                    boolean s = save != null ? save : false;
-                    Variables.setVariable(name, rp.getBodyContent(s), e, local);
+                    Variables.setVariable(name, rp.getBodyContent(save), e, local);
                 }
 
                 if (sHeader != null) {
@@ -223,7 +240,7 @@ public abstract class Requests {
                 }
 
             } catch (Exception exception) {
-                Util.requestLog(exception.getMessage());
+                Util.enchantedError(exception, exception.getStackTrace(), "Unable to parse (Requests.java - 243)");
             }
         }
     }

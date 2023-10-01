@@ -4,6 +4,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
 import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -29,7 +30,7 @@ public interface RequestResponse {
      * @param statusCode      the status code
      * @return the response
      */
-    static RequestResponse of(HttpField requestHeaders, HttpField responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
+    static RequestResponse of(HttpFields requestHeaders, HttpFields responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
         return new RequestResponse() {
             @Override
             public RequestHeaders getRequestHeaders() {

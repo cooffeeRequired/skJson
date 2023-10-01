@@ -91,11 +91,12 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
             if (url == null) return new JsonElement[0];
             CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
                 RequestResponse rp = null;
-                try (var client = new RequestClient(url.toString())) {
+                try {
+                    var client = new RequestClient(url.toString());
                     rp = client
-                            .get()
+                            .method("GET")
                             .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
-                            .request();
+                            .request().join();
                 } catch (Exception ex) {
                     Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }

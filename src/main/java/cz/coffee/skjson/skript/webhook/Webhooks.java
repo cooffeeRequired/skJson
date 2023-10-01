@@ -31,10 +31,7 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
@@ -71,56 +68,52 @@ public abstract class Webhooks {
             "! Recommended read that <a href=\"https://message.style/app/\"> Embed generate webpage </a>\"",
             "! Recommended default json payload <a href=\"https://message.style/app/share/lc6XU1jd\"> Json Payload (Lorem) </a>"
     })
-    @Examples({
-            "* Web *",
-            "",
-            "command web:",
-            "\ttrigger:",
-            "\tasync send web request \"https://webhook.site/8bc144e2-785d-479e-a4d2-2eda297a71db\":",
-            "\t\theader: \"Content-Type: application/json\" and \"Content-Disposition: form-data\"",
-            "\t\tcontent: \"{fromSkJson: '?', ?: true}\"",
-            "",
-            "* Discord without embed *",
-            "",
-            "command without-embed:",
-            "\ttrigger:",
-            "\t\tasync send discord request \"https://discord.com/api/webhooks/1128036190059237396/C2UkVCmweNiGnZDdItt8XVa4FfLzNeLKrvPbFen6nLcHtdTpZTx6YkdT1XAWPQPl35Og\":",
-            "\t\t\theader: \"Content-Type: application/json\"",
-            "\t\t\tdata:",
-            "\t\t\t\ttts: true",
-            "\t\t\t\tcontent: {'payload:' true} # this can be any json encoded string or json",
-            "",
-            "* Discord with embed *",
-            "",
-            "command embed:",
-            "\ttrigger:",
-            "\t\tasync send discord request \"https://discord.com/api/webhooks/1128036190059237396/C2UkVCmweNiGnZDdItt8XVa4FfLzNeLKrvPbFen6nLcHtdTpZTx6YkdT1XAWPQPl35Og\":",
-            "\t\t\theader: \"Content-Type: application/json\"",
-            "\t\t\tdata:",
-            "\t\t\t\ttts: true",
-            "\t\t\t\tembed:",
-            "\t\t\t\t\tid: 102018 # when you put here null, or auto, the value will be generated automatically.",
-            "\t\t\t\t\tfields: \"{}\"",
-            "\t\t\t\t\tauthor: \"{name: 'CoffeeRequired'}\"",
-            "\t\t\t\t\ttitle: \"Hello there\"",
-            "\t\t\t\t\tthumbnail: \"{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}\"",
-            "\t\t\t\t\t\t\t\t\t\tcolor: \"##21a7c2\" # that support all hex colors.. not minecraft",
-            "",
-            " * with attachments and multi-line content",
-            "",
-            "command embed:",
-            "\ttrigger:",
-            "\t\tasync send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":",
-            "\t\t\tattachments:",
-            "\t\t\t\t1: \"plugins/SkJson/jsons/test.json\"",
-            "\t\t\tdata:",
-            "\t\t\ttts: false",
-            "\t\t\t\tcontent: \"hello from attachments\""
-    })
+    @Examples("""
+    command web:
+        trigger:
+            async send web request "https://webhook.site/4e2e350b-4a8f-4863-85c5-e833e4ec110b":
+                attachments:
+                    1: "C:\\Users\\nexti\\Documents\\Lekce\\index.html"
+                content: "{fromSkJson: '?', ?: true}"
+                
+                
+    command without-embed:
+        trigger:
+            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                header: "Content-Type: application/json"
+                data:
+                    tts: true
+                    content: "{'payload:' true}" # this can be any json encoded string or json
+                
+                
+    command embed:
+        trigger:
+            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                header: "Content-Type: application/json"
+                data:
+                    tts: true
+                    content: "" # content never can be empty, so when you want to send only embed, you need to put here empty string
+                    embed:
+                        id: 102018 # when you put here null, or auto, the value will be generated automatically.
+                        fields: "{}"
+                        author: "{name: 'CoffeeRequired'}"
+                        title: "Hello there"
+                        thumbnail: "{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}"
+                        color: "##21a7c2" # that support all hex colors.. not minecraft
+                
+    command embedAtt:
+        trigger:
+            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                attachments:
+                    1: "*/generate_doc.sk" # star means the parser will search for the file recursively from the root directory
+                data:
+                    tts: false
+                    content: "hello from attachments"
+            """)
     @Since("2.9")
     public static class WebHookSection extends Section {
         static {
-            SkJson.registerSection(WebHookSection.class, "[:async] send :web|:discord) request %string%");
+            SkJson.registerSection(WebHookSection.class, "[:async] send (:web|:discord) request %string%");
         }
 
         private EntryValidator getEntryValidator(String section) {
@@ -187,15 +180,14 @@ public abstract class Webhooks {
                 if (container == null) return false;
                 contentHeaders = container.getOptional("header", Expression.class, false);
                 SectionNode dataSection = container.getOptional("data", SectionNode.class, false);
-
                 SectionNode attachments = container.getOptional("attachments", SectionNode.class, false);
-                if (attachments == null) return false;
-                attachments.convertToEntries(-1);
-                for (Node attachment : attachments) {
-                    String key = attachment.getKey();
-                    if (key != null) this.attachments.add(attachments.get(key, "").replaceAll("\"", ""));
+                if (attachments != null) {
+                    attachments.convertToEntries(-1);
+                    for (Node attachment : attachments) {
+                        String key = attachment.getKey();
+                        if (key != null) this.attachments.add(attachments.get(key, "").replaceAll("\"", ""));
+                    }
                 }
-
                 try {
                     validator = getEntryValidator("discord-data");
                     if (validator == null || dataSection == null) return false;
@@ -244,13 +236,12 @@ public abstract class Webhooks {
 
 
                 SectionNode attachments = container.getOptional("attachments", SectionNode.class, false);
-                if (attachments == null) return false;
-                attachments.convertToEntries(-1);
-
-
-                for (Node attachment : attachments) {
-                    String key = attachment.getKey();
-                    if (key != null) this.attachments.add(attachments.get(key, "").replaceAll("\"", ""));
+                if (attachments != null) {
+                    attachments.convertToEntries(-1);
+                    for (Node attachment : attachments) {
+                        String key = attachment.getKey();
+                        if (key != null) this.attachments.add(attachments.get(key, "").replaceAll("\"", ""));
+                    }
                 }
 
                 contentBody = container.getOptional("content", Expression.class, false);
@@ -330,7 +321,7 @@ public abstract class Webhooks {
 
                 if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
 
-                RequestResponse rp;
+                RequestResponse rp = null;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
                 assert url != null;
@@ -340,6 +331,7 @@ public abstract class Webhooks {
                 json.addProperty("tts", tts);
                 json.add("components", ParserUtil.parse(components));
                 json.add("actions", ParserUtil.parse(actions));
+
 
                 if (isEmbed) {
                     String id = embedID;
@@ -374,12 +366,14 @@ public abstract class Webhooks {
                 } else {
                     if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                         assert rp != null;
-                        Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(false));
+                        Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
                     }
                 }
             } else if (isWeb) {
                 Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
-                if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
+                if (!this.attachments.isEmpty()) {
+                    webhook.addAttachment(this.attachments);
+                }
                 RequestResponse rp;
                 WebhookFunction fn = webhook.create(headers);
                 String url = this.url.getSingle(event);
@@ -395,7 +389,6 @@ public abstract class Webhooks {
                     }
                     content = json;
                 }
-
                 rp = (fn.process(url, content));
                 if (rp != null && rp.isSuccessfully()) {
                     if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");

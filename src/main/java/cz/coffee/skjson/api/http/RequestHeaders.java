@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -12,14 +13,14 @@ import org.eclipse.jetty.http.HttpField;
  */
 public class RequestHeaders {
     final Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().setLenient().create();
-    private final HttpField headers;
+    private final HttpFields headers;
 
     /**
      * Instantiates a new Header.
      *
      * @param headers the headers
      */
-    public RequestHeaders(HttpField headers) {
+    public RequestHeaders(HttpFields headers) {
         this.headers = headers;
     }
 
@@ -46,7 +47,7 @@ public class RequestHeaders {
      *
      * @return the http headers
      */
-    public HttpField raw() {
+    public HttpFields raw() {
         return headers;
     }
 }

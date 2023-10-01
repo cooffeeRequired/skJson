@@ -54,7 +54,7 @@ public class Util {
      * @param traceElements the trace elements
      * @param errorID       the error id
      */
-    public static void enchantedError(Exception ex, StackTraceElement[] traceElements, String errorID) {
+    public static void enchantedError(Throwable ex, StackTraceElement[] traceElements, String errorID) {
         Util.error("&4--------------------------- &l&cSkJson error handling &4---------------------------");
         Util.error("          " + ex.getLocalizedMessage() + "          ");
         Util.error("          " + errorID + "          ");

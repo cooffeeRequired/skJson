@@ -3,31 +3,39 @@ package cz.coffee.skjson.api.http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.client.*;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.MultiPart;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.Config.*;
 import static cz.coffee.skjson.api.http.RequestClientUtils.changeExtension;
+import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
 
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
  * Created: sobota (30.09.2023)
  */
-public class RequestClient implements AutoCloseable{
+public class RequestClient {
     private String uri;
     private HttpClient client;
     private Request request;
@@ -39,24 +47,22 @@ public class RequestClient implements AutoCloseable{
             this.uri = uri;
             this.client = new HttpClient();
             this.client.start();
+            this.timer = new TimerWrapper(0);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            if (PROJECT_DEBUG) Util.requestLog(ex.getMessage());
         }
     }
 
+    public LinkedList<File> getAttachments() {
+        return attachments;
+    }
+
     private boolean isOk(int statusCode) {
-        System.out.println(statusCode);
         return statusCode >= 200 && statusCode < 300;
     }
 
-    public RequestClient get() {
-        this.request = this.client.newRequest(this.uri);
-        this.request.method("GET");
-        return this;
-    }
-
     public RequestClient method(String method) {
-        switch (method) {
+        switch (method.toUpperCase()) {
             case "GET", "MOCK" -> {
                 this.request = this.client.newRequest(this.uri);
                 this.request.method("GET");
@@ -82,14 +88,10 @@ public class RequestClient implements AutoCloseable{
                 this.request.method("HEAD");
             }
         }
+        this.request.headers((x) -> x.add("User-agent", "SkJson-requests*-2.0"));
         return this;
     }
 
-    public RequestClient post() {
-        this.request = this.client.newRequest(this.uri);
-        this.request.method("POST");
-        return this;
-    }
 
     public RequestClient put() {
         this.request = this.client.newRequest(this.uri);
@@ -97,30 +99,10 @@ public class RequestClient implements AutoCloseable{
         return this;
     }
 
-    public RequestClient delete() {
-        this.request = this.client.newRequest(this.uri);
-        this.request.method("DELETE");
-        return this;
-    }
 
-    public RequestClient head() {
-        this.request = this.client.newRequest(this.uri);
-        this.request.method("HEAD");
-        return this;
-    }
-
-    public RequestClient patch() {
-        this.request = this.client.newRequest(this.uri);
-        this.request.method("PATCH");
-        return this;
-    }
     public RequestClient test() {
         try {
             this.request.timeout(15L, TimeUnit.SECONDS);
-            this.request.send(response -> {
-                System.out.println(response);
-            });
-
             ContentResponse rsp = this.request.send();
             if (isOk(rsp.getStatus())) {
                 return this;
@@ -133,26 +115,56 @@ public class RequestClient implements AutoCloseable{
         }
     }
 
-    public RequestResponse request() {
-        try (var timer = new TimerWrapper(0)) {
-            if (this.request == null && this.client == null) return null;
-            if (this.request != null) {
-                var response = this.request.send();
-                return RequestResponse.of(null, null, null, null, 0, false);
-            }
-            this.timer = timer;
+    public CompletableFuture<RequestResponse> request(boolean ...lenientI) {
+        final boolean lenient = lenientI != null && lenientI.length > 0 && lenientI[0];
+        final CompletableFuture<RequestResponse> future = new CompletableFuture<>();
+        ByteArrayOutputStream streamByte = new ByteArrayOutputStream();
+
+        try {
+            Response.ContentListener contentListener = (response, byteBuffer) -> {
+                byte[] bytes = new byte[byteBuffer.remaining()];
+                byteBuffer.get(bytes);
+                try {
+                    streamByte.write(bytes);
+                } catch (IOException e) {
+                    future.completeExceptionally(e);
+                }
+            };
+
+            Response.SuccessListener successListener = (response) -> this.close();
+
+            Response.CompleteListener completeListener = (result) -> {
+                if (result.isSucceeded()) {
+                    Charset charset = StandardCharsets.UTF_8;
+                    String text = streamByte.toString(charset);
+                    var response = result.getResponse();
+                    var request = result.getRequest();
+
+                    var serverResponse = RequestResponse.of(request.getHeaders(), response.getHeaders(), request.getURI(), text, response.getStatus(), lenient);
+                    future.complete(serverResponse);
+                    if (LOGGING_LEVEL > 1) Util.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
+                }
+            };
+
+            Response.FailureListener failureListener = (response, failure) -> {
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) Util.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
+                this.close();
+                future.completeExceptionally(new IllegalStateException("HTTP request failed"));
+            };
+
+            this.request.onResponseContent(contentListener);
+            this.request.onResponseFailure(failureListener);
+            this.request.send(completeListener);
+            this.request.onResponseSuccess(successListener);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Util.requestLog(ex.getMessage());
+            future.completeExceptionally(ex);
         }
-        return null;
+
+        return future;
     }
 
-    @Override
-    public void close() throws Exception {
-        this.client.stop();
-        this.request = null;
-        this.client = null;
-    }
+
 
     public RequestClient setContent(final JsonElement body) {
         this.request.body(new StringRequestContent(GSON.toJson(body)));
@@ -165,6 +177,41 @@ public class RequestClient implements AutoCloseable{
         }
         return this;
     }
+
+    public RequestClient setHeaders(Collection<JsonObject> coll) {
+        if (this.request == null) {
+            return this;
+        }
+
+        this.request.headers(x -> {
+            coll.parallelStream().forEach(c -> {
+                c.entrySet().parallelStream().forEach(entry -> {
+                    String value = ParserUtil.jsonToType(entry.getValue());
+                    x.add(entry.getKey().trim(), value.trim());
+                });
+            });
+        });
+        return this;
+    }
+
+    public RequestClient setHeaders(JsonElement[] coll) {
+        if (this.request == null) {
+            return this;
+        }
+        this.request.headers(x -> {
+            Arrays.stream(coll).toList().parallelStream().forEach(c -> {
+                if (c instanceof JsonObject o) {
+                    o.entrySet().parallelStream().forEach(entry -> {
+                        String value = ParserUtil.jsonToType(entry.getValue());
+                        if (!entry.getKey().isBlank() || !entry.getKey().isEmpty())
+                            x.add(entry.getKey().trim(), value.trim());
+                    });
+                }
+            });
+        });
+        return this;
+    }
+
 
     @SuppressWarnings("all")
     public RequestClient addAttachment(String pathToAttachment) {
@@ -181,6 +228,12 @@ public class RequestClient implements AutoCloseable{
         return this;
     }
 
+    public RequestClient postAttachments(JsonElement body) {
+        this.postAttachments(GSON.toJson(body));
+        return this;
+    }
+
+    @SuppressWarnings("unused")
     public RequestClient postAttachments(String body) {
         AtomicInteger i = new AtomicInteger(0);
         try (var mpr = new MultiPartRequestContent()) {
@@ -195,8 +248,15 @@ public class RequestClient implements AutoCloseable{
             mpr.addPart(new MultiPart.ContentSourcePart("payload_json", null, HttpFields.EMPTY, new StringRequestContent(body, StandardCharsets.UTF_8)));
             this.request.body(mpr);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            if (PROJECT_DEBUG) Util.requestLog(ex.getMessage());
         }
         return this;
+    }
+    private void close() {
+        try {
+            this.client.stop();
+        } catch (Exception e) {
+            if (PROJECT_DEBUG) Util.error(e.getMessage());
+        }
     }
 }
