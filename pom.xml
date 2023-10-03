@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>2.9.0</version>
+    <version>2.9.2</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
@@ -157,6 +157,10 @@
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>cz.coffee.api.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.eclipse.jetty</pattern>
+                            <shadedPattern>cz.coffee.api.jetty</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

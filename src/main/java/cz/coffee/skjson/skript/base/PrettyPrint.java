@@ -61,7 +61,7 @@ public class PrettyPrint extends SimpleExpression<String> {
             Arrays.stream(jsons).forEach(json -> coloredJsons.add(gson.toJson(json)));
         } else {
             Arrays.stream(jsons).forEach(json -> coloredJsons.add(gson.toJson(json)
-                    .replaceAll("(?<!\\w)-?\\d+(.\\d+)?([eE][-+]?\\d+)?(?!\\w)", AQUA.legacyColor + "$0" + WHITE.legacyColor)
+                    .replaceAll("(?<=\\\\W)([+]?([0-9]*[.])?[0-9]+)", AQUA.legacyColor + "$1" + WHITE.legacyColor)
                     .replaceAll("(?i:true)", GREEN.legacyColor + "$0" + WHITE.legacyColor)
                     .replaceAll("(?i:false)", RED.legacyColor + "$0" + WHITE.legacyColor)
                     .replaceAll("(\")((.)|)", DARK_GRAY.legacyColor + "$1" + WHITE.legacyColor + "$2" + WHITE.legacyColor)

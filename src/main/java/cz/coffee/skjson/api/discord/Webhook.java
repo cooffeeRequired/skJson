@@ -3,7 +3,7 @@ package cz.coffee.skjson.api.discord;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.skript.requests.Requests;
+import cz.coffee.skjson.skript.requests.RequestMethods;
 import cz.coffee.skjson.utils.Util;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class Webhook {
      * @return the webhook function
      */
     public WebhookFunction create(JsonElement... json) {
-        return create(Requests.RequestMethods.POST, json);
+        return create(RequestMethods.POST, json);
     }
 
     private List<String> attachments = new ArrayList<>();
@@ -69,7 +69,7 @@ public class Webhook {
      * @param headers the headers
      * @return the webhook function
      */
-    public WebhookFunction create(Requests.RequestMethods method, JsonElement... headers) {
+    public WebhookFunction create(RequestMethods method, JsonElement... headers) {
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
                 @Override

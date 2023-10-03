@@ -28,20 +28,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * The type Requests.
  */
-public abstract class Requests {
+public abstract class Request {
     /**
      * The type Request.
      */
     @Name("Http Request")
     @Description({
             "Create & handle requests via json",
-            "<b>Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json </a> for examples of dummyJson api",
+            "<b>Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json </a> for examples of dummyJson api</b>",
             "<b> Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] </b>"
     })
     @Examples({
             "on script load:",
             "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
-            "\t\theader: \"Content-Type: application/json\"",
+            "\t\theaders: \"Content-Type: application/json\"",
             "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
             "\t\tsave incorrect response: true",
             "\t\tlenient: true",
@@ -55,10 +55,10 @@ public abstract class Requests {
             "\t\tsend {-content} with pretty print"
     })
     @Since("2.9")
-    public static class Request extends Section {
+    public static class SecRequest extends Section {
 
         static {
-            SkJson.registerSection(Request.class, "[:async] make [new] %requestmethod% request to %string%");
+            SkJson.registerSection(SecRequest.class, "[:async] make [new] %requestmethod% request to %string%");
         }
 
         private Expression<RequestMethods> method;
@@ -77,7 +77,7 @@ public abstract class Requests {
             url = (Expression<String>) exprs[1];
             EntryValidator validator = EntryValidator.builder()
                     .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
-                    .addEntryData(new ExpressionEntryData<>("header", null, true, Object.class))
+                    .addEntryData(new ExpressionEntryData<>("headers", null, true, Object.class))
                     .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class))
                     .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class))
                     .addSection("save", true)
@@ -166,7 +166,7 @@ public abstract class Requests {
                 Object[] unparsedRequestHeaders,
                 boolean save,
                 boolean lenient
-            ) {
+        ) {
             JsonElement body = null;
 
             if (unparsedRequestBody == null) unparsedRequestBody = new JsonObject();
@@ -206,10 +206,10 @@ public abstract class Requests {
             try {
                 var http = new RequestClient(url);
                 var rp = http
-                    .method(method == null ? "GET" : method.stringMethod)
-                    .setContent(body)
-                    .setHeaders(headers)
-                    .request(lenient).join();
+                        .method(method == null ? "GET" : method.stringMethod)
+                        .setContent(body)
+                        .setHeaders(headers)
+                        .request(lenient).join();
 
 
                 if (sContent != null) {
@@ -239,29 +239,6 @@ public abstract class Requests {
             } catch (Exception exception) {
                 Util.enchantedError(exception, exception.getStackTrace(), "Unable to parse (Requests.java - 243)");
             }
-        }
-    }
-
-    public enum RequestMethods {
-        GET("get", 0),
-        POST("post", 1),
-        PUT("put", 2),
-        DELETE("delete", 3),
-        MOCK("mock", 4),
-        HEAD("head", 5),
-        PATCH("patch", 6);
-
-        final String stringMethod;
-        final int value;
-
-        RequestMethods(String stringMethod, int value) {
-            this.stringMethod = stringMethod;
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return stringMethod.toUpperCase();
         }
     }
 }
