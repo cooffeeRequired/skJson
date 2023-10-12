@@ -5,12 +5,14 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.utils.Util;
@@ -18,12 +20,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static cz.coffee.skjson.skript.requests.RequestUtil.Pairs;
 
 /**
  * The type Requests.
@@ -46,6 +49,7 @@ public abstract class Request {
             "\t\tsave incorrect response: true",
             "\t\tlenient: true",
             "\t\tsave:",
+            "\t\t\twait for response: true",
             "\t\t\tcontent: {-content}",
             "\t\t\theaders: {-header}",
             "\t\t\tstatus code: {-code}",
@@ -57,188 +61,144 @@ public abstract class Request {
     @Since("2.9")
     public static class SecRequest extends Section {
 
+        private Expression<?> requestBody, requestHeaders;
+        private Expression<String> requestUrl;
+        private Expression<RequestMethods> requestMethod;
+        private Expression<?> saveIncorrect, lenient, waitingFor;
+
+        private Variable<?> responseContent, responseHeaders, responseCode, responseURL;
+
+        private boolean isAsync;
+
         static {
             SkJson.registerSection(SecRequest.class, "[:async] make [new] %requestmethod% request to %string%");
         }
 
-        private Expression<RequestMethods> method;
-        private Expression<String> url;
-        private Expression<?> content, header;
-        private UnparsedLiteral saveIncorrect, lenient;
-        private boolean async;
-
-        private Variable<?> sContent, sHeader, sCode, sUrl;
-        private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
-
         @Override
         @SuppressWarnings("unchecked")
-        public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult, @NotNull SectionNode sectionNode, @NotNull List<TriggerItem> triggerItems) {
-            method = (Expression<RequestMethods>) exprs[0];
-            url = (Expression<String>) exprs[1];
-            EntryValidator validator = EntryValidator.builder()
-                    .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
-                    .addEntryData(new ExpressionEntryData<>("headers", null, true, Object.class))
-                    .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class))
-                    .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class))
-                    .addSection("save", true)
-                    .build();
-
-            EntryValidator saveValidator = EntryValidator.builder()
-                    .addEntryData(new ExpressionEntryData<>("content", null, true, Variable.class))
-                    .addEntryData(new ExpressionEntryData<>("headers", null, true, Variable.class))
-                    .addEntryData(new ExpressionEntryData<>("status code", null, true, Variable.class))
-                    .addEntryData(new ExpressionEntryData<>("url", null, true, Variable.class))
-                    .build();
-
-            EntryContainer container = validator.validate(sectionNode);
-            if (container == null) return false;
-            content = (Expression<?>) container.getOptional("content", Expression.class, false);
-            header = container.getOptional("header", Object.class, false);
-            saveIncorrect = container.getOptional("save incorrect response", Object.class, false);
-            lenient = container.getOptional("lenient", Object.class, false);
-            SectionNode s = container.getOptional("save", SectionNode.class, false);
-            try {
-                if (s != null) {
-                    EntryContainer saveContainer = saveValidator.validate(s);
-                    if (saveContainer == null) return false;
-                    sContent = (saveContainer.getOptional("content", Variable.class, false));
-                    sHeader = (saveContainer.getOptional("headers", Variable.class, false));
-                    sCode = (saveContainer.getOptional("status code", Variable.class, false));
-                    sUrl = (saveContainer.getOptional("url", Variable.class, false));
-                }
-            } catch (Exception ex) {
-                Util.requestLog("In the save section you can use only variables for saving data to them.");
+        public boolean init(Expression<?> @NotNull [] expr, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult, @NotNull SectionNode sectionNode, @NotNull List<TriggerItem> triggerItems) {
+            EntryContainer container = RequestUtil.VALIDATOR.validate(sectionNode);
+            isAsync = parseResult.hasTag("async");
+            if (container == null) {
                 return false;
             }
-            async = parseResult.hasTag("async");
+            requestBody = container.getOptional("content", Expression.class, false);
+            requestHeaders = container.getOptional("headers", Expression.class, false);
+            requestUrl = (Expression<String>) expr[1];
+            requestMethod = (Expression<RequestMethods>) expr[0];
+            this.saveIncorrect = container.getOptional("save incorrect response", Expression.class, false);
+            this.lenient = container.getOptional("lenient", Expression.class, false);
+            var saveNode = container.getOptional("save", SectionNode.class, false );
+            if (saveNode != null) {
+                try {
+                    EntryContainer saveContainer = RequestUtil.SAVE_VALIDATOR.validate(saveNode);
+                    if (saveContainer == null) return false;
+                    responseContent = (saveContainer.getOptional("content", Variable.class, false));
+                    responseHeaders = (saveContainer.getOptional("headers", Variable.class, false));
+                    responseCode = (saveContainer.getOptional("status code", Variable.class, false));
+                    responseURL = (saveContainer.getOptional("url", Variable.class, false));
+                    this.waitingFor = (saveContainer.getOptional("wait for response", Expression.class, false));
+                    if (waitingFor != null && !isAsync) {
+                        Util.log("&cEntry 'Wait for Response' &ehas no meaning here because you are using synchronized running!");
+                    }
+                } catch (Exception ex) {
+                    Util.enchantedError(ex, ex.getStackTrace(), "Request-89");
+                }
+            }
             return true;
         }
 
         @Override
+        @SuppressWarnings({"unchecked", "BusyWait"})
         protected @Nullable TriggerItem walk(@NotNull Event e) {
-            Object unparsedRequestBody;
-            Boolean save;
-            boolean lenient;
-            if (this.lenient != null) lenient = Boolean.parseBoolean(this.lenient.getData());
-            else {
+            boolean saveIncorrect; boolean lenient; boolean waitingForResponse;
+            var requestContent = RequestUtil.validateContent(this.requestBody, e);
+            var requestHeaders = RequestUtil.validateHeaders(this.requestHeaders, e);
+            var url = this.requestUrl != null ? this.requestUrl.getSingle(e) : "";
+            var method = this.requestUrl != null ? (Objects.requireNonNull(this.requestMethod.getSingle(e)).toString().toUpperCase()) : "GET";
+
+            if (this.saveIncorrect != null) {
+                var incorrectConvertedExpression = this.saveIncorrect.getConvertedExpression(Boolean.class);
+                saveIncorrect = incorrectConvertedExpression != null && incorrectConvertedExpression.getSingle(e);
+            } else {
+                saveIncorrect = false;
+            }
+            if (this.lenient != null) {
+                var lenientConvertedExpression = this.lenient.getConvertedExpression(Boolean.class);
+                lenient = lenientConvertedExpression != null && lenientConvertedExpression.getSingle(e);
+            } else {
                 lenient = false;
             }
-            if (saveIncorrect != null) save = Boolean.parseBoolean(saveIncorrect.getData());
-            else {
-                save = null;
+            if (this.waitingFor != null) {
+                var waitingConvertedExpression = this.waitingFor.getConvertedExpression(Boolean.class);
+                waitingForResponse = waitingConvertedExpression != null && waitingConvertedExpression.getSingle(e);
+            } else {
+                waitingForResponse = false;
             }
-            if (content != null) unparsedRequestBody = content.getSingle(e);
-            else {
-                unparsedRequestBody = null;
-            }
-            Object[] unparsedRequestHeaders;
-            if (!(header instanceof UnparsedLiteral)) {
-                if (header != null) unparsedRequestHeaders = header.getAll(e);
-                else {
-                    unparsedRequestHeaders = null;
+
+
+            if (e.isAsynchronous() || isAsync) {
+                var done = CompletableFuture.supplyAsync(() -> {
+                    var execute = this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
+                    return execute.orElse(null);
+                });
+                while (!done.isDone() && isAsync && waitingForResponse) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (Exception ex) {
+                        Util.enchantedError(ex, ex.getStackTrace(), "Request(Waiting for while-loop)");
+                    }
                 }
             } else {
-                unparsedRequestHeaders = null;
+                this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
             }
+            return walk(e, false);
+        }
 
-            String url = this.url.getSingle(e);
-            RequestMethods method = this.method.getSingle(e);
+        private Optional<RequestClient> execute(Event event, String url, String method, JsonElement requestContent, Pairs[] requestHeaders, boolean saveIncorrect, boolean lenient) {
+            RequestClient client;
+            try {
+                client = new RequestClient(url);
+                var response = client
+                        .method(method)
+                        .setHeaders(requestHeaders)
+                        .setContent(requestContent)
+                        .request(lenient).join();
 
+                if (response != null) {
+                    if (responseContent != null) {
+                        var name = responseContent.getName().getSingle(event);
+                        boolean local = responseContent.isLocal();
+                        Variables.setVariable(name, response.getBodyContent(saveIncorrect), event, local);
+                    }
 
-            if (async) {
-                CompletableFuture.runAsync(() -> execute(e, url, method, unparsedRequestBody, unparsedRequestHeaders, Boolean.TRUE.equals(save), lenient));
-            } else {
-                execute(e, url, method, unparsedRequestBody, unparsedRequestHeaders, Boolean.TRUE.equals(save), lenient);
+                    if (responseHeaders != null) {
+                        var name = responseHeaders.getName().getSingle(event);
+                        boolean local = responseHeaders.isLocal();
+                        Variables.setVariable(name, response.getRequestHeaders().text(), event, local);
+                    }
+
+                    if (responseCode != null) {
+                        var name = responseCode.getName().getSingle(event);
+                        boolean local = responseCode.isLocal();
+                        Variables.setVariable(name, response.getStatusCode(), event, local);
+                    }
+
+                    if (responseURL != null) {
+                        var name = this.responseURL.getName().getSingle(event);
+                        boolean local = responseURL.isLocal();
+                        Variables.setVariable(name, response.getRequestURL(), event, local);
+                    }
+                }
+            } catch (Exception ex) {
+                Util.enchantedError(ex, ex.getStackTrace(), "128-Request.java");
             }
-            return super.walk(e, false);
+            return Optional.empty();
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
-            return Classes.getDebugMessage(e);
-        }
-
-        private void execute(
-                Event e,
-                String url,
-                RequestMethods method,
-                Object unparsedRequestBody,
-                Object[] unparsedRequestHeaders,
-                boolean save,
-                boolean lenient
-        ) {
-            JsonElement body = null;
-
-            if (unparsedRequestBody == null) unparsedRequestBody = new JsonObject();
-
-            if (unparsedRequestBody instanceof JsonElement json) {
-                body = json;
-            } else if (unparsedRequestBody instanceof String json) {
-                try {
-                    body = JsonParser.parseString(json);
-                    if (body == null) body = gson.toJsonTree(json);
-                } catch (Exception ex) {
-                    Util.enchantedError(ex, ex.getStackTrace(), "Unable to parse (Requests.java - 184)");
-                }
-            } else {
-                Util.requestLog("Please provide Json or Stringify json content");
-                return;
-            }
-
-            List<JsonObject> headers = new ArrayList<>();
-            if (unparsedRequestHeaders != null) {
-                for (Object unparsedHeader : unparsedRequestHeaders) {
-                    if (unparsedHeader instanceof JsonObject json) {
-                        headers.add(json);
-                    } else if (unparsedHeader instanceof String pair) {
-                        JsonObject map = new JsonObject();
-                        String[] pairs = pair.split(":");
-                        map.addProperty(pairs[0], pairs[1]);
-                        headers.add(map);
-                    } else {
-                        Util.requestLog("Please provide Json or Stringify header");
-                    }
-                }
-            }
-
-
-            if (body == null) body = new JsonObject();
-            try {
-                var http = new RequestClient(url);
-                var rp = http
-                        .method(method == null ? "GET" : method.stringMethod)
-                        .setContent(body)
-                        .setHeaders(headers)
-                        .request(lenient).join();
-
-
-                if (sContent != null) {
-                    String name = sContent.getName().getSingle(e);
-                    boolean local = sContent.isLocal();
-                    Variables.setVariable(name, rp.getBodyContent(save), e, local);
-                }
-
-                if (sHeader != null) {
-                    String name = sHeader.getName().getSingle(e);
-                    boolean local = sHeader.isLocal();
-                    Variables.setVariable(name, rp.getResponseHeader(), e, local);
-                }
-
-                if (sCode != null) {
-                    String name = sCode.getName().getSingle(e);
-                    boolean local = sCode.isLocal();
-                    Variables.setVariable(name, rp.getStatusCode(), e, local);
-                }
-
-                if (sUrl != null) {
-                    String name = sUrl.getName().getSingle(e);
-                    boolean local = sUrl.isLocal();
-                    Variables.setVariable(name, rp.getRequestURL(), e, local);
-                }
-
-            } catch (Exception exception) {
-                Util.enchantedError(exception, exception.getStackTrace(), "Unable to parse (Requests.java - 243)");
-            }
+            return "SkJson Request class";
         }
     }
 }

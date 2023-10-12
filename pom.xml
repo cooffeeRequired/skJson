@@ -192,37 +192,37 @@
                             <target>
                                 <mkdir dir="${project.basedir}/gen_server/plugins"/>
                                 <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="${project.basedir}/gen_server/plugins"/>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="C:/Users/nexti/Desktop/Project-SkJson/environments/2.9/plugins/" />
+                                <!--<copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="C:/Users/nexti/Desktop/Project-SkJson/environments/2.9/plugins/" />-->
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>1.6.0</version>-->
-<!--                <configuration>-->
-<!--                    <executable>C:\Program Files\Java\jdk-20\bin\java</executable>-->
-<!--                    <workingDirectory>${project.basedir}/gen_server</workingDirectory>-->
-<!--                    <arguments>-->
-<!--                        <argument>-Xms6G</argument>-->
-<!--                        <argument>-Xmx6G</argument>-->
-<!--                        <argument>-jar</argument>-->
-<!--                        <argument>paper.jar</argument>-->
-<!--                        <argument>-u worlds</argument>-->
-<!--                        <argument>nogui</argument>-->
-<!--                    </arguments>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+<!--            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>exec-maven-plugin</artifactId>
+               <version>1.6.0</version>
+               <configuration>
+                 <executable>java</executable>
+                   <workingDirectory>${project.basedir}/gen_server</workingDirectory>
+                   <arguments>
+                     <argument>-Xms6G</argument>
+                      <argument>-Xmx6G</argument>
+                       <argument>-jar</argument>
+                       <argument>paper.jar</argument>
+                       <argument>-u worlds</argument>
+                        <argument>nogui</argument>
+                    </arguments>
+              </configuration>
+                <executions>
+                    <execution>
+                       <phase>package</phase>
+                       <goals>
+                            <goal>exec</goal>
+                       </goals>
+                   </execution>
+               </executions>
+           </plugin>-->
         </plugins>
         <resources>
             <resource>

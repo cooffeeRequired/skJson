@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.skript.requests.RequestUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.client.*;
@@ -19,7 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
@@ -55,6 +55,12 @@ public class RequestClient {
 
     private boolean isOk(int statusCode) {
         return statusCode >= 200 && statusCode < 300;
+    }
+
+
+    private boolean done = false;
+    public boolean isDone() {
+        return this.done;
     }
 
     public RequestClient method(String method) {
@@ -140,6 +146,7 @@ public class RequestClient {
                     future.complete(serverResponse);
                     if (LOGGING_LEVEL > 1) Util.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
                 }
+                done = true;
             };
 
             Response.FailureListener failureListener = (response, failure) -> {
@@ -174,17 +181,10 @@ public class RequestClient {
         return this;
     }
 
-    public RequestClient setHeaders(Collection<JsonObject> coll) {
-        if (this.request == null) {
-            return this;
+    public RequestClient setHeaders(RequestUtil.Pairs[] pairs) {
+        if (this.request != null) {
+            this.request.headers((x) -> Arrays.stream(pairs).forEach((p) -> x.add(p.getKey(), p.getValue())));
         }
-
-        this.request.headers(x -> coll.parallelStream().forEach(c -> {
-            c.entrySet().parallelStream().forEach(entry -> {
-                String value = ParserUtil.jsonToType(entry.getValue());
-                x.add(entry.getKey().trim(), value.trim());
-            });
-        }));
         return this;
     }
 
