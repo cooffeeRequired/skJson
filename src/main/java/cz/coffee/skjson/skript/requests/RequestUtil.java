@@ -61,10 +61,10 @@ public class RequestUtil {
             .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class))
             .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class))
             .addSection("save", true)
+            .addSection("on complete", false)
             .build();
 
     public static final EntryValidator SAVE_VALIDATOR = EntryValidator.builder()
-            .addEntryData(new ExpressionEntryData<>("wait for response", null, true, Object.class))
             .addEntryData(new ExpressionEntryData<>("content", null, true, Variable.class))
             .addEntryData(new ExpressionEntryData<>("body", null, true, Variable.class))
 

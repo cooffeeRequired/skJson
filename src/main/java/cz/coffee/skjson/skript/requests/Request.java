@@ -1,20 +1,19 @@
 package cz.coffee.skjson.skript.requests;
 
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,6 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.skript.requests.RequestUtil.Pairs;
@@ -64,11 +62,14 @@ public abstract class Request {
         private Expression<?> requestBody, requestHeaders;
         private Expression<String> requestUrl;
         private Expression<RequestMethods> requestMethod;
-        private Expression<?> saveIncorrect, lenient, waitingFor;
+        private Expression<?> saveIncorrect, lenient;
+        private Trigger onCompleteTrigger;
 
         private Variable<?> responseContent, responseHeaders, responseCode, responseURL;
 
         private boolean isAsync;
+        private volatile boolean requestIsDone = false;
+        private volatile boolean returnInOnComplete = false;
 
         static {
             SkJson.registerSection(SecRequest.class, "[:async] make [new] %requestmethod% request to %string%");
@@ -89,6 +90,16 @@ public abstract class Request {
             this.saveIncorrect = container.getOptional("save incorrect response", Expression.class, false);
             this.lenient = container.getOptional("lenient", Expression.class, false);
             var saveNode = container.getOptional("save", SectionNode.class, false );
+            var onCompleteNode = (container.getOptional("on complete", SectionNode.class, false));
+            if (onCompleteNode != null) {
+                for (Node w : onCompleteNode) {
+                    if (w.toString().contains("return")) {
+                        returnInOnComplete = true;
+                        break;
+                    }
+                }
+                this.onCompleteTrigger = loadCode(onCompleteNode, "on complete");
+            }
             if (saveNode != null) {
                 try {
                     EntryContainer saveContainer = RequestUtil.SAVE_VALIDATOR.validate(saveNode);
@@ -97,10 +108,6 @@ public abstract class Request {
                     responseHeaders = (saveContainer.getOptional("headers", Variable.class, false));
                     responseCode = (saveContainer.getOptional("status code", Variable.class, false));
                     responseURL = (saveContainer.getOptional("url", Variable.class, false));
-                    this.waitingFor = (saveContainer.getOptional("wait for response", Expression.class, false));
-                    if (waitingFor != null && !isAsync) {
-                        Util.log("&cEntry 'Wait for Response' &ehas no meaning here because you are using synchronized running!");
-                    }
                 } catch (Exception ex) {
                     Util.enchantedError(ex, ex.getStackTrace(), "Request-89");
                 }
@@ -109,9 +116,9 @@ public abstract class Request {
         }
 
         @Override
-        @SuppressWarnings({"unchecked", "BusyWait"})
+        @SuppressWarnings({"unchecked"})
         protected @Nullable TriggerItem walk(@NotNull Event e) {
-            boolean saveIncorrect; boolean lenient; boolean waitingForResponse;
+            boolean saveIncorrect; boolean lenient;
             var requestContent = RequestUtil.validateContent(this.requestBody, e);
             var requestHeaders = RequestUtil.validateHeaders(this.requestHeaders, e);
             var url = this.requestUrl != null ? this.requestUrl.getSingle(e) : "";
@@ -129,71 +136,76 @@ public abstract class Request {
             } else {
                 lenient = false;
             }
-            if (this.waitingFor != null) {
-                var waitingConvertedExpression = this.waitingFor.getConvertedExpression(Boolean.class);
-                waitingForResponse = waitingConvertedExpression != null && waitingConvertedExpression.getSingle(e);
-            } else {
-                waitingForResponse = false;
+            this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
+            while (!requestIsDone && returnInOnComplete) {
+                Thread.onSpinWait();
             }
-
-
-            if (e.isAsynchronous() || isAsync) {
-                var done = CompletableFuture.supplyAsync(() -> {
-                    var execute = this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
-                    return execute.orElse(null);
-                });
-                while (!done.isDone() && isAsync && waitingForResponse) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (Exception ex) {
-                        Util.enchantedError(ex, ex.getStackTrace(), "Request(Waiting for while-loop)");
-                    }
-                }
-            } else {
-                this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
-            }
-            return walk(e, false);
+            return walk(e, true);
         }
 
-        private Optional<RequestClient> execute(Event event, String url, String method, JsonElement requestContent, Pairs[] requestHeaders, boolean saveIncorrect, boolean lenient) {
+        private void setVariables(RequestResponse response, boolean saveIncorrect, Event event) {
+            if (responseContent != null) {
+                var name = responseContent.getName().getSingle(event);
+                boolean local = responseContent.isLocal();
+                Variables.setVariable(name, response.getBodyContent(saveIncorrect), event, local);
+            }
+
+            if (responseHeaders != null) {
+                var name = responseHeaders.getName().getSingle(event);
+                boolean local = responseHeaders.isLocal();
+                Variables.setVariable(name, response.getRequestHeaders().text(), event, local);
+            }
+
+            if (responseCode != null) {
+                var name = responseCode.getName().getSingle(event);
+                boolean local = responseCode.isLocal();
+                Variables.setVariable(name, response.getStatusCode(), event, local);
+            }
+
+            if (responseURL != null) {
+                var name = this.responseURL.getName().getSingle(event);
+                boolean local = responseURL.isLocal();
+                Variables.setVariable(name, response.getRequestURL(), event, local);
+            }
+        }
+
+        private void execute(Event event, String url, String method, JsonElement requestContent, Pairs[] requestHeaders, boolean saveIncorrect, boolean lenient) {
             RequestClient client;
             try {
                 client = new RequestClient(url);
-                var response = client
+                var responseCompletableFuture = client
                         .method(method)
                         .setHeaders(requestHeaders)
                         .setContent(requestContent)
-                        .request(lenient).join();
+                        .request(lenient);
 
-                if (response != null) {
-                    if (responseContent != null) {
-                        var name = responseContent.getName().getSingle(event);
-                        boolean local = responseContent.isLocal();
-                        Variables.setVariable(name, response.getBodyContent(saveIncorrect), event, local);
-                    }
 
-                    if (responseHeaders != null) {
-                        var name = responseHeaders.getName().getSingle(event);
-                        boolean local = responseHeaders.isLocal();
-                        Variables.setVariable(name, response.getRequestHeaders().text(), event, local);
-                    }
+                if (isAsync || event.isAsynchronous())  {
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            while (!responseCompletableFuture.isDone()) {
+                                Thread.onSpinWait();
+                            }
+                            var response = responseCompletableFuture.get();
+                            if (response != null) {
+                                setVariables(response, saveIncorrect, event);
+                                if (this.onCompleteTrigger != null) {
+                                    this.onCompleteTrigger.execute(event);
+                                    requestIsDone = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            Util.enchantedError(ex, ex.getStackTrace(), "202-Async Request");
+                        }
+                    });
 
-                    if (responseCode != null) {
-                        var name = responseCode.getName().getSingle(event);
-                        boolean local = responseCode.isLocal();
-                        Variables.setVariable(name, response.getStatusCode(), event, local);
-                    }
-
-                    if (responseURL != null) {
-                        var name = this.responseURL.getName().getSingle(event);
-                        boolean local = responseURL.isLocal();
-                        Variables.setVariable(name, response.getRequestURL(), event, local);
-                    }
+                } else {
+                    var response = responseCompletableFuture.get();
+                    if (response != null) setVariables(response, saveIncorrect, event);
                 }
             } catch (Exception ex) {
                 Util.enchantedError(ex, ex.getStackTrace(), "128-Request.java");
             }
-            return Optional.empty();
         }
 
         @Override
