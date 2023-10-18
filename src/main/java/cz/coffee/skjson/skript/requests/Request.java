@@ -12,6 +12,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.utils.Util;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.skript.requests.RequestUtil.Pairs;
 
 /**
@@ -94,6 +96,10 @@ public abstract class Request {
             if (onCompleteNode != null) {
                 for (Node w : onCompleteNode) {
                     if (w.toString().contains("return")) {
+                        if (!Config.ALLOWED_IMPLICIT_REQUEST_RETURN) {
+                            Util.warn("You don't have allowed this beta feature, if you want use these implicit request return, you may turn on that in your config.yml");
+                            return false;
+                        }
                         returnInOnComplete = true;
                         break;
                     }
@@ -137,9 +143,7 @@ public abstract class Request {
                 lenient = false;
             }
             this.execute(e, url, method, requestContent, requestHeaders, saveIncorrect, lenient);
-            while (!requestIsDone && returnInOnComplete) {
-                Thread.onSpinWait();
-            }
+            while (!requestIsDone && returnInOnComplete) Thread.onSpinWait();
             return walk(e, true);
         }
 
@@ -170,6 +174,7 @@ public abstract class Request {
         }
 
         private void execute(Event event, String url, String method, JsonElement requestContent, Pairs[] requestHeaders, boolean saveIncorrect, boolean lenient) {
+            requestIsDone = false;
             RequestClient client;
             try {
                 client = new RequestClient(url);
@@ -181,7 +186,7 @@ public abstract class Request {
 
 
                 if (isAsync || event.isAsynchronous())  {
-                    CompletableFuture.runAsync(() -> {
+                    CompletableFuture.supplyAsync(() -> {
                         try {
                             while (!responseCompletableFuture.isDone()) {
                                 Thread.onSpinWait();
@@ -194,17 +199,24 @@ public abstract class Request {
                                     requestIsDone = true;
                                 }
                             }
+                            return 1;
                         } catch (Exception ex) {
-                            Util.enchantedError(ex, ex.getStackTrace(), "202-Async Request");
+                            Util.enchantedError(ex, ex.getStackTrace(), "216-Async Request");
+                            requestIsDone = true;
+                            return -1;
                         }
-                    });
-
+                    }).join();
                 } else {
                     var response = responseCompletableFuture.get();
                     if (response != null) setVariables(response, saveIncorrect, event);
                 }
             } catch (Exception ex) {
-                Util.enchantedError(ex, ex.getStackTrace(), "128-Request.java");
+                if (ex.getMessage().contains("Illegal character in query")) {
+                    Util.error("The url is incorrect... URL: "+ url);
+                } else {
+                    if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "214-Request.java");
+                }
+                requestIsDone = true;
             }
         }
 

@@ -182,7 +182,7 @@ public class RequestClient {
     }
 
     public RequestClient setHeaders(RequestUtil.Pairs[] pairs) {
-        if (this.request != null) {
+        if (this.request != null & pairs != null) {
             this.request.headers((x) -> Arrays.stream(pairs).forEach((p) -> x.add(p.getKey(), p.getValue())));
         }
         return this;

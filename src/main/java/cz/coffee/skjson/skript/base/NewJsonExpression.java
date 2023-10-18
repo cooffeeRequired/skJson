@@ -17,6 +17,7 @@ import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.api.FileWrapper.JsonFile;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
+import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -27,14 +28,13 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.Config.*;
 import static cz.coffee.skjson.parser.ParserUtil.isClassicType;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
 
 @Name("New json")
 @Description({
         "latest:",
-        "\tversion 2.9:",
         "\t\t- support now also multiple items as input",
         "\t\t- support json content from webpage",
         "\t\t- removed empty json array/object, cause it's not necessary while",
@@ -44,7 +44,7 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
         "<br />",
         "It's allow create json from any source also from the file"
 })
-@Since("2.9")
+@Since("2.9, 2.9.3 - Literal parsing")
 @Examples({
         "on script load:",
         "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
@@ -53,77 +53,93 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
         "\tset {_json} to json from player's location",
         "\tset {_json} to json from player's inventory",
         "\tset {_json} to json from yaml file <path>",
-        "\tset {_json} to json from website file \"https://json.org/sample.json\""
+        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+        "*Literal",
+        "set {_json} to @{\"test\": true, \"var\": {_test}}"
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     static {
         SkJson.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%");
+                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
+                "@<^(\\{|\\[).+(\\}|\\])$>"
+        );
     }
 
     private boolean isFile, isYaml, isWebFile;
     private int mark;
     private Expression<?> input;
+    private boolean inputIsRegex;
+    private JsonExpressionString regexInput;
     private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
-        Object[] values = input.getAll(e);
         List<JsonElement> output = new ArrayList<>();
-        if (isFile) {
-            String stringifyFile = values[0].toString();
-            if (stringifyFile != null) {
-                final File file = new File(stringifyFile);
+        if (inputIsRegex) {
+            var parsedRegex = regexInput.getSingle(e);
+            JsonElement json;
+            try {
+                json = JsonParser.parseString(parsedRegex);
+                output.add(json);
+            } catch (Exception ignored) {}
 
-                // make a sensitization for Failed get from FileWrapper
-                JsonFile jsonFile_ = FileWrapper.fromNormal(file);
-                if (jsonFile_ == null) {
-                    output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
-                } else {
-                    output.add(jsonFile_.get());
-                }
-            }
-        } else if (isWebFile) {
-            final Object url = input.getSingle(e);
-            if (url == null) return new JsonElement[0];
-            CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
-                RequestResponse rp = null;
-                try {
-                    var client = new RequestClient(url.toString());
-                    rp = client
-                            .method("GET")
-                            .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
-                            .request().join();
-                } catch (Exception ex) {
-                    Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
-                }
-
-                return rp;
-            });
-            output.add((JsonElement) ft.join().getBodyContent(false));
         } else {
-            for (Object value : values) {
-                if (value instanceof JsonElement json) {
-                    output.add(json);
-                } else if (isClassicType(value)) {
-                    JsonElement json;
-                    try {
-                        json = JsonParser.parseString(value.toString());
-                    } catch (JsonParseException ex) {
-                        json = gson.toJsonTree(value);
+            Object[] values = input.getAll(e);
+            if (isFile) {
+                String stringifyFile = values[0].toString();
+                if (stringifyFile != null) {
+                    final File file = new File(stringifyFile);
+
+                    // make a sensitization for Failed get from FileWrapper
+                    JsonFile jsonFile_ = FileWrapper.fromNormal(file);
+                    if (jsonFile_ == null) {
+                        output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
+                    } else {
+                        output.add(jsonFile_.get());
                     }
-                    output.add(json);
-                } else {
+                }
+            } else if (isWebFile) {
+                final Object url = input.getSingle(e);
+                if (url == null) return new JsonElement[0];
+                CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
+                    RequestResponse rp = null;
                     try {
-                        if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
-                            type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
-                        } else {
-                            output.add(parse(value));
-                        }
+                        var client = new RequestClient(url.toString());
+                        rp = client
+                                .method("GET")
+                                .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
+                                .request().join();
                     } catch (Exception ex) {
-                        if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                        Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                    }
+
+                    return rp;
+                });
+                output.add((JsonElement) ft.join().getBodyContent(false));
+            } else {
+                for (Object value : values) {
+                    if (value instanceof JsonElement json) {
+                        output.add(json);
+                    } else if (isClassicType(value)) {
+                        JsonElement json;
+                        try {
+                            json = JsonParser.parseString(value.toString());
+                        } catch (JsonParseException ex) {
+                            json = gson.toJsonTree(value);
+                        }
+                        output.add(json);
+                    } else {
+                        try {
+                            if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
+                                type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
+                            } else {
+                                output.add(parse(value));
+                            }
+                        } catch (Exception ex) {
+                            if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                        }
                     }
                 }
             }
@@ -133,7 +149,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     @Override
     public boolean isSingle() {
-        return input.isSingle();
+        return inputIsRegex || input.isSingle();
     }
 
     @Override
@@ -157,13 +173,36 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         mark = parseResult.mark;
         isFile = mark == 2;
         isWebFile = mark == 3;
+        inputIsRegex = matchedPattern == 1 || matchedPattern == 2;
         isYaml = (isFile && parseResult.hasTag("yaml"));
-        input = LiteralUtils.defendExpression(exprs[0]);
-        if (isWebFile || isFile) {
-            if (!input.isSingle()) {
-                return false;
+        if (inputIsRegex) {
+            if (matchedPattern == 1) {
+                if (!ALLOWED_LINE_LITERAL) {
+                    Util.warn("You don't have allowed this beta feature, if you want use these line literal, you may turn on that in your config.yml");
+                    return false;
+                }
             }
+            if (matchedPattern == 2) {
+                if (!ALLOWED_MULTILINE_LITERAL) {
+                    Util.warn("You don't have allowed this beta feature, if you want use these multi lines literal, you may turn on that in your config.yml");
+                    return false;
+                }
+            }
+            if (!parseResult.regexes.isEmpty()) {
+                var parsed = parseResult.regexes.get(0).group(0);
+                var fixed = ParserUtil.parseExpressionContext(parsed, true);
+                regexInput = JsonExpressionString.newInstance(fixed);
+                return true;
+            }
+        } else {
+            input = LiteralUtils.defendExpression(exprs[0]);
+            if (isWebFile || isFile) {
+                if (!input.isSingle()) {
+                    return false;
+                }
+            }
+            return LiteralUtils.canInitSafely(input);
         }
-        return LiteralUtils.canInitSafely(input);
+        return false;
     }
 }

@@ -2,7 +2,7 @@
 
 settings:
   # Never change it!
-  version: 1.2
+  version: 1.3
 
   # Enable this if you would like to see more verbose debug messages
   debug: false
@@ -17,10 +17,41 @@ settings:
   # Enabled this if you would get a tests result each time when server starts.
   run-tests-on-startup: false
 
+  # Beta features
+  features:
+    # That feature will you allow use tld. literal string for e.g.
+    # @{userId: 1, products: [{id: {_i}, quantity: 1}, {id: {_j}, quantity: 2}]}
+    # Inside the Literal string you don't need use a % for evaluate variables or expressions.
+    # Also,you don't need to use string escape as like "", you can basically json string escape for e.g.
+    # @{test: "This is \"New\" String"}
+    # So the literal start always with @ and then continue a with a JSON
+    literal-parsing-single-line: false
+
+    # This Feature allows you to immediately get the value from the async run of the request.
+    # For e.g.
+    # function test(i: number) :: object:
+    #    async make POST request to "https://dummyjson.com/carts/add":
+    #        headers: @{Content-Type: "Application/json"}
+    #        headers: json from text "{Content-Type: 'application/json'}"
+    #        content: json from text "{userId: 1, products: [{id: %{_i}%, quantity: 1}, {id: 50, quantity: 2}]}"
+    #        save incorrect response: true
+    #        lenient: true
+    #        save:
+    #            content: {_content}
+    #        on complete:
+    #            return {_content}
+    #
+    # command test <number>:
+    #    trigger:
+    #        send test(arg-1)
+    force-async-return: false
+
   # 0 - Basic debug mode
   # 1 - More verbose debug mode
-  # 2 - All debug messaged, also the request response.
-  logging-level: 2
+  # 2 - All debug messages, also the request response.
+  # 3 - All debug messages, also message from parsing
+  # 4 - Dev mode
+  logging-level: 1
 
   # Path variable delimiter
   # for example. `value "test::command" of {_json}`
