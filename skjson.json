@@ -16,9 +16,9 @@
         "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
       ],
       "event values": [
+        "event-json",
         "event-object",
-        "event-object",
-        "event-json"
+        "event-object"
       ],
       "cancellable": false
     }
@@ -507,7 +507,6 @@
       "name": "New json",
       "description": [
         "latest:",
-        "\tversion 2.9:",
         "\t\t- support now also multiple items as input",
         "\t\t- support json content from webpage",
         "\t\t- removed empty json array/object, cause it's not necessary while",
@@ -525,10 +524,12 @@
         "\tset {_json} to json from player's location",
         "\tset {_json} to json from player's inventory",
         "\tset {_json} to json from yaml file <path>",
-        "\tset {_json} to json from website file \"https://json.org/sample.json\""
+        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+        "*Literal",
+        "set {_json} to @{\"test\": true, \"var\": {_test}}"
       ],
       "since": [
-        "2.9"
+        "2.9, 2.9.3 - Literal parsing"
       ],
       "return type": "json",
       "changers": [
@@ -537,7 +538,8 @@
         "reset"
       ],
       "patterns": [
-        "[skJson] json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
+        "[skJson] json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
+        "[skJson] @<^(\\{|\\[).+(\\}|\\])$>"
       ]
     },
     {
@@ -727,21 +729,22 @@
   ],
   "sections": [
     {
-      "id": "Request",
+      "id": "SecRequest",
       "name": "Http Request",
       "description": [
         "Create & handle requests via json",
-        "Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json  for examples of dummyJson api",
+        "Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json  for examples of dummyJson api</b>",
         " Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] "
       ],
       "examples": [
         "on script load:",
         "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
-        "\t\theader: \"Content-Type: application/json\"",
+        "\t\theaders: \"Content-Type: application/json\"",
         "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
         "\t\tsave incorrect response: true",
         "\t\tlenient: true",
         "\t\tsave:",
+        "\t\t\twait for response: true",
         "\t\t\tcontent: {-content}",
         "\t\t\theaders: {-header}",
         "\t\t\tstatus code: {-code}",
