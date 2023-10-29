@@ -4,3 +4,4 @@ gen_server/
 *.iml
 .idea/inspectionProfiles/Project_Default.xml
 /target/*
+server

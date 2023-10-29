@@ -15,7 +15,7 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.requests.Requests;
+import cz.coffee.skjson.skript.request.RequestMethods;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -272,7 +272,7 @@ abstract class Types {
                         })
         );
 
-        Classes.registerClass(new EnumClassInfo<>(Requests.RequestMethods.class, "requestmethod", "request method")
+        Classes.registerClass(new EnumClassInfo<>(RequestMethods.class, "requestmethod", "request method")
                 .user("request ?method?")
                 .name("Request methods")
                 .description("represent allowed methods for make a request, e.g. POST, GET")

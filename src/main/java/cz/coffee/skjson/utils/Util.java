@@ -5,11 +5,14 @@ import ch.njol.skript.util.Version;
 import cz.coffee.skjson.api.ColorWrapper;
 import cz.coffee.skjson.api.Config;
 import org.bukkit.Bukkit;
+import org.bukkit.command.MessageCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -251,14 +254,27 @@ public class Util {
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.WEBHOOK_PREFIX + msg));
     }
 
+    public static String getNow() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
+    }
+
     /**
      * Error.
      *
      * @param msg the msg
      */
     public static void error(String msg) {
-
         Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c" + msg));
+    }
+
+    public static void warn(String msg, MessageCommandSender ...msger) {
+        if ((msger != null && msger.length > 0) && msger[0] != null) {
+            msger[0].sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&e&lWARN " + "&l&e" + msg));
+        } else {
+            Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&e&lWARN " + "&l&e" + msg));
+        }
     }
 
     @SuppressWarnings("unused")

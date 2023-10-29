@@ -35,9 +35,15 @@ public final class SkJson extends JavaPlugin {
             "Conditions", new ArrayList<>())
     );
     Config config = new Config(this);
+    static SkJson plugin;
+
+    public static SkJson getInstance() {
+        return plugin;
+    }
 
     @Override
     public void onEnable() {
+        plugin = this;
         if (Bukkit.getServer().getName().equals("CraftBukkit")) {
             System.out.println("\033[0;31m-------------------------SPIGOT DETECTED------------------------------");
             System.out.println("Please install SkJson for Spigot version " + this.getDescription().getVersion());

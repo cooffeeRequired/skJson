@@ -74,11 +74,11 @@ public abstract class JsonBase {
             }
             assert parsedJson != null;
 
-            Object[] unparsedInput = inputObjects.getAll(e);
+            Object[] parsedInput = inputObjects.getAll(e);
             final List<Integer> output = new ArrayList<>();
             ParsedJson finalParsedJson = parsedJson;
             CompletableFuture<List<Integer>> ft = CompletableFuture.supplyAsync(() -> {
-                Arrays.stream(unparsedInput).forEach(input -> {
+                Arrays.stream(parsedInput).forEach(input -> {
                     if (isKey) {
                         if (input instanceof String str) output.add(finalParsedJson.keys(str));
                     } else {

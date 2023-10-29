@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.skript.request.RequestUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.client.*;
@@ -19,7 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +35,7 @@ import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
  * <p>
  * Created: sobota (30.09.2023)
  */
-public class RequestClient {
+public class RequestClient implements AutoCloseable{
     private String uri;
     private HttpClient client;
     private Request request;
@@ -55,6 +55,12 @@ public class RequestClient {
 
     private boolean isOk(int statusCode) {
         return statusCode >= 200 && statusCode < 300;
+    }
+
+
+    private boolean done = false;
+    public boolean isDone() {
+        return this.done;
     }
 
     public RequestClient method(String method) {
@@ -127,7 +133,7 @@ public class RequestClient {
                 }
             };
 
-            Response.SuccessListener successListener = (response) -> this.close();
+            Response.SuccessListener successListener = (response) -> this.done();
 
             Response.CompleteListener completeListener = (result) -> {
                 if (result.isSucceeded()) {
@@ -140,11 +146,12 @@ public class RequestClient {
                     future.complete(serverResponse);
                     if (LOGGING_LEVEL > 1) Util.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
                 }
+                done = true;
             };
 
             Response.FailureListener failureListener = (response, failure) -> {
                 if (PROJECT_DEBUG && LOGGING_LEVEL > 2) Util.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
-                this.close();
+                this.done();
                 future.completeExceptionally(new IllegalStateException("HTTP request failed"));
             };
 
@@ -174,17 +181,10 @@ public class RequestClient {
         return this;
     }
 
-    public RequestClient setHeaders(Collection<JsonObject> coll) {
-        if (this.request == null) {
-            return this;
+    public RequestClient setHeaders(RequestUtil.Pairs[] pairs) {
+        if (this.request != null & pairs != null) {
+            this.request.headers((x) -> Arrays.stream(pairs).forEach((p) -> x.add(p.getKey(), p.getValue())));
         }
-
-        this.request.headers(x -> coll.parallelStream().forEach(c -> {
-            c.entrySet().parallelStream().forEach(entry -> {
-                String value = ParserUtil.jsonToType(entry.getValue());
-                x.add(entry.getKey().trim(), value.trim());
-            });
-        }));
         return this;
     }
 
@@ -244,11 +244,16 @@ public class RequestClient {
         }
         return this;
     }
-    private void close() {
+    private void done() {
         try {
             this.client.stop();
         } catch (Exception e) {
             if (PROJECT_DEBUG) Util.error(e.getMessage());
         }
+    }
+
+    @Override
+    public void close() {
+        this.done();
     }
 }

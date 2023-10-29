@@ -17,8 +17,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Deque;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
@@ -31,6 +30,31 @@ import static org.bukkit.configuration.serialization.ConfigurationSerialization.
  */
 @SuppressWarnings("all")
 public abstract class ParserUtil {
+    /**
+     * Fix quotes string.
+     *
+     * @param orig   the orig
+     * @param finalParsingContext the finalParsingContext
+     * @return the string
+     */
+    public static String parseExpressionContext(String orig, boolean finalParsingContext) {
+        if (orig == null || orig.isEmpty()) {
+            return null;
+        }
+        if (finalParsingContext) {
+            orig = orig.replaceAll("(?<!\\\")\\\"(?!\\\")", "\"\"");
+            orig = StringJsonParser.parseInput(orig, true);
+        }
+        return orig;
+    }
+
+    /**
+     * Check values boolean.
+     *
+     * @param value the value
+     * @param json  the json
+     * @return the boolean
+     */
     public static boolean checkValues(@NotNull JsonElement value, @NotNull JsonElement json) {
         boolean found = false;
         JsonElement jsonElement;
@@ -54,6 +78,13 @@ public abstract class ParserUtil {
         return found;
     }
 
+    /**
+     * Check keys boolean.
+     *
+     * @param key  the key
+     * @param json the json
+     * @return the boolean
+     */
     public static boolean checkKeys(@NotNull String key, @NotNull JsonElement json) {
         boolean found = false;
         JsonElement value;
@@ -74,6 +105,13 @@ public abstract class ParserUtil {
         return found;
     }
 
+    /**
+     * Json to type t.
+     *
+     * @param <T>  the type parameter
+     * @param json the json
+     * @return the t
+     */
     public static <T> T jsonToType(JsonElement json) {
         if (json == null || json.isJsonNull()) return null;
         if (json.isJsonArray() || json.isJsonObject()) return (T) json;
@@ -163,6 +201,14 @@ public abstract class ParserUtil {
         return parse(o, o.getClass());
     }
 
+    /**
+     * Parse json element.
+     *
+     * @param <T>       the type parameter
+     * @param o         the o
+     * @param canBeJson the can be json
+     * @return the json element
+     */
     public static <T> JsonElement parse(T o, boolean canBeJson) {
         if (canBeJson) {
             if (o == null || o instanceof JsonNull) return null;

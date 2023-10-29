@@ -27,10 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * The type Config.
  */
 @SuppressWarnings("ALL")
-/**
- * The type Config.
- */
 public class Config {
+    /**
+     * The constant SERVER_TYPE.
+     */
     public static String SERVER_TYPE;
     /**
      * The constant RUN_TEST_ON_START.
@@ -87,6 +87,19 @@ public class Config {
      */
     public static String WEBHOOK_PREFIX;
 
+    /**
+     * The constant ALLOWED_MULTILINE_LITERAL.
+     */
+    public static Boolean ALLOWED_MULTILINE_LITERAL;
+    /**
+     * The constant ALLOWED_LINE_LITERAL.
+     */
+    public static Boolean ALLOWED_LINE_LITERAL;
+    /**
+     * The constant ALLOWED_IMPLICIT_REQUEST_RETURN.
+     */
+    public static Boolean ALLOWED_IMPLICIT_REQUEST_RETURN;
+
 
     /**
      * The Logger.
@@ -115,6 +128,10 @@ public class Config {
     private File configFile;
     private FileConfiguration config;
     private static Config staticConfig;
+    /**
+     * The constant pluginYaml.
+     */
+    public static YamlConfiguration pluginYaml;
 
 
     /**
@@ -132,6 +149,9 @@ public class Config {
 
     /**
      * Load config file.
+     *
+     * @param replace the replace
+     * @return the void
      */
     public void loadConfigFile(boolean replace) {
         if (configFile == null) {
@@ -145,6 +165,13 @@ public class Config {
         loadConfigs();
     }
 
+    /**
+     * Load tests void.
+     *
+     * @param skFile the sk file
+     * @return the void
+     * @throws IOException the io exception
+     */
     public void loadTests(String skFile) throws IOException {
         try {
             var file = new File(plugin.getDataFolder(), "..tests");
@@ -199,6 +226,19 @@ public class Config {
         }
     }
 
+    /**
+     * Gets plugin config.
+     *
+     * @param path the path
+     * @return the plugin config
+     */
+    public static Object getPluginConfig(String path) {
+        if (Config.pluginYaml != null) {
+            return Config.pluginYaml.get(path);
+        }
+        return null;
+    }
+
     @SuppressWarnings("ConstantConditions")
     private void matchConfig() {
         try {
@@ -245,6 +285,7 @@ public class Config {
     private String getPrefix(String setting) {
         return this.config.getString("settings.prefixes." + setting);
     }
+    private Boolean getFeatures(String feature) {return this.config.getBoolean("settings.features." + feature);}
 
     private void loadConfigs() {
         try {
@@ -259,6 +300,9 @@ public class Config {
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
             TESTS_ALOWED = getSetting("test-allowed");
             RUN_TEST_ON_START = getSetting("run-tests-on-startup");
+            ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
+            ALLOWED_MULTILINE_LITERAL = getFeatures("literal-parsing-multi-line");
+            ALLOWED_IMPLICIT_REQUEST_RETURN = getFeatures("force-async-return");
             int delayStart = getInt("startup-tests-delay");
             if (delayStart == 1) {
                 TEST_START_UP_DELAY = 10_000;
@@ -292,10 +336,24 @@ public class Config {
 
     /**
      * Init.
+     *
+     * @return the void
+     * @throws IOException the io exception
      */
     public void init() throws IOException {
         try {
             loadConfigFile(false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            InputStream stream = Config.getConfig().plugin.getResource("plugin.yml");
+            if (stream != null) {
+                InputStreamReader is = new InputStreamReader(stream);
+                YamlConfiguration yml = YamlConfiguration.loadConfiguration(is);
+                Config.pluginYaml = yml;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -379,6 +437,7 @@ public class Config {
      *
      * @param id     the id
      * @param plugin the plugin
+     * @return the metrics
      */
     public void setupMetrics(int id, JavaPlugin plugin) {
         Metrics metrics = new Metrics(plugin, id);
@@ -430,6 +489,7 @@ public class Config {
      * Sets current version.
      *
      * @param version the version
+     * @return the current version
      */
     public void setCurrentVersion(int version) {
         this.version = version;
