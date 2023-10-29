@@ -16,7 +16,6 @@
         "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
       ],
       "event values": [
-        "event-object",
         "event-json",
         "event-object"
       ],
