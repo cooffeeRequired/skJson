@@ -1,0 +1,1 @@
+java -Xmx5G -jar purpur.jar -u Worlds -nogui

@@ -1,0 +1,40 @@
+#on load:
+    #make new GET request to "https://dummyjson.com/products/2" and store it in {_data}:
+    #    content: {_content}
+    #    status code: {_code}
+    #execute {_data} and wait
+    #send {_content}
+
+
+# on script load:
+#     async make POST request to "https://dummyjson.com/carts/add":
+#         headers: "Content-Type: application/json"
+#         content: json from text "{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}"
+#         save incorrect response: true
+#         lenient: true
+#         save:
+#             content: {-content}
+#             headers: {-header}
+#             status code: {-code}
+#             url: {-url}
+# command response:
+#     trigger:
+#         send {-content} with pretty print
+
+
+command embed:
+    trigger:
+        async send discord request "https://discord.com/api/webhooks/1168271947415703713/lJhg5235yc_QFST5OIBtqpuiKGk11hiN9JF0V0LYby0fMaEYbI_wFRsp4NGneGBXt2jV":
+            header: "Content-Type: application/json"
+            data:
+                username: "AAAA"
+                avatar-url: "https://google.com"
+                tts: true
+                content: "" # content never can be empty, so when you want to send only embed, you need to put here empty string
+                embed:
+                    id: 102018 # when you put here null, or auto, the value will be generated automatically.
+                    fields: "{}"
+                    author: "{name: 'CoffeeRequired'}"
+                    title: "Hello there"
+                    thumbnail: "{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}"
+                    color: "##21a7c2" # that support all hex colors.. not minecraft

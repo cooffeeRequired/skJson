@@ -10,11 +10,6 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.Map;
 
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: středa (04.10.2023)
- */
 public class RequestUtil {
     public static final class Pairs {
         private String LEFT;

@@ -2,6 +2,10 @@ package cz.coffee.skjson.skript.request;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +28,36 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@Name("[WEB] Request")
+@Description({"Create & handle requests via json",
+        "Checkout this link https://dummyjson.org for json examples of dummyJson api",
+        "Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE]"})
+@Examples("""
+        on load:
+            make new GET request to "https://dummyjson.com/products/2" and store it in {_data}:
+               content: {_content}
+               status code: {_code}
+            execute {_data} and wait
+            send {_content}
+                
+                
+        on script load:
+            async make POST request to "https://dummyjson.com/carts/add":
+                headers: "Content-Type: application/json"
+                content: json from text "{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}"
+                save incorrect response: true
+                lenient: true
+                save:
+                    content: {-content}
+                    headers: {-header}
+                    status code: {-code}
+                    url: {-url}
+        command response:
+            trigger:
+                send {-content} with pretty print
+        """
+)
+@Since("2.9.4")
 public class SecCreateRequest extends Section {
 
     static {
