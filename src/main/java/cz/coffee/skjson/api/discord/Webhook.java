@@ -1,10 +1,12 @@
 package cz.coffee.skjson.api.discord;
 
 import com.google.gson.JsonElement;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.skript.requests.RequestMethods;
+import cz.coffee.skjson.skript.request.RequestMethods;
 import cz.coffee.skjson.utils.Util;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package cz.coffee.skjson.skript.requests;
+package cz.coffee.skjson.skript.request;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Variable;
@@ -61,7 +61,7 @@ public class RequestUtil {
             .addEntryData(new ExpressionEntryData<>("lenient", null, true, Object.class))
             .addEntryData(new ExpressionEntryData<>("save incorrect response", null, true, Object.class))
             .addSection("save", true)
-            .addSection("on complete", false)
+            //.addSection("on complete", false)
             .build();
 
     public static final EntryValidator SAVE_VALIDATOR = EntryValidator.builder()

@@ -1,4 +1,4 @@
-package cz.coffee.skjson.skript.requests;
+package cz.coffee.skjson.skript.request;
 
 public enum RequestMethods {
     GET("get"),

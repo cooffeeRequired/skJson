@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.requests.RequestUtil;
+import cz.coffee.skjson.skript.request.RequestUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
 import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.client.*;
@@ -35,7 +35,7 @@ import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
  * <p>
  * Created: sobota (30.09.2023)
  */
-public class RequestClient {
+public class RequestClient implements AutoCloseable{
     private String uri;
     private HttpClient client;
     private Request request;
@@ -133,7 +133,7 @@ public class RequestClient {
                 }
             };
 
-            Response.SuccessListener successListener = (response) -> this.close();
+            Response.SuccessListener successListener = (response) -> this.done();
 
             Response.CompleteListener completeListener = (result) -> {
                 if (result.isSucceeded()) {
@@ -151,7 +151,7 @@ public class RequestClient {
 
             Response.FailureListener failureListener = (response, failure) -> {
                 if (PROJECT_DEBUG && LOGGING_LEVEL > 2) Util.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
-                this.close();
+                this.done();
                 future.completeExceptionally(new IllegalStateException("HTTP request failed"));
             };
 
@@ -244,11 +244,16 @@ public class RequestClient {
         }
         return this;
     }
-    private void close() {
+    private void done() {
         try {
             this.client.stop();
         } catch (Exception e) {
             if (PROJECT_DEBUG) Util.error(e.getMessage());
         }
+    }
+
+    @Override
+    public void close() {
+        this.done();
     }
 }

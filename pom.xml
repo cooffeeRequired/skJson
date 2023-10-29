@@ -190,9 +190,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/gen_server/plugins"/>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="${project.basedir}/gen_server/plugins/SkJson.jar"/>
-                                <!--<copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" todir="C:/Users/nexti/Desktop/Project-SkJson/environments/2.9/plugins/" />-->
+                                <mkdir dir="${project.basedir}/server/plugins"/>
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="${project.basedir}/server/plugins/SkJson.jar"/>
                                 <echo message="Copied successfully" />
                             </target>
                         </configuration>

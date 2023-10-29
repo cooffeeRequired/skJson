@@ -15,7 +15,7 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.requests.RequestMethods;
+import cz.coffee.skjson.skript.request.RequestMethods;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

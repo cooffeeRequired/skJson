@@ -23,6 +23,7 @@ import cz.coffee.skjson.api.discord.WebhookFunction;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.Util;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -69,47 +70,49 @@ public abstract class Webhooks {
             "! Recommended default json payload <a href=\"https://message.style/app/share/lc6XU1jd\"> Json Payload (Lorem) </a>"
     })
     @Examples("""
-    command web:
-        trigger:
-            async send web request "https://webhook.site/4e2e350b-4a8f-4863-85c5-e833e4ec110b":
-                attachments:
-                    1: "C:\\Users\\nexti\\Documents\\Lekce\\index.html"
-                content: "{fromSkJson: '?', ?: true}"
-                
-                
-    command without-embed:
-        trigger:
-            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
-                header: "Content-Type: application/json"
-                data:
-                    tts: true
-                    content: "{'payload:' true}" # this can be any json encoded string or json
-                
-                
-    command embed:
-        trigger:
-            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
-                header: "Content-Type: application/json"
-                data:
-                    tts: true
-                    content: "" # content never can be empty, so when you want to send only embed, you need to put here empty string
-                    embed:
-                        id: 102018 # when you put here null, or auto, the value will be generated automatically.
-                        fields: "{}"
-                        author: "{name: 'CoffeeRequired'}"
-                        title: "Hello there"
-                        thumbnail: "{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}"
-                        color: "##21a7c2" # that support all hex colors.. not minecraft
-                
-    command embedAtt:
-        trigger:
-            async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
-                attachments:
-                    1: "*/generate_doc.sk" # star means the parser will search for the file recursively from the root directory
-                data:
-                    tts: false
-                    content: "hello from attachments"
-            """)
+            command web:
+                trigger:
+                    async send web request "https://webhook.site/4e2e350b-4a8f-4863-85c5-e833e4ec110b":
+                        attachments:
+                            1: "C:\\Users\\nexti\\Documents\\Lekce\\index.html"
+                        content: "{fromSkJson: '?', ?: true}"
+                        
+                        
+            command without-embed:
+                trigger:
+                    async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                        header: "Content-Type: application/json"
+                        data:
+                            tts: true
+                            content: "{'payload:' true}" # this can be any json encoded string or json
+                        
+                        
+            command embed:
+                trigger:
+                    async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                        header: "Content-Type: application/json"
+                        data:
+                            username: "AAAA"
+                            avatar-url: "https://google.com"
+                            tts: true
+                            content: "" # content never can be empty, so when you want to send only embed, you need to put here empty string
+                            embed:
+                                id: 102018 # when you put here null, or auto, the value will be generated automatically.
+                                fields: "{}"
+                                author: "{name: 'CoffeeRequired'}"
+                                title: "Hello there"
+                                thumbnail: "{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}"
+                                color: "##21a7c2" # that support all hex colors.. not minecraft
+                        
+            command embedAtt:
+                trigger:
+                    async send discord request "https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt":
+                        attachments:
+                            1: "*/generate_doc.sk" # star means the parser will search for the file recursively from the root directory
+                        data:
+                            tts: false
+                            content: "hello from attachments"
+                    """)
     @Since("2.9")
     public static class WebHookSection extends Section {
         static {
@@ -136,6 +139,8 @@ public abstract class Webhooks {
                         .missingRequiredEntryMessage(entry -> String.format("field %s need to be set, cause %s doesn't have default value!", entry, entry))
                         .build();
                 case "discord-data" -> EntryValidator.builder()
+                        .addEntryData(new ExpressionEntryData<>("username", null, true, Object.class))
+                        .addEntryData(new ExpressionEntryData<>("avatar-url", null, true, Object.class))
                         .addEntryData(new ExpressionEntryData<>("content", null, true, Object.class))
                         .addSection("contents", true)
                         .addEntry("tts", null, false)
@@ -160,7 +165,7 @@ public abstract class Webhooks {
         private boolean async;
         private boolean isDiscord, isWeb, isEmbed;
         private Expression<?> contentExpression, componentsExpression, actionsExpression, contentHeaders, contentBody;
-        private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail;
+    private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail,  contentUsername, contentAvatarURL;
         private String contentTTS, embedID, embedColor;
         private Expression<String> url;
         private final List<String> contents = new ArrayList<>();
@@ -205,6 +210,8 @@ public abstract class Webhooks {
                     }
                     componentsExpression = dataContainer.getOptional("components", Expression.class, false);
                     actionsExpression = dataContainer.getOptional("actions", Expression.class, false);
+                    contentAvatarURL = dataContainer.getOptional("avatar-url", Expression.class, false);
+                    contentUsername = dataContainer.getOptional("username", Expression.class, false);
                     contentTTS = dataContainer.getOptional("tts", String.class, false);
                     SectionNode embedSection = dataContainer.getOptional("embed", SectionNode.class, false);
                     if (embedSection != null) {
@@ -300,105 +307,112 @@ public abstract class Webhooks {
         }
 
         private void execute(@NotNull Event event) {
-            JsonElement headers = parseHeader(event, contentHeaders);
+            Bukkit.getScheduler().runTaskAsynchronously(SkJson.getInstance(), () -> {
+                JsonElement headers = parseHeader(event, contentHeaders);
 
-            if (isDiscord) {
-                Object content = assignContent(event, contentExpression);
-                if (content == null) content = "";
+                if (isDiscord) {
+                    Object content = assignContent(event, contentExpression);
+                    Object username = assignContent(event, contentUsername);
+                    Object avatarURL = assignContent(event, contentAvatarURL);
+                    if (content == null) content = "";
 
-                if (content.toString().length() < 2 && this.contents.size() > 1) {
-                    StringBuilder builder = new StringBuilder();
-                    for (String s : this.contents) builder.append(s).append("\n");
-                    content = builder.toString();
-                }
-
-                Boolean tts = Boolean.valueOf(contentTTS);
-                Object actions = assignContent(event, actionsExpression);
-                Object components = assignContent(event, componentsExpression);
-                if (actions == null) actions = new JsonObject();
-                if (components == null) components = new JsonArray();
-                Webhook webhook = new Webhook(Webhook.WebHookType.DISCORD);
-
-                if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
-
-                RequestResponse rp;
-                WebhookFunction fn = webhook.create(headers);
-                String url = this.url.getSingle(event);
-                assert url != null;
-                String[] urlChunks = url.split("/");
-                JsonObject json = new JsonObject();
-                json.add("content", ParserUtil.parse(content));
-                json.addProperty("tts", tts);
-                json.add("components", ParserUtil.parse(components));
-                json.add("actions", ParserUtil.parse(actions));
-
-
-                if (isEmbed) {
-                    String id = embedID;
-                    JsonArray embed = new JsonArray();
-                    JsonElement fields = parseEmbedValue(event, embedFields);
-                    JsonElement author = parseEmbedValue(event, embedAuthor);
-                    JsonElement title = parseEmbedValue(event, embedTitle);
-                    JsonElement thumbnail = parseEmbedValue(event, embedThumbnail);
-                    String color = embedColor;
-
-                    if (fields.isJsonNull() || !fields.isJsonArray()) fields = new JsonArray();
-                    if (author.isJsonNull() || !author.isJsonObject()) author = new JsonObject();
-                    if (thumbnail.isJsonNull() || !thumbnail.isJsonObject()) thumbnail = new JsonObject();
-                    if (id.isEmpty() || !Util.isNumber(id)) id = String.valueOf(new Random().nextInt(929233221));
-                    if (color.isEmpty()) color = String.valueOf(Long.parseLong("21a7c2".toUpperCase(), 16));
-                    color = color.replaceAll("[\"#]", "").toUpperCase();
-                    color = String.valueOf(Long.parseLong(color, 16));
-                    JsonObject embed1 = new JsonObject();
-                    embed1.addProperty("id", Long.parseLong(id));
-                    embed1.add("fields", fields);
-                    embed1.add("author", author);
-                    embed1.add("title", title);
-                    embed1.add("thumbnail", thumbnail);
-                    embed1.addProperty("color", Long.parseLong((color)));
-
-                    embed.add(embed1);
-                    json.add("embeds", embed);
-                }
-                rp = (fn.process(urlChunks[5], urlChunks[6], json));
-                if (rp != null && rp.isSuccessfully()) {
-                    if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
-                } else {
-                    if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
-                        assert rp != null;
-                        Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
+                    if (content.toString().length() < 2 && this.contents.size() > 1) {
+                        StringBuilder builder = new StringBuilder();
+                        for (String s : this.contents) builder.append(s).append("\n");
+                        content = builder.toString();
                     }
-                }
-            } else if (isWeb) {
-                Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
-                if (!this.attachments.isEmpty()) {
-                    webhook.addAttachment(this.attachments);
-                }
-                RequestResponse rp;
-                WebhookFunction fn = webhook.create(headers);
-                String url = this.url.getSingle(event);
-                assert url != null;
-                JsonElement content = parseEmbedValue(event, contentBody);
 
-                if (content.isJsonNull() && !contents.isEmpty()) {
+                    Boolean tts = Boolean.valueOf(contentTTS);
+                    Object actions = assignContent(event, actionsExpression);
+                    Object components = assignContent(event, componentsExpression);
+                    if (actions == null) actions = new JsonObject();
+                    if (components == null) components = new JsonArray();
+                    Webhook webhook = new Webhook(Webhook.WebHookType.DISCORD);
+
+                    if (!this.attachments.isEmpty()) webhook.addAttachment(this.attachments);
+
+                    RequestResponse rp;
+                    WebhookFunction fn = webhook.create(headers);
+                    String url = this.url.getSingle(event);
+                    assert url != null;
+                    String[] urlChunks = url.split("/");
                     JsonObject json = new JsonObject();
-                    int i = 0;
-                    for (String s : contents) {
-                        json.addProperty(String.valueOf(i), s);
-                        i++;
+                    json.add("username", ParserUtil.parse(username));
+                    json.add("avatar-url", ParserUtil.parse(avatarURL));
+                    json.add("content", ParserUtil.parse(content));
+                    json.addProperty("tts", tts);
+                    json.add("components", ParserUtil.parse(components));
+                    json.add("actions", ParserUtil.parse(actions));
+
+
+                    if (isEmbed) {
+                        String id = embedID;
+                        JsonArray embed = new JsonArray();
+                        JsonElement fields = parseEmbedValue(event, embedFields);
+                        JsonElement author = parseEmbedValue(event, embedAuthor);
+                        JsonElement title = parseEmbedValue(event, embedTitle);
+                        JsonElement thumbnail = parseEmbedValue(event, embedThumbnail);
+                        String color = embedColor;
+
+                        if (fields.isJsonNull() || !fields.isJsonArray()) fields = new JsonArray();
+                        if (author.isJsonNull() || !author.isJsonObject()) author = new JsonObject();
+                        if (thumbnail.isJsonNull() || !thumbnail.isJsonObject()) thumbnail = new JsonObject();
+                        if (id.isEmpty() || !Util.isNumber(id)) id = String.valueOf(new Random().nextInt(929233221));
+                        if (color.isEmpty()) color = String.valueOf(Long.parseLong("21a7c2".toUpperCase(), 16));
+                        color = color.replaceAll("[\"#]", "").toUpperCase();
+                        color = String.valueOf(Long.parseLong(color, 16));
+                        JsonObject embed1 = new JsonObject();
+                        embed1.addProperty("id", Long.parseLong(id));
+                        embed1.add("fields", fields);
+                        embed1.add("author", author);
+                        embed1.add("title", title);
+                        embed1.add("thumbnail", thumbnail);
+                        embed1.addProperty("color", Long.parseLong((color)));
+
+                        embed.add(embed1);
+                        json.add("embeds", embed);
                     }
-                    content = json;
-                }
-                rp = (fn.process(url, content));
-                if (rp != null && rp.isSuccessfully()) {
-                    if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
-                } else {
-                    if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
-                        assert rp != null;
-                        Util.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
+                    rp = (fn.process(urlChunks[5], urlChunks[6], json));
+                    if (rp != null && rp.isSuccessfully()) {
+                        if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
+                    } else {
+                        if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
+                            assert rp != null;
+                            Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
+                        }
+                    }
+                } else if (isWeb) {
+                    Webhook webhook = new Webhook(Webhook.WebHookType.WEB);
+                    if (!this.attachments.isEmpty()) {
+                        webhook.addAttachment(this.attachments);
+                    }
+                    RequestResponse rp;
+                    WebhookFunction fn = webhook.create(headers);
+                    String url = this.url.getSingle(event);
+                    assert url != null;
+                    JsonElement content = parseEmbedValue(event, contentBody);
+
+                    if (content.isJsonNull() && !contents.isEmpty()) {
+                        JsonObject json = new JsonObject();
+                        int i = 0;
+                        for (String s : contents) {
+                            json.addProperty(String.valueOf(i), s);
+                            i++;
+                        }
+                        content = json;
+                    }
+
+                    rp = (fn.process(url, content));
+                    if (rp != null && rp.isSuccessfully()) {
+                        if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
+                    } else {
+                        if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
+                            assert rp != null;
+                            Util.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
+                        }
                     }
                 }
-            }
+            });
         }
 
         private Object assignContent(Event event, Expression<?> ex) {
