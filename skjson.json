@@ -17,8 +17,8 @@
       ],
       "event values": [
         "event-object",
-        "event-object",
-        "event-json"
+        "event-json",
+        "event-object"
       ],
       "cancellable": false
     }
@@ -507,7 +507,6 @@
       "name": "New json",
       "description": [
         "latest:",
-        "\tversion 2.9:",
         "\t\t- support now also multiple items as input",
         "\t\t- support json content from webpage",
         "\t\t- removed empty json array/object, cause it's not necessary while",
@@ -525,10 +524,12 @@
         "\tset {_json} to json from player's location",
         "\tset {_json} to json from player's inventory",
         "\tset {_json} to json from yaml file <path>",
-        "\tset {_json} to json from website file \"https://json.org/sample.json\""
+        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+        "*Literal",
+        "set {_json} to @{\"test\": true, \"var\": {_test}}"
       ],
       "since": [
-        "2.9"
+        "2.9, 2.9.3 - Literal parsing"
       ],
       "return type": "json",
       "changers": [
@@ -537,7 +538,8 @@
         "reset"
       ],
       "patterns": [
-        "[skJson] json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
+        "[skJson] json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
+        "[skJson] @<^(\\{|\\[).+(\\}|\\])$>"
       ]
     },
     {
@@ -727,37 +729,6 @@
   ],
   "sections": [
     {
-      "id": "Request",
-      "name": "Http Request",
-      "description": [
-        "Create & handle requests via json",
-        "Checkout this link <a href=\"https://dummyjson.com/docs/carts\"> Test json  for examples of dummyJson api",
-        " Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE] "
-      ],
-      "examples": [
-        "on script load:",
-        "\tasync make POST request to \"https://dummyjson.com/carts/add\":",
-        "\t\theader: \"Content-Type: application/json\"",
-        "\t\tcontent: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"",
-        "\t\tsave incorrect response: true",
-        "\t\tlenient: true",
-        "\t\tsave:",
-        "\t\t\tcontent: {-content}",
-        "\t\t\theaders: {-header}",
-        "\t\t\tstatus code: {-code}",
-        "\t\t\turl: {-url}",
-        "command response:",
-        "\ttrigger:",
-        "\t\tsend {-content} with pretty print"
-      ],
-      "since": [
-        "2.9"
-      ],
-      "patterns": [
-        "[skJson] [:async] make [new] %requestmethod% request to %string%"
-      ]
-    },
-    {
       "id": "WebHookSection",
       "name": "Webhook, send webhook request to Discord/Web",
       "description": [
@@ -771,13 +742,32 @@
         "! Recommended default json payload  Json Payload (Lorem) "
       ],
       "examples": [
-        "command web:\n    trigger:\n        async send web request \"https://webhook.site/4e2e350b-4a8f-4863-85c5-e833e4ec110b\":\n            attachments:\n                1: \"C:\\Users\\nexti\\Documents\\Lekce\\index.html\"\n            content: \"{fromSkJson: '?', ?: true}\"\n\n\ncommand without-embed:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            header: \"Content-Type: application/json\"\n            data:\n                tts: true\n                content: \"{'payload:' true}\" # this can be any json encoded string or json\n\n\ncommand embed:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            header: \"Content-Type: application/json\"\n            data:\n                tts: true\n                content: \"\" # content never can be empty, so when you want to send only embed, you need to put here empty string\n                embed:\n                    id: 102018 # when you put here null, or auto, the value will be generated automatically.\n                    fields: \"{}\"\n                    author: \"{name: 'CoffeeRequired'}\"\n                    title: \"Hello there\"\n                    thumbnail: \"{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}\"\n                    color: \"##21a7c2\" # that support all hex colors.. not minecraft\n\ncommand embedAtt:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            attachments:\n                1: \"*/generate_doc.sk\" # star means the parser will search for the file recursively from the root directory\n            data:\n                tts: false\n                content: \"hello from attachments\"\n"
+        "command web:\n    trigger:\n        async send web request \"https://webhook.site/4e2e350b-4a8f-4863-85c5-e833e4ec110b\":\n            attachments:\n                1: \"C:\\Users\\nexti\\Documents\\Lekce\\index.html\"\n            content: \"{fromSkJson: '?', ?: true}\"\n\n\ncommand without-embed:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            header: \"Content-Type: application/json\"\n            data:\n                tts: true\n                content: \"{'payload:' true}\" # this can be any json encoded string or json\n\n\ncommand embed:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            header: \"Content-Type: application/json\"\n            data:\n                username: \"AAAA\"\n                avatar-url: \"https://google.com\"\n                tts: true\n                content: \"\" # content never can be empty, so when you want to send only embed, you need to put here empty string\n                embed:\n                    id: 102018 # when you put here null, or auto, the value will be generated automatically.\n                    fields: \"{}\"\n                    author: \"{name: 'CoffeeRequired'}\"\n                    title: \"Hello there\"\n                    thumbnail: \"{url: 'https://cravatar.eu/helmhead/_F0cus__/600.png'}\"\n                    color: \"##21a7c2\" # that support all hex colors.. not minecraft\n\ncommand embedAtt:\n    trigger:\n        async send discord request \"https://discord.com/api/webhooks/1128075537919770798/y78NK-odks6Lod5kimmhcd9YWQfhFzPU1YA-VyD5bqWMGxaeYXxp5jTxpnNI9Yhw1Rgt\":\n            attachments:\n                1: \"*/generate_doc.sk\" # star means the parser will search for the file recursively from the root directory\n            data:\n                tts: false\n                content: \"hello from attachments\"\n"
       ],
       "since": [
         "2.9"
       ],
       "patterns": [
         "[skJson] [:async] send (:web|:discord) request %string%"
+      ]
+    },
+    {
+      "id": "SecCreateRequest",
+      "name": "[WEB] Request",
+      "description": [
+        "Create & handle requests via json",
+        "Checkout this link https://dummyjson.org for json examples of dummyJson api",
+        "Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE]"
+      ],
+      "examples": [
+        "on load:\n    make new GET request to \"https://dummyjson.com/products/2\" and store it in {_data}:\n       content: {_content}\n       status code: {_code}\n    execute {_data} and wait\n    send {_content}\n\n\non script load:\n    async make POST request to \"https://dummyjson.com/carts/add\":\n        headers: \"Content-Type: application/json\"\n        content: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"\n        save incorrect response: true\n        lenient: true\n        save:\n            content: {-content}\n            headers: {-header}\n            status code: {-code}\n            url: {-url}\ncommand response:\n    trigger:\n        send {-content} with pretty print\n"
+      ],
+      "since": [
+        "2.9.4"
+      ],
+      "patterns": [
+        "[skJson] [:async] make [new] %requestmethod% request to %string%",
+        "[skJson] (create|make) [new] %requestmethod% request to %string% [with header[s] %json/strings% [and with body %json/strings%]] and (stored|store it) in %objects%"
       ]
     }
   ]
