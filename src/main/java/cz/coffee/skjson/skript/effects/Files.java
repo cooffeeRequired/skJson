@@ -21,7 +21,8 @@ import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
+import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -125,12 +126,12 @@ public abstract class Files {
                 if (cFile == null) return;
                 JsonElement json = cFile.get();
                 String key = pathInput.getSingle(e);
-                LinkedList<String> keys = Util.extractKeysToList(key, Config.PATH_VARIABLE_DELIMITER);
-                if (keys == null) return;
+                LinkedList<String> keys = PatternUtil.extractKeysToList(key, Config.PATH_VARIABLE_DELIMITER);
+                if (keys.isEmpty()) return;
                 try {
                     parsedJson = new ParsedJson(json);
                 } catch (ParsedJsonException exception) {
-                    if (LOGGING_LEVEL >= 1) Util.log(exception.getLocalizedMessage());
+                    if (LOGGING_LEVEL >= 1) LoggingUtil.log(exception.getLocalizedMessage());
                 }
 
                 JsonElement changeValue = ParserUtil.parse(unparsedValue);
@@ -141,7 +142,8 @@ public abstract class Files {
                     if (unparsedValue instanceof String st) {
                         parsedJson.changeKey(keys, st);
                     } else {
-                        if (LOGGING_LEVEL >= 1) Util.log("You can change key only by a string not a object-value.");
+                        if (LOGGING_LEVEL >= 1)
+                            LoggingUtil.log("You can change key only by a string not a object-value.");
                     }
                 }
                 JsonElement jsonElement = parsedJson.getJson();

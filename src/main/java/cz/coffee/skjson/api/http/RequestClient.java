@@ -7,8 +7,8 @@ import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.request.RequestUtil;
+import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
-import cz.coffee.skjson.utils.Util;
 import org.eclipse.jetty.client.*;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.MultiPart;
@@ -35,13 +35,14 @@ import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
  * <p>
  * Created: sobota (30.09.2023)
  */
-public class RequestClient implements AutoCloseable{
+public class RequestClient implements AutoCloseable {
     private String uri;
     private HttpClient client;
     private Request request;
     private TimerWrapper timer;
     private final LinkedList<File> attachments = new LinkedList<>();
     private final Gson GSON = new GsonBuilder().disableHtmlEscaping().disableJdkUnsafe().serializeNulls().setLenient().create();
+
     public RequestClient(String uri) {
         try {
             this.uri = uri;
@@ -49,7 +50,7 @@ public class RequestClient implements AutoCloseable{
             this.client.start();
             this.timer = new TimerWrapper(0);
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) Util.requestLog(ex.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.requestLog(ex.getMessage());
         }
     }
 
@@ -59,6 +60,8 @@ public class RequestClient implements AutoCloseable{
 
 
     private boolean done = false;
+
+    @SuppressWarnings("unused")
     public boolean isDone() {
         return this.done;
     }
@@ -112,12 +115,12 @@ public class RequestClient implements AutoCloseable{
                 return null;
             }
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) Util.enchantedError(ex, ex.getStackTrace(), "RequestClient - test()");
+            if (PROJECT_DEBUG) LoggingUtil.enchantedError(ex, ex.getStackTrace(), "RequestClient - test()");
             return null;
         }
     }
 
-    public CompletableFuture<RequestResponse> request(boolean ...lenientI) {
+    public CompletableFuture<RequestResponse> request(boolean... lenientI) {
         final boolean lenient = lenientI != null && lenientI.length > 0 && lenientI[0];
         final CompletableFuture<RequestResponse> future = new CompletableFuture<>();
         ByteArrayOutputStream streamByte = new ByteArrayOutputStream();
@@ -144,13 +147,15 @@ public class RequestClient implements AutoCloseable{
 
                     var serverResponse = RequestResponse.of(request.getHeaders(), response.getHeaders(), request.getURI(), text, response.getStatus(), lenient);
                     future.complete(serverResponse);
-                    if (LOGGING_LEVEL > 1) Util.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
+                    if (LOGGING_LEVEL > 1)
+                        LoggingUtil.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
                 }
                 done = true;
             };
 
             Response.FailureListener failureListener = (response, failure) -> {
-                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) Util.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
+                    LoggingUtil.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
                 this.done();
                 future.completeExceptionally(new IllegalStateException("HTTP request failed"));
             };
@@ -160,13 +165,12 @@ public class RequestClient implements AutoCloseable{
             this.request.send(completeListener);
             this.request.onResponseSuccess(successListener);
         } catch (Exception ex) {
-            Util.requestLog(ex.getMessage());
+            LoggingUtil.requestLog(ex.getMessage());
             future.completeExceptionally(ex);
         }
 
         return future;
     }
-
 
 
     public RequestClient setContent(final JsonElement body) {
@@ -214,7 +218,7 @@ public class RequestClient implements AutoCloseable{
         try {
             if (file.getName().endsWith(".sk")) file = changeExtension(file, ".vb");
         } catch (IOException exception) {
-            if (PROJECT_DEBUG) Util.requestLog(exception.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.requestLog(exception.getMessage());
         }
         if (file.exists()) attachments.add(file);
         return this;
@@ -225,7 +229,7 @@ public class RequestClient implements AutoCloseable{
         return this;
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("all")
     public RequestClient postAttachments(String body) {
         AtomicInteger i = new AtomicInteger(0);
         try (var mpr = new MultiPartRequestContent()) {
@@ -234,21 +238,22 @@ public class RequestClient implements AutoCloseable{
                     String contentType = Files.probeContentType(attachment.toPath());
                     mpr.addPart(new MultiPart.PathPart("file" + i.incrementAndGet(), attachment.getName(), HttpFields.EMPTY, attachment.toPath()));
                 } catch (Exception e) {
-                    if (PROJECT_DEBUG) Util.error(e.getMessage());
+                    if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
             });
             mpr.addPart(new MultiPart.ContentSourcePart("payload_json", null, HttpFields.EMPTY, new StringRequestContent(body, StandardCharsets.UTF_8)));
             this.request.body(mpr);
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) Util.requestLog(ex.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.requestLog(ex.getMessage());
         }
         return this;
     }
+
     private void done() {
         try {
             this.client.stop();
         } catch (Exception e) {
-            if (PROJECT_DEBUG) Util.error(e.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
         }
     }
 

@@ -9,7 +9,11 @@ public class RequestException extends IllegalStateException {
     public static RequestException handlersCalled() {
         return new RequestException("Event handlers may be called... ");
     }
-    public static RequestException requestNull() {return  new RequestException("Request cannot be null...");}
+
+    public static RequestException requestNull() {
+        return new RequestException("Request cannot be null...");
+    }
+
     public static RequestException wrongStoreVar() {
         return new RequestException("You can store request only to Variables!");
     }

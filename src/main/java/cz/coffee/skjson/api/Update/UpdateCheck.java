@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -51,10 +51,10 @@ public class UpdateCheck {
         config.setCurrentVersion(sanitizedCurrentVersion);
 
         if (beta) {
-            Util.log("You're running on beta version, so checking is not necessary (&b" + currentVersion + "v.&r)");
+            LoggingUtil.log("You're running on beta version, so checking is not necessary (&b" + currentVersion + "v.&r)");
         } else {
             if (apiResponse != null) {
-                if (!success) Util.log("&eDo you have internet connection? Version check &c&lFailed");
+                if (!success) LoggingUtil.log("&eDo you have internet connection? Version check &c&lFailed");
                 String onlineVersion = "";
                 try {
                     onlineVersion = apiResponse.getAsJsonObject().get("tag_name").getAsString();
@@ -62,14 +62,14 @@ public class UpdateCheck {
                 }
                 int sanitizeOnlineVersion = sanitizeVersion(onlineVersion);
                 if (sanitizedCurrentVersion == sanitizeOnlineVersion) {
-                    Util.log("You're running on &alast&f stable version. " + onlineVersion + "v.");
+                    LoggingUtil.log("You're running on &alast&f stable version. " + onlineVersion + "v.");
                 } else if (sanitizeOnlineVersion > sanitizedCurrentVersion) {
-                    Util.log("&cskJson is not up to date!");
-                    Util.log("&8 > &7Current version: &cv" + currentVersion);
-                    Util.log("&8 > &7Available version: &av" + onlineVersion);
-                    Util.log("&8 > &7Download available at link: &bhttps://github.com/SkJsonTeam/skJson/releases/latest");
+                    LoggingUtil.log("&cskJson is not up to date!");
+                    LoggingUtil.log("&8 > &7Current version: &cv" + currentVersion);
+                    LoggingUtil.log("&8 > &7Available version: &av" + onlineVersion);
+                    LoggingUtil.log("&8 > &7Download available at link: &bhttps://github.com/SkJsonTeam/skJson/releases/latest");
                 } else {
-                    Util.log("You're running on non-public version, so checking is not necessary &bv" + currentVersion + "&r!");
+                    LoggingUtil.log("You're running on non-public version, so checking is not necessary &bv" + currentVersion + "&r!");
                 }
             }
         }
@@ -82,7 +82,7 @@ public class UpdateCheck {
             if (replaced.length() == 2) replaced = replaced + 0;
             return Integer.parseInt(replaced);
         } catch (NumberFormatException exception) {
-            if (PROJECT_DEBUG) Util.error(exception.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.error(exception.getMessage());
         }
         return 0;
     }
@@ -91,15 +91,13 @@ public class UpdateCheck {
         CompletableFuture<JsonElement> ft = CompletableFuture.supplyAsync(() -> {
             JsonElement element = null;
             RequestResponse response = null;
-            try {
-                var handler = new RequestClient(API)
-                        .method("GET")
+            try (var handler = new RequestClient(API)) {
+                response = handler.method("GET")
                         .addHeaders(new WeakHashMap<>(Map.of("Accept", "application/json")))
-                        .request();
-                response = handler.join();
+                        .request().join();
                 success = response.isSuccessfully();
             } catch (Exception e) {
-                if (PROJECT_DEBUG) Util.error(e.getMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 return null;
             } finally {
                 if (response != null) {

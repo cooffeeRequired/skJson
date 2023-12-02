@@ -1,8 +1,7 @@
 package cz.coffee.skjson.api.http;
 
-import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.eclipse.jetty.http.HttpFields;
 
 import java.net.MalformedURLException;
@@ -10,8 +9,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -48,32 +47,19 @@ public interface RequestResponse {
 
             @Override
             public Object getBodyContent(boolean saveIncorrect) {
-                if (statusCode >= 200 && statusCode <= 340) {
-                    try {
-                        if (lenient) {
-                            JsonFixer fixer = new JsonFixer(body);
-                            String finalBody = fixer.removeTrailingComma();
-                            return JsonParser.parseString(finalBody);
-                        } else {
-                            return JsonParser.parseString(body);
-                        }
-                    } catch (Exception e) {
-                        if (PROJECT_DEBUG) {
-                            Util.error(true, e.getMessage());
-                            if (LOGGING_LEVEL > 2) Util.enchantedError(e, e.getStackTrace(), "Invalid JSON");
-                        }
+                try {
+                    if (lenient) {
+                        JsonFixer fixer = new JsonFixer(body);
+                        String finalBody = fixer.removeTrailingComma();
+                        return JsonParser.parseString(finalBody);
+                    } else {
+                        return JsonParser.parseString(body);
                     }
-                    return JsonNull.INSTANCE;
-                } else {
-                    if (saveIncorrect) {
-                        try {
-                            return body;
-                        } catch (Exception e) {
-                            if (PROJECT_DEBUG) Util.error(e.getMessage());
-                        }
-                    }
+                } catch (Exception e) {
+                    if (!saveIncorrect)
+                        LoggingUtil.warn("Expecting JSON but got a String! If you don't want get this message use `save incorrect response: true`");
+                    return body;
                 }
-                return null;
             }
 
             @Override
@@ -81,7 +67,7 @@ public interface RequestResponse {
                 try {
                     return Optional.of(uri.toURL());
                 } catch (MalformedURLException exception) {
-                    if (PROJECT_DEBUG) Util.enchantedError(exception, exception.getStackTrace(), "Invalid URL");
+                    if (PROJECT_DEBUG) enchantedError(exception, exception.getStackTrace(), "Invalid URL");
                     return Optional.empty();
                 }
             }

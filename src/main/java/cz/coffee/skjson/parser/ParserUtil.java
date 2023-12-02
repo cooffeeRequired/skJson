@@ -7,7 +7,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffee.skjson.skript.base.Converter;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -17,7 +17,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
@@ -33,7 +34,7 @@ public abstract class ParserUtil {
     /**
      * Fix quotes string.
      *
-     * @param orig   the orig
+     * @param orig                the orig
      * @param finalParsingContext the finalParsingContext
      * @return the string
      */
@@ -242,7 +243,7 @@ public abstract class ParserUtil {
                     return ItemStackConverter.toJson(data.getStack());
                 }
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
             }
         } else {
@@ -312,7 +313,7 @@ public abstract class ParserUtil {
         try {
             if (potentialClass != null) clazz = Class.forName(potentialClass);
         } catch (ClassNotFoundException notFoundException) {
-            if (PROJECT_DEBUG) Util.error(notFoundException.getLocalizedMessage());
+            if (PROJECT_DEBUG) LoggingUtil.error(notFoundException.getLocalizedMessage());
             return null;
         }
 
@@ -334,7 +335,7 @@ public abstract class ParserUtil {
                     return (T) GsonConverter.fromJson(finalJson, clazz);
                 else return null;
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
                 return null;
             }

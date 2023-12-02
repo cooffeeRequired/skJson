@@ -22,6 +22,7 @@ import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.api.discord.WebhookFunction;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -32,7 +33,10 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
@@ -165,7 +169,7 @@ public abstract class Webhooks {
         private boolean async;
         private boolean isDiscord, isWeb, isEmbed;
         private Expression<?> contentExpression, componentsExpression, actionsExpression, contentHeaders, contentBody;
-    private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail,  contentUsername, contentAvatarURL;
+        private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail, contentUsername, contentAvatarURL;
         private String contentTTS, embedID, embedColor;
         private Expression<String> url;
         private final List<String> contents = new ArrayList<>();
@@ -230,7 +234,7 @@ public abstract class Webhooks {
 
                 } catch (Exception ex) {
                     if (PROJECT_DEBUG && LOGGING_LEVEL >= 2)
-                        Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                        LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                 }
                 return true;
             }
@@ -265,7 +269,7 @@ public abstract class Webhooks {
                         }
                     }
                 } catch (Exception e) {
-                    Util.enchantedError(e, e.getStackTrace(), "WebHooks cannot convert to Entries");
+                    LoggingUtil.enchantedError(e, e.getStackTrace(), "WebHooks cannot convert to Entries");
                 }
                 return true;
             }
@@ -374,11 +378,11 @@ public abstract class Webhooks {
                     }
                     rp = (fn.process(urlChunks[5], urlChunks[6], json));
                     if (rp != null && rp.isSuccessfully()) {
-                        if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
+                        if (LOGGING_LEVEL > 1) LoggingUtil.webhookLog("The payload was sent &asuccesfully.");
                     } else {
                         if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                             assert rp != null;
-                            Util.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
+                            LoggingUtil.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
                         }
                     }
                 } else if (isWeb) {
@@ -404,11 +408,11 @@ public abstract class Webhooks {
 
                     rp = (fn.process(url, content));
                     if (rp != null && rp.isSuccessfully()) {
-                        if (LOGGING_LEVEL > 1) Util.webhookLog("The payload was sent &asuccesfully.");
+                        if (LOGGING_LEVEL > 1) LoggingUtil.webhookLog("The payload was sent &asuccesfully.");
                     } else {
                         if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                             assert rp != null;
-                            Util.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
+                            LoggingUtil.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
                         }
                     }
                 }
@@ -434,7 +438,7 @@ public abstract class Webhooks {
                 }
                 return JsonNull.INSTANCE;
             } catch (Exception exs) {
-                if (PROJECT_DEBUG) Util.enchantedError(exs, exs.getStackTrace(), "Webhooks.parseEmbedValue");
+                if (PROJECT_DEBUG) LoggingUtil.enchantedError(exs, exs.getStackTrace(), "Webhooks.parseEmbedValue");
                 return JsonNull.INSTANCE;
             }
         }

@@ -23,7 +23,8 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
+import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,8 @@ import java.util.List;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
+import static cz.coffee.skjson.utils.LoggingUtil.error;
+import static cz.coffee.skjson.utils.PatternUtil.extractKeysToList;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -140,7 +143,7 @@ public abstract class SkJsonChanger {
             switch (mode) {
                 case ADD -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        Util.error(false, "Input or json cannot be null");
+                        error(false, "Input or json cannot be null");
                         return;
                     }
                     JsonElement json = JsonNull.INSTANCE;
@@ -155,8 +158,8 @@ public abstract class SkJsonChanger {
                                 JsonElement input = inputJsonExpression.getSingle(e);
                                 pj = new ParsedJson(input);
                                 path = pathExpression.getSingle(e);
-                                LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
-                                if (keys != null) json = pj.byKey(keys);
+                                LinkedList<String> keys = extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
+                                if (!keys.isEmpty()) json = pj.byKey(keys);
                             } else {
                                 json = inputJsonExpression.getSingle(e);
                             }
@@ -172,20 +175,20 @@ public abstract class SkJsonChanger {
                                 }
                             } else {
                                 if (LOGGING_LEVEL > 1)
-                                    Util.error("You can add values only to JSON arrays.", getParser().getNode());
+                                    error("You can add values only to JSON arrays.", getParser().getNode());
                                 return;
                             }
                         } catch (Exception ex) {
-                            Util.error(false, "Something happened in the Changer! If you wanna more information");
-                            if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
+                            error(false, "Something happened in the Changer! If you wanna more information");
+                            if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                             if (PROJECT_DEBUG)
-                                Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
+                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
                         }
                     }
                 }
                 case SET -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        Util.error(false, "Input or json cannot be null");
+                        error(false, "Input or json cannot be null");
                         return;
                     }
                     JsonElement json = null;
@@ -195,11 +198,11 @@ public abstract class SkJsonChanger {
                     boolean isValue = result.mark == 1 && line == 1;
                     try {
                         path = pathExpression.getSingle(e);
-                        LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
+                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
                         json = inputJsonExpression.getSingle(e);
                         pj = new ParsedJson(json);
                         for (Object delta : inputDelta) {
-                            if (keys == null) return;
+                            if (keys.isEmpty()) return;
                             if (isValue) {
                                 parsedJson = parseAliases(delta);
                                 if (((LinkedList<JsonElement>) parsedJson).isEmpty())
@@ -210,17 +213,17 @@ public abstract class SkJsonChanger {
                                     pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                                 }
                             } else {
-                                keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
-                                if (keys == null) return;
+                                keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
+                                if (keys.isEmpty()) return;
                                 if (delta instanceof String st) pj.changeKey(keys, st);
                             }
                         }
 
                     } catch (Exception ex) {
-                        Util.error(false, "Something happened in the Changer! If you wanna more information");
-                        if (!PROJECT_DEBUG) Util.error(false, "Turn on debug in your config.");
+                        error(false, "Something happened in the Changer! If you wanna more information");
+                        if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                         if (PROJECT_DEBUG)
-                            Util.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
+                            LoggingUtil.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
                     }
                 }
             }
@@ -340,7 +343,7 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             if (mode == Changer.ChangeMode.SET) {
                 if (inputDelta == null || jsonInput == null) {
-                    Util.error(false, "Input or json cannot be null");
+                    error(false, "Input or json cannot be null");
                     return;
                 }
                 boolean isValue = result.hasTag("value");
@@ -351,10 +354,10 @@ public abstract class SkJsonChanger {
                 for (Object delta : inputDelta) {
                     try {
                         path = pathInput.getSingle(e);
-                        LinkedList<String> keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);
+                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);
                         json = jsonInput.getSingle(e);
                         pj = new ParsedJson(json);
-                        assert keys != null;
+                        assert !keys.isEmpty();
                         if (isValue) {
                             parsedJson = parseAliases(delta);
                             if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
@@ -364,12 +367,12 @@ public abstract class SkJsonChanger {
                                 pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                             }
                         } else {
-                            keys = Util.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
-                            if (keys == null) return;
+                            keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
+                            if (keys.isEmpty()) return;
                             if (delta instanceof String st) pj.changeKey(keys, st);
                         }
                     } catch (Exception ex) {
-                        Util.enchantedError(ex, ex.getStackTrace(), "Change event SkJsonChanger, 370");
+                        LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Change event SkJsonChanger, 370");
                     }
                 }
             }

@@ -1,12 +1,10 @@
 package cz.coffee.skjson.api.discord;
 
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.skript.request.RequestMethods;
-import cz.coffee.skjson.utils.Util;
-import org.bukkit.Bukkit;
+import cz.coffee.skjson.utils.LoggingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +81,8 @@ public class Webhook {
                 public RequestResponse process(String id, String hex, JsonElement content) {
                     String discord_api = "https://discord.com/api/webhooks/" + id + "/" + hex;
                     RequestResponse[] response = new RequestResponse[1];
-                    RequestClient client = new RequestClient(discord_api).method(method.toString()).setHeaders(headers);
-                    try {
+                    try (RequestClient client = new RequestClient(discord_api)) {
+                        client.method(method.toString()).setHeaders(headers);
                         if (!attachments.isEmpty()) {
                             attachments.forEach(client::addAttachment);
                             response[0] = client
@@ -95,7 +93,7 @@ public class Webhook {
                         }
                     } catch (Exception e) {
                         if (PROJECT_DEBUG) {
-                            Util.webhookLog(e.getMessage());
+                            LoggingUtil.webhookLog(e.getMessage());
                         }
                     }
                     return response[0];
@@ -106,8 +104,8 @@ public class Webhook {
                 @Override
                 public RequestResponse process(String web, JsonElement content) {
                     RequestResponse[] response = new RequestResponse[1];
-                    try {
-                        RequestClient client = new RequestClient(web).method(method.toString()).setHeaders(headers);
+                    try (RequestClient client = new RequestClient(web)) {
+                        client.method(method.toString()).setHeaders(headers);
                         if (!attachments.isEmpty()) {
                             attachments.forEach(client::addAttachment);
                             response[0] = client
@@ -118,7 +116,7 @@ public class Webhook {
                         }
                     } catch (Exception e) {
                         if (PROJECT_DEBUG) {
-                            Util.webhookLog(e.getMessage());
+                            LoggingUtil.webhookLog(e.getMessage());
                         }
                     }
                     return response[0];

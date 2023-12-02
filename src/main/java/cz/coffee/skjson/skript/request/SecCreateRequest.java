@@ -11,14 +11,13 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Variable;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Name("[WEB] Request")
 @Description({"Create & handle requests via json",
@@ -84,8 +82,10 @@ public class SecCreateRequest extends Section {
 
     private void saveToVars(RequestResponse response, boolean saveIncorrect, Event event) {
         if (response != null) {
-            if (rContent != null) rContent.change(event, new Object[]{response.getBodyContent(saveIncorrect)}, Changer.ChangeMode.SET);
-            if (rHeaders != null) rHeaders.change(event, new Object[]{response.getResponseHeader().text()}, Changer.ChangeMode.SET);
+            if (rContent != null)
+                rContent.change(event, new Object[]{response.getBodyContent(saveIncorrect)}, Changer.ChangeMode.SET);
+            if (rHeaders != null)
+                rHeaders.change(event, new Object[]{response.getResponseHeader().text()}, Changer.ChangeMode.SET);
             if (rCode != null) rCode.change(event, new Object[]{response.getStatusCode()}, Changer.ChangeMode.SET);
             if (rUrl != null) rUrl.change(event, new Object[]{response.getRequestURL()}, Changer.ChangeMode.SET);
         }
@@ -125,7 +125,7 @@ public class SecCreateRequest extends Section {
             _url = (Expression<String>) expressions[1];
             this.saveIncorrect = container.getOptional("save incorrect response", Expression.class, false);
             this.lenient = container.getOptional("lenient", Expression.class, false);
-            var saveNode = container.getOptional("save", SectionNode.class, false );
+            var saveNode = container.getOptional("save", SectionNode.class, false);
             if (saveNode != null) {
                 try {
                     EntryContainer saveContainer = RequestUtil.SAVE_VALIDATOR.validate(saveNode);
@@ -135,7 +135,7 @@ public class SecCreateRequest extends Section {
                     rCode = (saveContainer.getOptional("status code", Variable.class, false));
                     rUrl = (saveContainer.getOptional("url", Variable.class, false));
                 } catch (Exception ex) {
-                    Util.enchantedError(ex, ex.getStackTrace(), "Request-92");
+                    LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Request-92");
                 }
             }
             return true;
@@ -154,7 +154,7 @@ public class SecCreateRequest extends Section {
                         _method.getSingle(event) : RequestMethods.GET).toString() : "GET";
 
         if (pattern == 1) {
-            Request request = new Request(this.coreSection, url,  event);
+            Request request = new Request(this.coreSection, url, event);
             request.setMethod(method)
                     .setBody(body)
                     .setHeaders(headers)
@@ -163,12 +163,21 @@ public class SecCreateRequest extends Section {
             _store.change(event, new Request[]{request}, Changer.ChangeMode.SET);
             return super.walk(event, false);
         } else if (pattern == 0) {
-            var lenientConvertedExpression = this.lenient.getConvertedExpression(Boolean.class);
-            var incorrectConvertedExpression = this.saveIncorrect.getConvertedExpression(Boolean.class);
+            boolean lenient;
+            boolean saveInc;
+            if (this.lenient != null) {
+                var lenientConvertedExpression = this.lenient.getConvertedExpression(Boolean.class);
+                lenient = this.lenient != null ? lenientConvertedExpression.getSingle(event) : false;
+            } else {
+                lenient = false;
+            }
 
-            boolean lenient = this.lenient != null ? lenientConvertedExpression.getSingle(event) : false;
-            boolean saveInc = this.saveIncorrect != null ? incorrectConvertedExpression.getSingle(event) : false;
-
+            if (this.saveIncorrect != null) {
+                var incorrectConvertedExpression = this.saveIncorrect.getConvertedExpression(Boolean.class);
+                saveInc = this.saveIncorrect != null ? incorrectConvertedExpression.getSingle(event) : false;
+            } else {
+                saveInc = true;
+            }
 
             if (isAsync) {
                 Bukkit.getScheduler().runTaskAsynchronously(SkJson.getInstance(), () -> {
@@ -189,21 +198,19 @@ public class SecCreateRequest extends Section {
                             .method(method)
                             .setHeaders(headers)
                             .setContent(body)
-                            .request(lenient).get();
+                            .request(lenient).join();
                     if (response != null) {
                         saveToVars(response, saveInc, event);
                     }
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
 
-        return null;
+        return walk(event, true);
     }
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
-        return "New request section " + Classes.getDebugMessage(this);
+        return "New request section ";
     }
 }

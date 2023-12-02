@@ -179,6 +179,7 @@ public class SkriptReflection {
 
     /**
      * Retrieves the local variables from an {@link Event}.
+     *
      * @param event The {@link Event} to get the local variables from.
      * @return The local variables of the given {@link Event}.
      */
@@ -194,6 +195,7 @@ public class SkriptReflection {
 
     /**
      * Copies the VariablesMap contained in the given {@link Object}.
+     *
      * @param locals The local variables to copy.
      * @return The copied local variables.
      */
@@ -217,6 +219,7 @@ public class SkriptReflection {
 
     /**
      * Retrieves the {@link Node}s of a {@link SectionNode}.
+     *
      * @param sectionNode The {@link SectionNode} to get the nodes from.
      * @return The {@link Node}s of the given {@link SectionNode}
      */

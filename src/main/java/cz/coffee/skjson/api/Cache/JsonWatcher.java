@@ -5,7 +5,7 @@ import com.google.gson.JsonNull;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 
 import java.io.File;
 import java.nio.file.*;
@@ -107,7 +107,7 @@ public class JsonWatcher {
         AtomicBoolean found = new AtomicBoolean(false);
         watcherCache.forEachKey(1, file_ -> {
             if (file_.equals(file)) {
-                Util.watcherLog("Watcher for file " + file + " is already registered!");
+                LoggingUtil.watcherLog("Watcher for file " + file + " is already registered!");
                 found.set(true);
             }
         });
@@ -117,7 +117,7 @@ public class JsonWatcher {
             watcher.setEvent(new EventWatcherSave(file, id, watcher.getUuid()));
             watcherCache.put(file, watcher);
             if (watcher.isActive()) {
-                Util.watcherLog("Registered with id: &a" + watcher.getUuid() + "&f for file &7(&e" + file + "&7)");
+                LoggingUtil.watcherLog("Registered with id: &a" + watcher.getUuid() + "&f for file &7(&e" + file + "&7)");
             }
         }
     }
@@ -133,7 +133,7 @@ public class JsonWatcher {
             if (watcher.isActive()) {
                 watcher.setCancelled(true);
                 if (watcher.isCancelled() && watcher.isDone()) {
-                    Util.watcherLog("File &7(&e" + file + "&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher (" + watcher.getUuid() + ")");
+                    LoggingUtil.watcherLog("File &7(&e" + file + "&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher (" + watcher.getUuid() + ")");
                 }
             }
             return null;
@@ -167,10 +167,10 @@ public class JsonWatcher {
                                 this.event.setJson(fromFile);
                                 cache.replace(id, map);
                                 if (PROJECT_DEBUG)
-                                    Util.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
+                                    LoggingUtil.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
                             } else {
                                 if (PROJECT_DEBUG)
-                                    Util.watcherLog("Is cached!  : " + potentialJson + "--> : " + fromFile);
+                                    LoggingUtil.watcherLog("Is cached!  : " + potentialJson + "--> : " + fromFile);
                             }
                             break;
                         }
@@ -180,7 +180,7 @@ public class JsonWatcher {
                 }
             });
         } catch (Exception e) {
-            Util.watcherLog(String.format("An error occurred while watching file: %s, exception: %s", file, e));
+            LoggingUtil.watcherLog(String.format("An error occurred while watching file: %s, exception: %s", file, e));
         }
     }
 
@@ -252,12 +252,12 @@ public class JsonWatcher {
      */
     public static void unregisterAll() {
         try {
-            Util.watcherLog("Trying to unregister all watchers!");
+            LoggingUtil.watcherLog("Trying to unregister all watchers!");
             watcherCache.forEach((file, v_) -> unregister(file));
         } catch (Exception e) {
-            Util.watcherLog("Unregistering all watchers &cFailed!");
+            LoggingUtil.watcherLog("Unregistering all watchers &cFailed!");
         } finally {
-            Util.watcherLog("Unregistering all watchers was &asuccessful!");
+            LoggingUtil.watcherLog("Unregistering all watchers was &asuccessful!");
         }
     }
 }

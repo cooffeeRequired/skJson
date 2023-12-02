@@ -37,13 +37,14 @@ public class RequestUtil {
         public String getKey() {
             return this.LEFT.trim();
         }
+
         public String getValue() {
             return this.RIGHT.trim();
         }
 
         @Override
         public String toString() {
-            return this.LEFT+DELIMITER+this.RIGHT;
+            return this.LEFT + DELIMITER + this.RIGHT;
         }
     }
 
@@ -75,7 +76,7 @@ public class RequestUtil {
             if (json == null) {
                 json = new Gson().fromJson(str, JsonElement.class);
             }
-            if (json != null) return  Map.of(true, json);
+            if (json != null) return Map.of(true, json);
         } catch (Exception ignored) {
             return Map.of(false, JsonNull.INSTANCE);
         }
@@ -86,9 +87,11 @@ public class RequestUtil {
     public static <T, O extends JsonElement> O validateContent(final T input, final Event event) {
         var MAX_ELEMENTS_PER_REQUEST = 1;
         if (event == null) throw new IllegalArgumentException();
+        if (input == null) return (O) new JsonObject();
 
         if (input instanceof Expression<?> expr) {
             var ds = expr.getAll(event);
+            if (ds.length < 1 ) return (O) JsonNull.INSTANCE;
             JsonElement[] jsonElements = new JsonElement[ds.length];
             for (var i = 0; i < ds.length; i++) {
                 if (i == MAX_ELEMENTS_PER_REQUEST) {

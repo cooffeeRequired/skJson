@@ -1,12 +1,15 @@
 package cz.coffee.skjson.api;
 
-import org.bukkit.Color;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -17,6 +20,15 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("ALL")
 public class SkJsonCommand implements CommandExecutor {
 
+    static String loadPatchNotes() {
+        try {
+            String content = Files.readString(Paths.get("patchnotes"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            LoggingUtil.enchantedError(ex, ex.getStackTrace(), "loadPatchNotes");
+        }
+        return null;
+    }
     String formatDesc(String desc) {
         if (desc.contains("%nl%")) {
             var builder = new StringBuilder();
@@ -41,6 +53,7 @@ public class SkJsonCommand implements CommandExecutor {
         sender.sendMessage(ColorWrapper.translate("&7API-version: &6" + Config.getConfig().plugin.getPluginMeta().getAPIVersion()));
         sender.sendMessage(ColorWrapper.translate("&7Website: &f" + Config.getConfig().plugin.getPluginMeta().getWebsite()));
         sender.sendMessage(ColorWrapper.translate("&7GitHub: &f" + "https://www.github.com/SkJsonTeam/SkJson"));
+        sender.sendMessage(ColorWrapper.translate("&7Patchnotes: &f + " + loadPatchNotes()));
     }
 
     @Override
