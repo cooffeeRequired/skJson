@@ -17,7 +17,6 @@ public class Request {
     private final Object variablesMap;
 
 
-
     private String method;
     private RequestUtil.Pairs[] headers;
     private JsonElement body;
@@ -25,7 +24,7 @@ public class Request {
     private boolean saveIncorrect;
 
     public Request(SectionNode node, String url, Event event) {
-        this(node, url,  SkriptReflection.copyLocals(SkriptReflection.getLocals(event)));
+        this(node, url, SkriptReflection.copyLocals(SkriptReflection.getLocals(event)));
     }
 
     public Request(SectionNode node, String url, Object variablesMap) {
@@ -69,10 +68,10 @@ public class Request {
         Variable<?> reqURL = (Variable<?>) entry.getOptional("url", false);
 
         var variableMap = new WeakHashMap<String, Variable<?>>();
-        if (reqBody!=null) variableMap.put("content",  reqBody);
-        if (reqHeader!=null) variableMap.put("header",  reqHeader);
-        if (reqStatus!=null) variableMap.put("status",  reqStatus);
-        if (reqURL!=null) variableMap.put("url",  reqURL);
+        if (reqBody != null) variableMap.put("content", reqBody);
+        if (reqHeader != null) variableMap.put("header", reqHeader);
+        if (reqStatus != null) variableMap.put("status", reqStatus);
+        if (reqURL != null) variableMap.put("url", reqURL);
 
         RequestResponse response = null;
         try (var client = new RequestClient(this.url)) {

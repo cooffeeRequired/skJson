@@ -17,5 +17,6 @@ public enum ExpressionCase {
     public String getValue() {
         return this.value;
     }
+
     final String value;
 }

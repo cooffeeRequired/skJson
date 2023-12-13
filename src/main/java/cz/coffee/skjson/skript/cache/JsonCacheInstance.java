@@ -16,7 +16,7 @@ import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,8 @@ public abstract class JsonCacheInstance {
         @Override
         protected void execute(@NotNull Event e) {
             String nameOfStorage = nameOfStorageExp.getSingle(e);
-            if (nameOfStorage == null) if (LOGGING_LEVEL > 1) Util.error("The name of the storage is not specified.");
+            if (nameOfStorage == null)
+                if (LOGGING_LEVEL > 1) LoggingUtil.error("The name of the storage is not specified.");
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             cache.addValue(nameOfStorage, new JsonObject(), new File("Undefined"));
         }
@@ -281,7 +282,7 @@ public abstract class JsonCacheInstance {
                         ConcurrentHashMap<JsonElement, File> jsonMap = cache.get(id);
                         jsonMap.forEach((json, file) -> {
                             if (file.getName().equals("Undefined")) {
-                                Util.error("You cannot save virtual storage of json.");
+                                LoggingUtil.error("You cannot save virtual storage of json.");
                                 return;
                             }
                             FileWrapper.write(file.toString(), json);

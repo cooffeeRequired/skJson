@@ -112,10 +112,14 @@ public class EffExecuteRequest extends Effect {
         boolean saveIncorrect = rEvent.isSaveIncorrect();
 
         if (response != null && !vars.isEmpty()) {
-            if (vars.get("content") != null) vars.get("content").change(event, new Object[]{response.getBodyContent(saveIncorrect)}, Changer.ChangeMode.SET);
-            if (vars.get("header") != null) vars.get("header").change(event, new Object[]{response.getResponseHeader().text()}, Changer.ChangeMode.SET);
-            if (vars.get("status") != null) vars.get("status").change(event, new Object[]{response.getStatusCode()}, Changer.ChangeMode.SET);
-            if (vars.get("url") != null) vars.get("url").change(event, new Object[]{response.getRequestURL()}, Changer.ChangeMode.SET);
+            if (vars.get("content") != null)
+                vars.get("content").change(event, new Object[]{response.getBodyContent(saveIncorrect)}, Changer.ChangeMode.SET);
+            if (vars.get("header") != null)
+                vars.get("header").change(event, new Object[]{response.getResponseHeader().text()}, Changer.ChangeMode.SET);
+            if (vars.get("status") != null)
+                vars.get("status").change(event, new Object[]{response.getStatusCode()}, Changer.ChangeMode.SET);
+            if (vars.get("url") != null)
+                vars.get("url").change(event, new Object[]{response.getRequestURL()}, Changer.ChangeMode.SET);
         }
     }
 

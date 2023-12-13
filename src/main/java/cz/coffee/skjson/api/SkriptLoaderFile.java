@@ -5,7 +5,7 @@ import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.util.OpenCloseable;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -22,6 +22,7 @@ import java.util.Set;
  */
 public class SkriptLoaderFile {
 
+    @SuppressWarnings("all")
     private static Set<File> toggleFiles(@NotNull File folder, boolean enable) throws IOException {
         FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
         Set<File> changed = new HashSet<>();
@@ -51,7 +52,7 @@ public class SkriptLoaderFile {
 
     public void load() {
         if ((!folder.exists()) || !folder.isDirectory()) {
-            Util.error("Could not load ..tests folder for test runner... tests will be skipped");
+            LoggingUtil.error("Could not load ..tests folder for test runner... tests will be skipped");
             return;
         }
         try (var handler = new RetainingLogHandler().start()) {
@@ -59,7 +60,7 @@ public class SkriptLoaderFile {
                 ScriptLoader.loadScripts(folder, OpenCloseable.combine(handler, skTiming))
                         .thenAccept(scriptInfo -> {
                             if (!handler.hasErrors()) {
-                                Util.log("Starting delayed SkJson tests");
+                                LoggingUtil.log("Starting delayed SkJson tests");
                             } else {
                                 handler.printErrors();
                                 handler.stop();

@@ -8,7 +8,7 @@ import ch.njol.skript.lang.function.JavaFunction;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.SkriptLoaderFile;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
@@ -56,20 +56,20 @@ public final class SkJson extends JavaPlugin {
                 throw new RuntimeException(e);
             }
             if (config.ready()) {
-                Util.log("Registered elements..");
-                SkjsonElements.forEach((key, value) -> Util.log("  &8&l - &7Registered " + Util.coloredElement(key) + "&f " + value.size()));
-                Util.log("Hurray! SkJson is &aenabled.");
+                LoggingUtil.log("Registered elements..");
+                SkjsonElements.forEach((key, value) -> LoggingUtil.log("  &8&l - &7Registered " + LoggingUtil.coloredElement(key) + "&f " + value.size()));
+                LoggingUtil.log("Hurray! SkJson is &aenabled.");
                 CompletableFuture.runAsync(() -> {
                     if (RUN_TEST_ON_START) {
                         try {
-                            Util.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
+                            LoggingUtil.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
                             Thread.sleep(Config.TEST_START_UP_DELAY);
                             var loader = new SkriptLoaderFile(new File(this.getDataFolder() + "/" + "..tests"));
                             loader.load();
                             Thread.sleep(200);
                             loader.unload();
                         } catch (Exception ex) {
-                            Util.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
+                            LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
                         }
                     }
                 });
@@ -85,7 +85,7 @@ public final class SkJson extends JavaPlugin {
             System.out.println("Disabled");
         } else {
             JsonWatcher.unregisterAll();
-            Util.log("Goodbye! SkJson is &#d60f3aDisabled!");
+            LoggingUtil.log("Goodbye! SkJson is &#d60f3aDisabled!");
         }
     }
 

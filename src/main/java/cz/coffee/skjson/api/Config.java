@@ -4,12 +4,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
+import com.shanebeestudios.skbee.api.nbt.NBTContainer;
+import com.shanebeestudios.skbee.api.nbt.utils.MinecraftVersion;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
-import cz.coffee.skjson.utils.Util;
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -285,7 +285,10 @@ public class Config {
     private String getPrefix(String setting) {
         return this.config.getString("settings.prefixes." + setting);
     }
-    private Boolean getFeatures(String feature) {return this.config.getBoolean("settings.features." + feature);}
+
+    private Boolean getFeatures(String feature) {
+        return this.config.getBoolean("settings.features." + feature);
+    }
 
     private void loadConfigs() {
         try {
@@ -315,13 +318,13 @@ public class Config {
             }
 
             if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
-                Util.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-                Util.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+                LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+                LoggingUtil.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
                 manager.disablePlugin(plugin);
             }
         } catch (Exception ignored) {
             try {
-                Util.log("&e&lConfig.yaml was fixed... Cause missing entry");
+                LoggingUtil.log("&e&lConfig.yaml was fixed... Cause missing entry");
                 loadConfigFile(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -365,17 +368,18 @@ public class Config {
             logger.info("[NBTAPI] Was loaded &asuccessfully.");
         } catch (Exception ignored) {
             ready = false;
-            Util.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
+            LoggingUtil.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
 
 
         try {
-            if (!Util.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin)) return;
+            if (!LoggingUtil.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin))
+                return;
 
             ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";
             setupMetrics(17374, (JavaPlugin) plugin);
-            Util.log(metricsPrefix + "Was loaded &asuccessfully.");
+            LoggingUtil.log(metricsPrefix + "Was loaded &asuccessfully.");
         } catch (Exception ignored) {
             ready = false;
             errors.add("Couldn't initialize Metrics'");
@@ -384,17 +388,17 @@ public class Config {
 
 
         if (errors.size() > 0) {
-            Util.error("&cFound errors while skJson starting, SkJson will be &cdisabled");
+            LoggingUtil.error("&cFound errors while skJson starting, SkJson will be &cdisabled");
             for (int i = 0; i < errors.size(); i++) {
                 String error = errors.get(i);
-                Util.log(String.format("&7→ %s. &c%s", i, error));
+                LoggingUtil.log(String.format("&7→ %s. &c%s", i, error));
             }
             manager.disablePlugin(plugin);
         }
 
         try {
             JsonWatcher.init(this);
-            Util.watcherLog("was &ainitialized.");
+            LoggingUtil.watcherLog("was &ainitialized.");
         } catch (Exception ignored) {
             errors.add("JsonWatcher Couldn't been &cinitialized.");
         }
@@ -462,7 +466,7 @@ public class Config {
             return false;
         }
         String skriptPrefix = "&#e3e512S&#9ae150k&#55d57br&#00c59ci&#00b2aep&#329dadt&r";
-        Util.log(skriptPrefix + " was found and &ainitialized.");
+        LoggingUtil.log(skriptPrefix + " was found and &ainitialized.");
         return true;
     }
 

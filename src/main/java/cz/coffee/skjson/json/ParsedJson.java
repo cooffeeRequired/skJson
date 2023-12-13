@@ -220,7 +220,7 @@ public class ParsedJson {
      * @param keys the keys
      * @return the json element
      */
-    public JsonElement byKey(LinkedList<String> keys) {
+    public JsonElement byKey(Queue<String> keys) {
         Deque<JsonElement> currentElements = new LinkedList<>();
         currentElements.offerLast(this.input);
 

@@ -2,7 +2,8 @@ name: SkJson
 version: '${project.version}'
 main: cz.coffee.skjson.SkJson
 api-version: '1.16'
-revision-version: '40ac40x44'
+revision-version: 'e68c14433'
+full-revision-sha1: 'e68c14433ab7e5ef3bf86852317c09e36af7e634'
 depend:
   - Skript
 prefix: SkJson

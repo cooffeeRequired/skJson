@@ -6,9 +6,12 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTContainer;
+import com.shanebeestudios.skbee.api.nbt.NBTCustom;
+import com.shanebeestudios.skbee.api.nbt.NBTCustomItemType;
 import cz.coffee.skjson.skript.base.Converter;
-import cz.coffee.skjson.utils.Util;
-import de.tr7zw.changeme.nbtapi.NBTContainer;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -17,7 +20,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
@@ -33,7 +38,7 @@ public abstract class ParserUtil {
     /**
      * Fix quotes string.
      *
-     * @param orig   the orig
+     * @param orig                the orig
      * @param finalParsingContext the finalParsingContext
      * @return the string
      */
@@ -242,7 +247,7 @@ public abstract class ParserUtil {
                     return ItemStackConverter.toJson(data.getStack());
                 }
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
             }
         } else {
@@ -279,8 +284,17 @@ public abstract class ParserUtil {
             if (object instanceof Inventory) {
                 return InventoryConverter.toJson((Inventory) object);
             }
-            if (object instanceof NBTContainer) {
-                return NBTContainerConverter.toJson((NBTContainer) object);
+            if (object instanceof NBTContainer || object instanceof NBTCustom || object.getClass().getName().toString().contains("NBT")) {
+                try {
+                    return NBTContainerConverter.toJson((NBTContainer) object);
+                } catch (Exception ex) {
+                    try {
+                        return NBTContainerConverter.toJson(new NBTContainer(object.toString()));
+                    } catch (Exception ex_) {
+                        LoggingUtil.error(ex.getLocalizedMessage());
+                        LoggingUtil.error(ex_.getLocalizedMessage());
+                    }
+                }
             }
             if (isSerializable) {
                 return GsonConverter.toJsonTree(object, ConfigurationSerializable.class);
@@ -312,7 +326,7 @@ public abstract class ParserUtil {
         try {
             if (potentialClass != null) clazz = Class.forName(potentialClass);
         } catch (ClassNotFoundException notFoundException) {
-            if (PROJECT_DEBUG) Util.error(notFoundException.getLocalizedMessage());
+            if (PROJECT_DEBUG) LoggingUtil.error(notFoundException.getLocalizedMessage());
             return null;
         }
 
@@ -334,7 +348,7 @@ public abstract class ParserUtil {
                     return (T) GsonConverter.fromJson(finalJson, clazz);
                 else return null;
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
                 if (PROJECT_DEBUG) ex.printStackTrace();
                 return null;
             }

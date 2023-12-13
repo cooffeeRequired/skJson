@@ -1,8 +1,11 @@
 package cz.coffee.skjson.parser;
 
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +20,7 @@ public abstract class StringJsonParser {
     /**
      * The Patter split.
      */
-    static final Pattern PATTER_SPLIT = Pattern.compile("(\"[^\"]+\"|\\w+)"+SPECIAL_REPLACER+"(?: ?)+([\\w{}():'+\\-\\\\,\"\\s]+)([,}])(?: ?)+");
+    static final Pattern PATTER_SPLIT = Pattern.compile("(\"[^\"]+\"|\\w+)" + SPECIAL_REPLACER + "(?: ?)+([\\w{}():'+\\-\\\\,\"\\s]+)([,}])(?: ?)+");
     /**
      * The Pattern special colon.
      */
@@ -25,7 +28,7 @@ public abstract class StringJsonParser {
     /**
      * The Pattern special spl.
      */
-    static final String PATTERN_SPECIAL_SPL = "(?<=\\w)\\s*"+SPECIAL_REPLACER+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+    static final String PATTERN_SPECIAL_SPL = "(?<=\\w)\\s*" + SPECIAL_REPLACER + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     /**
      * The Case function regex.
      */
@@ -50,7 +53,7 @@ public abstract class StringJsonParser {
     /**
      * The Valued arrays.
      */
-    static final HashMap<String,String> valuedArrays = new HashMap<>();
+    static final HashMap<String, String> valuedArrays = new HashMap<>();
 
     /**
      * Parse input string.
@@ -68,24 +71,25 @@ public abstract class StringJsonParser {
             int i = 0;
             while (array_matcher.find()) {
                 var g = array_matcher.group();
-                var array = Arrays.stream(g.substring(1, g.length()-1).split("},\\s(\\{)")).toList();
+                var array = Arrays.stream(g.substring(1, g.length() - 1).split("},\\s(\\{)")).toList();
                 input = evaluateArray(input, array, i);
                 i++;
             }
-            while(m.find()) {
+            while (m.find()) {
                 var v = m.group(2).trim();
                 var stringCase = getValueCase(v);
                 var start_index = input.indexOf(v);
                 var end_index = start_index + v.length();
                 switch (stringCase) {
-                    case VARIABLE, EXPRESSION, FUNCTION, EXPRESSION_CASE-> {
+                    case VARIABLE, EXPRESSION, FUNCTION, EXPRESSION_CASE -> {
                         if (start_index != -1) {
-                            input=input.substring(0, start_index) + makeQuoted(v) + input.substring(end_index);
-                        }}
+                            input = input.substring(0, start_index) + makeQuoted(v) + input.substring(end_index);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
-            Util.enchantedError(e, e.getStackTrace(), "StringJsonParser (33)");
+            LoggingUtil.enchantedError(e, e.getStackTrace(), "StringJsonParser (33)");
         }
         if (finished) {
             if (!valuedArrays.isEmpty()) {
@@ -121,13 +125,13 @@ public abstract class StringJsonParser {
         if (!array.isEmpty()) {
             for (var value : array) {
                 if (value.charAt(0) != '{') value = "{" + value;
-                if (value.charAt(0) == '{' && value.charAt(value.length()-1) != '}')  value += "}";
+                if (value.charAt(0) == '{' && value.charAt(value.length() - 1) != '}') value += "}";
 
                 var start_index = input.indexOf(value);
                 var end_index = start_index + value.length();
-                input = input.substring(0, start_index) + "@"+i + input.substring(end_index);
+                input = input.substring(0, start_index) + "@" + i + input.substring(end_index);
                 var parsed_value = parseInput(value, false);
-                valuedArrays.put("@"+i, parsed_value);
+                valuedArrays.put("@" + i, parsed_value);
                 i++;
             }
         }
@@ -144,6 +148,7 @@ public abstract class StringJsonParser {
         v = v.replaceAll("%%", "%");
         return v.replaceAll(PATTERN_SPECIAL_SPL, ":");
     }
+
     /**
      * Gets value case.
      *

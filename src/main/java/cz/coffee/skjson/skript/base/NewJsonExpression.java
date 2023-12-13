@@ -19,7 +19,7 @@ import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,8 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
             try {
                 json = JsonParser.parseString(parsedRegex);
                 output.add(json);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
 
         } else {
             Object[] values = input.getAll(e);
@@ -105,19 +106,22 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 if (url == null) return new JsonElement[0];
                 CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
                     RequestResponse rp = null;
-                    try {
-                        var client = new RequestClient(url.toString());
+                    try (var client = new RequestClient(url.toString())) {
                         rp = client
                                 .method("GET")
                                 .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
                                 .request().join();
                     } catch (Exception ex) {
-                        Util.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                        LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                     }
 
                     return rp;
                 });
-                output.add((JsonElement) ft.join().getBodyContent(false));
+                JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
+                if (elem instanceof JsonNull nil) {
+                    LoggingUtil.warn("You cannot get non-json content via this.");
+                    output.add(nil);
+                }
             } else {
                 for (Object value : values) {
                     if (value instanceof JsonElement json) {
@@ -138,7 +142,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                                 output.add(parse(value));
                             }
                         } catch (Exception ex) {
-                            if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage());
+                            if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
                         }
                     }
                 }
@@ -178,13 +182,13 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         if (inputIsRegex) {
             if (matchedPattern == 1) {
                 if (!ALLOWED_LINE_LITERAL) {
-                    Util.warn("You don't have allowed this beta feature, if you want use these line literal, you may turn on that in your config.yml");
+                    LoggingUtil.warn("You don't have allowed this beta feature, if you want use these line literal, you may turn on that in your config.yml");
                     return false;
                 }
             }
             if (matchedPattern == 2) {
                 if (!ALLOWED_MULTILINE_LITERAL) {
-                    Util.warn("You don't have allowed this beta feature, if you want use these multi lines literal, you may turn on that in your config.yml");
+                    LoggingUtil.warn("You don't have allowed this beta feature, if you want use these multi lines literal, you may turn on that in your config.yml");
                     return false;
                 }
             }

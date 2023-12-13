@@ -1,24 +1,12 @@
 package cz.coffee.skjson.parser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
-
-import com.google.common.collect.Lists;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ConvertedExpression;
@@ -37,6 +25,16 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
@@ -84,15 +82,15 @@ public class JsonExpressionString implements Expression<String> {
         ParserInstance parser = getParser();
         this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
-        this.components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
+        this.components = new MessageComponent[]{ChatMessages.plainText(simpleUnformatted)};
     }
 
     /**
      * Creates a new VariableString which contains variables.
      *
-     * @param orig Original string (unparsed).
+     * @param orig   Original string (unparsed).
      * @param string Objects, some of them are variables.
-     * @param mode String mode.
+     * @param mode   String mode.
      */
     private JsonExpressionString(String orig, Object[] string, StringMode mode) {
         this.orig = orig;
@@ -254,7 +252,7 @@ public class JsonExpressionString implements Expression<String> {
      * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
      * Singular double quotes are only allowed between percentage signs.
      *
-     * @param s The string
+     * @param s          The string
      * @param withQuotes Whether s must be surrounded by double quotes or not
      * @return Whether the string is quoted correctly
      */
@@ -306,6 +304,7 @@ public class JsonExpressionString implements Expression<String> {
     /**
      * Parses all expressions in the string and returns it.
      * Does not parse formatting codes!
+     *
      * @param e Event to pass to the expressions.
      * @return The input string with all expressions replaced.
      */
@@ -330,6 +329,7 @@ public class JsonExpressionString implements Expression<String> {
     /**
      * Gets message components from this string. Formatting is parsed
      * everywhere, which is a potential security risk.
+     *
      * @param e Currently running event.
      * @return Message components.
      */
@@ -377,8 +377,7 @@ public class JsonExpressionString implements Expression<String> {
                     for (Object o : objects) {
                         if (o instanceof String str) {
                             builder.append(Classes.toString("\"" + str + "\"", mode));
-                        }
-                        else {
+                        } else {
                             builder.append(Classes.toString(object, mode));
                         }
                     }
@@ -504,12 +503,12 @@ public class JsonExpressionString implements Expression<String> {
 
     @Override
     public String[] getArray(Event e) {
-        return new String[] {toString(e)};
+        return new String[]{toString(e)};
     }
 
     @Override
     public String[] getAll(Event e) {
-        return new String[] {toString(e)};
+        return new String[]{toString(e)};
     }
 
     @Override

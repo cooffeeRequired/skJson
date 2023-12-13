@@ -1,12 +1,15 @@
 package cz.coffee.skjson.api;
 
-import org.bukkit.Color;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -16,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @SuppressWarnings("ALL")
 public class SkJsonCommand implements CommandExecutor {
-
     String formatDesc(String desc) {
         if (desc.contains("%nl%")) {
             var builder = new StringBuilder();

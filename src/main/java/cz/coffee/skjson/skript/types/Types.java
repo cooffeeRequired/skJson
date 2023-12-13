@@ -16,7 +16,7 @@ import cz.coffee.skjson.api.discord.Webhook;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.request.RequestMethods;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -37,6 +37,8 @@ import java.util.List;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
+import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
+import static cz.coffee.skjson.utils.LoggingUtil.error;
 
 @Since("2.9")
 @SuppressWarnings("deprecation")
@@ -53,7 +55,7 @@ abstract class Types {
 
             }
         } catch (Exception e) {
-            if (PROJECT_DEBUG) Util.error(e.getMessage());
+            if (PROJECT_DEBUG) error(e.getMessage());
         }
 
          /*
@@ -140,8 +142,8 @@ abstract class Types {
                                                                 String pathString = parsed.get("element-path").getAsString();
                                                                 String index = parsed.get("element-index").toString();
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
-                                                                    assert path != null;
+                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    assert !path.isEmpty();
                                                                 }
                                                                 path.add(index);
                                                                 pj.removeByIndex(path);
@@ -156,8 +158,8 @@ abstract class Types {
                                                             if (type.equalsIgnoreCase("object")) {
                                                                 boolean isValue = (boolean) list.get(3);
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER, false);
-                                                                    assert path != null;
+                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER, false);
+                                                                    assert !path.isEmpty();
                                                                     for (Object item : items) {
                                                                         JsonElement parsed = ParserUtil.parse(item);
                                                                         if (isValue) {
@@ -180,8 +182,8 @@ abstract class Types {
                                                                 }
                                                             } else if (type.equalsIgnoreCase("array")) {
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
-                                                                    assert path != null;
+                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    assert !path.isEmpty();
                                                                     for (Object item : items) {
                                                                         JsonElement parsed = ParserUtil.parse(item);
                                                                         pj.removeByValue(path, parsed);
@@ -197,12 +199,12 @@ abstract class Types {
                                                     }
                                                 } catch (Exception ex) {
                                                     if (LOGGING_LEVEL > 1 && !PROJECT_DEBUG) {
-                                                        Util.error(false, "Something happened in the Changer! If you wanna more information");
+                                                        error(false, "Something happened in the Changer! If you wanna more information");
                                                         if (!PROJECT_DEBUG)
-                                                            Util.error(false, "Turn on debug in your config.");
+                                                            error(false, "Turn on debug in your config.");
                                                     }
                                                     if (PROJECT_DEBUG)
-                                                        Util.enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
+                                                        enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
                                                 }
                                             }
                                         }
@@ -220,7 +222,7 @@ abstract class Types {
                                                         if (!pathString.equals("Undefined")) {
                                                             for (Object item : items) {
                                                                 JsonElement parsed = ParserUtil.parse(item);
-                                                                path = Util.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
                                                                 //child
                                                                 pj.removeAllByValue(path, parsed);
                                                             }
@@ -233,7 +235,7 @@ abstract class Types {
                                                         }
                                                     }
                                                 } catch (Exception ex) {
-                                                    Util.error(false, ex.getMessage());
+                                                    error(false, ex.getMessage());
                                                 }
                                             }
                                         }

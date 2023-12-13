@@ -24,6 +24,8 @@ import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.utils.LoggingUtil;
+import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +43,9 @@ import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.*;
-import static cz.coffee.skjson.utils.Util.log;
+import static cz.coffee.skjson.utils.LoggingUtil.error;
+import static cz.coffee.skjson.utils.LoggingUtil.log;
+import static cz.coffee.skjson.utils.PatternUtil.extractKeysToList;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 @SuppressWarnings({"Unchecked", "unused"})
@@ -70,7 +74,7 @@ public abstract class JsonBase {
             try {
                 parsedJson = new ParsedJson(json);
             } catch (ParsedJsonException exception) {
-                if (LOGGING_LEVEL == 1) Util.error(exception.getLocalizedMessage());
+                if (LOGGING_LEVEL == 1) error(exception.getLocalizedMessage());
             }
             assert parsedJson != null;
 
@@ -156,7 +160,7 @@ public abstract class JsonBase {
             try {
                 outputMap = (WeakHashMap<String, Object>) loop.getCurrent(e);
             } catch (ClassCastException exception) {
-                if (PROJECT_DEBUG) Util.error(exception.getLocalizedMessage(), getParser().getNode());
+                if (PROJECT_DEBUG) error(exception.getLocalizedMessage(), getParser().getNode());
                 return new Object[0];
             }
 
@@ -300,46 +304,54 @@ public abstract class JsonBase {
 
         @Override
         protected @Nullable Object @NotNull [] get(@NotNull Event e) {
-            JsonElement json = null;
             try {
-                json = jsonInput.getSingle(e);
-            } catch (Exception ignored) {
-            }
-            if (json == null) return new Object[0];
-            boolean emptyPath = pathInput == null;
-            String keys = !emptyPath ? pathInput.getSingle(e) : null;
 
-            LinkedList<String> wrappedKeys = Util.extractKeysToList(keys, Config.PATH_VARIABLE_DELIMITER);
-            ParsedJson parsedJson;
+                JsonElement json = null;
+                try {
+                    json = jsonInput.getSingle(e);
+                } catch (Exception ignored) {
+                }
+                if (json == null) return new Object[0];
+                boolean emptyPath = pathInput == null;
+                String keys = !emptyPath ? pathInput.getSingle(e) : null;
 
-            try {
-                parsedJson = new ParsedJson(json);
-            } catch (ParsedJsonException ex) {
-                if (PROJECT_DEBUG) Util.error(ex.getLocalizedMessage(), node);
-                return new Object[0];
-            }
+                Queue<String> wrappedKeys = PatternUtil.extractKeysToList(keys, Config.PATH_VARIABLE_DELIMITER);
+                ParsedJson parsedJson;
 
-            if (wrappedKeys == null && (!emptyPath || !isValues)) return new Object[0];
+                try {
+                    parsedJson = new ParsedJson(json);
+                } catch (ParsedJsonException ex) {
+                    if (PROJECT_DEBUG) error(ex.getLocalizedMessage(), node);
+                    return new Object[0];
+                }
 
-            if (isValues) {
-                if (emptyPath) {
-                    return needConvert ? new Object[]{json} : getNestedElements(json).toArray(new Object[0]);
+                if (wrappedKeys.isEmpty() && (!emptyPath || !isValues)) return new Object[0];
+
+                if (isValues) {
+                    if (emptyPath) {
+                        return needConvert ? new Object[]{json} : getNestedElements(json).toArray(new Object[0]);
+                    } else {
+                        JsonElement jsonResult = parsedJson.byKey(wrappedKeys);
+                        if (jsonResult == null) return new Object[0];
+                        return needConvert ? new Object[]{jsonResult} : getNestedElements(jsonResult).toArray(new Object[0]);
+                    }
                 } else {
                     JsonElement jsonResult = parsedJson.byKey(wrappedKeys);
-                    if (jsonResult == null) return new Object[0];
-                    return needConvert ? new Object[]{jsonResult} : getNestedElements(jsonResult).toArray(new Object[0]);
+                    Object[] result;
+                    Object assigned = ParserUtil.from(jsonResult);
+                    if (assigned == null) {
+                        assigned = ParserUtil.jsonToType(jsonResult);
+                        if (assigned == null) return new Object[0];
+                    }
+                    result = new Object[]{assigned};
+                    return result;
                 }
-            } else {
-                JsonElement jsonResult = parsedJson.byKey(wrappedKeys);
-                Object[] result;
-                Object assigned = ParserUtil.from(jsonResult);
-                if (assigned == null) {
-                    assigned = ParserUtil.jsonToType(jsonResult);
-                    if (assigned == null) return new Object[0];
+            } catch (Exception ex) {
+                if (ex.getMessage().contains("Cannot invoke \"java.util.LinkedList.toArray(Object[])\"")) {
+                    LoggingUtil.warn("Incorrect json format " + jsonInput.toString(e, true));
                 }
-                result = new Object[]{assigned};
-                return result;
             }
+            return new Object[0];
         }
 
         @Override
@@ -580,7 +592,7 @@ public abstract class JsonBase {
         protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
             Object input = inputExpression.getSingle(e);
 
-            Util.log("Executed...");
+            log("Executed...");
             return new Integer[0];
         }
 
@@ -659,7 +671,7 @@ public abstract class JsonBase {
                             }
                         } else {
                             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                Util.log("List-Element: &b" + element + " &fParsed? ->  &a" + parsed);
+                                log("List-Element: &b" + element + " &fParsed? ->  &a" + parsed);
                             parsed(name + (index + 1), parsed, isLocal, event);
                         }
                     }
@@ -670,7 +682,7 @@ public abstract class JsonBase {
                             Object parsed = ParserUtil.from(element);
                             // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
                             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                Util.log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
+                                log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
                             if (parsed == null) {
                                 if (element.isJsonPrimitive()) {
                                     primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
@@ -679,7 +691,7 @@ public abstract class JsonBase {
                                 }
                             } else {
                                 if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                    Util.log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
+                                    log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
                                 parsed(name + key, parsed, isLocal, event);
                             }
                         } catch (Exception e) {
@@ -692,7 +704,7 @@ public abstract class JsonBase {
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                Util.log("&fNAME: &a" + name + "  &fOBJECT: &a" + object + "  &fISLOCAL: &a" + isLocal);
+                log("&fNAME: &a" + name + "  &fOBJECT: &a" + object + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, object, event, isLocal);
         }
 
@@ -705,7 +717,7 @@ public abstract class JsonBase {
 
 
             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                Util.log("!primitive:: ", "&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
+                log("!primitive:: ", "&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, o, event, isLocal);
         }
 
@@ -719,7 +731,7 @@ public abstract class JsonBase {
             Expression<?> unparsedObject = LiteralUtils.defendExpression(exprs[1]);
             async = parseResult.hasTag("async");
             if (!unparsedObject.getReturnType().isAssignableFrom(JsonElement.class)) {
-                Util.error("You can map only Json or stringify json (String)", getParser().getNode());
+                error("You can map only Json or stringify json (String)", getParser().getNode());
                 return false;
             }
             jsonInput = exprs[0];
@@ -851,11 +863,11 @@ public abstract class JsonBase {
                     isLocal = var.isLocal();
                     variable = var.getName();
                 } else {
-                    Util.error("Variable need to be a list", getParser().getNode());
+                    error("Variable need to be a list", getParser().getNode());
                     return false;
                 }
             } else {
-                Util.error("You need to use a Variable not.. " + objects.getReturnType());
+                error("You need to use a Variable not.. " + objects.getReturnType());
                 return false;
             }
             return true;
@@ -950,12 +962,12 @@ public abstract class JsonBase {
                 } else {
                     String element = (String) value;
                     if (directly) {
-                        final LinkedList<String> list = Util.extractKeysToList(element, Config.PATH_VARIABLE_DELIMITER, true);
+                        final Queue<String> list = extractKeysToList(element, Config.PATH_VARIABLE_DELIMITER, true);
                         ParsedJson parsedJson = null;
                         try {
                             parsedJson = new ParsedJson(json);
                         } catch (Exception exception) {
-                            if (LOGGING_LEVEL >= 1) Util.error(exception.getLocalizedMessage());
+                            if (LOGGING_LEVEL >= 1) error(exception.getLocalizedMessage());
                         }
                         if (parsedJson != null) {
                             final JsonElement result = parsedJson.byKey(list);

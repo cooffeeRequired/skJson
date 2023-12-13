@@ -1,7 +1,7 @@
 package cz.coffee.skjson.api;
 
 import com.google.gson.*;
-import cz.coffee.skjson.utils.Util;
+import cz.coffee.skjson.utils.LoggingUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -57,7 +57,7 @@ public class FileWrapper {
                     return JsonParser.parseReader(reader);
                 } catch (JsonParseException e) {
                     json = JsonNull.INSTANCE;
-                    if (PROJECT_DEBUG) Util.error(e.getMessage());
+                    if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
             } else if (file.getName().endsWith(".yml") || file.getName().endsWith(".yaml")) {
                 try {
@@ -66,13 +66,13 @@ public class FileWrapper {
                     return new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
                 } catch (Exception e) {
                     json = JsonNull.INSTANCE;
-                    if (PROJECT_DEBUG) Util.error(e.getMessage());
+                    if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
             }
             try {
                 reader.close();
             } catch (Exception e) {
-                if (PROJECT_DEBUG) Util.error(e.getMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 return null;
             }
             return null;
@@ -92,7 +92,7 @@ public class FileWrapper {
                 Reader reader = new BufferedReader(new FileReader(file));
                 return new JsonFile(file, reader);
             } catch (IOException exception) {
-                if (PROJECT_DEBUG) Util.error(exception.getMessage());
+                if (PROJECT_DEBUG) LoggingUtil.error(exception.getMessage());
                 return null;
             }
         });
@@ -103,7 +103,7 @@ public class FileWrapper {
             Reader reader = new BufferedReader(new FileReader(file));
             return new JsonFile(file, reader);
         } catch (IOException exception) {
-            if (PROJECT_DEBUG) Util.error(exception.getMessage());
+            if (PROJECT_DEBUG) LoggingUtil.error(exception.getMessage());
             return null;
         }
     }
@@ -119,16 +119,15 @@ public class FileWrapper {
         JsonElement finalJson = json;
         try {
             File file = new File(fileString);
-            if (!file.getParentFile().exists() && !file.getParentFile().mkdir()) {
-                Util.error("Cannot create directory " + file.getParentFile().getAbsolutePath());
-                return;
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                LoggingUtil.error("Cannot create directory " + file.getParentFile().getAbsolutePath());
             }
 
             if (!file.exists() && !file.createNewFile()) return;
             if (!file.exists()) return;
             Files.writeString(file.toPath(), gson.toJson(finalJson));
         } catch (Exception ex) {
-            Util.error(ex.getMessage());
+            LoggingUtil.error(ex.getMessage());
         }
     }
 
@@ -146,7 +145,7 @@ public class FileWrapper {
             if (!file.exists() && !file.isFile()) return;
             Files.writeString(file.toPath(), data);
         } catch (Exception ex) {
-            if (LOGGING_LEVEL >= 1) Util.error(ex.getLocalizedMessage());
+            if (LOGGING_LEVEL >= 1) LoggingUtil.error(ex.getLocalizedMessage());
         }
     }
 
