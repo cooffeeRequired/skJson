@@ -1,5 +1,6 @@
 package cz.coffee.skjson.api.http;
 
+import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
 import cz.coffee.skjson.utils.LoggingUtil;
 import org.eclipse.jetty.http.HttpFields;
@@ -56,8 +57,10 @@ public interface RequestResponse {
                         return JsonParser.parseString(body);
                     }
                 } catch (Exception e) {
-                    if (!saveIncorrect)
+                    if (!saveIncorrect) {
                         LoggingUtil.warn("Expecting JSON but got a String! If you don't want get this message use `save incorrect response: true`");
+                        return JsonNull.INSTANCE;
+                    }
                     return body;
                 }
             }

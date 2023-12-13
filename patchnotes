@@ -1,3 +1,9 @@
 [2.12.2023 22:00] 2.9.5:
     SecCreateRequest.java => Fixed non-asynchronous creation of the SecCreateRequest
     RequestUtil.java => Fixed null content of the "content" variable..
+[10.12.2023 8:00] 2.9.5:
+    FileWrapper.java => Fixed creating file to non-created folder
+[13.12.2023 22:10] 2.9.6:
+    Converter.java => Fix nbt issue
+    Pom.xml => Import shaneBee SkBee
+    ParseUtils.java => Change NbtContainer to NbtCustom

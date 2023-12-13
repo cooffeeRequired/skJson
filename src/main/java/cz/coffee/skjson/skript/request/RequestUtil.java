@@ -91,7 +91,7 @@ public class RequestUtil {
 
         if (input instanceof Expression<?> expr) {
             var ds = expr.getAll(event);
-            if (ds.length < 1 ) return (O) JsonNull.INSTANCE;
+            if (ds.length < 1) return (O) JsonNull.INSTANCE;
             JsonElement[] jsonElements = new JsonElement[ds.length];
             for (var i = 0; i < ds.length; i++) {
                 if (i == MAX_ELEMENTS_PER_REQUEST) {

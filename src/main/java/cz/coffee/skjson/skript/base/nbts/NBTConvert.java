@@ -1,8 +1,9 @@
 package cz.coffee.skjson.skript.base.nbts;
 
 import com.google.gson.*;
+import com.shanebeestudios.skbee.api.nbt.*;
+import com.shanebeestudios.skbee.api.nbt.iface.ReadWriteNBT;
 import cz.coffee.skjson.parser.ParserUtil;
-import de.tr7zw.changeme.nbtapi.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayDeque;
@@ -30,7 +31,7 @@ public class NBTConvert {
                     case NBTTagCompoundList -> {
                         final JsonArray array = new JsonArray();
                         final NBTCompoundList list = cmp.getCompoundList(key);
-                        for (de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT readWriteNBT : list) {
+                        for (ReadWriteNBT readWriteNBT : list) {
                             JsonObject o = new JsonObject();
                             for (String readWriteNBTKey : readWriteNBT.getKeys()) {
                                 JsonElement value = parse(readWriteNBTKey, (NBTCompound) readWriteNBT);
@@ -83,6 +84,7 @@ public class NBTConvert {
                     case NBTTagCompound -> {
                         NBTCompound cmw = cmp.getCompound(key);
                         final JsonObject object = new JsonObject();
+                        assert cmw != null;
                         cmw.getKeys().forEach(key0 -> {
                             JsonElement value = NBTConvert.parse(key0, cmw);
                             object.add(key0, value);

@@ -119,9 +119,8 @@ public class FileWrapper {
         JsonElement finalJson = json;
         try {
             File file = new File(fileString);
-            if (!file.getParentFile().exists() && !file.getParentFile().mkdir()) {
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
                 LoggingUtil.error("Cannot create directory " + file.getParentFile().getAbsolutePath());
-                return;
             }
 
             if (!file.exists() && !file.createNewFile()) return;

@@ -1,7 +1,7 @@
 package cz.coffee.skjson.skript.base.nbts;
 
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTType;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -71,17 +71,17 @@ public enum NBTCustom {
         NBTType nbtType = compound.getType(key);
         if (BY_TYPE.containsKey(nbtType)) {
             if (nbtType == NBTType.NBTTagList) {
-                if (compound.getIntegerList(key).size() > 0)
+                if (!compound.getIntegerList(key).isEmpty())
                     return NBTTagIntList;
-                else if (compound.getLongList(key).size() > 0)
+                else if (!compound.getLongList(key).isEmpty())
                     return NBTTagLongList;
-                else if (compound.getFloatList(key).size() > 0)
+                else if (!compound.getFloatList(key).isEmpty())
                     return NBTTagFloatList;
-                else if (compound.getDoubleList(key).size() > 0)
+                else if (!compound.getDoubleList(key).isEmpty())
                     return NBTTagDoubleList;
-                else if (compound.getCompoundList(key).size() > 0)
+                else if (!compound.getCompoundList(key).isEmpty())
                     return NBTTagCompoundList;
-                else if (compound.getStringList(key).size() > 0)
+                else if (!compound.getStringList(key).isEmpty())
                     return NBTTagStringList;
             }
             return BY_TYPE.get(nbtType);

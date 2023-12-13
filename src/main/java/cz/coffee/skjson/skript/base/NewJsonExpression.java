@@ -117,7 +117,11 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
                     return rp;
                 });
-                output.add((JsonElement) ft.join().getBodyContent(false));
+                JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
+                if (elem instanceof JsonNull nil) {
+                    LoggingUtil.warn("You cannot get non-json content via this.");
+                    output.add(nil);
+                }
             } else {
                 for (Object value : values) {
                     if (value instanceof JsonElement json) {

@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>2.9.5</version>
+    <version>2.9.6</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
@@ -30,6 +30,10 @@
 
     <repositories>
         <repository>
+            <id>skript</id>
+            <url>https://repo.skriptlang.org/releases</url>
+        </repository>
+        <repository>
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
@@ -42,13 +46,15 @@
             <url>https://repo.codemc.io/repository/maven-public/</url>
             <layout>default</layout>
         </repository>
-        <repository>
-            <id>skript</id>
-            <url>https://repo.skriptlang.org/releases</url>
-        </repository>
     </repositories>
 
     <dependencies>
+        <!-- ShaneBee - SkBee 3.0.1 File.jar -->
+        <dependency>
+            <groupId>com.github.skbee</groupId>
+            <artifactId>skbee</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-client -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -67,11 +73,6 @@
             <artifactId>Skript</artifactId>
             <version>2.7.3</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.tr7zw</groupId>
-            <artifactId>item-nbt-api</artifactId>
-            <version>2.11.3</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -143,7 +144,7 @@
                     </filters>
                     <relocations combine.children="append">
                         <relocation>
-                            <pattern>de.tr7zw.changeme</pattern>
+                            <pattern>com.github.skbee</pattern>
                             <shadedPattern>cz.coffee.api.nbt</shadedPattern>
                         </relocation>
                         <relocation>

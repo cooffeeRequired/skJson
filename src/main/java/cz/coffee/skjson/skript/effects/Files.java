@@ -159,7 +159,6 @@ public abstract class Files {
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            System.out.println("here?");
             pathInput = (Expression<String>) exprs[0];
             fileInput = (Expression<String>) exprs[1];
             unparsedInput = LiteralUtils.defendExpression(exprs[2]);

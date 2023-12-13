@@ -50,7 +50,8 @@ public abstract class JsonCacheInstance {
         @Override
         protected void execute(@NotNull Event e) {
             String nameOfStorage = nameOfStorageExp.getSingle(e);
-            if (nameOfStorage == null) if (LOGGING_LEVEL > 1) LoggingUtil.error("The name of the storage is not specified.");
+            if (nameOfStorage == null)
+                if (LOGGING_LEVEL > 1) LoggingUtil.error("The name of the storage is not specified.");
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             cache.addValue(nameOfStorage, new JsonObject(), new File("Undefined"));
         }

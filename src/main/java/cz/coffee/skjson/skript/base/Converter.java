@@ -2,12 +2,12 @@ package cz.coffee.skjson.skript.base;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTContainer;
+import com.shanebeestudios.skbee.api.nbt.NBTItem;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.nbts.NBTConvert;
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -47,16 +47,20 @@ public abstract class Converter {
      * The constant WebhookConventer.
      */
 
+
     public final static SimpleConverter<NBTContainer> NBTContainerConverter = new SimpleConverter<NBTContainer>() {
 
         @Override
         public @NotNull JsonElement toJson(NBTContainer source) {
-            return null;
+            JsonObject o = new JsonObject();
+            o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            o.addProperty("nbt", source.toString());
+            return !o.isEmpty() ? o : JsonNull.INSTANCE;
         }
 
         @Override
         public NBTContainer fromJson(JsonObject json) {
-            return null;
+            return new NBTContainer(json.get("nbt").getAsString());
         }
     };
     public final static SimpleConverter<ItemStack> ItemStackConverter = new SimpleConverter<ItemStack>() {
