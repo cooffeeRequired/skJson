@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Config;
+import cz.coffee.skjson.api.SkJsonLogger;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -377,12 +378,15 @@ public abstract class JsonBase {
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            node = getParser().getNode();
-            assert node != null;
-            final String key = node.getKey();
-            assert key != null;
-            needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
-
+            try {
+                node = getParser().getNode();
+                assert node != null;
+                final String key = node.getKey();
+                assert key != null;
+                needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
+            } catch (Exception ex){
+                LoggingUtil.warn("Any loop key or object key doesn't exist, please check your syntax!");
+            }
             isValues = parseResult.mark == 1;
             if (isValues) {
                 jsonInput = LiteralUtils.defendExpression(exprs[3]);
