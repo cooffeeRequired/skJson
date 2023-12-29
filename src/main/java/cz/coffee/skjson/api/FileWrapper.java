@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +27,6 @@ public class FileWrapper {
      * The type Json file.
      */
     public static class JsonFile {
-        private JsonElement json;
         private final File file;
         private final Reader reader;
 
@@ -56,7 +56,6 @@ public class FileWrapper {
                 try {
                     return JsonParser.parseReader(reader);
                 } catch (JsonParseException e) {
-                    json = JsonNull.INSTANCE;
                     if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
             } else if (file.getName().endsWith(".yml") || file.getName().endsWith(".yaml")) {
@@ -65,7 +64,6 @@ public class FileWrapper {
                     Object yamlMap = yaml.loadAll(reader);
                     return new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
                 } catch (Exception e) {
-                    json = JsonNull.INSTANCE;
                     if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
             }
@@ -171,5 +169,23 @@ public class FileWrapper {
             }
         }
         return null;
+    }
+
+    public static String[] fromDirectory(final String directoryPath) {
+        try {
+            File folder = new File(directoryPath);
+            if (folder.isDirectory() && folder.canRead()) {
+                var files = folder.listFiles((File::isFile));
+                if (files != null) {
+                    return Arrays.stream(files)
+                            .map(File::getPath)
+                            .filter(file -> file.endsWith(".json"))
+                            .toArray(String[]::new);
+                }
+            }
+        } catch(Exception ex) {
+           LoggingUtil.enchantedError(ex, ex.getStackTrace(), "FromDirectory");
+        }
+        return new String[0];
     }
 }

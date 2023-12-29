@@ -1,3 +1,0 @@
-[2.12.2023 22:00] 2.9.5:
-    SecCreateRequest.java => Fixed non-asynchronous creation of the SecCreateRequest
-    RequestUtil.java => Fixed null content of the "content" variable..

@@ -2,10 +2,7 @@ package cz.coffee.skjson.skript.base;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -15,13 +12,10 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.SkJsonLogger;
+import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -1007,6 +1001,61 @@ public abstract class JsonBase {
             unparsedInput = LiteralUtils.defendExpression(exprs[1]);
             inputJson = (Expression<JsonElement>) exprs[0];
             return LiteralUtils.canInitSafely(unparsedInput);
+        }
+    }
+
+    @Name("All json files in directory")
+    @Description("You can get multiple file from directory and load that as json")
+    @Examples({
+            "on script load:",
+            "\tset {_jsons::*} to all json file from dir \"./plugins/test\"",
+            "\t#Or you can loop trough that",
+            "\tloop all json file from dir \"./plugins/test\":",
+            "\t\tsend loop-file",
+            "\t\tsend json from file loop-file",
+    })
+    @Since("2.9.7")
+    public static class AllJsonInFolder extends SimpleExpression<String> {
+
+        static {
+            SkJson.registerExpression(AllJsonInFolder.class, String.class, ExpressionType.SIMPLE,
+                    "All json [files] (from|in) (dir|directory|folder) %string%"
+            );
+        }
+
+        private Expression<String> directoryInputString;
+        @Override
+        protected String @NotNull [] get(@NotNull Event event) {
+            var inputDirectory = directoryInputString.getSingle(event);
+            ArrayList<String> store = new ArrayList<>(Arrays.asList(FileWrapper.fromDirectory(inputDirectory)));
+            return store.toArray(String[]::new);
+        }
+
+        @Override
+        public boolean isSingle() {
+            return false;
+        }
+
+        @Override
+        public @NotNull Class<? extends String> getReturnType() {
+            return String.class;
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event event, boolean b) {
+            return "All json files from directory " + directoryInputString.toString(event, b);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
+            directoryInputString = (Expression<String>) expressions [0];
+            return true;
+        }
+
+        @Override
+        public boolean isLoopOf(@NotNull String s) {
+            return s.equals("file");
         }
     }
 }
