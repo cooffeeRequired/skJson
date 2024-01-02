@@ -341,6 +341,28 @@
   ],
   "expressions": [
     {
+      "id": "AllJsonInFolder",
+      "name": "All json files in directory",
+      "description": [
+        "You can get multiple file from directory and load that as json"
+      ],
+      "examples": [
+        "on script load:",
+        "\tset {_jsons::*} to all json file from dir \"./plugins/test\"",
+        "\t#Or you can loop trough that",
+        "\tloop all json file from dir \"./plugins/test\":",
+        "\t\tsend loop-file",
+        "\t\tsend json from file loop-file"
+      ],
+      "since": [
+        "2.9.7"
+      ],
+      "return type": "Text",
+      "patterns": [
+        "[skJson] All json [files] (from|in) (dir|directory|folder) %string%"
+      ]
+    },
+    {
       "id": "JsonArrayChanger",
       "name": "Changer - JsonArray set/add/remove/removeAll",
       "description": [
