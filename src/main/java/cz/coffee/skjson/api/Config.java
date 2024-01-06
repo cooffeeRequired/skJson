@@ -32,20 +32,7 @@ public class Config {
      * The constant SERVER_TYPE.
      */
     public static String SERVER_TYPE;
-    /**
-     * The constant RUN_TEST_ON_START.
-     */
-    public static boolean RUN_TEST_ON_START;
-    /**
-     * The constant TEST_START_UP_DELAY.
-     * Can be only 1, 2, 3
-     */
-    public static int TEST_START_UP_DELAY;
 
-    /**
-     * The constant TESTS_ALOWED.
-     */
-    public static boolean TESTS_ALOWED;
     /**
      * The constant PATH_VARIABLE_DELIMITER.
      */

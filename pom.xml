@@ -231,7 +231,6 @@
                 <filtering>true</filtering>
                 <targetPath>.</targetPath>
                 <includes>
-                    <include>tests/</include>
                     <include>plugin.yml</include>
                     <include>config.yml</include>
                     <include>lang/default.lang</include>

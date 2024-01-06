@@ -42,7 +42,6 @@ public class SkJsonCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("skjson")) {
             if (args.length == 0) {
                 sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson reload"));
-                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson run-tests"));
                 sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson about"));
                 return true;
             }
@@ -65,7 +64,6 @@ public class SkJsonCommand implements CommandExecutor {
             return false;
         }
         sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson reload"));
-        sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson run-tests"));
         sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson about"));
         return true;
     }

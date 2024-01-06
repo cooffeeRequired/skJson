@@ -2,21 +2,10 @@
 
 settings:
   # Never change it!
-  version: 1.3
+  version: 1.4
 
   # Enable this if you would like to see more verbose debug messages
   debug: false
-
-  # Enable this if you would like use a test command /skjson run-tests
-  test-allowed: false
-
-  # Change to more than 1 if you have any addons/plugins that slow down the start..
-  # 0 = 500s, 1 = 10s, 2 = 25s, 3 = 40s, test delay
-  startup-tests-delay: 0
-
-  # Enabled this if you would get a tests result each time when server starts.
-  run-tests-on-startup: false
-
   # Beta features
   features:
     # That feature will you allow use tld. literal string for e.g.
@@ -26,25 +15,6 @@ settings:
     # @{test: "This is \"New\" String"}
     # So the literal start always with @ and then continue a with a JSON
     literal-parsing-single-line: false
-
-    # This Feature allows you to immediately get the value from the async run of the request.
-    # For e.g.
-    # function test(i: number) :: object:
-    #    async make POST request to "https://dummyjson.com/carts/add":
-    #        headers: @{Content-Type: "Application/json"}
-    #        headers: json from text "{Content-Type: 'application/json'}"
-    #        content: json from text "{userId: 1, products: [{id: %{_i}%, quantity: 1}, {id: 50, quantity: 2}]}"
-    #        save incorrect response: true
-    #        lenient: true
-    #        save:
-    #            content: {_content}
-    #        on complete:
-    #            return {_content}
-    #
-    # command test <number>:
-    #    trigger:
-    #        send test(arg-1)
-    force-async-return: false
 
   # 0 - Basic debug mode
   # 1 - More verbose debug mode
