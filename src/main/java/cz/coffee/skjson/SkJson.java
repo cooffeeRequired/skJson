@@ -20,6 +20,8 @@ import java.util.Map;
 
 public final class SkJson extends JavaPlugin {
 
+    public static double ConfigVERSION = 1.4;
+
     private static final Map<String, ArrayList<String>> SkjsonElements = new HashMap<>(Map.of(
             "Expressions", new ArrayList<>(),
             "Events", new ArrayList<>(),

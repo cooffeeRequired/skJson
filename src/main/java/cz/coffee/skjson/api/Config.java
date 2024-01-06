@@ -6,6 +6,7 @@ import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.utils.MinecraftVersion;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
@@ -13,15 +14,24 @@ import cz.coffee.skjson.utils.LoggingUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * The type Config.
@@ -75,17 +85,11 @@ public class Config {
     public static String WEBHOOK_PREFIX;
 
     /**
-     * The constant ALLOWED_MULTILINE_LITERAL.
-     */
-    public static Boolean ALLOWED_MULTILINE_LITERAL;
-    /**
      * The constant ALLOWED_LINE_LITERAL.
      */
     public static Boolean ALLOWED_LINE_LITERAL;
-    /**
-     * The constant ALLOWED_IMPLICIT_REQUEST_RETURN.
-     */
-    public static Boolean ALLOWED_IMPLICIT_REQUEST_RETURN;
+
+    public static Double CONFIG_VERSION;
 
 
     /**
@@ -140,7 +144,11 @@ public class Config {
      * @param replace the replace
      * @return the void
      */
-    public void loadConfigFile(boolean replace) {
+    public String loadConfigFile(boolean replace, boolean ...saveIncorect) {
+        String wrongFile ="";
+        if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
+            wrongFile = regenerateConfigFile();
+        }
         if (configFile == null) {
             configFile = new File(plugin.getDataFolder(), "config.yml");
         }
@@ -150,6 +158,38 @@ public class Config {
         config = YamlConfiguration.loadConfiguration(configFile);
         matchConfig();
         loadConfigs();
+        return wrongFile;
+    }
+
+    public String loadConfigFile(boolean replace, CommandSender sender, boolean ...saveIncorect) {
+        String wrongFile ="";
+        if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
+            wrongFile = regenerateConfigFile();
+        }
+        if (configFile == null) {
+            configFile = new File(plugin.getDataFolder(), "config.yml");
+        }
+        if (!configFile.exists()) {
+            plugin.saveResource("config.yml", replace);
+        }
+        config = YamlConfiguration.loadConfiguration(configFile);
+        matchConfig();
+        loadConfigs(sender);
+        return wrongFile;
+    }
+
+    private String regenerateConfigFile() {
+        String wrongFile = "";
+        var c = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml")).saveToString();
+        String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+        try {
+            wrongFile = "broken_config_" + date + ".yml";
+            Files.writeString(Path.of("./plugins/SkJson/", wrongFile), c, UTF_8);
+            plugin.saveResource("config.yml", true);
+        } catch (IOException fileException) {
+            LoggingUtil.enchantedError(fileException, fileException.getStackTrace(), fileException.getLocalizedMessage());
+        }
+        return wrongFile;
     }
 
     /**
@@ -208,6 +248,10 @@ public class Config {
         return this.config.getLong("settings." + setting);
     }
 
+    private double getDouble(String setting) {
+        return this.config.getDouble("settings." + setting);
+    }
+
     private String getPrefix(String setting) {
         return this.config.getString("settings.prefixes." + setting);
     }
@@ -216,8 +260,31 @@ public class Config {
         return this.config.getBoolean("settings.features." + feature);
     }
 
-    private void loadConfigs() {
+    private static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
+            Map.entry("CONFIG_VERSION", "version"),
+            Map.entry("PROJECT_DEBUG", "debug"),
+            Map.entry("LOGGING_LEVEL", "logging-level"),
+            Map.entry("DEFAULT_WATCHER_INTERVAL", "watcher-interval"),
+            Map.entry("PLUGIN_PREFIX", "prefixes-plugin"),
+            Map.entry("ERROR_PREFIX", "prefixes-error"),
+            Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
+            Map.entry("REQUESTS_PREFIX", "prefixes-request"),
+            Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
+            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
+            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
+    ));
+    public static String getMapping(final String key) {
+        if (mapping.containsKey(key)) {
+            return mapping.get(key);
+        }
+        return null;
+    }
+
+
+    private void loadConfigs(CommandSender ...sender_) {
+        var sender = sender_ != null && sender_.length > 0 && sender_[0] != null;
         try {
+            CONFIG_VERSION = getDouble("version");
             PROJECT_DEBUG = getSetting("debug");
             LOGGING_LEVEL = getInt("logging-level");
             DEFAULT_WATCHER_INTERVAL = getLong("watcher-interval");
@@ -228,8 +295,6 @@ public class Config {
             WEBHOOK_PREFIX = getPrefix("webhook");
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
             ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
-            ALLOWED_MULTILINE_LITERAL = getFeatures("literal-parsing-multi-line");
-            ALLOWED_IMPLICIT_REQUEST_RETURN = getFeatures("force-async-return");
 
             if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
                 LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
@@ -246,6 +311,11 @@ public class Config {
         }
     }
 
+    private static String convertStreamToString(InputStream inputStream) {
+        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
     /**
      * The constant cache.
      */
@@ -260,6 +330,11 @@ public class Config {
     public void init() throws IOException {
         try {
             loadConfigFile(false);
+            if (CONFIG_VERSION != SkJson.ConfigVERSION) {
+                var c = regenerateConfigFile();
+                LoggingUtil.warn(String.format("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.ConfigVERSION, CONFIG_VERSION, c));
+                loadConfigFile(true);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

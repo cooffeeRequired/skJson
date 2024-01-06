@@ -186,12 +186,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                     return false;
                 }
             }
-            if (matchedPattern == 2) {
-                if (!ALLOWED_MULTILINE_LITERAL) {
-                    LoggingUtil.warn("You don't have allowed this beta feature, if you want use these multi lines literal, you may turn on that in your config.yml");
-                    return false;
-                }
-            }
             if (!parseResult.regexes.isEmpty()) {
                 var parsed = parseResult.regexes.get(0).group(0);
                 var fixed = ParserUtil.parseExpressionContext(parsed, true);

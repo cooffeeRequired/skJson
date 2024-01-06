@@ -1,9 +1,18 @@
 package cz.coffee.skjson.api;
 
+import cz.coffee.skjson.SkJson;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static cz.coffee.skjson.api.Config.*;
+
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
@@ -46,11 +55,54 @@ public class SkJsonCommand implements CommandExecutor {
                 return true;
             }
             if (args[0].equalsIgnoreCase("reload")) {
-                sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "⚠ &econfig reloading..."));
+                sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "🟠 &econfig reloading..."));
                 try {
+                    final HashMap<String, ?> before = new HashMap<>(Map.ofEntries(
+                            Map.entry("CONFIG_VERSION", CONFIG_VERSION),
+                            Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
+                            Map.entry("LOGGING_LEVEL", LOGGING_LEVEL),
+                            Map.entry("DEFAULT_WATCHER_INTERVAL", DEFAULT_WATCHER_INTERVAL),
+                            Map.entry("PLUGIN_PREFIX", PLUGIN_PREFIX),
+                            Map.entry("ERROR_PREFIX", ERROR_PREFIX),
+                            Map.entry("WATCHER_PREFIX", WATCHER_PREFIX),
+                            Map.entry("REQUESTS_PREFIX", REQUESTS_PREFIX),
+                            Map.entry("WEBHOOK_PREFIX", WEBHOOK_PREFIX),
+                            Map.entry("PATH_VARIABLE_DELIMITER", PATH_VARIABLE_DELIMITER),
+                            Map.entry("ALLOWED_LINE_LITERAL", ALLOWED_LINE_LITERAL)
+                    ));
                     Config.getConfig().loadConfigFile(false);
-                    sender.sendMessage(ColorWrapper.translate(
-                            Config.PLUGIN_PREFIX + "&7New path delimiter: &e" + Config.PATH_VARIABLE_DELIMITER));
+                    AtomicBoolean changed = new AtomicBoolean(false);
+                    before.forEach((key, value) -> {
+                        try {
+                            Field field = Config.class.getDeclaredField(key);
+                            field.setAccessible(true);
+                            Object fieldValue = field.get(null);
+                            // Porovnejte hodnotu ve fieldu s hodnotou v mapě
+                            if (!value.equals(fieldValue)) {
+                                if (changed.get() == false) changed.set(true);
+
+                                sender.sendMessage(
+                                        ColorWrapper.translate(PLUGIN_PREFIX + String.format(
+                                                "&7The field &e'%s'&7 was changed from&8 '%s'&7 to &a'%s'", getMapping(key), value, fieldValue
+                                        ))
+                                );
+
+                                if (key.equals("CONFIG_VERSION") && SkJson.ConfigVERSION != CONFIG_VERSION) {
+                                    var brokenFile = Config.getConfig().loadConfigFile(true, sender, true);
+                                    sender.sendMessage(ColorWrapper.translate(
+                                            "🔴 &cThe config version was changed! Config will be regenerate...\n\t\t   &cWrong config was saved to " + brokenFile
+                                    ));
+                                }
+                            }
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    if (changed.get() == false) {
+                        sender.sendMessage(
+                                ColorWrapper.translate(PLUGIN_PREFIX + "Nothing was changed.")
+                        );
+                    }
                     sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &asuccessfully."));
                     return true;
                 } catch (Exception ex) {
