@@ -88,7 +88,7 @@ public class SkJsonCommand implements CommandExecutor {
                                         ))
                                 );
 
-                                if (key.equals("CONFIG_VERSION") && SkJson.ConfigVERSION != CONFIG_VERSION) {
+                                if (key.equals("CONFIG_VERSION") && SkJson.CONFIG_PRIMARY_VERSION != CONFIG_VERSION) {
                                     var brokenFile = Config.getConfig().loadConfigFile(true, sender, true);
                                     sender.sendMessage(ColorWrapper.translate(
                                             "🔴 &cThe config version was changed! Config will be regenerate...\n\t\t   &cWrong config was saved to " + brokenFile

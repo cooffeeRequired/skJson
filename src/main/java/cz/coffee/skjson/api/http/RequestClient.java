@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.request.RequestUtil;
@@ -74,9 +73,11 @@ public class RequestClient implements AutoCloseable {
             case "HEAD" -> this.request.method("HEAD");
         }
 
-        String userAgent = String.format(USER_AGENT_FORMAT, SkJson.getInstance().getConfig().get("version"));
-        this.request.headers((x) ->
-                x.add("User-agent", userAgent));
+        String userAgent = String.format(USER_AGENT_FORMAT, 2);
+        this.request.headers((x) -> {
+            x.remove("User-agent");
+            x.add("User-agent", userAgent);
+        });
 
         return this;
     }

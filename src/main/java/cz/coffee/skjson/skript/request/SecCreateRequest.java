@@ -60,8 +60,8 @@ public class SecCreateRequest extends Section {
 
     static {
         SkJson.registerSection(SecCreateRequest.class,
-                "[:async] make [new] %requestmethod% request to %string%",
-                "(create|make) [new] %requestmethod% request to %string% [with header[s] %-json/strings% [and with body %-json/strings%]] and (stored|store it) in %-objects%"
+                "[:async] (create|make) [new] %requestmethod% request to %string%",
+                "[:async] (create|make) [new] %requestmethod% request to %string% [with header[s] %-json/strings% [and with body %-json/strings%]] and (stored|store it) in %-objects%"
         );
     }
 

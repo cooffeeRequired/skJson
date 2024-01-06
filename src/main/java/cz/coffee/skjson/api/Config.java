@@ -265,9 +265,9 @@ public class Config {
     public void init() throws IOException {
         try {
             loadConfigFile(false);
-            if (CONFIG_VERSION != SkJson.ConfigVERSION) {
+            if (CONFIG_VERSION != SkJson.CONFIG_PRIMARY_VERSION) {
                 var c = regenerateConfigFile();
-                LoggingUtil.warn(String.format("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.ConfigVERSION, CONFIG_VERSION, c));
+                LoggingUtil.warn(String.format("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.CONFIG_PRIMARY_VERSION, CONFIG_VERSION, c));
                 loadConfigFile(true);
             }
         } catch (Exception ex) {
