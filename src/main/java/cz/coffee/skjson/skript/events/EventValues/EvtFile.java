@@ -12,13 +12,13 @@ import java.io.File;
 @Name("Watcher event value-expression File")
 @Description("value-expression for getting file/link from current watcher event")
 @Since("2.9")
-public class EvtvFile extends EventValueExpression<File> {
+public class EvtFile extends EventValueExpression<File> {
 
     static {
-        Skript.registerExpression(EvtvFile.class, File.class, ExpressionType.SIMPLE, "[the] [event-](file|link)");
+        Skript.registerExpression(EvtFile.class, File.class, ExpressionType.EVENT, "[the] [event-](file|link)");
     }
 
-    public EvtvFile() {
+    public EvtFile() {
         super(File.class);
     }
 }

@@ -1,17 +1,9 @@
 package cz.coffee.skjson.api;
 
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * Copyright coffeeRequired nd contributors
  * <p>
@@ -66,21 +58,6 @@ public class SkJsonCommand implements CommandExecutor {
                     sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
                     return false;
                 }
-            } else if (args[0].equalsIgnoreCase("run-tests")) {
-                if (Config.TESTS_ALOWED) {
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            var loader = new SkriptLoaderFile(
-                                    new File(Config.getConfig().plugin.getDataFolder() + "/" + "..tests"));
-                            loader.load();
-                            Thread.sleep(200);
-                            loader.unload();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-                }
-                return true;
             } else if (args[0].equalsIgnoreCase("about")) {
                 sendAbout(sender);
                 return true;

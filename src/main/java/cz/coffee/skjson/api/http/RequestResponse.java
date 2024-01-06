@@ -31,10 +31,6 @@ public interface RequestResponse {
      */
     static RequestResponse of(HttpFields requestHeaders, HttpFields responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
         return new RequestResponse() {
-            @Override
-            public RequestHeaders getRequestHeaders() {
-                return new RequestHeaders(requestHeaders);
-            }
 
             @Override
             public RequestHeaders getResponseHeader() {
@@ -81,13 +77,6 @@ public interface RequestResponse {
             }
         };
     }
-
-    /**
-     * Gets request headers.
-     *
-     * @return the request headers
-     */
-    RequestHeaders getRequestHeaders();
 
     /**
      * Gets response header.

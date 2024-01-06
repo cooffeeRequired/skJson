@@ -166,67 +166,6 @@ public class Config {
     }
 
     /**
-     * Load tests void.
-     *
-     * @param skFile the sk file
-     * @return the void
-     * @throws IOException the io exception
-     */
-    public void loadTests(String skFile) throws IOException {
-        try {
-            var file = new File(plugin.getDataFolder(), "..tests");
-            if (!file.exists()) {
-                if (file.mkdir()) {
-                    var in = plugin.getResource("tests/" + skFile);
-                    // Vytvoření instance Runtime
-                    Runtime runtime = Runtime.getRuntime();
-                    // Spuštění příkazu atributu pro skrytí složky
-                    File tempFile = new File(plugin.getDataFolder() + "/" + "..tests", skFile);
-                    Process process = runtime.exec("attrib +h " + file);
-                    file.createNewFile();
-                    var os = new FileOutputStream(tempFile);
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = in.read(buffer)) != -1) os.write(buffer, 0, bytesRead);
-                    os.close();
-                    in.close();
-
-                } else if (file.isDirectory()) {
-                    var in = plugin.getResource("tests/" + skFile);
-                    // Vytvoření instance Runtime
-                    Runtime runtime = Runtime.getRuntime();
-                    // Spuštění příkazu atributu pro skrytí složky
-                    File tempFile = new File(plugin.getDataFolder() + "/" + "..tests", skFile);
-                    Process process = runtime.exec("attrib +h " + file);
-                    file.createNewFile();
-                    var os = new FileOutputStream(tempFile);
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = in.read(buffer)) != -1) os.write(buffer, 0, bytesRead);
-                    os.close();
-                    in.close();
-                }
-            } else {
-                var in = plugin.getResource("tests/" + skFile);
-                // Vytvoření instance Runtime
-                Runtime runtime = Runtime.getRuntime();
-                // Spuštění příkazu atributu pro skrytí složky
-                File tempFile = new File(plugin.getDataFolder() + "/" + "..tests", skFile);
-                Process process = runtime.exec("attrib +h " + file);
-                file.createNewFile();
-                var os = new FileOutputStream(tempFile);
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) os.write(buffer, 0, bytesRead);
-                os.close();
-                in.close();
-            }
-        } catch (Exception e) {
-            //
-        }
-    }
-
-    /**
      * Gets plugin config.
      *
      * @param path the path
@@ -301,21 +240,9 @@ public class Config {
             REQUESTS_PREFIX = getPrefix("request");
             WEBHOOK_PREFIX = getPrefix("webhook");
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
-            TESTS_ALOWED = getSetting("test-allowed");
-            RUN_TEST_ON_START = getSetting("run-tests-on-startup");
             ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
             ALLOWED_MULTILINE_LITERAL = getFeatures("literal-parsing-multi-line");
             ALLOWED_IMPLICIT_REQUEST_RETURN = getFeatures("force-async-return");
-            int delayStart = getInt("startup-tests-delay");
-            if (delayStart == 1) {
-                TEST_START_UP_DELAY = 10_000;
-            } else if (delayStart == 2) {
-                TEST_START_UP_DELAY = 25_000;
-            } else if (delayStart == 3) {
-                TEST_START_UP_DELAY = 35_000;
-            } else {
-                TEST_START_UP_DELAY = 5000;
-            }
 
             if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
                 LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
@@ -405,7 +332,6 @@ public class Config {
 
         ready = new UpdateCheck((JavaPlugin) plugin, this).getReady();
         ready = registerCommand(plugin, "skjson");
-        loadTests("changer-skjson.sk");
     }
 
 

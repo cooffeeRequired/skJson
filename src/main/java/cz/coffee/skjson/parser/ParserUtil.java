@@ -6,10 +6,8 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
-import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.NBTCustom;
-import com.shanebeestudios.skbee.api.nbt.NBTCustomItemType;
 import cz.coffee.skjson.skript.base.Converter;
 import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Chunk;
@@ -22,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Deque;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;

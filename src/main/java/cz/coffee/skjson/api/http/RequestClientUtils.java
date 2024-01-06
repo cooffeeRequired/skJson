@@ -43,8 +43,4 @@ public class RequestClientUtils {
 
         return tempFile;
     }
-
-    protected String sanitizeLinkSpaces(String url) {
-        return url.replace(" ", "%20");
-    }
 }

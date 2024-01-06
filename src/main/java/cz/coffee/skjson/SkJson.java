@@ -7,7 +7,6 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.SkriptLoaderFile;
 import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;

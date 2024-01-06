@@ -44,22 +44,7 @@ public class ParsedJson {
         currentElements.offerLast(input);
 
         if (keys == null || keys.isEmpty()) {
-            current = currentElements.pollLast();
-            if (current == null || current.isJsonNull()) return;
-
-            if (current.isJsonObject()) {
-                JsonObject jsonObject = current.getAsJsonObject();
-                Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
-                entries.removeIf(entry -> entry.getValue().equals(value));
-            } else if (current.isJsonArray()) {
-                JsonArray jsonArray = current.getAsJsonArray();
-                for (int i = jsonArray.size() - 1; i >= 0; i--) {
-                    JsonElement element = jsonArray.get(i);
-                    if (element.equals(value)) {
-                        jsonArray.remove(i);
-                    }
-                }
-            }
+            current(value, currentElements);
             return;
         }
 
@@ -78,6 +63,11 @@ public class ParsedJson {
             }
         }
 
+        current(value, currentElements);
+    }
+
+    private void current(JsonElement value, Deque<JsonElement> currentElements) {
+        JsonElement current;
         current = currentElements.pollLast();
         if (current == null || current.isJsonNull()) return;
 
@@ -138,19 +128,14 @@ public class ParsedJson {
         }
     }
 
-    /**
-     * Remove by index.
-     *
-     * @param keys the keys
-     */
-    public void removeByIndex(List<String> keys) {
+    private Deque<JsonElement> dequeElements(List<String> keys) {
         Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
         currentElements.offerLast(input);
 
         for (String key : keys.subList(0, keys.size() - 1)) {
             JsonElement currentElement = currentElements.pollLast();
             if (currentElement == null || currentElement.isJsonNull()) {
-                return;
+                return currentElements;
             }
             if (currentElement.isJsonObject()) {
                 currentElements.offerLast(currentElement.getAsJsonObject().get(key));
@@ -158,6 +143,16 @@ public class ParsedJson {
                 currentElements.offerLast(currentElement.getAsJsonArray().get(Integer.parseInt(key)));
             }
         }
+        return currentElements;
+    }
+
+    /**
+     * Remove by index.
+     *
+     * @param keys the keys
+     */
+    public void removeByIndex(List<String> keys) {
+        Deque<JsonElement> currentElements = dequeElements(keys);
 
         JsonElement currentElement = currentElements.pollLast();
         if (currentElement == null || currentElement.isJsonNull()) {
@@ -180,20 +175,7 @@ public class ParsedJson {
      * @param keys the keys
      */
     public void removeByKey(LinkedList<String> keys) {
-        Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
-        currentElements.offerLast(input);
-
-        for (String key : keys.subList(0, keys.size() - 1)) {
-            JsonElement currentElement = currentElements.pollLast();
-            if (currentElement == null || currentElement.isJsonNull()) {
-                return;
-            }
-            if (currentElement.isJsonObject()) {
-                currentElements.offerLast(currentElement.getAsJsonObject().get(key));
-            } else if (currentElement.isJsonArray()) {
-                currentElements.offerLast(currentElement.getAsJsonArray().get(Integer.parseInt(key)));
-            }
-        }
+        Deque<JsonElement> currentElements = dequeElements(keys);
 
         String lastKey = keys.getLast();
         JsonElement currentElement = currentElements.pollLast();
@@ -312,20 +294,7 @@ public class ParsedJson {
      * @param newKey the new key
      */
     public void changeKey(LinkedList<String> keys, String newKey) {
-        Deque<JsonElement> currentElements = new ConcurrentLinkedDeque<>();
-        currentElements.offerLast(input);
-
-        for (String key : keys.subList(0, keys.size() - 1)) {
-            JsonElement currentElement = currentElements.pollLast();
-            if (currentElement == null || currentElement.isJsonNull()) {
-                return;
-            }
-            if (currentElement.isJsonObject()) {
-                currentElements.offerLast(currentElement.getAsJsonObject().get(key));
-            } else if (currentElement.isJsonArray()) {
-                currentElements.offerLast(currentElement.getAsJsonArray().get(Integer.parseInt(key)));
-            }
-        }
+        Deque<JsonElement> currentElements = dequeElements(keys);
 
         String lastKey = keys.getLast();
         JsonElement currentElement = currentElements.pollLast();
@@ -409,8 +378,7 @@ public class ParsedJson {
             }
 
             // final...
-            if (current instanceof JsonObject) {
-                JsonObject object = (JsonObject) current;
+            if (current instanceof JsonObject object) {
                 String last = lastKey == null ? String.valueOf(object.size()) : lastKey;
                 object.add(last, value);
 

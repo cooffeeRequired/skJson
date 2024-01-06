@@ -12,12 +12,12 @@ import java.util.UUID;
 @Name("Watcher event value-expression UUID")
 @Description("value-expression for getting uuid from current watcher event")
 @Since("2.9")
-public class EvtvUUID extends EventValueExpression<UUID> {
+public class EvtUUID extends EventValueExpression<UUID> {
     static {
-        Skript.registerExpression(EvtvUUID.class, UUID.class, ExpressionType.SIMPLE, "[the] [event-](uuid|id)");
+        Skript.registerExpression(EvtUUID.class, UUID.class, ExpressionType.EVENT, "[the] [event-](uuid|id)");
     }
 
-    public EvtvUUID() {
+    public EvtUUID() {
         super(UUID.class);
     }
 }

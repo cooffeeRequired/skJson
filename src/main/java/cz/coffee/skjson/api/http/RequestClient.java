@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.request.RequestUtil;
@@ -18,9 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -30,12 +31,8 @@ import static cz.coffee.skjson.api.Config.*;
 import static cz.coffee.skjson.api.http.RequestClientUtils.changeExtension;
 import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
 
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: sobota (30.09.2023)
- */
 public class RequestClient implements AutoCloseable {
+    private static final String USER_AGENT_FORMAT = "SkJson-requests-%s";
     private String uri;
     private HttpClient client;
     private Request request;
@@ -62,38 +59,25 @@ public class RequestClient implements AutoCloseable {
     private boolean done = false;
 
     @SuppressWarnings("unused")
-    public boolean isDone() {
+    private boolean isDone() {
         return this.done;
     }
 
     public RequestClient method(String method) {
+        this.request = this.client.newRequest(this.uri);
         switch (method.toUpperCase()) {
-            case "GET", "MOCK" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("GET");
-            }
-            case "POST" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("POST");
-            }
-            case "PUT" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("PUT");
-            }
-            case "DELETE" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("DELETE");
-            }
-            case "PATCH" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("PATCH");
-            }
-            case "HEAD" -> {
-                this.request = this.client.newRequest(this.uri);
-                this.request.method("HEAD");
-            }
+            case "GET", "MOCK" -> this.request.method("GET");
+            case "POST" -> this.request.method("POST");
+            case "PUT" -> this.request.method("PUT");
+            case "DELETE" -> this.request.method("DELETE");
+            case "PATCH" -> this.request.method("PATCH");
+            case "HEAD" -> this.request.method("HEAD");
         }
-        this.request.headers((x) -> x.add("User-agent", "SkJson-requests*-2.0"));
+
+        String userAgent = String.format(USER_AGENT_FORMAT, SkJson.getInstance().getConfig().get("version"));
+        this.request.headers((x) ->
+                x.add("User-agent", userAgent));
+
         return this;
     }
 
@@ -115,7 +99,10 @@ public class RequestClient implements AutoCloseable {
                 return null;
             }
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) LoggingUtil.enchantedError(ex, ex.getStackTrace(), "RequestClient - test()");
+            if (PROJECT_DEBUG) {
+                String errorMessage = String.format("Error occurred during test(): %s", ex.getMessage());
+                LoggingUtil.enchantedError(ex, ex.getStackTrace(), errorMessage);
+            }
             return null;
         }
     }
@@ -209,8 +196,8 @@ public class RequestClient implements AutoCloseable {
     }
 
 
-    @SuppressWarnings("all")
-    public RequestClient addAttachment(String pathToAttachment) {
+    @SuppressWarnings("UnusedReturnValue")
+    public Optional<RequestClient> addAttachment(String pathToAttachment) {
         File file;
         if (pathToAttachment.startsWith("*")) {
             file = FileWrapper.serchFile(pathToAttachment.replaceAll("[*/]", ""));
@@ -221,7 +208,7 @@ public class RequestClient implements AutoCloseable {
             if (PROJECT_DEBUG) LoggingUtil.requestLog(exception.getMessage());
         }
         if (file.exists()) attachments.add(file);
-        return this;
+        return Optional.of(this);
     }
 
     public RequestClient postAttachments(JsonElement body) {
@@ -229,13 +216,12 @@ public class RequestClient implements AutoCloseable {
         return this;
     }
 
-    @SuppressWarnings("all")
-    public RequestClient postAttachments(String body) {
+    @SuppressWarnings("UnusedReturnValue")
+    public Optional<RequestClient> postAttachments(String body) {
         AtomicInteger i = new AtomicInteger(0);
         try (var mpr = new MultiPartRequestContent()) {
             attachments.forEach(attachment -> {
                 try {
-                    String contentType = Files.probeContentType(attachment.toPath());
                     mpr.addPart(new MultiPart.PathPart("file" + i.incrementAndGet(), attachment.getName(), HttpFields.EMPTY, attachment.toPath()));
                 } catch (Exception e) {
                     if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
@@ -246,14 +232,16 @@ public class RequestClient implements AutoCloseable {
         } catch (Exception ex) {
             if (PROJECT_DEBUG) LoggingUtil.requestLog(ex.getMessage());
         }
-        return this;
+        return Optional.of(this);
     }
 
     private void done() {
-        try {
-            this.client.stop();
-        } catch (Exception e) {
-            if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
+        if (this.isDone()) {
+            try {
+                this.client.stop();
+            } catch (Exception e) {
+                if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
+            }
         }
     }
 

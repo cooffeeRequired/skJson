@@ -1,4 +1,4 @@
-package cz.coffee.skjson.api.discord;
+package cz.coffee.skjson.api.requests;
 
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.http.RequestResponse;

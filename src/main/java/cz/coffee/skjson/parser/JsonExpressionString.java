@@ -2,9 +2,7 @@ package cz.coffee.skjson.parser;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -25,7 +23,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
-import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +31,6 @@ import org.skriptlang.skript.lang.script.Script;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
@@ -48,8 +44,6 @@ public class JsonExpressionString implements Expression<String> {
     @Nullable
     private final Object[] string;
 
-    @Nullable
-    private Object[] stringUnformatted;
     private final boolean isSimple;
 
     @Nullable
@@ -58,12 +52,6 @@ public class JsonExpressionString implements Expression<String> {
     @Nullable
     private final String simpleUnformatted;
     private final StringMode mode;
-
-    /**
-     * Message components that this string consists of. Only simple parts have
-     * been evaluated here.
-     */
-    private final MessageComponent[] components;
 
     /**
      * Creates a new VariableString which does not contain variables.
@@ -82,7 +70,6 @@ public class JsonExpressionString implements Expression<String> {
         ParserInstance parser = getParser();
         this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
-        this.components = new MessageComponent[]{ChatMessages.plainText(simpleUnformatted)};
     }
 
     /**
@@ -92,10 +79,11 @@ public class JsonExpressionString implements Expression<String> {
      * @param string Objects, some of them are variables.
      * @param mode   String mode.
      */
+    @SuppressWarnings("all")
     private JsonExpressionString(String orig, Object[] string, StringMode mode) {
         this.orig = orig;
         this.string = new Object[string.length];
-        this.stringUnformatted = new Object[string.length];
+        @Nullable Object[] stringUnformatted = new Object[string.length];
 
         ParserInstance parser = getParser();
         this.script = parser.isActive() ? parser.getCurrentScript() : null;
@@ -113,9 +101,9 @@ public class JsonExpressionString implements Expression<String> {
             }
 
             // For unformatted string, don't format stuff
-            this.stringUnformatted[i] = object;
+            stringUnformatted[i] = object;
         }
-        this.components = components.toArray(new MessageComponent[0]);
+        components.toArray(new MessageComponent[0]);
         this.mode = mode;
 
         this.isSimple = false;
@@ -148,26 +136,7 @@ public class JsonExpressionString implements Expression<String> {
             return null;
         }
 
-        String s;
-        if (mode != StringMode.VARIABLE_NAME) {
-            // Replace every double " character with a single ", except for those in expressions (between %)
-            StringBuilder stringBuilder = new StringBuilder();
-
-            boolean expression = false;
-            for (int i = 0; i < orig.length(); i++) {
-                char c = orig.charAt(i);
-                stringBuilder.append(c);
-
-                if (c == '%')
-                    expression = !expression;
-
-                if (!expression && c == '"')
-                    i++;
-            }
-            s = stringBuilder.toString();
-        } else {
-            s = orig;
-        }
+        String s = getString(orig, mode);
 
         List<Object> string = new ArrayList<>(n / 2 + 2); // List of strings and expressions
         int c = s.indexOf('%');
@@ -222,7 +191,7 @@ public class JsonExpressionString implements Expression<String> {
                 if (!l.isEmpty()) { // This is string part (no variables)
                     if (!string.isEmpty() && string.get(string.size() - 1) instanceof String) {
                         // We can append last string part in the list, so let's do so
-                        string.set(string.size() - 1, (String) string.get(string.size() - 1) + l);
+                        string.set(string.size() - 1, string.get(string.size() - 1) + l);
                     } else { // Can't append, just add new part
                         string.add(l);
                     }
@@ -246,6 +215,30 @@ public class JsonExpressionString implements Expression<String> {
             Skript.warning(expr + " is already a text, so you should not put it in one (e.g. " + expr + " instead of " + "\"%" + expr.replace("\"", "\"\"") + "%\")");
         }
         return new JsonExpressionString(orig, sa, mode);
+    }
+
+    private static String getString(String orig, StringMode mode) {
+        String s;
+        if (mode != StringMode.VARIABLE_NAME) {
+            // Replace every double " character with a single ", except for those in expressions (between %)
+            StringBuilder stringBuilder = new StringBuilder();
+
+            boolean expression = false;
+            for (int i = 0; i < orig.length(); i++) {
+                char c = orig.charAt(i);
+                stringBuilder.append(c);
+
+                if (c == '%')
+                    expression = !expression;
+
+                if (!expression && c == '"')
+                    i++;
+            }
+            s = stringBuilder.toString();
+        } else {
+            s = orig;
+        }
+        return s;
     }
 
     /**
@@ -283,7 +276,6 @@ public class JsonExpressionString implements Expression<String> {
     /**
      * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
      *
-     * @param s
      * @param start Index after the opening bracket
      * @return The next closing curly bracket
      */
@@ -301,47 +293,6 @@ public class JsonExpressionString implements Expression<String> {
         return -1;
     }
 
-    /**
-     * Parses all expressions in the string and returns it.
-     * Does not parse formatting codes!
-     *
-     * @param e Event to pass to the expressions.
-     * @return The input string with all expressions replaced.
-     */
-    public String toUnformattedString(Event e) {
-        if (isSimple) {
-            assert simpleUnformatted != null;
-            return simpleUnformatted;
-        }
-        Object[] string = this.stringUnformatted;
-        assert string != null;
-        StringBuilder b = new StringBuilder();
-        for (Object o : string) {
-            if (o instanceof Expression<?>) {
-                b.append(Classes.toString(((Expression<?>) o).getArray(e), true, mode));
-            } else {
-                b.append(o);
-            }
-        }
-        return b.toString();
-    }
-
-    /**
-     * Gets message components from this string. Formatting is parsed
-     * everywhere, which is a potential security risk.
-     *
-     * @param e Currently running event.
-     * @return Message components.
-     */
-    public List<MessageComponent> getMessageComponentsUnsafe(Event e) {
-        if (isSimple) { // Trusted, constant string in a script
-            assert simpleUnformatted != null;
-            return ChatMessages.parse(simpleUnformatted);
-        }
-
-        return ChatMessages.parse(toUnformattedString(e));
-    }
-
     @Override
     public @NotNull String toString() {
         return toString(null, false);
@@ -355,6 +306,7 @@ public class JsonExpressionString implements Expression<String> {
      * @return The input string with all expressions replaced.
      */
 
+    @SuppressWarnings("all")
     public String toString(@Nullable Event event) {
         if (isSimple) {
             assert simple != null;
@@ -370,7 +322,7 @@ public class JsonExpressionString implements Expression<String> {
         for (Object object : string) {
             if (object instanceof Expression<?>) {
                 Object[] objects = ((Expression<?>) object).getArray(event);
-                if (objects != null && objects.length > 0)
+                if (objects.length > 0)
                     types.add(objects[0].getClass());
 
                 if (((Expression<?>) object).getReturnType().equals(String.class)) {
@@ -401,7 +353,7 @@ public class JsonExpressionString implements Expression<String> {
      * Use {@link #toString(Event)} to get the actual string. This method is for debugging.
      */
     @Override
-    public String toString(@Nullable Event event, boolean debug) {
+    public @NotNull String toString(@Nullable Event event, boolean debug) {
         if (isSimple) {
             assert simple != null;
             return '"' + simple + '"';
@@ -418,52 +370,6 @@ public class JsonExpressionString implements Expression<String> {
         }
         builder.append('"');
         return builder.toString();
-    }
-
-    /**
-     * Builds all possible default variable type hints based on the super type of the expression.
-     *
-     * @return List<String> of all possible super class code names.
-     */
-    @NotNull
-    public List<String> getDefaultVariableNames(String variableName, Event event) {
-        if (script == null || mode != StringMode.VARIABLE_NAME)
-            return Lists.newArrayList();
-
-        if (isSimple) {
-            assert simple != null;
-            return Lists.newArrayList(simple, "object");
-        }
-
-        DefaultVariables data = script.getData(DefaultVariables.class);
-        // Checked in Variable#getRaw already
-        assert data != null : "default variables not present in current script";
-
-        Class<?>[] savedHints = data.get(variableName);
-        if (savedHints == null || savedHints.length == 0)
-            return Lists.newArrayList();
-
-        List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
-        // Represents the index of which expression in a variable string, example name::%entity%::%object% the index of 0 will be entity.
-        int hintIndex = 0;
-        assert string != null;
-        for (Object object : string) {
-            if (!(object instanceof Expression)) {
-                typeHints.forEach(builder -> builder.append(object));
-                continue;
-            }
-            StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
-            for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
-                for (StringBuilder builder : current) {
-                    String hint = builder.toString() + "<" + classInfo.getCodeName() + ">";
-                    // Has to duplicate the builder as it builds multiple off the last builder.
-                    typeHints.add(new StringBuilder(hint));
-                    typeHints.remove(builder);
-                }
-            }
-            hintIndex++;
-        }
-        return typeHints.stream().map(StringBuilder::toString).collect(Collectors.toList());
     }
 
     public boolean isSimple() {
@@ -492,22 +398,22 @@ public class JsonExpressionString implements Expression<String> {
     }
 
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+    public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getSingle(Event e) {
+    public String getSingle(@NotNull Event e) {
         return toString(e);
     }
 
     @Override
-    public String[] getArray(Event e) {
+    public String @NotNull [] getArray(@NotNull Event e) {
         return new String[]{toString(e)};
     }
 
     @Override
-    public String[] getAll(Event e) {
+    public String @NotNull [] getAll(@NotNull Event e) {
         return new String[]{toString(e)};
     }
 
@@ -517,37 +423,36 @@ public class JsonExpressionString implements Expression<String> {
     }
 
     @Override
-    public boolean check(Event e, Checker<? super String> c, boolean negated) {
+    public boolean check(@NotNull Event e, @NotNull Checker<? super String> c, boolean negated) {
         return SimpleExpression.check(getAll(e), c, negated, false);
     }
 
     @Override
-    public boolean check(Event e, Checker<? super String> c) {
+    public boolean check(@NotNull Event e, @NotNull Checker<? super String> c) {
         return SimpleExpression.check(getAll(e), c, false, false);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     @Nullable
-    public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+    public <R> Expression<? extends R> getConvertedExpression(Class<R> @NotNull ... to) {
         if (CollectionUtils.containsSuperclass(to, String.class))
             return (Expression<? extends R>) this;
         return ConvertedExpression.newInstance(this, to);
     }
 
     @Override
-    public Class<? extends String> getReturnType() {
+    public @NotNull Class<? extends String> getReturnType() {
         return String.class;
     }
 
     @Override
-    @Nullable
-    public Class<?>[] acceptChange(ChangeMode mode) {
-        return null;
+    public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
+        return CollectionUtils.array();
     }
 
     @Override
-    public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+    public void change(@NotNull Event e, Object @NotNull [] delta, @NotNull ChangeMode mode) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -572,37 +477,22 @@ public class JsonExpressionString implements Expression<String> {
     }
 
     @Override
-    public Iterator<? extends String> iterator(Event e) {
+    public Iterator<? extends String> iterator(@NotNull Event e) {
         return new SingleItemIterator<>(toString(e));
     }
 
     @Override
-    public boolean isLoopOf(String s) {
+    public boolean isLoopOf(@NotNull String s) {
         return false;
     }
 
     @Override
-    public Expression<?> getSource() {
+    public @NotNull Expression<?> getSource() {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> Expression<T> setStringMode(Expression<T> e, StringMode mode) {
-        if (e instanceof ExpressionList) {
-            Expression<?>[] ls = ((ExpressionList<?>) e).getExpressions();
-            for (int i = 0; i < ls.length; i++) {
-                Expression<?> l = ls[i];
-                assert l != null;
-                ls[i] = setStringMode(l, mode);
-            }
-        } else if (e instanceof ch.njol.skript.lang.VariableString) {
-            return (Expression<T>) ((ch.njol.skript.lang.VariableString) e).setMode(mode);
-        }
-        return e;
-    }
-
     @Override
-    public Expression<String> simplify() {
+    public @NotNull Expression<String> simplify() {
         return this;
     }
 }
