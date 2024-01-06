@@ -132,7 +132,7 @@ public class RequestClient implements AutoCloseable {
                     var response = result.getResponse();
                     var request = result.getRequest();
 
-                    var serverResponse = RequestResponse.of(request.getHeaders(), response.getHeaders(), request.getURI(), text, response.getStatus(), lenient);
+                    var serverResponse = RequestResponse.of(response.getHeaders(), request.getURI(), text, response.getStatus(), lenient);
                     future.complete(serverResponse);
                     if (LOGGING_LEVEL > 1)
                         LoggingUtil.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));

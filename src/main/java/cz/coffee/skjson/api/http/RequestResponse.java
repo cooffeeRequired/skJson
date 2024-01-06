@@ -22,14 +22,13 @@ public interface RequestResponse {
     /**
      * Of response.
      *
-     * @param requestHeaders  the request headers
      * @param responseHeaders the response headers
      * @param uri             the uri
      * @param body            the body
      * @param statusCode      the status code
      * @return the response
      */
-    static RequestResponse of(HttpFields requestHeaders, HttpFields responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
+    static RequestResponse of(HttpFields responseHeaders, URI uri, String body, int statusCode, boolean lenient) {
         return new RequestResponse() {
 
             @Override
