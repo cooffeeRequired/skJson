@@ -1,6 +1,6 @@
 package cz.coffee.skjson.api;
+
 public abstract class ConfigRecords {
-    public static String SERVER_TYPE;
     public static String PATH_VARIABLE_DELIMITER;
     public static boolean PROJECT_DEBUG;
     public static int LOGGING_LEVEL;

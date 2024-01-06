@@ -4,7 +4,12 @@
 
 <h1 align="center">Pages - Serialization</h1>
 
-> What we can imagine by `Serialization/Deserialization` we can talk about it as some kind of conversion of an object into some form for example into `text` or into `base64` or just into `json`. Minecraft is a lot of object whether it is `Location, Block, Item etc.` and therefore here we have a way to convert the whole object simply to `json` and back to `json` to the given object.. **How?** `SkJson` actually takes care of this in the background all transcreations of data are checked and then converted if they meet the given conditions for serialization... **Need an example**.. Let's write a little script to store the player's Invetary.
+> What we can imagine by `Serialization/Deserialization` we can talk about it as some kind of conversion of an object
+> into some form for example into `text` or into `base64` or just into `json`. Minecraft is a lot of object whether it
+> is `Location, Block, Item etc.` and therefore here we have a way to convert the whole object simply to `json` and back
+> to `json` to the given object.. **How?** `SkJson` actually takes care of this in the background all transcreations of
+> data are checked and then converted if they meet the given conditions for serialization... **Need an example**.. Let's
+> write a little script to store the player's Invetary.
 
 > ```applescript
 > command saveInv:
@@ -16,9 +21,9 @@
 >     trigger:
 >         set player's inventory to {inv::%player's uuid%}
 > ```
-> 
+>
 > **How does Inventory Json look like?** *Exactly like this*
-> 
+>
 > ```json
 > {
 >   "..": "org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventoryPlayer",
@@ -108,8 +113,10 @@
 > ```
 
 
-> as said you don't need to know any magic syntax or spells to serialize/deserialize data, let's show one more small example. Let's say we want to create a Json right away  that will contain a serialized position. Let's take a look at how to do this properly.
-> 
+> as said you don't need to know any magic syntax or spells to serialize/deserialize data, let's show one more small
+> example. Let's say we want to create a Json right away that will contain a serialized position. Let's take a look at how
+> to do this properly.
+>
 > ```applescript
 > on script load:
 >     # Wrong
@@ -131,5 +138,5 @@
 >     set {_loc} to value "Location" of {_json}
 >     # {_loc} =  x: 0, y: 0, z: 0, yaw: 0, pitch: 0 in 'world'
 > ```
-> 
+>
 > And that's it for the data serialization... It's simple. Let's move on

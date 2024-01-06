@@ -21,25 +21,31 @@
 <hr>
 
 ### 📑 Requirements
+
 * **Java 16+**
 * **Minecraft 1.16.5+**
 * **Skript 2.7.0**
 
 ### 🔑 Recommended
-* **_[**Visual Studio Code**](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)_**
-*  **_[**Extension**](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)_**
 
+* **_[**Visual Studio Code
+  **](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)_**
+* **_[**Extension**](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)_**
 
 ### 🆘 Where can I get help?
+
 * **[Discord](https://discord.gg/dsZq5Cs9fd)**
 * **[SkUnity](https://skunity.com/)**
 * **[Email](mailto:nextikczcz@gmail.com)** (Only the biggest projects)
 
 ### 💡 How can I start with SkJson?
+
 #### All tutorials are based on the latest version **`2.9`**
+
 for the first time and recommend working with [SkJson Documentation](https://skjson.xyz/)
 
 #### 🗝️ Create json object/array from sources.
+
 ```shell
 on script load:
   # From String
@@ -62,11 +68,14 @@ on script load:
   set {_json} to json from location(10, 20, 30, world("world"))
 ```
 
-This depends on what you want to do in SkJson, if you just want to work with JSON you can just use `Map/From` but if you want for example `Request's` or work with files we have a small guide here.
+This depends on what you want to do in SkJson, if you just want to work with JSON you can just use `Map/From` but if you
+want for example `Request's` or work with files we have a small guide here.
 
 #### 🗝️ Example for requests.
 
-Suppose we have some API and we want to use Skript to work with that API and get JSON responses from that API (server), SkJson offers [Request's](https://skjson.xyz/documentation/beta#section-Request) according to its own.
+Suppose we have some API and we want to use Skript to work with that API and get JSON responses from that API (server),
+SkJson offers [Request's](https://skjson.xyz/documentation/beta#section-Request) according to its own.
+
 ```sh
 on script load:
 	async make POST request to "https://dummyjson.com/carts/add":
@@ -83,12 +92,15 @@ command response:
 	trigger:
 		send {-content} with pretty print
 ```
+
 What does mean `lenient` ?
 **__`lenient`__** means attempting to repair corrupted JSON from a server response. (thanks to `@mnight4`)
 <br />
 
 #### 🗝️ Example for handling JSON file /wo cache.
-SkJson can work with files whether it is writing, editing or appending. See also [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit)
+
+SkJson can work with files whether it is writing, editing or appending. See
+also [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit)
 
 ```sh
 # here we will create a new file
@@ -120,9 +132,13 @@ on script load:
 ```
 
 #### 🗝️ Example for handling JSON file /w cache.
-What is `cache`? Cache is known for storing JSON in memory instead of SkJson having to open and close the file it puts its reference in memory, and you are working with memory all the time and if you would like to save the file from memory to a real file. you can do it at any time with `save <json-id>`
 
-Check out this documentation.: [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit), [Link File](https://skjson.xyz/documentation/beta#effect-LinkFile), [Save File](https://skjson.xyz/documentation/beta#effect-SaveCache), [Unlink File](https://skjson.xyz/documentation/beta#effect-UnlinkFile), [Get Cached JSON](https://skjson.xyz/documentation/beta#expression-GetCachedJson)
+What is `cache`? Cache is known for storing JSON in memory instead of SkJson having to open and close the file it puts
+its reference in memory, and you are working with memory all the time and if you would like to save the file from memory
+to a real file. you can do it at any time with `save <json-id>`
+
+Check out this
+documentation.: [Write](https://skjson.xyz/documentation/beta#effect-Write), [New](https://skjson.xyz/documentation/beta#effect-New), [Edit](https://skjson.xyz/documentation/beta#effect-Edit), [Link File](https://skjson.xyz/documentation/beta#effect-LinkFile), [Save File](https://skjson.xyz/documentation/beta#effect-SaveCache), [Unlink File](https://skjson.xyz/documentation/beta#effect-UnlinkFile), [Get Cached JSON](https://skjson.xyz/documentation/beta#expression-GetCachedJson)
 
 ```sh
 options:
@@ -146,6 +162,7 @@ on script load:
 ```
 
 #### 🗝️ Now we'll look at is how SkJson works with `Skript/Bukkit` objects
+
 ```sh
 # let's say we have a command test and we work with Player Location. 
 command test:
@@ -161,7 +178,9 @@ command test:
     
     give {_json_item} to player
 ```
-So conclusion, if the Json object contains the correct object key `Skript/SkJson` will try to parse the JSON as a real object.
+
+So conclusion, if the Json object contains the correct object key `Skript/SkJson` will try to parse the JSON as a real
+object.
 <hr />
 
 [<img style="width: 20%" src="https://skripthub.net/static/addon/ViewTheDocsButton.png">](https://skripthub.net/docs/?addon=skJson)

@@ -160,42 +160,29 @@ public abstract class JsonCacheInstance {
             if (files == null || files.length == 0) return;
 
             if (isAsynchronous) {
-                CompletableFuture.runAsync(() -> {
-                    Stream.of(files)
-                            .filter(file -> !file.isDirectory())
-                            .map(File::getName)
-                            .toList().forEach(potentialFile -> {
-                                File potential = new File(pathDirectory + "/" + potentialFile);
-                                CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                                JsonElement json = ct.join().get();
-                                if (letWatching) {
-                                    String parentID = finalCacheDirectory + ";" + potentialFile;
-                                    if (!JsonWatcher.isRegistered(potential))
-                                        JsonWatcher.register(potentialFile, potential, parentID);
-                                }
-                                jsonFiles.add(potentialFile, json);
-                            });
-                    JsonCache<String, JsonElement, File> cache = Config.getCache();
-                    cache.addValue(finalCacheDirectory, jsonFiles, folder);
-                });
+                CompletableFuture.runAsync(() -> StreamOf(pathDirectory, folder, finalCacheDirectory, jsonFiles, files));
             } else {
-                Stream.of(files)
-                        .filter(file -> !file.isDirectory())
-                        .map(File::getName)
-                        .toList().forEach(potentialFile -> {
-                            File potential = new File(pathDirectory + "/" + potentialFile);
-                            CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                            JsonElement json = ct.join().get();
-                            if (letWatching) {
-                                String parentID = finalCacheDirectory + ";" + potentialFile;
-                                if (!JsonWatcher.isRegistered(potential))
-                                    JsonWatcher.register(potentialFile, potential, parentID);
-                            }
-                            jsonFiles.add(potentialFile, json);
-                        });
-                JsonCache<String, JsonElement, File> cache = Config.getCache();
-                cache.addValue(finalCacheDirectory, jsonFiles, folder);
+                StreamOf(pathDirectory, folder, finalCacheDirectory, jsonFiles, files);
             }
+        }
+
+        private void StreamOf(String pathDirectory, File folder, String finalCacheDirectory, JsonObject jsonFiles, File[] files) {
+            Stream.of(files)
+                    .filter(file -> !file.isDirectory())
+                    .map(File::getName)
+                    .toList().forEach(potentialFile -> {
+                        File potential = new File(pathDirectory + "/" + potentialFile);
+                        CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
+                        JsonElement json = ct.join().get();
+                        if (letWatching) {
+                            String parentID = finalCacheDirectory + ";" + potentialFile;
+                            if (!JsonWatcher.isRegistered(potential))
+                                JsonWatcher.register(potentialFile, potential, parentID);
+                        }
+                        jsonFiles.add(potentialFile, json);
+                    });
+            JsonCache<String, JsonElement, File> cache = Config.getCache();
+            cache.addValue(finalCacheDirectory, jsonFiles, folder);
         }
 
         @Override
@@ -210,6 +197,7 @@ public abstract class JsonCacheInstance {
             expressionPathDirectory = (Expression<String>) exprs[0];
             expressionCacheDirectory = (Expression<String>) exprs[1];
             letWatching = matchedPattern == 1;
+            isAsynchronous = parseResult.hasTag("async");
             return true;
         }
     }

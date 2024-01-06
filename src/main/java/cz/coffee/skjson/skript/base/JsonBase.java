@@ -382,7 +382,7 @@ public abstract class JsonBase {
                 final String key = node.getKey();
                 assert key != null;
                 needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 LoggingUtil.warn("Any loop key or object key doesn't exist, please check your syntax!");
             }
             isValues = parseResult.mark == 1;
@@ -1028,6 +1028,7 @@ public abstract class JsonBase {
         }
 
         private Expression<String> directoryInputString;
+
         @Override
         protected String @NotNull [] get(@NotNull Event event) {
             var inputDirectory = directoryInputString.getSingle(event);
@@ -1053,7 +1054,7 @@ public abstract class JsonBase {
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
-            directoryInputString = (Expression<String>) expressions [0];
+            directoryInputString = (Expression<String>) expressions[0];
             return true;
         }
 

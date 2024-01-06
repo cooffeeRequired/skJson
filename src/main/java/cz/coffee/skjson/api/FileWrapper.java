@@ -183,8 +183,8 @@ public class FileWrapper {
                             .toArray(String[]::new);
                 }
             }
-        } catch(Exception ex) {
-           LoggingUtil.enchantedError(ex, ex.getStackTrace(), "FromDirectory");
+        } catch (Exception ex) {
+            LoggingUtil.enchantedError(ex, ex.getStackTrace(), "FromDirectory");
         }
         return new String[0];
     }

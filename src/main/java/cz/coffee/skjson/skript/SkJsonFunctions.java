@@ -23,6 +23,7 @@ public class SkJsonFunctions {
         Parameter<?>[] bool = new Parameter[]{new Parameter<>("bool", DefaultClasses.BOOLEAN, true, null)};
         SkJson.registerFunction(new SimpleJavaFunction<>("skjson_getdelim", bool, DefaultClasses.STRING, true) {
                     @Override
+                    @SuppressWarnings("all")
                     public String @NotNull [] executeSimple(Object[] @NotNull [] params) {
                         return new String[]{ConfigRecords.PATH_VARIABLE_DELIMITER};
                     }
@@ -36,6 +37,7 @@ public class SkJsonFunctions {
 
         SkJson.registerFunction(new SimpleJavaFunction<>("b64", object, DefaultClasses.STRING, true) {
                     @Override
+                    @SuppressWarnings("all")
                     public String @NotNull [] executeSimple(Object[][] params) {
                         String data = params[0][0].toString();
                         return new String[]{Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8))};

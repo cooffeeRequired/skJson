@@ -69,8 +69,8 @@ public class Config {
      * @param replace the replace
      * @return the void
      */
-    public String loadConfigFile(boolean replace, boolean ...saveIncorect) {
-        String wrongFile ="";
+    public String loadConfigFile(boolean replace, boolean... saveIncorect) {
+        String wrongFile = "";
         if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
             wrongFile = regenerateConfigFile();
         }
@@ -89,12 +89,12 @@ public class Config {
     /**
      * Load config file.
      *
-     * @param replace the replace
+     * @param replace      the replace
      * @param saveIncorect true/false .. creating new config.
-     * @param sender true/false has sender
+     * @param sender       true/false has sender
      * @return the void
      */
-    public String loadConfigFile(boolean replace, CommandSender sender, boolean ...saveIncorect) {
+    public String loadConfigFile(boolean replace, CommandSender sender, boolean... saveIncorect) {
         String wrongFile = "";
         if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
             wrongFile = regenerateConfigFile();
@@ -207,6 +207,7 @@ public class Config {
             Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
             Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
     ));
+
     public static String getMapping(final String key) {
         if (mapping.containsKey(key)) {
             return mapping.get(key);
@@ -215,7 +216,7 @@ public class Config {
     }
 
 
-    private void loadConfigs(CommandSender ...sender_) {
+    private void loadConfigs(CommandSender... sender_) {
         var sender = sender_ != null && sender_.length > 0 && sender_[0] != null;
         try {
             CONFIG_VERSION = getDouble("version");
