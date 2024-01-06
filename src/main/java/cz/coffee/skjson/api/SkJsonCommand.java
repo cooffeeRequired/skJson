@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.Config.getMapping;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -55,7 +56,7 @@ public class SkJsonCommand implements CommandExecutor {
                 return true;
             }
             if (args[0].equalsIgnoreCase("reload")) {
-                sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "🟠 &econfig reloading..."));
+                sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "🟠 &econfig reloading..."));
                 try {
                     final HashMap<String, ?> before = new HashMap<>(Map.ofEntries(
                             Map.entry("CONFIG_VERSION", CONFIG_VERSION),
@@ -103,10 +104,10 @@ public class SkJsonCommand implements CommandExecutor {
                                 ColorWrapper.translate(PLUGIN_PREFIX + "Nothing was changed.")
                         );
                     }
-                    sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &asuccessfully."));
+                    sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&7reload &asuccessfully."));
                     return true;
                 } catch (Exception ex) {
-                    sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
+                    sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
                     return false;
                 }
             } else if (args[0].equalsIgnoreCase("about")) {

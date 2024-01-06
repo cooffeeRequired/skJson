@@ -31,98 +31,23 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * The type Config.
- */
 @SuppressWarnings("ALL")
 public class Config {
-    /**
-     * The constant SERVER_TYPE.
-     */
-    public static String SERVER_TYPE;
-
-    /**
-     * The constant PATH_VARIABLE_DELIMITER.
-     */
-    public static String PATH_VARIABLE_DELIMITER;
-
-    /**
-     * The constant PROJECT_DEBUG.
-     */
-    public static boolean PROJECT_DEBUG;
-    /**
-     * The constant LOGGING_LEVEL.
-     */
-    public static int LOGGING_LEVEL;
-    /**
-     * The constant PLUGIN_PREFIX.
-     */
-    public static String PLUGIN_PREFIX;
-    /**
-     * The constant ERROR_PREFIX.
-     */
-    public static String ERROR_PREFIX;
-    /**
-     * The constant WATCHER_PREFIX.
-     */
-    public static String WATCHER_PREFIX;
-
-    /**
-     * The constant DEFAULT_WATCHER_INTERVAL.
-     */
-    public static Long DEFAULT_WATCHER_INTERVAL;
-
-    /**
-     * The constant REQUESTS_PREFIX.
-     */
-    public static String REQUESTS_PREFIX;
-
-    /**
-     * The constant WEBHOOK_PREFIX.
-     */
-    public static String WEBHOOK_PREFIX;
-
-    /**
-     * The constant ALLOWED_LINE_LITERAL.
-     */
-    public static Boolean ALLOWED_LINE_LITERAL;
-
-    public static Double CONFIG_VERSION;
-
-
-    /**
-     * The Logger.
-     */
     final SkJsonLogger logger;
-    /**
-     * The Plugin.
-     */
     final JavaPlugin plugin;
-    /**
-     * The Manager.
-     */
     PluginManager manager;
-
-    /**
-     * The Version.
-     */
     int version;
-
-    /**
-     * The constant watcherCache.
-     */
-    public static ConcurrentHashMap<File, JsonWatcher> watcherCache = new ConcurrentHashMap<>();
     private boolean ready = true;
     private final ArrayList<String> errors = new ArrayList<>();
     private File configFile;
     private FileConfiguration config;
-    private static Config staticConfig;
-    /**
-     * The constant pluginYaml.
-     */
+
     public static YamlConfiguration pluginYaml;
+    public static ConcurrentHashMap<File, JsonWatcher> watcherCache = new ConcurrentHashMap<>();
+    private static Config staticConfig;
 
 
     /**
@@ -161,8 +86,16 @@ public class Config {
         return wrongFile;
     }
 
+    /**
+     * Load config file.
+     *
+     * @param replace the replace
+     * @param saveIncorect true/false .. creating new config.
+     * @param sender true/false has sender
+     * @return the void
+     */
     public String loadConfigFile(boolean replace, CommandSender sender, boolean ...saveIncorect) {
-        String wrongFile ="";
+        String wrongFile = "";
         if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
             wrongFile = regenerateConfigFile();
         }
@@ -231,6 +164,7 @@ public class Config {
             e.printStackTrace();
         }
     }
+
 
     private boolean getSetting(String setting) {
         return this.config.getBoolean("settings." + setting);

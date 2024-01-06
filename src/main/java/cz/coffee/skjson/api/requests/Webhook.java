@@ -9,7 +9,7 @@ import cz.coffee.skjson.utils.LoggingUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 
 /**
  * The type Webhook.

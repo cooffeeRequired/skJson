@@ -2,7 +2,10 @@ package cz.coffee.skjson.skript.base;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -12,9 +15,11 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
@@ -35,8 +40,7 @@ import java.util.regex.Pattern;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 import static ch.njol.skript.variables.Variables.getVariable;
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.*;
 import static cz.coffee.skjson.utils.LoggingUtil.error;
 import static cz.coffee.skjson.utils.LoggingUtil.log;
@@ -310,7 +314,7 @@ public abstract class JsonBase {
                 boolean emptyPath = pathInput == null;
                 String keys = !emptyPath ? pathInput.getSingle(e) : null;
 
-                Queue<String> wrappedKeys = PatternUtil.extractKeysToList(keys, Config.PATH_VARIABLE_DELIMITER);
+                Queue<String> wrappedKeys = PatternUtil.extractKeysToList(keys, PATH_VARIABLE_DELIMITER);
                 ParsedJson parsedJson;
 
                 try {
@@ -960,7 +964,7 @@ public abstract class JsonBase {
                 } else {
                     String element = (String) value;
                     if (directly) {
-                        final Queue<String> list = extractKeysToList(element, Config.PATH_VARIABLE_DELIMITER, true);
+                        final Queue<String> list = extractKeysToList(element, PATH_VARIABLE_DELIMITER, true);
                         ParsedJson parsedJson = null;
                         try {
                             parsedJson = new ParsedJson(json);

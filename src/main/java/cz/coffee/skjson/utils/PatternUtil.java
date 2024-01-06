@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 public abstract class PatternUtil {

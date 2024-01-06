@@ -11,7 +11,6 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.requests.Webhook;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -34,8 +33,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
 import static cz.coffee.skjson.utils.LoggingUtil.error;
@@ -142,7 +140,7 @@ abstract class Types {
                                                                 String pathString = parsed.get("element-path").getAsString();
                                                                 String index = parsed.get("element-index").toString();
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    path = PatternUtil.extractKeysToList(pathString, PATH_VARIABLE_DELIMITER);
                                                                     assert !path.isEmpty();
                                                                 }
                                                                 path.add(index);
@@ -158,7 +156,7 @@ abstract class Types {
                                                             if (type.equalsIgnoreCase("object")) {
                                                                 boolean isValue = (boolean) list.get(3);
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER, false);
+                                                                    path = PatternUtil.extractKeysToList(pathString, PATH_VARIABLE_DELIMITER, false);
                                                                     assert !path.isEmpty();
                                                                     for (Object item : items) {
                                                                         JsonElement parsed = ParserUtil.parse(item);
@@ -182,7 +180,7 @@ abstract class Types {
                                                                 }
                                                             } else if (type.equalsIgnoreCase("array")) {
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    path = PatternUtil.extractKeysToList(pathString, PATH_VARIABLE_DELIMITER);
                                                                     assert !path.isEmpty();
                                                                     for (Object item : items) {
                                                                         JsonElement parsed = ParserUtil.parse(item);
@@ -222,7 +220,7 @@ abstract class Types {
                                                         if (!pathString.equals("Undefined")) {
                                                             for (Object item : items) {
                                                                 JsonElement parsed = ParserUtil.parse(item);
-                                                                path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                path = PatternUtil.extractKeysToList(pathString, PATH_VARIABLE_DELIMITER);
                                                                 //child
                                                                 pj.removeAllByValue(path, parsed);
                                                             }

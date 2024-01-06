@@ -5,7 +5,7 @@ import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.registrations.DefaultClasses;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Config;
+import cz.coffee.skjson.api.ConfigRecords;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -24,7 +24,7 @@ public class SkJsonFunctions {
         SkJson.registerFunction(new SimpleJavaFunction<>("skjson_getdelim", bool, DefaultClasses.STRING, true) {
                     @Override
                     public String @NotNull [] executeSimple(Object[] @NotNull [] params) {
-                        return new String[]{Config.PATH_VARIABLE_DELIMITER};
+                        return new String[]{ConfigRecords.PATH_VARIABLE_DELIMITER};
                     }
                 })
                 .description("Return a your defined delimiter in the config.yml")

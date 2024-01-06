@@ -15,7 +15,10 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.Config.getCache;
+import static cz.coffee.skjson.api.Config.watcherCache;
+import static cz.coffee.skjson.api.ConfigRecords.DEFAULT_WATCHER_INTERVAL;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 
 /**
  * The type Json watcher.

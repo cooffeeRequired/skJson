@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.isClassicType;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
 
@@ -180,12 +180,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         inputIsRegex = matchedPattern == 1 || matchedPattern == 2;
         isYaml = (isFile && parseResult.hasTag("yaml"));
         if (inputIsRegex) {
-            if (matchedPattern == 1) {
-                if (!ALLOWED_LINE_LITERAL) {
-                    LoggingUtil.warn("You don't have allowed this beta feature, if you want use these line literal, you may turn on that in your config.yml");
-                    return false;
-                }
-            }
             if (!parseResult.regexes.isEmpty()) {
                 var parsed = parseResult.regexes.get(0).group(0);
                 var fixed = ParserUtil.parseExpressionContext(parsed, true);

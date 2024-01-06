@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
 
 public abstract class JsonCacheInstance {
     @Name("Json storage")

@@ -3,7 +3,6 @@ package cz.coffee.skjson.utils;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.util.Version;
 import cz.coffee.skjson.api.ColorWrapper;
-import cz.coffee.skjson.api.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.command.MessageCommandSender;
 import org.bukkit.plugin.PluginManager;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 
 public abstract class LoggingUtil {
 
@@ -84,7 +83,7 @@ public abstract class LoggingUtil {
      * @param msg the msg
      */
     public static void watcherLog(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.WATCHER_PREFIX + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + WATCHER_PREFIX + msg));
     }
 
     /**
@@ -93,7 +92,7 @@ public abstract class LoggingUtil {
      * @param msg the msg
      */
     public static void webhookLog(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.WEBHOOK_PREFIX + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + WEBHOOK_PREFIX + msg));
     }
 
     /**
@@ -102,7 +101,7 @@ public abstract class LoggingUtil {
      * @param msg the msg
      */
     public static void error(String msg) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c" + msg));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX + "&l&c" + msg));
     }
 
     public static void warn(String msg, MessageCommandSender... msger) {
@@ -115,7 +114,7 @@ public abstract class LoggingUtil {
 
     @SuppressWarnings("unused")
     public static void error(boolean skript, String e) {
-        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + Config.ERROR_PREFIX + "&l&c" + e));
+        Bukkit.getConsoleSender().sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + ERROR_PREFIX + "&l&c" + e));
     }
 
     /**

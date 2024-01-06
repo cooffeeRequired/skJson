@@ -19,7 +19,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
@@ -32,8 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
 import static cz.coffee.skjson.utils.LoggingUtil.error;
 import static cz.coffee.skjson.utils.PatternUtil.extractKeysToList;
@@ -158,7 +156,7 @@ public abstract class SkJsonChanger {
                                 JsonElement input = inputJsonExpression.getSingle(e);
                                 pj = new ParsedJson(input);
                                 path = pathExpression.getSingle(e);
-                                LinkedList<String> keys = extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
+                                LinkedList<String> keys = extractKeysToList(path, PATH_VARIABLE_DELIMITER, false);
                                 if (!keys.isEmpty()) json = pj.byKey(keys);
                             } else {
                                 json = inputJsonExpression.getSingle(e);
@@ -198,7 +196,7 @@ public abstract class SkJsonChanger {
                     boolean isValue = result.mark == 1 && line == 1;
                     try {
                         path = pathExpression.getSingle(e);
-                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
+                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, PATH_VARIABLE_DELIMITER, false);
                         json = inputJsonExpression.getSingle(e);
                         pj = new ParsedJson(json);
                         for (Object delta : inputDelta) {
@@ -213,7 +211,7 @@ public abstract class SkJsonChanger {
                                     pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                                 }
                             } else {
-                                keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
+                                keys = PatternUtil.extractKeysToList(path, PATH_VARIABLE_DELIMITER);
                                 if (keys.isEmpty()) return;
                                 if (delta instanceof String st) pj.changeKey(keys, st);
                             }
@@ -354,7 +352,7 @@ public abstract class SkJsonChanger {
                 for (Object delta : inputDelta) {
                     try {
                         path = pathInput.getSingle(e);
-                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);
+                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, PATH_VARIABLE_DELIMITER, true);
                         json = jsonInput.getSingle(e);
                         pj = new ParsedJson(json);
                         assert !keys.isEmpty();
@@ -367,7 +365,7 @@ public abstract class SkJsonChanger {
                                 pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                             }
                         } else {
-                            keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
+                            keys = PatternUtil.extractKeysToList(path, PATH_VARIABLE_DELIMITER);
                             if (keys.isEmpty()) return;
                             if (delta instanceof String st) pj.changeKey(keys, st);
                         }

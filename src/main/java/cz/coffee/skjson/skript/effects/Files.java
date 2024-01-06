@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileWrapper;
 import cz.coffee.skjson.json.ParsedJson;
 import cz.coffee.skjson.json.ParsedJsonException;
@@ -31,7 +30,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.ConfigRecords.PATH_VARIABLE_DELIMITER;
 
 /**
  * The type Files.
@@ -126,7 +126,7 @@ public abstract class Files {
                 if (cFile == null) return;
                 JsonElement json = cFile.get();
                 String key = pathInput.getSingle(e);
-                LinkedList<String> keys = PatternUtil.extractKeysToList(key, Config.PATH_VARIABLE_DELIMITER);
+                LinkedList<String> keys = PatternUtil.extractKeysToList(key, PATH_VARIABLE_DELIMITER);
                 if (keys.isEmpty()) return;
                 try {
                     parsedJson = new ParsedJson(json);

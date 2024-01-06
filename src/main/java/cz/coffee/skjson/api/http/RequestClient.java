@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.api.http.RequestClientUtils.changeExtension;
 import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
 

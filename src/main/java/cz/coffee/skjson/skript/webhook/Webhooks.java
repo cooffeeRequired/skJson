@@ -18,9 +18,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Webhook;
 import cz.coffee.skjson.api.requests.WebhookFunction;
-import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.Util;
@@ -39,8 +39,8 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 
 /**
  * Copyright coffeeRequired nd contributors

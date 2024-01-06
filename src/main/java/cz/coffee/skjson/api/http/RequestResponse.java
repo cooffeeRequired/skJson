@@ -10,7 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
 
 /**
