@@ -13,14 +13,10 @@ import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import static cz.coffee.skjson.api.Config.RUN_TEST_ON_START;
 
 public final class SkJson extends JavaPlugin {
 
@@ -41,11 +37,12 @@ public final class SkJson extends JavaPlugin {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void onEnable() {
         plugin = this;
         if (Bukkit.getServer().getName().equals("CraftBukkit")) {
             System.out.println("\033[0;31m-------------------------SPIGOT DETECTED------------------------------");
-            System.out.println("Please install SkJson for Spigot version " + this.getDescription().getVersion());
+            System.out.println("Please install SkJson for Spigot version " + this.getPluginMeta().getVersion());
             System.out.println("---------------------------------------------------------------------\033[0m");
             Bukkit.getPluginManager().disablePlugin(this);
         } else {
@@ -58,20 +55,6 @@ public final class SkJson extends JavaPlugin {
                 LoggingUtil.log("Registered elements..");
                 SkjsonElements.forEach((key, value) -> LoggingUtil.log("  &8&l - &7Registered " + LoggingUtil.coloredElement(key) + "&f " + value.size()));
                 LoggingUtil.log("Hurray! SkJson is &aenabled.");
-                CompletableFuture.runAsync(() -> {
-                    if (RUN_TEST_ON_START) {
-                        try {
-                            LoggingUtil.log("Preparing to run tests... delay limit is: " + Config.TEST_START_UP_DELAY);
-                            Thread.sleep(Config.TEST_START_UP_DELAY);
-                            var loader = new SkriptLoaderFile(new File(this.getDataFolder() + "/" + "..tests"));
-                            loader.load();
-                            Thread.sleep(200);
-                            loader.unload();
-                        } catch (Exception ex) {
-                            LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Main thread in SkJson.java (38)");
-                        }
-                    }
-                });
             } else {
                 throw new IllegalStateException("Opps! Something is wrong");
             }
