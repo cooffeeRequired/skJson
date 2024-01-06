@@ -296,7 +296,7 @@ public class Config {
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
             ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
 
-            if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
+            if (PATH_VARIABLE_DELIMITER.matches("[$#^\\[\\]{}_-]")) {
                 LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
                 LoggingUtil.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
                 manager.disablePlugin(plugin);
