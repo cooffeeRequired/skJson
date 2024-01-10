@@ -5,9 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileHandler;
+import cz.coffee.skjson.api.requests.Pairs;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.request.RequestUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
 import org.eclipse.jetty.client.*;
 import org.eclipse.jetty.http.HttpFields;
@@ -29,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.api.http.RequestClientUtils.changeExtension;
 import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
+import static cz.coffee.skjson.utils.Logger.*;
 
 public class RequestClient implements AutoCloseable {
     private static final String USER_AGENT_FORMAT = "SkJson-requests-%s";
@@ -46,7 +46,7 @@ public class RequestClient implements AutoCloseable {
             this.client.start();
             this.timer = new TimerWrapper(0);
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) LoggingUtil.requestLog(ex.getMessage());
+            if (PROJECT_DEBUG) requestLog(ex.getMessage());
         }
     }
 
@@ -101,8 +101,7 @@ public class RequestClient implements AutoCloseable {
             }
         } catch (Exception ex) {
             if (PROJECT_DEBUG) {
-                String errorMessage = String.format("Error occurred during test(): %s", ex.getMessage());
-                LoggingUtil.enchantedError(ex, ex.getStackTrace(), errorMessage);
+                error(ex);
             }
             return null;
         }
@@ -136,14 +135,17 @@ public class RequestClient implements AutoCloseable {
                     var serverResponse = RequestResponse.of(response.getHeaders(), request.getURI(), text, response.getStatus(), lenient);
                     future.complete(serverResponse);
                     if (LOGGING_LEVEL > 1)
-                        LoggingUtil.log(String.format(REQUESTS_PREFIX + ": " + colorizedMethod(request.getMethod()) + " request was send to &b'%s'&r and takes %s", request.getURI(), timer.toHumanTime()));
+                        info(
+                                "%s: %s request was send to &b'%s'&r and takes %s",
+                                REQUESTS_PREFIX, colorizedMethod(request.getMethod()), request.getURI(), timer.toHumanTime()
+                        );
                 }
                 done = true;
             };
 
             Response.FailureListener failureListener = (response, failure) -> {
                 if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                    LoggingUtil.enchantedError(failure, failure.getStackTrace(), "In FailureListener");
+                    error(failure);
                 this.done();
                 future.completeExceptionally(new IllegalStateException("HTTP request failed"));
             };
@@ -153,7 +155,7 @@ public class RequestClient implements AutoCloseable {
             this.request.send(completeListener);
             this.request.onResponseSuccess(successListener);
         } catch (Exception ex) {
-            LoggingUtil.requestLog(ex.getMessage());
+            requestLog(ex.getMessage());
             future.completeExceptionally(ex);
         }
 
@@ -173,7 +175,7 @@ public class RequestClient implements AutoCloseable {
         return this;
     }
 
-    public RequestClient setHeaders(RequestUtil.Pairs[] pairs) {
+    public RequestClient setHeaders(Pairs[] pairs) {
         if (this.request != null & pairs != null) {
             this.request.headers((x) -> Arrays.stream(pairs).forEach((p) ->
                     x.put(p.getKey(), p.getValue())));
@@ -208,7 +210,7 @@ public class RequestClient implements AutoCloseable {
         try {
             if (file.getName().endsWith(".sk")) file = changeExtension(file, ".vb");
         } catch (IOException exception) {
-            if (PROJECT_DEBUG) LoggingUtil.requestLog(exception.getMessage());
+            if (PROJECT_DEBUG) requestLog(exception.getMessage());
         }
         if (file.exists()) attachments.add(file);
         return Optional.of(this);
@@ -227,13 +229,13 @@ public class RequestClient implements AutoCloseable {
                 try {
                     mpr.addPart(new MultiPart.PathPart("file" + i.incrementAndGet(), attachment.getName(), HttpFields.EMPTY, attachment.toPath()));
                 } catch (Exception e) {
-                    if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
+                    if (PROJECT_DEBUG) error(e);
                 }
             });
             mpr.addPart(new MultiPart.ContentSourcePart("payload_json", null, HttpFields.EMPTY, new StringRequestContent(body, StandardCharsets.UTF_8)));
             this.request.body(mpr);
         } catch (Exception ex) {
-            if (PROJECT_DEBUG) LoggingUtil.requestLog(ex.getMessage());
+            if (PROJECT_DEBUG) requestLog(ex.getMessage());
         }
         return Optional.of(this);
     }
@@ -243,7 +245,7 @@ public class RequestClient implements AutoCloseable {
             try {
                 this.client.stop();
             } catch (Exception e) {
-                if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
+                if (PROJECT_DEBUG) error(e);
             }
         }
     }

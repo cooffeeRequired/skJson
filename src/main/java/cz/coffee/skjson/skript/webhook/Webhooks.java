@@ -22,7 +22,6 @@ import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Webhook;
 import cz.coffee.skjson.api.requests.WebhookFunction;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -35,12 +34,13 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.webhookLog;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -203,15 +203,7 @@ public abstract class Webhooks {
                     EntryContainer dataContainer = validator.validate(dataSection);
                     if (dataContainer == null) return false;
                     contentExpression = dataContainer.getOptional("content", Expression.class, false);
-                    if (contentExpression == null) {
-                        SectionNode contents = dataContainer.getOptional("contents", SectionNode.class, false);
-                        if (contents == null) return false;
-                        contents.convertToEntries(-1);
-                        for (Node content : contents) {
-                            String key = content.getKey();
-                            if (key != null) this.contents.add(contents.get(key, "").replaceAll("\"", ""));
-                        }
-                    }
+                    if (contentExprs(dataContainer, contentExpression)) return false;
                     componentsExpression = dataContainer.getOptional("components", Expression.class, false);
                     actionsExpression = dataContainer.getOptional("actions", Expression.class, false);
                     contentAvatarURL = dataContainer.getOptional("avatar-url", Expression.class, false);
@@ -234,7 +226,7 @@ public abstract class Webhooks {
 
                 } catch (Exception ex) {
                     if (PROJECT_DEBUG && LOGGING_LEVEL >= 2)
-                        LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                        error(ex, null, getParser().getNode());
                 }
                 return true;
             }
@@ -259,19 +251,24 @@ public abstract class Webhooks {
                 contentHeaders = container.getOptional("header", Expression.class, false);
 
                 try {
-                    if (contentBody == null) {
-                        SectionNode contents = container.getOptional("contents", SectionNode.class, false);
-                        if (contents == null) return false;
-                        contents.convertToEntries(-1);
-                        for (Node content : contents) {
-                            String key = content.getKey();
-                            if (key != null) this.contents.add(contents.get(key, "").replaceAll("\"", ""));
-                        }
-                    }
+                    if (contentExprs(container, contentBody)) return false;
                 } catch (Exception e) {
-                    LoggingUtil.enchantedError(e, e.getStackTrace(), "WebHooks cannot convert to Entries");
+                    error(e, null, getParser().getNode(), "WebHooks cannot convert to Entries");
                 }
                 return true;
+            }
+            return false;
+        }
+
+        private boolean contentExprs(EntryContainer dataContainer, Expression<?> contentExpression) {
+            if (contentExpression == null) {
+                SectionNode contents = dataContainer.getOptional("contents", SectionNode.class, false);
+                if (contents == null) return true;
+                contents.convertToEntries(-1);
+                for (Node content : contents) {
+                    String key = content.getKey();
+                    if (key != null) this.contents.add(contents.get(key, "").replaceAll("\"", ""));
+                }
             }
             return false;
         }
@@ -378,11 +375,11 @@ public abstract class Webhooks {
                     }
                     rp = (fn.process(urlChunks[5], urlChunks[6], json));
                     if (rp != null && rp.isSuccessfully()) {
-                        if (LOGGING_LEVEL > 1) LoggingUtil.webhookLog("The payload was sent &asuccesfully.");
+                        if (LOGGING_LEVEL > 1) webhookLog("The payload was sent &asuccesfully.");
                     } else {
                         if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                             assert rp != null;
-                            LoggingUtil.webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
+                            webhookLog("The payload was sent &cunsuccesfully. Cause of " + rp.getBodyContent(true));
                         }
                     }
                 } else if (isWeb) {
@@ -408,11 +405,11 @@ public abstract class Webhooks {
 
                     rp = (fn.process(url, content));
                     if (rp != null && rp.isSuccessfully()) {
-                        if (LOGGING_LEVEL > 1) LoggingUtil.webhookLog("The payload was sent &asuccesfully.");
+                        if (LOGGING_LEVEL > 1) webhookLog("The payload was sent &asuccesfully.");
                     } else {
                         if (PROJECT_DEBUG && LOGGING_LEVEL > 1) {
                             assert rp != null;
-                            LoggingUtil.webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
+                            webhookLog("The payload was sent &asuccesfully. Cause of " + rp.getBodyContent(false));
                         }
                     }
                 }
@@ -438,7 +435,7 @@ public abstract class Webhooks {
                 }
                 return JsonNull.INSTANCE;
             } catch (Exception exs) {
-                if (PROJECT_DEBUG) LoggingUtil.enchantedError(exs, exs.getStackTrace(), "Webhooks.parseEmbedValue");
+                if (PROJECT_DEBUG) error(exs, null, getParser().getNode(), "Webhooks.parseEmbedValue");
                 return JsonNull.INSTANCE;
             }
         }

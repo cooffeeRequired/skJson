@@ -16,7 +16,6 @@ import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileHandler;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +30,8 @@ import java.util.stream.Stream;
 
 import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
 import static cz.coffee.skjson.api.FileHandler.await;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.simpleError;
 
 public abstract class JsonCacheInstance {
     @Name("Json storage")
@@ -53,7 +54,7 @@ public abstract class JsonCacheInstance {
         protected void execute(@NotNull Event e) {
             String nameOfStorage = nameOfStorageExp.getSingle(e);
             if (nameOfStorage == null)
-                if (LOGGING_LEVEL > 1) LoggingUtil.error("The name of the storage is not specified.");
+                if (LOGGING_LEVEL > 1) simpleError("The name of the storage is not specified.");
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             cache.addValue(nameOfStorage, new JsonObject(), new File("Undefined"));
         }
@@ -275,13 +276,13 @@ public abstract class JsonCacheInstance {
                         ConcurrentHashMap<JsonElement, File> jsonMap = cache.get(id);
                         jsonMap.forEach((json, file) -> {
                             if (file.getName().equals("Undefined")) {
-                                LoggingUtil.error("You cannot save virtual storage of json.");
+                                simpleError("You cannot save virtual storage of json.");
                                 return;
                             }
                             try {
                                 await(FileHandler.createOrWrite(file.toString(), json));
                             } catch (ExecutionException | InterruptedException ex) {
-                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                                error(ex, null, getParser().getNode());
                             }
                         });
                     }
@@ -291,7 +292,7 @@ public abstract class JsonCacheInstance {
                             try {
                                 await(FileHandler.createOrWrite(file.toString(), json));
                             } catch (ExecutionException | InterruptedException ex) {
-                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                                error(ex, null, getParser().getNode());
                             }
                         }
                     }));
@@ -304,8 +305,7 @@ public abstract class JsonCacheInstance {
             if (line == 0) {
                 assert e != null;
                 return "save cached json " + externalExprID.toString(e, debug);
-            }
-            else return "save all cached jsons";
+            } else return "save all cached jsons";
         }
 
         @SuppressWarnings("unchecked")

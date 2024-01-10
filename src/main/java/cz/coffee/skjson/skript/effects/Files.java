@@ -19,7 +19,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static cz.coffee.skjson.api.FileHandler.await;
+import static cz.coffee.skjson.utils.Logger.error;
 
 /**
  * The type Files.
@@ -74,7 +74,7 @@ public abstract class Files {
             try {
                 await(FileHandler.createOrWrite(path, content));
             } catch (Exception ex) {
-                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                error(ex, null, getParser().getNode());
             }
         }
 
@@ -142,7 +142,7 @@ public abstract class Files {
                 try {
                     await(FileHandler.createOrWrite(path, json));
                 } catch (ExecutionException | InterruptedException ex) {
-                   LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                    error(ex, null, getParser().getNode());
                 }
             });
         }

@@ -22,7 +22,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -43,8 +42,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.*;
-import static cz.coffee.skjson.utils.LoggingUtil.error;
-import static cz.coffee.skjson.utils.LoggingUtil.log;
+import static cz.coffee.skjson.utils.Logger.*;
 import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
@@ -157,7 +155,7 @@ public abstract class JsonBase {
             try {
                 outputMap = (WeakHashMap<String, Object>) loop.getCurrent(e);
             } catch (ClassCastException exception) {
-                if (PROJECT_DEBUG) error(exception.getLocalizedMessage(), getParser().getNode());
+                if (PROJECT_DEBUG) error(exception);
                 return new Object[0];
             }
 
@@ -335,7 +333,7 @@ public abstract class JsonBase {
                 }
             } catch (Exception ex) {
                 if (ex.getMessage().contains("Cannot invoke \"java.util.LinkedList.toArray(Object[])\"")) {
-                    LoggingUtil.warn("Incorrect json format " + jsonInput.toString(e, true));
+                    warn("Incorrect json format %s", jsonInput.toString(e, true));
                 }
             }
             return new Object[0];
@@ -372,7 +370,7 @@ public abstract class JsonBase {
                 assert key != null;
                 needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
             } catch (Exception ex) {
-                LoggingUtil.warn("Any loop key or object key doesn't exist, please check your syntax!");
+                warn("Any loop key or object key doesn't exist, please check your syntax!");
             }
             isValues = parseResult.mark == 1;
             if (isValues) {
@@ -584,7 +582,7 @@ public abstract class JsonBase {
         protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
             Object input = inputExpression.getSingle(e);
 
-            log("Executed...");
+            info("Executed...");
             return new Integer[0];
         }
 
@@ -664,7 +662,7 @@ public abstract class JsonBase {
                             }
                         } else {
                             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                log("List-Element: &b" + element + " &fParsed? ->  &a" + parsed);
+                                info("List-Element &b %s &fParsed? -> &a %s", element, parsed);
                             parsed(name + (index + 1), parsed, isLocal, event);
                         }
                     }
@@ -674,8 +672,6 @@ public abstract class JsonBase {
                             JsonElement element = map.get(key);
                             Object parsed = ParserUtil.from(element);
                             // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
-                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                log("InThe Map:  ", "&fNAME: &c" + name + "  &fBFR_SPLIT_PRIMITIVE: &b" + element.isJsonPrimitive() + "  &fISLOCAL: &a" + isLocal);
                             if (parsed == null) {
                                 if (element.isJsonPrimitive()) {
                                     primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
@@ -683,12 +679,10 @@ public abstract class JsonBase {
                                     toList(name + key + SEPARATOR, element, isLocal, event);
                                 }
                             } else {
-                                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                    log("Map-Element: &e" + element + " &fParsed? ->  &a" + parsed);
                                 parsed(name + key, parsed, isLocal, event);
                             }
                         } catch (Exception e) {
-                            log(e.getMessage());
+                            error(e);
                         }
                     });
                 }
@@ -696,8 +690,6 @@ public abstract class JsonBase {
         }
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                log("&fNAME: &a" + name + "  &fOBJECT: &a" + object + "  &fISLOCAL: &a" + isLocal);
             Variables.setVariable(name, object, event, isLocal);
         }
 
@@ -705,12 +697,8 @@ public abstract class JsonBase {
             if (name == null || input == null || event == null) return;
             Object o = jsonToType(defaultConverter(input));
             if (o != null) {
-                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) log(o.getClass());
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) info(o.getClass());
             }
-
-
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                log("!primitive:: ", "&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
             assert o != null;
             Variables.setVariable(name, o, event, isLocal);
         }
@@ -725,7 +713,7 @@ public abstract class JsonBase {
             Expression<?> unparsedObject = defendExpression(exprs[1]);
             async = parseResult.hasTag("async");
             if (!unparsedObject.getReturnType().isAssignableFrom(JsonElement.class)) {
-                error("You can map only Json or stringify json (String)", getParser().getNode());
+                simpleError("You can map only Json or stringify json (String)", getParser().getNode());
                 return false;
             }
             jsonInput = exprs[0];
@@ -857,11 +845,11 @@ public abstract class JsonBase {
                     isLocal = var.isLocal();
                     variable = var.getName();
                 } else {
-                    error("Variable need to be a list", getParser().getNode());
+                    simpleError("Variable need to be a list", getParser().getNode());
                     return false;
                 }
             } else {
-                error("You need to use a Variable not.. " + objects.getReturnType());
+                simpleError("You need to use a Variable not.. " + objects.getReturnType());
                 return false;
             }
             return true;

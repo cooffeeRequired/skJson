@@ -1,14 +1,14 @@
 package cz.coffee.skjson.utils;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffee.skjson.api.ConfigRecords.*;
-import static cz.coffee.skjson.utils.Util.fstring;
+import static cz.coffee.skjson.api.ConfigRecords.PATH_VARIABLE_DELIMITER;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.warn;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 public abstract class PatternUtil {
@@ -65,27 +65,31 @@ public abstract class PatternUtil {
     private static boolean controlDelimiter(final String inputString) {
         var controlledString = checkDelimiter(inputString);
         if (!((boolean) controlledString[1])) {
-            LoggingUtil.warn("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + inputString + " \n  \t\t\t&f- Wrong delimiter &c" + false);
+            warn("\n  \t\t\t&f- &cThe path-delimiter in the script is different from what is set in SkJson's config. \n  \t\t\t&f- Error node: &c" + inputString + " \n  \t\t\t&f- Wrong delimiter &c" + false);
             return false;
         }
         return true;
     }
 
-    public enum KeyType { LIST, KEY }
+    public enum KeyType {LIST, KEY}
+
     public record keyStruct(String key, KeyType type) {
         public boolean isList() {
             return this.type == KeyType.LIST;
         }
     }
+
     public static LinkedList<keyStruct> convertStringToKeys(String inputString) {
         return convertStringToKeys(inputString, PATH_VARIABLE_DELIMITER + "(?![{}])");
     }
+
     public static LinkedList<keyStruct> convertStringToKeys(String inputString, String inputDelimiter) {
         return convertStringToKeys(inputString, inputDelimiter, false);
     }
+
     public static LinkedList<keyStruct> convertStringToKeys(String inputString, String inputDelimiter, boolean add) {
         final LinkedList<keyStruct> keys = new LinkedList<>();
-        if (inputString == null ) return keys;
+        if (inputString == null) return keys;
         if (!controlDelimiter(inputString)) return keys;
 
         String string = sanitizeString(inputString);
@@ -115,7 +119,7 @@ public abstract class PatternUtil {
                 }
             }
         } catch (Exception ex) {
-            LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+            error(ex);
         }
         return keys;
     }

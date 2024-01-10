@@ -22,7 +22,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +32,9 @@ import java.util.List;
 
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
-import static cz.coffee.skjson.utils.LoggingUtil.error;
+import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
+
 public abstract class SkJsonChanger {
 
     public static <V> List<JsonElement> parseAliases(V value) {
@@ -135,7 +135,7 @@ public abstract class SkJsonChanger {
             switch (mode) {
                 case ADD -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        error(false, "Input or json cannot be null");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                         return;
                     }
                     JsonElement json = JsonNull.INSTANCE;
@@ -165,20 +165,18 @@ public abstract class SkJsonChanger {
                                 }
                             } else {
                                 if (LOGGING_LEVEL > 1)
-                                    error("You can add values only to JSON arrays.", getParser().getNode());
+                                    error(new RuntimeException("You can add values only to JSON arrays."), null, getParser().getNode());
                                 return;
                             }
                         } catch (Exception ex) {
-                            error(false, "Something happened in the Changer! If you wanna more information");
-                            if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                             if (PROJECT_DEBUG)
-                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
+                                error(ex, null, getParser().getNode());
                         }
                     }
                 }
                 case SET -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        error(false, "Input or json cannot be null");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                         return;
                     }
                     JsonElement json = null;
@@ -210,10 +208,8 @@ public abstract class SkJsonChanger {
                         }
 
                     } catch (Exception ex) {
-                        error(false, "Something happened in the Changer! If you wanna more information");
-                        if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                         if (PROJECT_DEBUG)
-                            LoggingUtil.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
+                            error(ex, null, getParser().getNode());
                     }
                 }
             }
@@ -333,7 +329,7 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             if (mode == Changer.ChangeMode.SET) {
                 if (inputDelta == null || jsonInput == null) {
-                    error(false, "Input or json cannot be null");
+                    error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                     return;
                 }
                 boolean isValue = result.hasTag("value");
@@ -360,7 +356,7 @@ public abstract class SkJsonChanger {
                             }
                         }
                     } catch (Exception ex) {
-                        LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Change event SkJsonChanger, 370");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                     }
                 }
             }

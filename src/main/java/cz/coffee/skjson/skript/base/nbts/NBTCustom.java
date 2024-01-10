@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+
 public enum NBTCustom {
     NBTTagEnd("tag end", NBTType.NBTTagEnd),
     NBTTagByte("byte", NBTType.NBTTagByte, Number.class),

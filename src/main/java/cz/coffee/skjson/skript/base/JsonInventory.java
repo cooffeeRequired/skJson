@@ -6,6 +6,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+
 public record JsonInventory(HumanEntity player, Inventory inv) {
     public static Inventory newInventory(String holderName, InventoryType type, String title) {
         Player p = null;

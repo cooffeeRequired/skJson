@@ -3,13 +3,12 @@ package cz.coffee.skjson.api.requests;
 import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.skript.request.RequestMethods;
-import cz.coffee.skjson.utils.LoggingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
+import static cz.coffee.skjson.utils.Logger.webhookLog;
 
 /**
  * The type Webhook.
@@ -48,7 +47,7 @@ public class Webhook {
      * @return the webhook function
      */
     public WebhookFunction create(JsonElement... json) {
-        return create(RequestMethods.POST, json);
+        return create(RequestMethod.POST, json);
     }
 
     private List<String> attachments = new ArrayList<>();
@@ -69,7 +68,7 @@ public class Webhook {
      * @param headers the headers
      * @return the webhook function
      */
-    public WebhookFunction create(RequestMethods method, JsonElement... headers) {
+    public WebhookFunction create(RequestMethod method, JsonElement... headers) {
         if (webHookType.equals(WebHookType.DISCORD)) {
             return new WebhookFunction() {
                 @Override
@@ -93,7 +92,7 @@ public class Webhook {
                         }
                     } catch (Exception e) {
                         if (PROJECT_DEBUG) {
-                            LoggingUtil.webhookLog(e.getMessage());
+                            webhookLog(e.getMessage());
                         }
                     }
                     return response[0];
@@ -116,7 +115,7 @@ public class Webhook {
                         }
                     } catch (Exception e) {
                         if (PROJECT_DEBUG) {
-                            LoggingUtil.webhookLog(e.getMessage());
+                            webhookLog(e.getMessage());
                         }
                     }
                     return response[0];

@@ -7,16 +7,20 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static cz.coffee.skjson.utils.Logger.coloredElement;
+import static cz.coffee.skjson.utils.Logger.info;
 
 public final class SkJson extends JavaPlugin {
 
@@ -54,9 +58,9 @@ public final class SkJson extends JavaPlugin {
                 throw new RuntimeException(e);
             }
             if (config.ready()) {
-                LoggingUtil.log("Registered elements..");
-                SkjsonElements.forEach((key, value) -> LoggingUtil.log("  &8&l - &7Registered " + LoggingUtil.coloredElement(key) + "&f " + value.size()));
-                LoggingUtil.log("Hurray! SkJson is &aenabled.");
+                info("Registered elements..");
+                SkjsonElements.forEach((key, value) -> info("  &8&l - &7Registered " + coloredElement(key) + "&f " + value.size()));
+                info("Hurray! SkJson is &aenabled.");
             } else {
                 throw new IllegalStateException("Opps! Something is wrong");
             }
@@ -69,13 +73,14 @@ public final class SkJson extends JavaPlugin {
             System.out.println("Disabled");
         } else {
             JsonWatcher.unregisterAll();
-            LoggingUtil.log("Goodbye! SkJson is &#d60f3aDisabled!");
+            info("Goodbye! SkJson is &#d60f3aDisabled!");
         }
     }
 
     public static Server getThisServer() {
         return Bukkit.getServer();
     }
+
 
     public static <E extends Effect> void registerEffect(Class<E> c, String... patterns) {
         SkjsonElements.get("Effects").add(c.toString());

@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
-import cz.coffee.skjson.utils.LoggingUtil;
 
 import java.io.File;
 import java.nio.file.*;
@@ -18,6 +17,7 @@ import static cz.coffee.skjson.api.Config.getCache;
 import static cz.coffee.skjson.api.Config.watcherCache;
 import static cz.coffee.skjson.api.ConfigRecords.DEFAULT_WATCHER_INTERVAL;
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
+import static cz.coffee.skjson.utils.Logger.watcherLog;
 
 /**
  * The type Json watcher.
@@ -35,6 +35,7 @@ public class JsonWatcher {
      * The Config.
      */
     static Config config;
+
     /**
      * Gets id.
      *
@@ -44,6 +45,7 @@ public class JsonWatcher {
     public String getId() {
         return id;
     }
+
     /**
      * Instantiates a new Json watcher.
      *
@@ -102,7 +104,7 @@ public class JsonWatcher {
         AtomicBoolean found = new AtomicBoolean(false);
         watcherCache.forEachKey(1, file_ -> {
             if (file_.equals(file)) {
-                LoggingUtil.watcherLog("Watcher for file " + file + " is already registered!");
+                watcherLog("Watcher for file " + file + " is already registered!");
                 found.set(true);
             }
         });
@@ -112,7 +114,7 @@ public class JsonWatcher {
             watcher.setEvent(new EventWatcherSave(file, id, watcher.getUuid()));
             watcherCache.put(file, watcher);
             if (watcher.isActive()) {
-                LoggingUtil.watcherLog("Registered with id: &a" + watcher.getUuid() + "&f for file &7(&e" + file + "&7)");
+                watcherLog("Registered with id: &a" + watcher.getUuid() + "&f for file &7(&e" + file + "&7)");
             }
         }
     }
@@ -128,7 +130,7 @@ public class JsonWatcher {
             if (watcher.isActive()) {
                 watcher.setCancelled(true);
                 if (watcher.isCancelled() && watcher.isDone()) {
-                    LoggingUtil.watcherLog("File &7(&e" + file + "&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher (" + watcher.getUuid() + ")");
+                    watcherLog("File &7(&e" + file + "&7)&7 was &fsuccessfully &aunlinked&7 from JsonWatcher (" + watcher.getUuid() + ")");
                 }
             }
             return null;
@@ -162,10 +164,10 @@ public class JsonWatcher {
                                 this.event.setJson(jsonfile);
                                 cache.replace(id, map);
                                 if (PROJECT_DEBUG)
-                                    LoggingUtil.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
+                                    watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
                             } else {
                                 if (PROJECT_DEBUG)
-                                    LoggingUtil.watcherLog("Is cached!  : " + potentialJson + "--> : " + jsonfile);
+                                    watcherLog("Is cached!  : " + potentialJson + "--> : " + jsonfile);
                             }
                             break;
                         }
@@ -175,7 +177,7 @@ public class JsonWatcher {
                 }
             });
         } catch (Exception e) {
-            LoggingUtil.watcherLog(String.format("An error occurred while watching file: %s, exception: %s", file, e));
+            watcherLog(String.format("An error occurred while watching file: %s, exception: %s", file, e));
         }
     }
 
@@ -247,12 +249,12 @@ public class JsonWatcher {
      */
     public static void unregisterAll() {
         try {
-            LoggingUtil.watcherLog("Trying to unregister all watchers!");
+            watcherLog("Trying to unregister all watchers!");
             watcherCache.forEach((file, v_) -> unregister(file));
         } catch (Exception e) {
-            LoggingUtil.watcherLog("Unregistering all watchers &cFailed!");
+            watcherLog("Unregistering all watchers &cFailed!");
         } finally {
-            LoggingUtil.watcherLog("Unregistering all watchers was &asuccessfully!");
+            watcherLog("Unregistering all watchers was &asuccessfully!");
         }
     }
 }

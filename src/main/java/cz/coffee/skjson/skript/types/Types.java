@@ -11,11 +11,11 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.api.requests.Request;
+import cz.coffee.skjson.api.requests.RequestMethod;
 import cz.coffee.skjson.api.requests.Webhook;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.request.RequestMethods;
-import cz.coffee.skjson.skript.request.RequestWrapper;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -29,16 +29,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.StreamCorruptedException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.api.ConfigRecords.PATH_VARIABLE_DELIMITER;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
-import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
-import static cz.coffee.skjson.utils.LoggingUtil.error;
+import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.PatternUtil.keyStruct;
 
 @Since("2.9")
@@ -56,7 +55,7 @@ abstract class Types {
 
             }
         } catch (Exception e) {
-            if (PROJECT_DEBUG) error(e.getMessage());
+            if (PROJECT_DEBUG) error(e);
         }
 
          /*
@@ -197,13 +196,8 @@ abstract class Types {
                                                         }
                                                     }
                                                 } catch (Exception ex) {
-                                                    if (LOGGING_LEVEL > 1 && !PROJECT_DEBUG) {
-                                                        error(false, "Something happened in the Changer! If you wanna more information");
-                                                        if (!PROJECT_DEBUG)
-                                                            error(false, "Turn on debug in your config.");
-                                                    }
                                                     if (PROJECT_DEBUG)
-                                                        enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
+                                                        error(ex);
                                                 }
                                             }
                                         }
@@ -232,7 +226,7 @@ abstract class Types {
                                                         }
                                                     }
                                                 } catch (Exception ex) {
-                                                    error(false, ex.getMessage());
+                                                    error(ex);
                                                 }
                                             }
                                         }
@@ -271,7 +265,7 @@ abstract class Types {
                         })
         );
 
-        Classes.registerClass(new EnumClassInfo<>(RequestMethods.class, "requestmethod", "request method")
+        Classes.registerClass(new EnumClassInfo<>(RequestMethod.class, "requestmethod", "request method")
                 .user("request ?method?")
                 .name("Request methods")
                 .description("represent allowed methods for make a request, e.g. POST, GET")
@@ -280,24 +274,35 @@ abstract class Types {
         );
 
         Classes.registerClass(
-                new ClassInfo<>(RequestWrapper.class, "request")
+                new ClassInfo<>(Request.class, "request")
                         .user("request")
                         .name("request")
                         .description("Representation instance of Request")
-                        .since("2.9.9-pre")
+                        .since("2.9.9-pre API changes")
                         .parser(new Parser<>() {
                             @Override
-                            public @NotNull String toString(RequestWrapper requestWrapper, int i) {
-                                return requestWrapper.toString();
+                            public @NotNull String toString(Request request, int i) {
+                                return request.toString();
                             }
 
                             @Override
-                            public @NotNull String toVariableNameString(RequestWrapper requestWrapper) {
-                                return toString(requestWrapper, 0);
+                            public @NotNull String toVariableNameString(Request request) {
+                                return toString(request, 0);
                             }
                             @Override
                             public boolean canParse(@NonNull ParseContext context) {
                                 return false;
+                            }
+                        })
+                        .changer(new Changer<>() {
+                            @Override
+                            public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
+                                return null;
+                            }
+
+                            @Override
+                            public void change(Request[] what, @Nullable Object[] delta, ChangeMode mode) {
+
                             }
                         })
         );

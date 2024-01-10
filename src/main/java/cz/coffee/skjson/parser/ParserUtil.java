@@ -9,7 +9,6 @@ import com.google.gson.internal.LazilyParsedNumber;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.NBTCustom;
 import cz.coffee.skjson.skript.base.Converter;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -25,6 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.skript.base.Converter.*;
 import static cz.coffee.skjson.skript.base.SimpleConverter.SERIALIZED_JSON_TYPE_KEY;
+import static cz.coffee.skjson.utils.Logger.error;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
 /**
@@ -244,8 +244,7 @@ public abstract class ParserUtil {
                     return ItemStackConverter.toJson(data.getStack());
                 }
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
-                if (PROJECT_DEBUG) ex.printStackTrace();
+                if (PROJECT_DEBUG) error(ex);
             }
         } else {
             JsonElement e = assign(o);
@@ -288,8 +287,8 @@ public abstract class ParserUtil {
                     try {
                         return NBTContainerConverter.toJson(new NBTContainer(object.toString()));
                     } catch (Exception ex_) {
-                        LoggingUtil.error(ex.getLocalizedMessage());
-                        LoggingUtil.error(ex_.getLocalizedMessage());
+                        error(ex);
+                        error(ex_);
                     }
                 }
             }
@@ -323,7 +322,7 @@ public abstract class ParserUtil {
         try {
             if (potentialClass != null) clazz = Class.forName(potentialClass);
         } catch (ClassNotFoundException notFoundException) {
-            if (PROJECT_DEBUG) LoggingUtil.error(notFoundException.getLocalizedMessage());
+            if (PROJECT_DEBUG) error(notFoundException);
             return null;
         }
 
@@ -345,8 +344,7 @@ public abstract class ParserUtil {
                     return (T) GsonConverter.fromJson(finalJson, clazz);
                 else return null;
             } catch (Exception ex) {
-                if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
-                if (PROJECT_DEBUG) ex.printStackTrace();
+                if (PROJECT_DEBUG) error(ex);
                 return null;
             }
         }

@@ -18,18 +18,23 @@ import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.isClassicType;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.warn;
 
 @Name("New json")
 @Description({
@@ -111,13 +116,13 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                                 .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
                                 .request().join();
                     } catch (Exception ex) {
-                        LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                        error(ex, Bukkit.getConsoleSender(), getParser().getNode());
                     }
                     return rp;
                 });
                 JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
                 if (elem instanceof JsonNull nil) {
-                    LoggingUtil.warn("You cannot get non-json content via this.");
+                    warn("You cannot get non-json content via this.");
                     output.add(nil);
                 } else {
                     output.add(elem);
@@ -142,7 +147,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                                 output.add(parse(value));
                             }
                         } catch (Exception ex) {
-                            if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
+                            if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
                         }
                     }
                 }
@@ -163,13 +168,18 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        assert e != null;
-        return "json from " + switch (mark) {
-            case 1 -> "text";
-            case 2 -> isYaml ? "yaml file" : "json file";
-            case 3 -> "website file";
-            default -> "object";
-        } + " " + input.toString(e, debug);
+        try {
+            assert e != null;
+            return "json from " + switch (mark) {
+                case 1 -> "text";
+                case 2 -> isYaml ? "yaml file" : "json file";
+                case 3 -> "website file";
+                default -> "object";
+            } + " " + input.toString(e, debug);
+        } catch (Exception ex) {
+            error(ex, null, getParser().getNode());
+        }
+        return "";
     }
 
     @Override

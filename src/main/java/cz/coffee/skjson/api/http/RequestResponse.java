@@ -2,7 +2,6 @@ package cz.coffee.skjson.api.http;
 
 import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.eclipse.jetty.http.HttpFields;
 
 import java.net.MalformedURLException;
@@ -11,13 +10,9 @@ import java.net.URL;
 import java.util.Optional;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
-import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.warn;
 
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: sobota (30.09.2023)
- */
 public interface RequestResponse {
     /**
      * Of response.
@@ -53,7 +48,7 @@ public interface RequestResponse {
                     }
                 } catch (Exception e) {
                     if (!saveIncorrect) {
-                        LoggingUtil.warn("Expecting JSON but got a String! If you don't want get this message use `save incorrect response: true`");
+                        warn("Expecting JSON but got a String! If you don't want get this message use `save incorrect response: true`");
                         return JsonNull.INSTANCE;
                     }
                     return body;
@@ -65,7 +60,7 @@ public interface RequestResponse {
                 try {
                     return Optional.of(uri.toURL());
                 } catch (MalformedURLException exception) {
-                    if (PROJECT_DEBUG) enchantedError(exception, exception.getStackTrace(), "Invalid URL");
+                    if (PROJECT_DEBUG) error(exception);
                     return Optional.empty();
                 }
             }

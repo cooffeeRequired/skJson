@@ -10,7 +10,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -32,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.utils.Logger.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuppressWarnings("ALL")
@@ -120,7 +120,7 @@ public class Config {
             Files.writeString(Path.of("./plugins/SkJson/", wrongFile), c, UTF_8);
             plugin.saveResource("config.yml", true);
         } catch (IOException fileException) {
-            LoggingUtil.enchantedError(fileException, fileException.getStackTrace(), fileException.getLocalizedMessage());
+            error(fileException);
         }
         return wrongFile;
     }
@@ -137,6 +137,7 @@ public class Config {
         }
         return null;
     }
+
     private void matchConfig() {
         try {
             boolean hasUpdated = false;
@@ -230,12 +231,12 @@ public class Config {
             ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
 
             if (PATH_VARIABLE_DELIMITER.matches("[$#^\\[\\]{}_-]")) {
-                LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-                LoggingUtil.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+                info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+                simpleError("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
                 manager.disablePlugin(plugin);
             }
         } catch (Exception ignored) {
-            LoggingUtil.log("&e&lConfig.yaml was fixed... Cause missing entry");
+            warn("&e&lConfig.yaml was fixed... Cause missing entry");
             loadConfigFile(true);
         }
     }
@@ -261,7 +262,7 @@ public class Config {
             loadConfigFile(false);
             if (CONFIG_VERSION != SkJson.CONFIG_PRIMARY_VERSION) {
                 var c = regenerateConfigFile();
-                LoggingUtil.warn(String.format("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.CONFIG_PRIMARY_VERSION, CONFIG_VERSION, c));
+                warn("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.CONFIG_PRIMARY_VERSION, CONFIG_VERSION, c);
                 loadConfigFile(true);
             }
         } catch (Exception ex) {
@@ -286,18 +287,18 @@ public class Config {
             logger.info("[NBTAPI] Was loaded &asuccessfully.");
         } catch (Exception ignored) {
             ready = false;
-            LoggingUtil.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
+            simpleError("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
 
 
         try {
-            if (!LoggingUtil.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin))
+            if (!versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin))
                 return;
 
             ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";
             setupMetrics(17374, (JavaPlugin) plugin);
-            LoggingUtil.log(metricsPrefix + "Was loaded &asuccessfully.");
+            info("%s Was loaded &asuccessfully.", metricsPrefix);
         } catch (Exception ignored) {
             ready = false;
             errors.add("Couldn't initialize Metrics'");
@@ -306,17 +307,17 @@ public class Config {
 
 
         if (errors.size() > 0) {
-            LoggingUtil.error("&cFound errors while skJson starting, SkJson will be &cdisabled");
+            simpleError("&cFound errors while skJson starting, SkJson will be &cdisabled");
             for (int i = 0; i < errors.size(); i++) {
                 String error = errors.get(i);
-                LoggingUtil.log(String.format("&7→ %s. &c%s", i, error));
+                info("&7→ %s. &c%s", i, error);
             }
             manager.disablePlugin(plugin);
         }
 
         try {
             JsonWatcher.init(this);
-            LoggingUtil.watcherLog("was &ainitialized.");
+            watcherLog("was &ainitialized.");
         } catch (Exception ignored) {
             errors.add("JsonWatcher Couldn't been &cinitialized.");
         }
@@ -383,7 +384,7 @@ public class Config {
             return false;
         }
         String skriptPrefix = "&#e3e512S&#9ae150k&#55d57br&#00c59ci&#00b2aep&#329dadt&r";
-        LoggingUtil.log(skriptPrefix + " was found and &ainitialized.");
+        info("%s was found and &ainitialized.", skriptPrefix);
         return true;
     }
 

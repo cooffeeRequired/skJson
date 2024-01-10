@@ -6,13 +6,23 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import static cz.coffee.skjson.utils.Logger.times;
+
 /**
  * The type Util.
  */
 public abstract class Util {
 
-    public static String fstring(String message, Object ...arguments) {
+    public static String fstring(String message, Object... arguments) {
         return String.format(message, arguments);
+    }
+
+    public static String fstring(String m, boolean c, Object... a) {
+        if (c) {
+            return String.format(m + times("%s", a.length), a);
+        } else {
+            return fstring(m, a);
+        }
     }
 
 

@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,6 +12,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.info;
 
 /**
  * The type Update check.
@@ -51,10 +52,10 @@ public class UpdateCheck {
         config.setCurrentVersion(sanitizedCurrentVersion);
 
         if (beta) {
-            LoggingUtil.log("You're running on beta version, so checking is not necessary (&b" + currentVersion + "v.&r)");
+            info("You're running on beta version, so checking is not necessary (&b %sv.&r)", currentVersion);
         } else {
             if (apiResponse != null) {
-                if (!success) LoggingUtil.log("&eDo you have internet connection? Version check &c&lFailed");
+                if (!success) info("&eDo you have internet connection? Version check &c&lFailed");
                 String onlineVersion = "";
                 try {
                     onlineVersion = apiResponse.getAsJsonObject().get("tag_name").getAsString();
@@ -62,14 +63,14 @@ public class UpdateCheck {
                 }
                 int sanitizeOnlineVersion = sanitizeVersion(onlineVersion);
                 if (sanitizedCurrentVersion == sanitizeOnlineVersion) {
-                    LoggingUtil.log("You're running on &alast&f stable version. " + onlineVersion + "v.");
+                    info("You're running on &alast&f stable version. %sv.", onlineVersion);
                 } else if (sanitizeOnlineVersion > sanitizedCurrentVersion) {
-                    LoggingUtil.log("&cskJson is not up to date!");
-                    LoggingUtil.log("&8 > &7Current version: &cv" + currentVersion);
-                    LoggingUtil.log("&8 > &7Available version: &av" + onlineVersion);
-                    LoggingUtil.log("&8 > &7Download available at link: &bhttps://github.com/SkJsonTeam/skJson/releases/latest");
+                    info("&cskJson is not up to date!");
+                    info("&8 > &7Current version: &cv%s", currentVersion);
+                    info("&8 > &7Available version: &av%s", onlineVersion);
+                    info("&8 > &7Download available at link: &bhttps://github.com/SkJsonTeam/skJson/releases/latest");
                 } else {
-                    LoggingUtil.log("You're running on non-public version, so checking is not necessary &bv" + currentVersion + "&r!");
+                    info("You're running on non-public version, so checking is not necessary &bv%s&r!", currentVersion);
                 }
             }
         }
@@ -82,7 +83,7 @@ public class UpdateCheck {
             if (replaced.length() == 2) replaced = replaced + 0;
             return Integer.parseInt(replaced);
         } catch (NumberFormatException exception) {
-            if (PROJECT_DEBUG) LoggingUtil.error(exception.getMessage());
+            if (PROJECT_DEBUG) error(exception);
         }
         return 0;
     }
@@ -97,7 +98,7 @@ public class UpdateCheck {
                         .request().join();
                 success = response.isSuccessfully();
             } catch (Exception e) {
-                if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
+                if (PROJECT_DEBUG) error(e);
                 return null;
             } finally {
                 if (response != null) {
