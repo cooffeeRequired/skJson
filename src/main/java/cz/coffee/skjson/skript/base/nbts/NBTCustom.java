@@ -6,12 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: úterý (08.08.2023)
- */
 public enum NBTCustom {
     NBTTagEnd("tag end", NBTType.NBTTagEnd),
     NBTTagByte("byte", NBTType.NBTTagByte, Number.class),

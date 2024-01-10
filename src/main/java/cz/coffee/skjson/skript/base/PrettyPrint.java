@@ -83,6 +83,7 @@ public class PrettyPrint extends SimpleExpression<String> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
+        assert e != null;
         return jsonExpression.toString(e, debug) + " with pretty print";
     }
 

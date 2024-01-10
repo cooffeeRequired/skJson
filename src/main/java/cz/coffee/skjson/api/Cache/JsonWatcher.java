@@ -1,9 +1,8 @@
 package cz.coffee.skjson.api.Cache;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import cz.coffee.skjson.utils.LoggingUtil;
 
@@ -24,24 +23,18 @@ import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
  * The type Json watcher.
  */
 public class JsonWatcher {
-
     private final File file;
     private final String id;
     private final String parentID;
     private EventWatcherSave event;
-
     private final WatchService watchService;
-
     private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(runnable -> new Thread(runnable, "JsonWatcher"));
     private final ScheduledFuture<?> future;
-
     private final UUID uuid;
-
     /**
      * The Config.
      */
     static Config config;
-
     /**
      * Gets id.
      *
@@ -51,7 +44,6 @@ public class JsonWatcher {
     public String getId() {
         return id;
     }
-
     /**
      * Instantiates a new Json watcher.
      *
@@ -149,31 +141,31 @@ public class JsonWatcher {
     public void watch() {
         try {
             JsonCache<String, JsonElement, File> cache = getCache();
-            FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
-                JsonElement fromFile = cFile != null ? cFile.get() : JsonNull.INSTANCE;
+            FileHandler.get(file).whenComplete((jsonfile, error) -> {
+                var splitParentID = parentID.split(";");
                 Map<JsonElement, File> fromCache;
                 JsonElement potentialJson;
                 if (parentID.contains(";")) {
-                    fromCache = cache.getValuesByKey(parentID.split(";")[0]).join();
-                    potentialJson = ((JsonElement) fromCache.keySet().toArray()[0]).getAsJsonObject().get(parentID.split(";")[1]);
+                    fromCache = cache.getValuesByKey(splitParentID[0]).join();
+                    potentialJson = ((JsonElement) fromCache.keySet().toArray()[0]).getAsJsonObject().get(splitParentID[1]);
                 } else {
                     fromCache = cache.getValuesByKey(id).join();
-                    potentialJson = (JsonElement) fromCache.keySet().toArray()[0];
+                    potentialJson = ((JsonElement) fromCache.keySet().toArray()[0]);
                 }
 
                 WatchKey key;
                 while ((key = watchService.poll()) != null) {
                     for (WatchEvent<?> event : key.pollEvents()) {
                         if (event.context().equals(file.toPath().getFileName())) {
-                            if (!Objects.equals(potentialJson.toString(), fromFile.toString())) {
-                                ConcurrentHashMap<JsonElement, File> map = new ConcurrentHashMap<>(Map.of(fromFile, file));
-                                this.event.setJson(fromFile);
+                            if (!Objects.equals(potentialJson.toString(), jsonfile.toString())) {
+                                ConcurrentHashMap<JsonElement, File> map = new ConcurrentHashMap<>(Map.of(jsonfile, file));
+                                this.event.setJson(jsonfile);
                                 cache.replace(id, map);
                                 if (PROJECT_DEBUG)
                                     LoggingUtil.watcherLog(String.format("File Modified: %s, Watcher ID: %s", file, uuid));
                             } else {
                                 if (PROJECT_DEBUG)
-                                    LoggingUtil.watcherLog("Is cached!  : " + potentialJson + "--> : " + fromFile);
+                                    LoggingUtil.watcherLog("Is cached!  : " + potentialJson + "--> : " + jsonfile);
                             }
                             break;
                         }
@@ -260,7 +252,7 @@ public class JsonWatcher {
         } catch (Exception e) {
             LoggingUtil.watcherLog("Unregistering all watchers &cFailed!");
         } finally {
-            LoggingUtil.watcherLog("Unregistering all watchers was &asuccessful!");
+            LoggingUtil.watcherLog("Unregistering all watchers was &asuccessfully!");
         }
     }
 }

@@ -16,9 +16,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.json.ParsedJson;
-import cz.coffee.skjson.json.ParsedJsonException;
+import cz.coffee.skjson.api.FileHandler;
+import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
@@ -29,9 +28,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.ConfigRecords.PATH_VARIABLE_DELIMITER;
+import static cz.coffee.skjson.api.FileHandler.await;
 
 /**
  * The type Files.
@@ -72,11 +71,16 @@ public abstract class Files {
             } else {
                 content = new JsonObject();
             }
-            FileWrapper.newFile(path, content);
+            try {
+                await(FileHandler.createOrWrite(path, content));
+            } catch (Exception ex) {
+                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+            }
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return String.format("new json file %s %s", filePathInput.toString(e, debug), withContent ? "with content" + unparsedValueInput.toString(e, debug) : "");
         }
 
@@ -121,38 +125,31 @@ public abstract class Files {
             String path = fileInput.getSingle(e);
             if (path == null) return;
             Object unparsedValue = unparsedInput.getSingle(e);
-            FileWrapper.from(new File(path)).whenComplete((cFile, cThrow) -> {
-                ParsedJson parsedJson = null;
-                if (cFile == null) return;
-                JsonElement json = cFile.get();
+            FileHandler.get(path).whenComplete((json, error) -> {
+                if (json == null) return;
                 String key = pathInput.getSingle(e);
-                LinkedList<String> keys = PatternUtil.extractKeysToList(key, PATH_VARIABLE_DELIMITER);
+                LinkedList<PatternUtil.keyStruct> keys = PatternUtil.convertStringToKeys(key);
                 if (keys.isEmpty()) return;
-                try {
-                    parsedJson = new ParsedJson(json);
-                } catch (ParsedJsonException exception) {
-                    if (LOGGING_LEVEL >= 1) LoggingUtil.log(exception.getLocalizedMessage());
-                }
 
-                JsonElement changeValue = ParserUtil.parse(unparsedValue);
-                if (parsedJson == null) return;
-                if (isValue) {
-                    parsedJson.changeValue(keys, changeValue);
-                } else {
+                JsonElement value = ParserUtil.parse(unparsedValue);
+                if (value == null) return;
+                if (isValue) JsonParser.change(json).value(keys, value);
+                else {
                     if (unparsedValue instanceof String st) {
-                        parsedJson.changeKey(keys, st);
-                    } else {
-                        if (LOGGING_LEVEL >= 1)
-                            LoggingUtil.log("You can change key only by a string not a object-value.");
+                        JsonParser.change(json).key(keys, st);
                     }
                 }
-                JsonElement jsonElement = parsedJson.getJson();
-                FileWrapper.write(path, jsonElement);
+                try {
+                    await(FileHandler.createOrWrite(path, json));
+                } catch (ExecutionException | InterruptedException ex) {
+                   LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                }
             });
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return String.format("edit %s of %s to %s", (isValue ? "value" : "key"), fileInput.toString(e, debug), unparsedInput.toString(e, debug));
         }
 
@@ -196,11 +193,12 @@ public abstract class Files {
             String file = inputFile.getSingle(e);
             Object unparsed = unparsedInput.getSingle(e);
             JsonElement parsedJson = ParserUtil.parse(unparsed, true);
-            CompletableFuture.runAsync(() -> FileWrapper.write(file, parsedJson));
+            CompletableFuture.runAsync(() -> FileHandler.createOrWrite(file, parsedJson).join());
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return String.format("write %s to json file %s", unparsedInput.toString(e, debug), inputFile.toString(e, debug));
         }
 
@@ -248,6 +246,7 @@ public abstract class Files {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "json file " + exprFile.toString(e, debug) + (line == 0 ? "exists" : "not exist");
         }
 
@@ -294,6 +293,7 @@ public abstract class Files {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "json" + jsonElementExpression.toString(e, debug) + " " + (line == 0 ? "is" : "does not") + " empty";
         }
 

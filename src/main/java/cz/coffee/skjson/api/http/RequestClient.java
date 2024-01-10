@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.request.RequestUtil;
 import cz.coffee.skjson.utils.LoggingUtil;
@@ -168,14 +168,16 @@ public class RequestClient implements AutoCloseable {
 
     public RequestClient addHeaders(WeakHashMap<String, String> map) {
         if (this.request != null) {
-            this.request.headers((x) -> map.forEach(x::add));
+            this.request.headers((x) -> map.forEach(x::put));
         }
         return this;
     }
 
     public RequestClient setHeaders(RequestUtil.Pairs[] pairs) {
         if (this.request != null & pairs != null) {
-            this.request.headers((x) -> Arrays.stream(pairs).forEach((p) -> x.add(p.getKey(), p.getValue())));
+            this.request.headers((x) -> Arrays.stream(pairs).forEach((p) ->
+                    x.put(p.getKey(), p.getValue())));
+
         }
         return this;
     }
@@ -201,7 +203,7 @@ public class RequestClient implements AutoCloseable {
     public Optional<RequestClient> addAttachment(String pathToAttachment) {
         File file;
         if (pathToAttachment.startsWith("*")) {
-            file = FileWrapper.serchFile(pathToAttachment.replaceAll("[*/]", ""));
+            file = FileHandler.searchFile(pathToAttachment.replaceAll("[*/]", "")).join();
         } else file = new File(pathToAttachment);
         try {
             if (file.getName().endsWith(".sk")) file = changeExtension(file, ".vb");

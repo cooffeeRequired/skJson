@@ -13,8 +13,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.api.FileWrapper.JsonFile;
+import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.JsonExpressionString;
@@ -94,11 +93,11 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                     final File file = new File(stringifyFile);
 
                     // make a sensitization for Failed get from FileWrapper
-                    JsonFile jsonFile_ = FileWrapper.fromNormal(file);
-                    if (jsonFile_ == null) {
+                    JsonElement json = FileHandler.get(file).join();
+                    if (json == null) {
                         output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
                     } else {
-                        output.add(jsonFile_.get());
+                        output.add(json);
                     }
                 }
             } else if (isWebFile) {
@@ -114,13 +113,14 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                     } catch (Exception ex) {
                         LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
                     }
-
                     return rp;
                 });
                 JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
                 if (elem instanceof JsonNull nil) {
                     LoggingUtil.warn("You cannot get non-json content via this.");
                     output.add(nil);
+                } else {
+                    output.add(elem);
                 }
             } else {
                 for (Object value : values) {
@@ -163,6 +163,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
+        assert e != null;
         return "json from " + switch (mark) {
             case 1 -> "text";
             case 2 -> isYaml ? "yaml file" : "json file";

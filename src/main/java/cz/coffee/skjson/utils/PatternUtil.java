@@ -1,5 +1,6 @@
 package cz.coffee.skjson.utils;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.utils.Util.fstring;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 public abstract class PatternUtil {
@@ -69,59 +71,52 @@ public abstract class PatternUtil {
         return true;
     }
 
-    /**
-     * Extract keys to list linked list.
-     *
-     * @param inputString    the string
-     * @param inputDelimiter the delimiter
-     * @param add            the raw adding
-     * @return Queue<String>
-     */
+    public enum KeyType { LIST, KEY }
+    public record keyStruct(String key, KeyType type) {
+        public boolean isList() {
+            return this.type == KeyType.LIST;
+        }
+    }
+    public static LinkedList<keyStruct> convertStringToKeys(String inputString) {
+        return convertStringToKeys(inputString, PATH_VARIABLE_DELIMITER + "(?![{}])");
+    }
+    public static LinkedList<keyStruct> convertStringToKeys(String inputString, String inputDelimiter) {
+        return convertStringToKeys(inputString, inputDelimiter, false);
+    }
+    public static LinkedList<keyStruct> convertStringToKeys(String inputString, String inputDelimiter, boolean add) {
+        final LinkedList<keyStruct> keys = new LinkedList<>();
+        if (inputString == null ) return keys;
+        if (!controlDelimiter(inputString)) return keys;
 
-    public static LinkedList<String> extractKeysToList(String inputString, String inputDelimiter, boolean add) {
-        final LinkedList<String> extractedKeys = new LinkedList<>();
+        String string = sanitizeString(inputString);
+        String delimiter = sanitizeDelimiter(inputDelimiter == null ? PATH_VARIABLE_DELIMITER + "(?![{}])" : inputDelimiter);
 
-        if (inputString == null) return extractedKeys;
+        try {
+            String _key = null, _index = null;
+            for (String item : string.split(delimiter)) {
+                Matcher squares = subPattern.matcher(item);
+                Matcher number = insideSquareBrackets.matcher(item);
 
-        if (controlDelimiter(inputString)) {
-            String sanitizedString = sanitizeString(inputString);
-            String sanitizedDelimiter = sanitizeDelimiter(inputDelimiter == null ? PATH_VARIABLE_DELIMITER + "(?![{}])" : inputDelimiter);
-
-            try {
-                String _key = null, _index = null;
-                for (String item : sanitizedString.split(sanitizedDelimiter)) {
-                    Matcher squares = subPattern.matcher(item);
-                    Matcher number = insideSquareBrackets.matcher(item);
-
-                    if (squareBrackets.matcher(item).find()) {
-                        while (squares.find()) if (squares.group(1) != null) _key = squares.group(1);
-                        while (number.find()) {
-                            if (number.group(1) != null) {
-                                String n1 = number.group(1);
-                                if (!(n1.isBlank() || n1.isEmpty())) {
-                                    _index = String.valueOf(parseNumber(number.group(1)));
-                                    if (parseNumber(_index) < 0) _index = "0";
-                                }
+                if (squareBrackets.matcher(item).find()) {
+                    while (squares.find()) if (squares.group(1) != null) _key = squares.group(1);
+                    while (number.find()) {
+                        if (number.group(1) != null) {
+                            String n1 = number.group(1);
+                            if (!(n1.isBlank() || n1.isEmpty())) {
+                                _index = String.valueOf(parseNumber(number.group(1)));
+                                if (parseNumber(_index) < 0) _index = "0";
                             }
                         }
-
-                        extractedKeys.add(add ? _key + "->List" : _key);
-                        if (_index != null) extractedKeys.add(_index);
-                    } else {
-                        extractedKeys.add(item);
                     }
+                    keys.add(add ? new keyStruct(_key, KeyType.LIST) : new keyStruct(_key, KeyType.KEY));
+                    if (_index != null) keys.add(new keyStruct(_index, KeyType.KEY));
+                } else {
+                    keys.add(new keyStruct(item, KeyType.KEY));
                 }
-            } catch (Exception ex) {
-                LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Utils:177");
-            } finally {
-                if (LOGGING_LEVEL > 3 && PROJECT_DEBUG)
-                    LoggingUtil.log("Before transform " + inputString + " \nAfter transform " + extractedKeys);
             }
+        } catch (Exception ex) {
+            LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
         }
-        return extractedKeys;
-    }
-
-    public static LinkedList<String> extractKeysToList(String inputString, String inputDelimiter) {
-        return PatternUtil.extractKeysToList(inputString, inputDelimiter, false);
+        return keys;
     }
 }

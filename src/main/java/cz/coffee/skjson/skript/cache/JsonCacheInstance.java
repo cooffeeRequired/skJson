@@ -15,7 +15,7 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.FileWrapper;
+import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.utils.LoggingUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +25,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.FileHandler.await;
 
 public abstract class JsonCacheInstance {
     @Name("Json storage")
@@ -58,6 +60,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "create new json storage named " + nameOfStorageExp.toString(e, debug);
         }
 
@@ -95,8 +98,7 @@ public abstract class JsonCacheInstance {
             if (id == null || fileString == null) return;
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             File file = new File(fileString);
-            FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
-                JsonElement json = cFile.get();
+            FileHandler.get(file).whenComplete((json, cThrow) -> {
                 if (json == null) return;
                 cache.addValue(id, json, file);
                 if (asAlive) if (!JsonWatcher.isRegistered(file)) JsonWatcher.register(id, file);
@@ -105,6 +107,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "link json file " + exprFileString.toString(e, debug) + " as " + expressionID.toString(e, debug) + (asAlive ? " and make json watcher listen" : "");
         }
 
@@ -172,8 +175,8 @@ public abstract class JsonCacheInstance {
                     .map(File::getName)
                     .toList().forEach(potentialFile -> {
                         File potential = new File(pathDirectory + "/" + potentialFile);
-                        CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                        JsonElement json = ct.join().get();
+                        CompletableFuture<JsonElement> ct = FileHandler.get(potential);
+                        JsonElement json = ct.join();
                         if (letWatching) {
                             String parentID = finalCacheDirectory + ";" + potentialFile;
                             if (!JsonWatcher.isRegistered(potential))
@@ -187,6 +190,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "load json file from " + expressionPathDirectory.toString(e, debug) + " and save it in " + expressionCacheDirectory.toString(e, debug);
 
         }
@@ -228,6 +232,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "cached json " + exprId.toString(event, b) + (line == 0 ? " is " : " is not") + "loaded";
         }
 
@@ -273,12 +278,22 @@ public abstract class JsonCacheInstance {
                                 LoggingUtil.error("You cannot save virtual storage of json.");
                                 return;
                             }
-                            FileWrapper.write(file.toString(), json);
+                            try {
+                                await(FileHandler.createOrWrite(file.toString(), json));
+                            } catch (ExecutionException | InterruptedException ex) {
+                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                            }
                         });
                     }
                 } else {
                     cache.forEach((key, map) -> map.forEach((json, file) -> {
-                        if (!file.getName().equals("Undefined")) FileWrapper.write(file.toString(), json);
+                        if (!file.getName().equals("Undefined")) {
+                            try {
+                                await(FileHandler.createOrWrite(file.toString(), json));
+                            } catch (ExecutionException | InterruptedException ex) {
+                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), ex.getLocalizedMessage());
+                            }
+                        }
                     }));
                 }
             });
@@ -286,7 +301,10 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
-            if (line == 0) return "save cached json " + externalExprID.toString(e, debug);
+            if (line == 0) {
+                assert e != null;
+                return "save cached json " + externalExprID.toString(e, debug);
+            }
             else return "save all cached jsons";
         }
 
@@ -330,6 +348,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "unlink json " + exprID.toString(event, b);
         }
 
@@ -395,6 +414,7 @@ public abstract class JsonCacheInstance {
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
             if (line == 0) {
+                assert event != null;
                 return "get cached json " + storedKeyExpr.toString(event, b);
             } else {
                 return "all cached jsons";

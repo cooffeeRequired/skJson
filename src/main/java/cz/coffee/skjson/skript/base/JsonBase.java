@@ -12,7 +12,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
@@ -20,14 +19,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.json.ParsedJson;
-import cz.coffee.skjson.json.ParsedJsonException;
+import cz.coffee.skjson.api.FileHandler;
+import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,65 +38,64 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
+import static ch.njol.skript.util.LiteralUtils.canInitSafely;
+import static ch.njol.skript.util.LiteralUtils.defendExpression;
 import static ch.njol.skript.variables.Variables.getVariable;
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.*;
 import static cz.coffee.skjson.utils.LoggingUtil.error;
 import static cz.coffee.skjson.utils.LoggingUtil.log;
-import static cz.coffee.skjson.utils.PatternUtil.extractKeysToList;
+import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
 @SuppressWarnings({"Unchecked", "unused"})
 public abstract class JsonBase {
 
     @Name("Count values/elements in the Json.")
-    @Description("You can get the count values in the given json")
-    @Examples({
-            "number of key \"test\" in %json%"
+    @Description({
+            "You can get the number of values or keys in the given json",
+            "",
+            "**Explanatory notes**:",
+            "\t > `<json>`: represent a placeholder for your json e.g. `{_json}`"
     })
-    @Since("2.9")
+    @Examples({
+            "number of keys \"test\" and \"something\" in <json>",
+            "number of key \"test\" in <json>"
+    })
+    @ApiStatus.Experimental
+    @Since("2.9.9-pre (Api change)")
     public static class CountElements extends SimpleExpression<Integer> {
         static {
-            SkJson.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE, "number of (0:key|1:value) %objects% in %json%");
+            SkJson.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE,
+                    "number of (0:key[s]|1:value[s]) %objects% in %json%"
+            );
         }
 
-        private Expression<?> inputObjects;
-        private Expression<JsonElement> inputJson;
+        private Expression<?> inputValues;
+        private Expression<JsonElement> expressionJson;
         private boolean isKey;
 
         @Override
         protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
-            JsonElement json = inputJson.getSingle(e);
+            JsonElement json = expressionJson.getSingle(e);
             if (json == null) return new Integer[0];
-            ParsedJson parsedJson = null;
-            try {
-                parsedJson = new ParsedJson(json);
-            } catch (ParsedJsonException exception) {
-                if (LOGGING_LEVEL == 1) error(exception.getLocalizedMessage());
-            }
-            assert parsedJson != null;
+            Collection<?> unparsedValues = Collections.singleton(inputValues.getAll(e));
+            final List<Integer> counts = new ArrayList<>();
 
-            Object[] parsedInput = inputObjects.getAll(e);
-            final List<Integer> output = new ArrayList<>();
-            ParsedJson finalParsedJson = parsedJson;
-            CompletableFuture<List<Integer>> ft = CompletableFuture.supplyAsync(() -> {
-                Arrays.stream(parsedInput).forEach(input -> {
-                    if (isKey) {
-                        if (input instanceof String str) output.add(finalParsedJson.keys(str));
-                    } else {
-                        JsonElement parsed = ParserUtil.parse(input);
-                        assert parsed != null;
-                        output.add(finalParsedJson.values(parsed));
-                    }
-                });
-                return output;
+            unparsedValues.forEach((value) -> {
+                if (isKey) {
+                    if (value instanceof String str) counts.add(JsonParser.count(json).keys(str));
+                } else {
+                    var parsedValue = parse(value);
+                    counts.add(JsonParser.count(json).values(parsedValue));
+                }
             });
-            return ft.join().toArray(new Integer[0]);
+            return counts.toArray(Integer[]::new);
         }
 
         @Override
         public boolean isSingle() {
-            return inputObjects.isSingle();
+            return inputValues.isSingle();
         }
 
         @Override
@@ -107,16 +105,16 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
-            return Classes.getDebugMessage(inputObjects) + "in" + Classes.getDebugMessage(inputJson);
+            return Classes.getDebugMessage(inputValues) + "in" + Classes.getDebugMessage(expressionJson);
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             isKey = parseResult.mark == 0;
-            inputJson = (Expression<JsonElement>) exprs[1];
-            inputObjects = LiteralUtils.defendExpression(exprs[0]);
-            return LiteralUtils.canInitSafely(inputObjects);
+            expressionJson = (Expression<JsonElement>) exprs[1];
+            inputValues = defendExpression(exprs[0]);
+            return canInitSafely(inputValues);
         }
     }
 
@@ -277,7 +275,6 @@ public abstract class JsonBase {
         private Expression<JsonElement> jsonInput;
         private Expression<String> pathInput;
         private boolean needConvert;
-        private Node node;
 
         public static LinkedList<Object> getNestedElements(JsonElement current) {
             LinkedList<Object> results = new LinkedList<>();
@@ -314,28 +311,19 @@ public abstract class JsonBase {
                 boolean emptyPath = pathInput == null;
                 String keys = !emptyPath ? pathInput.getSingle(e) : null;
 
-                Queue<String> wrappedKeys = PatternUtil.extractKeysToList(keys, PATH_VARIABLE_DELIMITER);
-                ParsedJson parsedJson;
-
-                try {
-                    parsedJson = new ParsedJson(json);
-                } catch (ParsedJsonException ex) {
-                    if (PROJECT_DEBUG) error(ex.getLocalizedMessage(), node);
-                    return new Object[0];
-                }
-
+                Deque<PatternUtil.keyStruct> wrappedKeys = convertStringToKeys(keys);
                 if (wrappedKeys.isEmpty() && (!emptyPath || !isValues)) return new Object[0];
 
                 if (isValues) {
                     if (emptyPath) {
                         return needConvert ? new Object[]{json} : getNestedElements(json).toArray(new Object[0]);
                     } else {
-                        JsonElement jsonResult = parsedJson.byKey(wrappedKeys);
+                        JsonElement jsonResult = JsonParser.search(json).key(wrappedKeys);
                         if (jsonResult == null) return new Object[0];
                         return needConvert ? new Object[]{jsonResult} : getNestedElements(jsonResult).toArray(new Object[0]);
                     }
                 } else {
-                    JsonElement jsonResult = parsedJson.byKey(wrappedKeys);
+                    JsonElement jsonResult = JsonParser.search(json).key(wrappedKeys);
                     Object[] result;
                     Object assigned = ParserUtil.from(jsonResult);
                     if (assigned == null) {
@@ -370,6 +358,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return (isValues ? "values" : "value") + " of " + jsonInput.toString(e, debug);
         }
 
@@ -377,7 +366,7 @@ public abstract class JsonBase {
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             try {
-                node = getParser().getNode();
+                Node node = getParser().getNode();
                 assert node != null;
                 final String key = node.getKey();
                 assert key != null;
@@ -387,13 +376,13 @@ public abstract class JsonBase {
             }
             isValues = parseResult.mark == 1;
             if (isValues) {
-                jsonInput = LiteralUtils.defendExpression(exprs[3]);
+                jsonInput = defendExpression(exprs[3]);
                 pathInput = (Expression<String>) exprs[2];
             } else {
-                jsonInput = LiteralUtils.defendExpression(exprs[1]);
+                jsonInput = defendExpression(exprs[1]);
                 pathInput = (Expression<String>) exprs[0];
             }
-            return LiteralUtils.canInitSafely(jsonInput);
+            return canInitSafely(jsonInput);
         }
 
         @Override
@@ -548,6 +537,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return switch (tag) {
                 case 1 -> "first";
                 case 2 -> "second";
@@ -563,8 +553,8 @@ public abstract class JsonBase {
         public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
             tag = parseResult.mark;
             intExpression = (Expression<Integer>) exprs[0];
-            jsonInput = LiteralUtils.defendExpression(exprs[1]);
-            return LiteralUtils.canInitSafely(jsonInput);
+            jsonInput = defendExpression(exprs[1]);
+            return canInitSafely(jsonInput);
         }
     }
 
@@ -610,6 +600,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "get a index of key/value " + inputExpression.toString(e, debug) + " in " + pathExpression.toString(e, debug) + " of " + jsonElementExpression.toString(e, debug);
         }
 
@@ -617,10 +608,10 @@ public abstract class JsonBase {
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             boolean isValue = parseResult.hasTag("value");
-            inputExpression = LiteralUtils.defendExpression(exprs[0]);
+            inputExpression = defendExpression(exprs[0]);
             pathExpression = (Expression<String>) exprs[1];
             jsonElementExpression = (Expression<JsonElement>) exprs[2];
-            return LiteralUtils.canInitSafely(inputExpression);
+            return canInitSafely(inputExpression);
         }
     }
 
@@ -720,6 +711,7 @@ public abstract class JsonBase {
 
             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
                 log("!primitive:: ", "&fNAME: &a" + name + "  &fOBJECT: &a" + input + "  &fISLOCAL: &a" + isLocal);
+            assert o != null;
             Variables.setVariable(name, o, event, isLocal);
         }
 
@@ -730,7 +722,7 @@ public abstract class JsonBase {
 
         @Override
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            Expression<?> unparsedObject = LiteralUtils.defendExpression(exprs[1]);
+            Expression<?> unparsedObject = defendExpression(exprs[1]);
             async = parseResult.hasTag("async");
             if (!unparsedObject.getReturnType().isAssignableFrom(JsonElement.class)) {
                 error("You can map only Json or stringify json (String)", getParser().getNode());
@@ -741,7 +733,7 @@ public abstract class JsonBase {
                 if (var.isList()) {
                     isLocal = var.isLocal();
                     variableString = var.getName();
-                    return LiteralUtils.canInitSafely(unparsedObject);
+                    return canInitSafely(unparsedObject);
                 }
             }
             return false;
@@ -911,6 +903,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "type of " + inputJson.toString(e, debug);
         }
 
@@ -918,9 +911,9 @@ public abstract class JsonBase {
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, ParseResult parseResult) {
             line = matchedPattern;
             mark = parseResult.mark;
-            inputJson = LiteralUtils.defendExpression(exprs[0]);
+            inputJson = defendExpression(exprs[0]);
             setNegated(matchedPattern == 1);
-            return LiteralUtils.canInitSafely(inputJson);
+            return canInitSafely(inputJson);
         }
     }
 
@@ -964,19 +957,11 @@ public abstract class JsonBase {
                 } else {
                     String element = (String) value;
                     if (directly) {
-                        final Queue<String> list = extractKeysToList(element, PATH_VARIABLE_DELIMITER, true);
-                        ParsedJson parsedJson = null;
-                        try {
-                            parsedJson = new ParsedJson(json);
-                        } catch (Exception exception) {
-                            if (LOGGING_LEVEL >= 1) error(exception.getLocalizedMessage());
-                        }
-                        if (parsedJson != null) {
-                            final JsonElement result = parsedJson.byKey(list);
-                            if (result == null || result.isJsonNull()) {
-                                found = false;
-                                break;
-                            }
+                        final Queue<PatternUtil.keyStruct> list = convertStringToKeys(element, PATH_VARIABLE_DELIMITER, true);
+                        final JsonElement result = JsonParser.search(json).key(list);
+                        if (result == null || result.isJsonNull()) {
+                            found = false;
+                            break;
                         }
                     } else {
                         if (!ParserUtil.checkKeys(element, json)) {
@@ -991,6 +976,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return inputJson.toString(e, debug) + " has " + (isValues ? "values" : "keys") + " " + unparsedInput.toString(e, debug);
 
         }
@@ -1002,9 +988,9 @@ public abstract class JsonBase {
             line = matchedPattern;
             isValues = parseResult.hasTag("value");
             setNegated(line == 1);
-            unparsedInput = LiteralUtils.defendExpression(exprs[1]);
+            unparsedInput = defendExpression(exprs[1]);
             inputJson = (Expression<JsonElement>) exprs[0];
-            return LiteralUtils.canInitSafely(unparsedInput);
+            return canInitSafely(unparsedInput);
         }
     }
 
@@ -1032,7 +1018,7 @@ public abstract class JsonBase {
         @Override
         protected String @NotNull [] get(@NotNull Event event) {
             var inputDirectory = directoryInputString.getSingle(event);
-            ArrayList<String> store = new ArrayList<>(Arrays.asList(FileWrapper.fromDirectory(inputDirectory)));
+            ArrayList<String> store = new ArrayList<>(Arrays.asList(FileHandler.walkDirectory(inputDirectory).join()));
             return store.toArray(String[]::new);
         }
 
@@ -1048,6 +1034,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "All json files from directory " + directoryInputString.toString(event, b);
         }
 

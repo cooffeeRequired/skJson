@@ -137,8 +137,6 @@ public class Config {
         }
         return null;
     }
-
-    @SuppressWarnings("ConstantConditions")
     private void matchConfig() {
         try {
             boolean hasUpdated = false;
@@ -237,12 +235,8 @@ public class Config {
                 manager.disablePlugin(plugin);
             }
         } catch (Exception ignored) {
-            try {
-                LoggingUtil.log("&e&lConfig.yaml was fixed... Cause missing entry");
-                loadConfigFile(true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            LoggingUtil.log("&e&lConfig.yaml was fixed... Cause missing entry");
+            loadConfigFile(true);
         }
     }
 

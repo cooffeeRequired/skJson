@@ -10,6 +10,12 @@ import java.util.ArrayList;
  * The type Util.
  */
 public abstract class Util {
+
+    public static String fstring(String message, Object ...arguments) {
+        return String.format(message, arguments);
+    }
+
+
     /**
      * Parse number int.
      *
