@@ -11,8 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,6 +84,11 @@ public final class SkJson extends JavaPlugin {
         SkjsonElements.get("Effects").add(c.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
         Skript.registerEffect(c, patterns);
+    }
+
+    public static <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
+        SkjsonElements.get("Expressions").add(expressionClass.toString());
+        Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
     }
 
     public static <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {

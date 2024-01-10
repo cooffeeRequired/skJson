@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.requests.Request;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -36,7 +37,7 @@ import static cz.coffee.skjson.utils.Util.fstring;
 public class propExprContent extends PropertyExpression<Request, JsonElement> {
 
     static {
-        register(propExprContent.class, JsonElement.class, "[request] content", "requests");
+        SkJson.registerProperty(propExprContent.class, JsonElement.class, "[request] content", "requests");
     }
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] source) {

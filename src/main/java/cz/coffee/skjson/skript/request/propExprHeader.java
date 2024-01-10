@@ -9,6 +9,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.requests.Pairs;
 import cz.coffee.skjson.api.requests.Request;
 import org.bukkit.event.Event;
@@ -38,7 +39,7 @@ import static cz.coffee.skjson.utils.Util.fstring;
 public class propExprHeader extends PropertyExpression<Request, JsonElement> {
 
     static {
-        register(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
+        SkJson.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
     }
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] source) {

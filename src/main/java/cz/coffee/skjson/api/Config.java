@@ -292,7 +292,7 @@ public class Config {
 
 
         try {
-            if (!versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin))
+            if (!versionError(Skript.getVersion(), new Version("2.8.0-pre1"), true, manager, plugin))
                 return;
 
             ready = classesRegistration(plugin);

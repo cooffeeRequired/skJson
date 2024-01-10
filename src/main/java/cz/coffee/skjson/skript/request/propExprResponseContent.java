@@ -5,6 +5,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.Response;
 import org.bukkit.event.Event;
@@ -31,7 +32,7 @@ import static cz.coffee.skjson.utils.Util.fstring;
 public class propExprResponseContent extends PropertyExpression<Request, Object> {
 
     static {
-        register(propExprResponseContent.class, Object.class, "response [:content|:headers|:status code|:status]", "requests");
+        SkJson.registerProperty(propExprResponseContent.class, Object.class, "response [:content|:headers|:status code|:status]", "requests");
     }
 
     private String tag;
