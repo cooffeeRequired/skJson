@@ -60,9 +60,9 @@ public class FileWrapper {
                 }
             } else if (file.getName().endsWith(".yml") || file.getName().endsWith(".yaml")) {
                 try {
-                    Yaml yaml = new Yaml();
-                    Object yamlMap = yaml.loadAll(reader);
-                    return new GsonBuilder().serializeNulls().create().toJsonTree(yamlMap);
+                    Yaml yml = new Yaml();
+                    var loader = yml.load(reader);
+                    return JsonParser.parseString(loader.toString());
                 } catch (Exception e) {
                     if (PROJECT_DEBUG) LoggingUtil.error(e.getMessage());
                 }
