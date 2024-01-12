@@ -120,19 +120,22 @@ public abstract class JsonBase {
      * The type Loop expression.
      */
     @Name("Loops")
-    @Description({
-            "loops of values/key for json",
-            "",
-            "<b>json-value, json-key</b>"
-    })
+    @Description("""
+            That will allow loop through json, and get key/index or value
+            **json-value**, **json-key**
+    """)
     @Since("2.9")
-    @Examples({
-            "on script load:",
-            "\tset {_json} to json from location(10,1,1)",
-            "\tloop values of {_json}:",
-            "\t\tsend json-value, json-key",
-            "",
-    })
+    @Examples("""
+        on script load:
+            set {_json} to json from "{'key': 'value', 'array': [1, 2, 3, false, 'index/value']}
+            loop values "array" of {_json}:
+                send json-value # 1, 2, 3, false, index/value
+                send json-key # 1, 2, 3, 4, 5
+
+            loop values of {_json}:
+                send json-value # value, [1, 2, 3, false, "index/value"]
+                send json-key # 1, 2
+    """)
     public static class LoopExpression extends SimpleExpression<Object> {
         static {
             SkJsonElements.registerExpression(LoopExpression.class, Object.class, ExpressionType.SIMPLE,
@@ -560,7 +563,7 @@ public abstract class JsonBase {
             "Returns the index of the key/value in the ListObject",
             "What is ListObject? ListObject is shortcut for `[{}, {} ...]`",
             "That means the object indexed by integer in the list",
-            "This expressions allows you found the key/value in the inner objects in the list."
+            "This expressions allows you found the value in the inner objects in the list."
     })
     @Examples({})
     @Since("2.9")
@@ -568,7 +571,7 @@ public abstract class JsonBase {
 
         static {
             SkJsonElements.registerExpression(IndexListObject.class, Integer.class, ExpressionType.SIMPLE,
-                    "[get] index of (:key|:value) %object% in [object( |-)list] [%-string%] of [json] %json%"
+                    "index of value %object% in [object( |-)list] [%-string%] of [json] %json%"
             );
         }
 
@@ -580,8 +583,12 @@ public abstract class JsonBase {
         @Override
         protected @Nullable Integer @NotNull [] get(@NotNull Event e) {
             Object input = inputExpression.getSingle(e);
+            JsonElement json = jsonElementExpression.getSingle(e);
+            String inputPath = pathExpression.getSingle(e);
 
-            info("Executed...");
+            if (input == null || json == null) return new Integer[0];
+            Integer i = JsonParser.search(json).indexOfListValue(convertStringToKeys(inputPath), parse(input));
+            if (i != null) return new Integer[]{i};
             return new Integer[0];
         }
 
@@ -598,13 +605,12 @@ public abstract class JsonBase {
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
             assert e != null;
-            return "get a index of key/value " + inputExpression.toString(e, debug) + " in " + pathExpression.toString(e, debug) + " of " + jsonElementExpression.toString(e, debug);
+            return "an index of value " + inputExpression.toString(e, debug) + " in " + pathExpression.toString(e, debug) + " of " + jsonElementExpression.toString(e, debug);
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-            boolean isValue = parseResult.hasTag("value");
             inputExpression = defendExpression(exprs[0]);
             pathExpression = (Expression<String>) exprs[1];
             jsonElementExpression = (Expression<JsonElement>) exprs[2];

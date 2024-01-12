@@ -141,7 +141,7 @@ public abstract class SkJsonChanger {
                     }
                     JsonElement json = JsonNull.INSTANCE;
                     Object parsedJson;
-                    String path = null;
+                    String path;
                     for (Object delta : inputDelta) {
                         parsedJson = parseAliases(delta);
                         if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
@@ -180,9 +180,9 @@ public abstract class SkJsonChanger {
                         error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                         return;
                     }
-                    JsonElement json = null;
+                    JsonElement json;
                     Object parsedJson;
-                    String path = null;
+                    String path;
                     boolean isValue = result.mark == 1 && line == 1;
                     try {
                         path = pathExpression.getSingle(e);

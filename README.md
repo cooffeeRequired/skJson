@@ -23,14 +23,13 @@
 
 ### 📑 Requirements
 
-* **Java 16+**
+* **Java 17+**
 * **Minecraft 1.16.5+**
-* **Skript 2.7.0**
+* **Skript 2.8.0 +**
 
 ### 🔑 Recommended
 
-* **_[**Visual Studio Code
-  **](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)_**
+* **[**Visual Studio Code**](https://code-visualstudio-com.translate.goog/download?_x_tr_sl=en&_x_tr_tl=cs&_x_tr_hl=cs&_x_tr_pto=sc)**
 * **_[**Extension**](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)_**
 
 ### 🆘 Where can I get help?

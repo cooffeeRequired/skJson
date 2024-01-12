@@ -17,6 +17,7 @@ public abstract class JsonParserI {
 
     public interface Searcher {
         JsonElement key(Queue<PatternUtil.keyStruct> keys);
+        Integer indexOfListValue(LinkedList<keyStruct> keys, JsonElement value);
     }
 
     public interface Remover {

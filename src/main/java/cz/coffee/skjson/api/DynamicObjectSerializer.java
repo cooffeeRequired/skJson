@@ -25,7 +25,6 @@ public class DynamicObjectSerializer<T> implements JsonSerializer<T>, JsonDeseri
                 Logger.error(e);
             }
         }
-        System.out.println(jsonObject);
         return jsonObject;
     }
 

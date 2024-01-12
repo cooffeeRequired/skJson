@@ -61,7 +61,7 @@ public abstract class PatternUtil {
         if (delimiter == null) delimiter = PATH_VARIABLE_DELIMITER;
         if (banned.contains(delimiter)) {
             Logger.simpleError("&cYou using not allowed delimiter.. Banned delimiters are &e'%s'", String.join(" ,", banned));
-            return null;
+            return new LinkedList<>();
         }
         return tokenize(input, false, add, delimiter);
     }

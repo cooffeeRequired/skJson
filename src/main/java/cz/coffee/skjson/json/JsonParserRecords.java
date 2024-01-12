@@ -3,7 +3,6 @@ package cz.coffee.skjson.json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.JsonParserI;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
@@ -13,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static cz.coffee.skjson.json.JsonParser.isNull;
+import static cz.coffee.skjson.parser.ParserUtil.parse;
 import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.Util.parseNumber;
 
@@ -88,6 +88,34 @@ public class JsonParserRecords {
                 if (current != null) currents.offerLast(current);
             }
             return currents.pollLast();
+        }
+
+        @Override
+        public Integer indexOfListValue(LinkedList<PatternUtil.keyStruct> keys, JsonElement value) {
+            Deque<JsonElement> currents = new ConcurrentLinkedDeque<>();
+            JsonElement current = null;
+            currents.offerLast(this.json);
+            
+            for (PatternUtil.keyStruct struct : keys) {
+                current = currents.pollLast();
+                if (current == null || current.isJsonNull()) return null;
+
+                if (current instanceof JsonObject jsonobject) {
+                    current = jsonobject.get(struct.key());
+                } else if (current instanceof JsonArray jsonarray) {
+                    current = jsonarray.get(parseNumber(struct.key()));
+                }
+                if (current != null) currents.offerLast(current);
+            }
+
+            if (current instanceof JsonArray array) {
+                for (var i = 0; i < array.size(); i++) {
+                    if (array.get(i).equals(value)) {
+                        return i;
+                    }
+                }
+            }
+            return null;
         }
     }
 
@@ -225,7 +253,7 @@ public class JsonParserRecords {
                     int index = Integer.parseInt(lastKey);
                     if (index >= 0 && index < jsonarray.size()) {
                         jsonarray.remove(index);
-                        jsonarray.set(index, ParserUtil.parse(key));
+                        jsonarray.set(index, parse(key));
                     }
                 } catch (Exception ex) {
                     error(ex);
