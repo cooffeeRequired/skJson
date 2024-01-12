@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static cz.coffee.skjson.api.Config.*;
+import static cz.coffee.skjson.api.Config.getMapping;
+import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.utils.Logger.info;
 
 /**
  * Copyright coffeeRequired nd contributors
@@ -50,12 +52,12 @@ public class SkJsonCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("skjson")) {
             if (args.length == 0) {
-                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson reload"));
-                sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson about"));
+                info("&7Usage: &a/skjson reload");
+                info("&7Usage: &a/skjson about");
                 return true;
             }
             if (args[0].equalsIgnoreCase("reload")) {
-                sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "🟠 &econfig reloading..."));
+                info("%s 🟠 &econfig reloading...", PLUGIN_PREFIX);
                 try {
                     final HashMap<String, ?> before = new HashMap<>(Map.ofEntries(
                             Map.entry("CONFIG_VERSION", CONFIG_VERSION),
@@ -80,18 +82,13 @@ public class SkJsonCommand implements CommandExecutor {
                             // Porovnejte hodnotu ve fieldu s hodnotou v mapě
                             if (!value.equals(fieldValue)) {
                                 if (changed.get() == false) changed.set(true);
+                                info("%s &7The field &e'%s'&7 was changed from&8 '%s'&7 to &a'%s'", PLUGIN_PREFIX, getMapping(key), value, fieldValue);
 
-                                sender.sendMessage(
-                                        ColorWrapper.translate(PLUGIN_PREFIX + String.format(
-                                                "&7The field &e'%s'&7 was changed from&8 '%s'&7 to &a'%s'", getMapping(key), value, fieldValue
-                                        ))
-                                );
-
-                                if (key.equals("CONFIG_VERSION") && SkJson.ConfigVERSION != CONFIG_VERSION) {
+                                if (key.equals("CONFIG_VERSION") && SkJson.CONFIG_PRIMARY_VERSION != CONFIG_VERSION) {
                                     var brokenFile = Config.getConfig().loadConfigFile(true, sender, true);
-                                    sender.sendMessage(ColorWrapper.translate(
-                                            "🔴 &cThe config version was changed! Config will be regenerate...\n\t\t   &cWrong config was saved to " + brokenFile
-                                    ));
+                                    info(
+                                            "🔴 &cThe config version was changed! Config will be regenerate...\n\t\t   &cWrong config was saved to %s", brokenFile
+                                    );
                                 }
                             }
                         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -103,10 +100,10 @@ public class SkJsonCommand implements CommandExecutor {
                                 ColorWrapper.translate(PLUGIN_PREFIX + "Nothing was changed.")
                         );
                     }
-                    sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &asuccessfully."));
+                    sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&7reload &asuccessfully."));
                     return true;
                 } catch (Exception ex) {
-                    sender.sendMessage(ColorWrapper.translate(Config.PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
+                    sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
                     return false;
                 }
             } else if (args[0].equalsIgnoreCase("about")) {

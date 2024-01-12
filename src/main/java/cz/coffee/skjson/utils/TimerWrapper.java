@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 public class TimerWrapper implements AutoCloseable {
 
     private final Timer timer;
-    private int count;
     private final int delay;
+    private int count;
     private long startTime;
 
     public TimerWrapper(int delay) {

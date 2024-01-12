@@ -4,8 +4,9 @@
 
 <h1 align="center">Pages - Files</h1>
 
->Working with files is always a bit of a nuisance, let's see how we can work with files.
->The first thing to mention is that we already know the syntax for reading a file and >creating a json object from it, namely `json from file "..."` and what's next?
+> Working with files is always a bit of a nuisance, let's see how we can work with files.
+> The first thing to mention is that we already know the syntax for reading a file and >creating a json object from it,
+> namely `json from file "..."` and what's next?
 >
 >### Creating a file
 >Suppose we have the path `./plugins/Script/Jsons/test.json` but this file does not >exist. Let's create one
@@ -33,7 +34,9 @@
 >```
 >
 >### Changes?
->The changes to the dirrectly file are kind of meh, but let's show it. Suppose we have >a file `/plugins/Script/Jsons/test.json` and this json spits out like this `{"data": >[{"username": "Franta"}]}`, let's change "Franta"
+>The changes to the dirrectly file are kind of meh, but let's show it. Suppose we have >a
+> file `/plugins/Script/Jsons/test.json` and this json spits out like this `{"data": >[{"username": "Franta"}]}`, let's
+> change "Franta"
 >```applescript
 >on script load:
 >

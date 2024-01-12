@@ -12,25 +12,28 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
-import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.api.FileWrapper.JsonFile;
+import cz.coffee.skjson.SkJsonElements;
+import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.LoggingUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
-import static cz.coffee.skjson.api.Config.*;
-import static cz.coffee.skjson.parser.ParserUtil.isClassicType;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.warn;
 
 @Name("New json")
 @Description({
@@ -59,9 +62,8 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
-
     static {
-        SkJson.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
+        SkJsonElements.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
                 "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
                 "@<^(\\{|\\[).+(\\}|\\])$>"
         );
@@ -72,7 +74,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     private Expression<?> input;
     private boolean inputIsRegex;
     private JsonExpressionString regexInput;
-    private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
@@ -94,11 +95,11 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                     final File file = new File(stringifyFile);
 
                     // make a sensitization for Failed get from FileWrapper
-                    JsonFile jsonFile_ = FileWrapper.fromNormal(file);
-                    if (jsonFile_ == null) {
+                    JsonElement json = FileHandler.get(file).join();
+                    if (json == null) {
                         output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
                     } else {
-                        output.add(jsonFile_.get());
+                        output.add(json);
                     }
                 }
             } else if (isWebFile) {
@@ -112,38 +113,27 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                                 .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
                                 .request().join();
                     } catch (Exception ex) {
-                        LoggingUtil.error(ex.getLocalizedMessage(), Objects.requireNonNull(getParser().getNode()));
+                        error(ex, Bukkit.getConsoleSender(), getParser().getNode());
                     }
-
                     return rp;
                 });
                 JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
                 if (elem instanceof JsonNull nil) {
-                    LoggingUtil.warn("You cannot get non-json content via this.");
+                    warn("You cannot get non-json content via this.");
                     output.add(nil);
+                } else {
+                    output.add(elem);
                 }
             } else {
                 for (Object value : values) {
-                    if (value instanceof JsonElement json) {
-                        output.add(json);
-                    } else if (isClassicType(value)) {
-                        JsonElement json;
-                        try {
-                            json = JsonParser.parseString(value.toString());
-                        } catch (JsonParseException ex) {
-                            json = gson.toJsonTree(value);
+                    try {
+                        if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
+                            type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
+                        } else {
+                            output.add(parse(value));
                         }
-                        output.add(json);
-                    } else {
-                        try {
-                            if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
-                                type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
-                            } else {
-                                output.add(parse(value));
-                            }
-                        } catch (Exception ex) {
-                            if (PROJECT_DEBUG) LoggingUtil.error(ex.getLocalizedMessage());
-                        }
+                    } catch (Exception ex) {
+                        if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
                     }
                 }
             }
@@ -163,12 +153,18 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        return "json from " + switch (mark) {
-            case 1 -> "text";
-            case 2 -> isYaml ? "yaml file" : "json file";
-            case 3 -> "website file";
-            default -> "object";
-        } + " " + input.toString(e, debug);
+        try {
+            assert e != null;
+            return "json from " + switch (mark) {
+                case 1 -> "text";
+                case 2 -> isYaml ? "yaml file" : "json file";
+                case 3 -> "website file";
+                default -> "object";
+            } + " " + input.toString(e, debug);
+        } catch (Exception ex) {
+            error(ex, null, getParser().getNode());
+        }
+        return "";
     }
 
     @Override
@@ -180,12 +176,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         inputIsRegex = matchedPattern == 1 || matchedPattern == 2;
         isYaml = (isFile && parseResult.hasTag("yaml"));
         if (inputIsRegex) {
-            if (matchedPattern == 1) {
-                if (!ALLOWED_LINE_LITERAL) {
-                    LoggingUtil.warn("You don't have allowed this beta feature, if you want use these line literal, you may turn on that in your config.yml");
-                    return false;
-                }
-            }
             if (!parseResult.regexes.isEmpty()) {
                 var parsed = parseResult.regexes.get(0).group(0);
                 var fixed = ParserUtil.parseExpressionContext(parsed, true);

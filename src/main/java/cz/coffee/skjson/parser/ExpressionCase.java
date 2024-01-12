@@ -10,6 +10,8 @@ public enum ExpressionCase {
     EXPRESSION("expression"),
     UNKNOWN("unknown");
 
+    final String value;
+
     ExpressionCase(String value) {
         this.value = value;
     }
@@ -17,6 +19,4 @@ public enum ExpressionCase {
     public String getValue() {
         return this.value;
     }
-
-    final String value;
 }

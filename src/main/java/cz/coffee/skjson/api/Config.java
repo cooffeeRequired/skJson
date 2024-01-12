@@ -10,7 +10,6 @@ import cz.coffee.skjson.SkJson;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Update.UpdateCheck;
-import cz.coffee.skjson.utils.LoggingUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -31,99 +30,40 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.utils.Logger.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * The type Config.
- */
 @SuppressWarnings("ALL")
 public class Config {
     /**
-     * The constant SERVER_TYPE.
+     * The constant cache.
      */
-    public static String SERVER_TYPE;
-
-    /**
-     * The constant PATH_VARIABLE_DELIMITER.
-     */
-    public static String PATH_VARIABLE_DELIMITER;
-
-    /**
-     * The constant PROJECT_DEBUG.
-     */
-    public static boolean PROJECT_DEBUG;
-    /**
-     * The constant LOGGING_LEVEL.
-     */
-    public static int LOGGING_LEVEL;
-    /**
-     * The constant PLUGIN_PREFIX.
-     */
-    public static String PLUGIN_PREFIX;
-    /**
-     * The constant ERROR_PREFIX.
-     */
-    public static String ERROR_PREFIX;
-    /**
-     * The constant WATCHER_PREFIX.
-     */
-    public static String WATCHER_PREFIX;
-
-    /**
-     * The constant DEFAULT_WATCHER_INTERVAL.
-     */
-    public static Long DEFAULT_WATCHER_INTERVAL;
-
-    /**
-     * The constant REQUESTS_PREFIX.
-     */
-    public static String REQUESTS_PREFIX;
-
-    /**
-     * The constant WEBHOOK_PREFIX.
-     */
-    public static String WEBHOOK_PREFIX;
-
-    /**
-     * The constant ALLOWED_LINE_LITERAL.
-     */
-    public static Boolean ALLOWED_LINE_LITERAL;
-
-    public static Double CONFIG_VERSION;
-
-
-    /**
-     * The Logger.
-     */
-    final SkJsonLogger logger;
-    /**
-     * The Plugin.
-     */
-    final JavaPlugin plugin;
-    /**
-     * The Manager.
-     */
-    PluginManager manager;
-
-    /**
-     * The Version.
-     */
-    int version;
-
-    /**
-     * The constant watcherCache.
-     */
+    final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
+    private static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
+            Map.entry("CONFIG_VERSION", "version"),
+            Map.entry("PROJECT_DEBUG", "debug"),
+            Map.entry("LOGGING_LEVEL", "logging-level"),
+            Map.entry("DEFAULT_WATCHER_INTERVAL", "watcher-interval"),
+            Map.entry("PLUGIN_PREFIX", "prefixes-plugin"),
+            Map.entry("ERROR_PREFIX", "prefixes-error"),
+            Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
+            Map.entry("REQUESTS_PREFIX", "prefixes-request"),
+            Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
+            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
+            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
+    ));
+    public static YamlConfiguration pluginYaml;
     public static ConcurrentHashMap<File, JsonWatcher> watcherCache = new ConcurrentHashMap<>();
-    private boolean ready = true;
+    private static Config staticConfig;
+    final SkJsonLogger logger;
+    final JavaPlugin plugin;
     private final ArrayList<String> errors = new ArrayList<>();
+    PluginManager manager;
+    int version;
+    private boolean ready = true;
     private File configFile;
     private FileConfiguration config;
-    private static Config staticConfig;
-    /**
-     * The constant pluginYaml.
-     */
-    public static YamlConfiguration pluginYaml;
-
 
     /**
      * Instantiates a new Config.
@@ -137,6 +77,35 @@ public class Config {
         Config.staticConfig = this;
     }
 
+    public static String getMapping(final String key) {
+        if (mapping.containsKey(key)) {
+            return mapping.get(key);
+        }
+        return null;
+    }
+
+    private static String convertStreamToString(InputStream inputStream) {
+        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
+    public static Config getConfig() {
+        return staticConfig;
+    }
+
+    /**
+     * Gets cache.
+     *
+     * @return the cache
+     */
+    public static JsonCache<String, JsonElement, File> getCache() {
+        return cache;
+    }
 
     /**
      * Load config file.
@@ -144,8 +113,8 @@ public class Config {
      * @param replace the replace
      * @return the void
      */
-    public String loadConfigFile(boolean replace, boolean ...saveIncorect) {
-        String wrongFile ="";
+    public String loadConfigFile(boolean replace, boolean... saveIncorect) {
+        String wrongFile = "";
         if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
             wrongFile = regenerateConfigFile();
         }
@@ -161,8 +130,16 @@ public class Config {
         return wrongFile;
     }
 
-    public String loadConfigFile(boolean replace, CommandSender sender, boolean ...saveIncorect) {
-        String wrongFile ="";
+    /**
+     * Load config file.
+     *
+     * @param replace      the replace
+     * @param saveIncorect true/false .. creating new config.
+     * @param sender       true/false has sender
+     * @return the void
+     */
+    public String loadConfigFile(boolean replace, CommandSender sender, boolean... saveIncorect) {
+        String wrongFile = "";
         if (saveIncorect != null && saveIncorect.length > 0 && saveIncorect[0]) {
             wrongFile = regenerateConfigFile();
         }
@@ -187,25 +164,11 @@ public class Config {
             Files.writeString(Path.of("./plugins/SkJson/", wrongFile), c, UTF_8);
             plugin.saveResource("config.yml", true);
         } catch (IOException fileException) {
-            LoggingUtil.enchantedError(fileException, fileException.getStackTrace(), fileException.getLocalizedMessage());
+            error(fileException);
         }
         return wrongFile;
     }
 
-    /**
-     * Gets plugin config.
-     *
-     * @param path the path
-     * @return the plugin config
-     */
-    public static Object getPluginConfig(String path) {
-        if (Config.pluginYaml != null) {
-            return Config.pluginYaml.get(path);
-        }
-        return null;
-    }
-
-    @SuppressWarnings("ConstantConditions")
     private void matchConfig() {
         try {
             boolean hasUpdated = false;
@@ -260,28 +223,7 @@ public class Config {
         return this.config.getBoolean("settings.features." + feature);
     }
 
-    private static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
-            Map.entry("CONFIG_VERSION", "version"),
-            Map.entry("PROJECT_DEBUG", "debug"),
-            Map.entry("LOGGING_LEVEL", "logging-level"),
-            Map.entry("DEFAULT_WATCHER_INTERVAL", "watcher-interval"),
-            Map.entry("PLUGIN_PREFIX", "prefixes-plugin"),
-            Map.entry("ERROR_PREFIX", "prefixes-error"),
-            Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
-            Map.entry("REQUESTS_PREFIX", "prefixes-request"),
-            Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
-            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
-            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
-    ));
-    public static String getMapping(final String key) {
-        if (mapping.containsKey(key)) {
-            return mapping.get(key);
-        }
-        return null;
-    }
-
-
-    private void loadConfigs(CommandSender ...sender_) {
+    private void loadConfigs(CommandSender... sender_) {
         var sender = sender_ != null && sender_.length > 0 && sender_[0] != null;
         try {
             CONFIG_VERSION = getDouble("version");
@@ -296,30 +238,16 @@ public class Config {
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
             ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
 
-            if (PATH_VARIABLE_DELIMITER.matches("[$#^\\/\\[\\]\\{\\}_-]")) {
-                LoggingUtil.error("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-                LoggingUtil.error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+            if (PATH_VARIABLE_DELIMITER.matches("[$#^\\[\\]{}_-]")) {
+                info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+                simpleError("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
                 manager.disablePlugin(plugin);
             }
         } catch (Exception ignored) {
-            try {
-                LoggingUtil.log("&e&lConfig.yaml was fixed... Cause missing entry");
-                loadConfigFile(true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            warn("&e&lConfig.yaml was fixed... Cause missing entry");
+            loadConfigFile(true);
         }
     }
-
-    private static String convertStreamToString(InputStream inputStream) {
-        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-
-    /**
-     * The constant cache.
-     */
-    final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
 
     /**
      * Init.
@@ -330,9 +258,9 @@ public class Config {
     public void init() throws IOException {
         try {
             loadConfigFile(false);
-            if (CONFIG_VERSION != SkJson.ConfigVERSION) {
+            if (CONFIG_VERSION != SkJson.CONFIG_PRIMARY_VERSION) {
                 var c = regenerateConfigFile();
-                LoggingUtil.warn(String.format("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.ConfigVERSION, CONFIG_VERSION, c));
+                warn("&cThe config version are incorrect expected &7'%s'&c but given &7'%s'.\n\t\t  &cRegenerating Config... Saving wrong config to %s", SkJson.CONFIG_PRIMARY_VERSION, CONFIG_VERSION, c);
                 loadConfigFile(true);
             }
         } catch (Exception ex) {
@@ -357,18 +285,18 @@ public class Config {
             logger.info("[NBTAPI] Was loaded &asuccessfully.");
         } catch (Exception ignored) {
             ready = false;
-            LoggingUtil.error("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
+            simpleError("&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r Wasn't load &successfully");
         }
 
 
         try {
-            if (!LoggingUtil.versionError(Skript.getVersion(), new Version("2.7.0-beta3"), true, manager, plugin))
+            if (!versionError(Skript.getVersion(), new Version("2.8.0-pre1"), true, manager, plugin))
                 return;
 
             ready = classesRegistration(plugin);
             String metricsPrefix = "&#e3e512M&#a6e247e&#6cda6et&#2ece8dr&#00bfa4i&#00afafc&#329dads&r ";
             setupMetrics(17374, (JavaPlugin) plugin);
-            LoggingUtil.log(metricsPrefix + "Was loaded &asuccessfully.");
+            info("%s Was loaded &asuccessfully.", metricsPrefix);
         } catch (Exception ignored) {
             ready = false;
             errors.add("Couldn't initialize Metrics'");
@@ -377,33 +305,23 @@ public class Config {
 
 
         if (errors.size() > 0) {
-            LoggingUtil.error("&cFound errors while skJson starting, SkJson will be &cdisabled");
+            simpleError("&cFound errors while skJson starting, SkJson will be &cdisabled");
             for (int i = 0; i < errors.size(); i++) {
                 String error = errors.get(i);
-                LoggingUtil.log(String.format("&7→ %s. &c%s", i, error));
+                info("&7→ %s. &c%s", i, error);
             }
             manager.disablePlugin(plugin);
         }
 
         try {
             JsonWatcher.init(this);
-            LoggingUtil.watcherLog("was &ainitialized.");
+            watcherLog("was &ainitialized.");
         } catch (Exception ignored) {
             errors.add("JsonWatcher Couldn't been &cinitialized.");
         }
 
         ready = new UpdateCheck((JavaPlugin) plugin, this).getReady();
         ready = registerCommand(plugin, "skjson");
-    }
-
-
-    /**
-     * Gets config.
-     *
-     * @return the config
-     */
-    public static Config getConfig() {
-        return staticConfig;
     }
 
     /**
@@ -413,15 +331,6 @@ public class Config {
      */
     public boolean ready() {
         return ready;
-    }
-
-    /**
-     * Gets cache.
-     *
-     * @return the cache
-     */
-    public static JsonCache<String, JsonElement, File> getCache() {
-        return cache;
     }
 
     /**
@@ -454,7 +363,7 @@ public class Config {
             return false;
         }
         String skriptPrefix = "&#e3e512S&#9ae150k&#55d57br&#00c59ci&#00b2aep&#329dadt&r";
-        LoggingUtil.log(skriptPrefix + " was found and &ainitialized.");
+        info("%s was found and &ainitialized.", skriptPrefix);
         return true;
     }
 

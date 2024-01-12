@@ -12,15 +12,19 @@ public class EventWatcherSave extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final File link;
-    private JsonElement json;
     private final Object id;
     private final UUID uuid;
+    private JsonElement json;
 
     public EventWatcherSave(File link, String id, UUID uuid) {
         super(true);
         this.id = id;
         this.link = link;
         this.uuid = uuid;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public JsonElement json() {
@@ -45,10 +49,6 @@ public class EventWatcherSave extends Event {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

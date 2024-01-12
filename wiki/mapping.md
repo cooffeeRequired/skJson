@@ -6,7 +6,8 @@
 
 ## ⚠️ Obsolete
 
->Mapping/Formatting is a way to get values from `Skript Variable` or conversely how to >make `json` from `Skript Variable`
+> Mapping/Formatting is a way to get values from `Skript Variable` or conversely how to >make `json`
+> from `Skript Variable`
 >
 >### Mapping
 >```applescript

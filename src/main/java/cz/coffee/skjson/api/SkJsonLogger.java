@@ -5,6 +5,8 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.logging.Logger;
 
+import static cz.coffee.skjson.api.ConfigRecords.PLUGIN_PREFIX;
+
 public class SkJsonLogger extends Logger {
     protected SkJsonLogger(String name, String resourceBundleName) {
         super(name, resourceBundleName);
@@ -23,6 +25,6 @@ public class SkJsonLogger extends Logger {
             message = message.replace("[NBTAPI]", "&#adfa6eN&#53db88B&#00b797T&#009294A&#006c7eP&#2a4858I &r");
         }
         ConsoleCommandSender sender = Bukkit.getConsoleSender();
-        sender.sendMessage(ColorWrapper.translate((Config.PLUGIN_PREFIX + message)));
+        sender.sendMessage(ColorWrapper.translate((PLUGIN_PREFIX + message)));
     }
 }

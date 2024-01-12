@@ -4,11 +4,19 @@
 
 <h1 align="center">Pages - Introduction</h1>
 
-
 ## Introduction
+
 ### What is Json?
-> JavaScript Object Notation (JSON) is a computer platform-independent way of writing data (data format) for transferring data that can be organized in arrays or aggregated in objects. The input is any data structure (a number, a string, a boolean, an object or an array composed of them), the output is always a string. There is no theoretical limit to the complexity of the input variable hierarchy.
-JSON can hold arrays of values (both unindexed and indexed, the so-called hash), objects (as arrays of index:value pairs) and individual values, which can be strings, numbers (integers and floating point) and special values true, false and null. Field indices in an object are notated as strings; strings are enclosed in quotes and escaped using a backslash. There can be arbitrary whitespace between elements and values, which does not change the result. JSON as a format does not address text encoding, but the default encoding is UTF-8.\
+
+> JavaScript Object Notation (JSON) is a computer platform-independent way of writing data (data format) for
+> transferring data that can be organized in arrays or aggregated in objects. The input is any data structure (a number, a
+> string, a boolean, an object or an array composed of them), the output is always a string. There is no theoretical limit
+> to the complexity of the input variable hierarchy.
+> JSON can hold arrays of values (both unindexed and indexed, the so-called hash), objects (as arrays of index:value
+> pairs) and individual values, which can be strings, numbers (integers and floating point) and special values true, false
+> and null. Field indices in an object are notated as strings; strings are enclosed in quotes and escaped using a
+> backslash. There can be arbitrary whitespace between elements and values, which does not change the result. JSON as a
+> format does not address text encoding, but the default encoding is UTF-8.\
 > Default Example of Json
 > ```json
 > {
@@ -33,11 +41,17 @@ JSON can hold arrays of values (both unindexed and indexed, the so-called hash),
 >    "abc\"def": []
 >}
 >```
+
 ### What is SkJson and why was it created?
-> SkJson is a tool for [Skript](https://github.com/SkriptLang/Skript/releases) which allows us to process any `json` or `yaml` files and then use it as storage or also allows us to work with `Json String`, `WebRequests`, `Discord webbhooks` and `Serialization/Deserialization of data`
+
+> SkJson is a tool for [Skript](https://github.com/SkriptLang/Skript/releases) which allows us to process any `json`
+> or `yaml` files and then use it as storage or also allows us to work
+> with `Json String`, `WebRequests`, `Discord webbhooks` and `Serialization/Deserialization of data`
 
 ### How can I use SkJson?
+
 #### pretty print
+
 > pretty print allows pirnt json nicelly without or with colors
 > ```applescript
 > set {_json} to json from "{'A': false}"
@@ -46,8 +60,13 @@ JSON can hold arrays of values (both unindexed and indexed, the so-called hash),
 > ```
 
 #### new json
-> The very basic syntax here is to create a Json, and that's relatively easy, let's say we create a new **`Command`** in a Script. In addition, I'll mention here that we can *cheat* a little bit because instead of `Skript escape` we can use, for example, `"{'Key': 'Value'}"` with Script escape `"{""Key": ""Value""}"`, also SkJson has the ability to fix a corrupted Json say from forgetting quotes for some key in the object `"{Key: ""Value""}"` SkJson thanks to the GSON library can even load such a corrupted Json correctly.
-> 
+
+> The very basic syntax here is to create a Json, and that's relatively easy, let's say we create a new **`Command`** in
+> a Script. In addition, I'll mention here that we can *cheat* a little bit because instead of `Skript escape` we can use,
+> for example, `"{'Key': 'Value'}"` with Script escape `"{""Key": ""Value""}"`, also SkJson has the ability to fix a
+> corrupted Json say from forgetting quotes for some key in the object `"{Key: ""Value""}"` SkJson thanks to the GSON
+> library can even load such a corrupted Json correctly.
+>
 > Now we will see how to create Json from Text and other sources.
 > ```applescript
 >command newJson:
@@ -73,6 +92,7 @@ JSON can hold arrays of values (both unindexed and indexed, the so-called hash),
 > ```
 
 #### Changing (SET/REMOVE/REMOVE ALL)
+
 The changes are made using syntax. Here is an example of all of them.
 
 ```applescript
@@ -143,6 +163,7 @@ local function testREMOVEALL(json: json, d: string) :: boolean:
 ```
 
 #### value/values (Looping)
+
 > The basic methodology has always been to use mapping, but that is no longer needed here.
 > ```applescript
 > command values:
@@ -164,7 +185,9 @@ local function testREMOVEALL(json: json, d: string) :: boolean:
 > ```
 
 #### type of json / counts / isEmpty
-> Suppose we want to find out what type of json we have stored in variable..., or also how many identical elements our json contains
+
+> Suppose we want to find out what type of json we have stored in variable..., or also how many identical elements our
+> json contains
 > ```applescript
 >local function test(input: json, maxSameElements: number, value: object) :: boolean:
 >    if json element {_input} isn't empty:

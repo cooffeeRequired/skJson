@@ -18,12 +18,10 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
-import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.json.ParsedJson;
+import cz.coffee.skjson.SkJsonElements;
+import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
-import cz.coffee.skjson.utils.LoggingUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -32,17 +30,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
-import static cz.coffee.skjson.utils.LoggingUtil.error;
-import static cz.coffee.skjson.utils.PatternUtil.extractKeysToList;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
 
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: úterý (11.07.2023)
- */
 public abstract class SkJsonChanger {
 
     public static <V> List<JsonElement> parseAliases(V value) {
@@ -67,7 +59,7 @@ public abstract class SkJsonChanger {
     public static class JsonArrayChanger extends SimpleExpression<Object> {
 
         static {
-            SkJson.registerExpression(JsonArrayChanger.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(JsonArrayChanger.class, Object.class, ExpressionType.SIMPLE,
                     "json (list|array) [%-string%] in %jsons%",
                     "(1:value|2:key) of json (list|array) %string% in %json%",
                     "[value[s]] %objects% of json (list|array) [%-string%]",
@@ -81,6 +73,7 @@ public abstract class SkJsonChanger {
         private Expression<String> pathExpression;
         private Expression<Integer> integerExpression;
         private boolean isNested;
+        private Expression<?> dataExpression;
 
         @Override
         @SuppressWarnings("all")
@@ -143,23 +136,21 @@ public abstract class SkJsonChanger {
             switch (mode) {
                 case ADD -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        error(false, "Input or json cannot be null");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                         return;
                     }
                     JsonElement json = JsonNull.INSTANCE;
                     Object parsedJson;
                     String path = null;
-                    ParsedJson pj;
                     for (Object delta : inputDelta) {
                         parsedJson = parseAliases(delta);
                         if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
                         try {
                             if (isNested) {
                                 JsonElement input = inputJsonExpression.getSingle(e);
-                                pj = new ParsedJson(input);
                                 path = pathExpression.getSingle(e);
-                                LinkedList<String> keys = extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
-                                if (!keys.isEmpty()) json = pj.byKey(keys);
+                                LinkedList<PatternUtil.keyStruct> keys = convertStringToKeys(path, PATH_VARIABLE_DELIMITER, false);
+                                if (!keys.isEmpty()) json = JsonParser.search(input).key(keys);
                             } else {
                                 json = inputJsonExpression.getSingle(e);
                             }
@@ -175,32 +166,28 @@ public abstract class SkJsonChanger {
                                 }
                             } else {
                                 if (LOGGING_LEVEL > 1)
-                                    error("You can add values only to JSON arrays.", getParser().getNode());
+                                    error(new RuntimeException("You can add values only to JSON arrays."), null, getParser().getNode());
                                 return;
                             }
                         } catch (Exception ex) {
-                            error(false, "Something happened in the Changer! If you wanna more information");
-                            if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                             if (PROJECT_DEBUG)
-                                LoggingUtil.enchantedError(ex, ex.getStackTrace(), "  Input: " + json + "  Keys?: " + path + "  Msg: Array Changer");
+                                error(ex, null, getParser().getNode());
                         }
                     }
                 }
                 case SET -> {
                     if (inputDelta == null || inputJsonExpression == null) {
-                        error(false, "Input or json cannot be null");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                         return;
                     }
                     JsonElement json = null;
                     Object parsedJson;
                     String path = null;
-                    ParsedJson pj;
                     boolean isValue = result.mark == 1 && line == 1;
                     try {
                         path = pathExpression.getSingle(e);
-                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, false);
+                        LinkedList<PatternUtil.keyStruct> keys = PatternUtil.convertStringToKeys(path, PATH_VARIABLE_DELIMITER, false);
                         json = inputJsonExpression.getSingle(e);
-                        pj = new ParsedJson(json);
                         for (Object delta : inputDelta) {
                             if (keys.isEmpty()) return;
                             if (isValue) {
@@ -208,28 +195,26 @@ public abstract class SkJsonChanger {
                                 if (((LinkedList<JsonElement>) parsedJson).isEmpty())
                                     parsedJson = ParserUtil.parse(delta);
                                 if (parsedJson instanceof JsonElement element) {
-                                    pj.changeValue(keys, element);
+                                    JsonParser.change(json).value(keys, element);
                                 } else {
-                                    pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
+                                    JsonParser.change(json).value(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                                 }
                             } else {
-                                keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
+                                keys = PatternUtil.convertStringToKeys(path, PATH_VARIABLE_DELIMITER);
                                 if (keys.isEmpty()) return;
-                                if (delta instanceof String st) pj.changeKey(keys, st);
+                                if (delta instanceof String st) {
+                                    JsonParser.change(json).key(keys, st);
+                                }
                             }
                         }
 
                     } catch (Exception ex) {
-                        error(false, "Something happened in the Changer! If you wanna more information");
-                        if (!PROJECT_DEBUG) error(false, "Turn on debug in your config.");
                         if (PROJECT_DEBUG)
-                            LoggingUtil.enchantedError(ex, ex.getStackTrace(), " Input: " + json + "  Keys?: " + path + "  Msg: Object Changer");
+                            error(ex, null, getParser().getNode());
                     }
                 }
             }
         }
-
-        private Expression<?> dataExpression;
 
         @Override
         @SuppressWarnings("unchecked")
@@ -269,7 +254,7 @@ public abstract class SkJsonChanger {
     })
     public static class JsonObjectChanger extends SimpleExpression<Object> {
         static {
-            SkJson.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
                     "(:key|:value)[2:s] of json object %-string% in %json%",
                     "[by] (:key|:value)[s] %objects% of json object [%-string%]",
                     "%objects% of json (object|array|list) [%-string%]"
@@ -343,36 +328,34 @@ public abstract class SkJsonChanger {
         public void change(@NotNull Event e, @Nullable Object @Nullable [] inputDelta, Changer.@NotNull ChangeMode mode) {
             if (mode == Changer.ChangeMode.SET) {
                 if (inputDelta == null || jsonInput == null) {
-                    error(false, "Input or json cannot be null");
+                    error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                     return;
                 }
                 boolean isValue = result.hasTag("value");
                 JsonElement json;
                 Object parsedJson;
                 String path;
-                ParsedJson pj;
                 for (Object delta : inputDelta) {
                     try {
                         path = pathInput.getSingle(e);
-                        LinkedList<String> keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER, true);
+                        LinkedList<PatternUtil.keyStruct> keys = PatternUtil.convertStringToKeys(path, PATH_VARIABLE_DELIMITER, true);
                         json = jsonInput.getSingle(e);
-                        pj = new ParsedJson(json);
                         assert !keys.isEmpty();
-                        if (isValue) {
+                        if (!isValue) {
+                            keys = PatternUtil.convertStringToKeys(path, PATH_VARIABLE_DELIMITER);
+                            if (keys.isEmpty()) return;
+                            if (delta instanceof String st) JsonParser.change(json).key(keys, st);
+                        } else {
                             parsedJson = parseAliases(delta);
                             if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
                             if (parsedJson instanceof JsonElement element) {
-                                pj.changeValue(keys, element);
+                                JsonParser.change(json).value(keys, element);
                             } else {
-                                pj.changeValue(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
+                                JsonParser.change(json).value(keys, GsonConverter.toJsonTree(parsedJson, LinkedList.class));
                             }
-                        } else {
-                            keys = PatternUtil.extractKeysToList(path, Config.PATH_VARIABLE_DELIMITER);
-                            if (keys.isEmpty()) return;
-                            if (delta instanceof String st) pj.changeKey(keys, st);
                         }
                     } catch (Exception ex) {
-                        LoggingUtil.enchantedError(ex, ex.getStackTrace(), "Change event SkJsonChanger, 370");
+                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
                     }
                 }
             }

@@ -6,7 +6,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.skript.events.bukkit.EventWatcherSave;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class WatcherEvent extends SkriptEvent {
 
     static {
-        SkJson.registerEvent(
+        SkJsonElements.registerEvent(
                 "*Json watcher save", WatcherEvent.class, EventWatcherSave.class,
                 "will only run when the json watcher notices a change in the file",
                 "on json watcher save",

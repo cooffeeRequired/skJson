@@ -1,13 +1,13 @@
 package cz.coffee.skjson.parser;
 
-import cz.coffee.skjson.utils.LoggingUtil;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static cz.coffee.skjson.utils.Logger.error;
 
 /**
  * The type String json parser.
@@ -89,7 +89,7 @@ public abstract class StringJsonParser {
                 }
             }
         } catch (Exception e) {
-            LoggingUtil.enchantedError(e, e.getStackTrace(), "StringJsonParser (33)");
+            error(e);
         }
         if (finished) {
             if (!valuedArrays.isEmpty()) {

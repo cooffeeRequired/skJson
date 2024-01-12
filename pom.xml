@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>2.9.8</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
@@ -51,7 +51,7 @@
     <dependencies>
         <!-- ShaneBee - SkBee 3.0.1 File.jar -->
         <dependency>
-            <groupId>com.github.skbee</groupId>
+            <groupId>com.shanebeestudios.skbee</groupId>
             <artifactId>skbee</artifactId>
             <version>3.0.1</version>
         </dependency>

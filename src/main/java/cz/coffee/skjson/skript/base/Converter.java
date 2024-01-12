@@ -63,6 +63,24 @@ public abstract class Converter {
             return new NBTContainer(json.get("nbt").getAsString());
         }
     };
+    public final static SimpleConverter<World> WorldConverter = new SimpleConverter<World>() {
+        @Override
+        public @NotNull JsonElement toJson(World source) {
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            jsonObject.addProperty("name", source.getName());
+            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
+        }
+
+        @Override
+        public World fromJson(JsonObject json) {
+            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
+                World world;
+                if ((world = getWorld(json.get("name").getAsString())) != null) return world;
+            }
+            return null;
+        }
+    };
     public final static SimpleConverter<ItemStack> ItemStackConverter = new SimpleConverter<ItemStack>() {
 
         private static ItemStack enchants(ItemStack itemStack, final JsonObject meta) {
@@ -114,7 +132,29 @@ public abstract class Converter {
             return GsonConverter.fromJson(json, ItemStack.class);
         }
     };
-    public final static SimpleConverter<ItemMeta> ItemMetaConverter = new SimpleConverter<ItemMeta>() {
+    public final static SimpleConverter<Chunk> ChunkConverter = new SimpleConverter<Chunk>() {
+
+        @Override
+        public @NotNull JsonElement toJson(Chunk source) {
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
+            jsonObject.addProperty("world", source.getWorld().getName());
+            jsonObject.addProperty("x", source.getX());
+            jsonObject.addProperty("z", source.getZ());
+            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
+        }
+
+        @Override
+        public Chunk fromJson(JsonObject json) {
+            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
+                World world;
+                if ((world = getWorld(json.get("world").getAsString())) != null) {
+                    return world.getChunkAt(json.get("x").getAsInt(), json.get("z").getAsInt());
+                }
+            }
+            return null;
+        }
+    };    public final static SimpleConverter<ItemMeta> ItemMetaConverter = new SimpleConverter<ItemMeta>() {
 
         final HashMap<Integer, String> metaTypes = new HashMap<>() {{
             put(0, "BANNER");
@@ -417,47 +457,32 @@ public abstract class Converter {
             return meta;
         }
     };
-    public final static SimpleConverter<World> WorldConverter = new SimpleConverter<World>() {
-        @Override
-        public @NotNull JsonElement toJson(World source) {
-            final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            jsonObject.addProperty("name", source.getName());
-            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
-        }
+    public static class BukkitConverter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
+
+        final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
 
         @Override
-        public World fromJson(JsonObject json) {
-            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
-                World world;
-                if ((world = getWorld(json.get("name").getAsString())) != null) return world;
-            }
-            return null;
-        }
-    };
-    public final static SimpleConverter<Chunk> ChunkConverter = new SimpleConverter<Chunk>() {
-
-        @Override
-        public @NotNull JsonElement toJson(Chunk source) {
-            final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            jsonObject.addProperty("world", source.getWorld().getName());
-            jsonObject.addProperty("x", source.getX());
-            jsonObject.addProperty("z", source.getZ());
-            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
-        }
-
-        @Override
-        public Chunk fromJson(JsonObject json) {
-            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
-                World world;
-                if ((world = getWorld(json.get("world").getAsString())) != null) {
-                    return world.getChunkAt(json.get("x").getAsInt(), json.get("z").getAsInt());
+        public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            final ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<String, Object>();
+            json.getAsJsonObject().entrySet().forEach(entry -> {
+                if (entry.getValue().isJsonObject() && entry.getValue().getAsJsonObject().has(SERIALIZED_TYPE_KEY)) {
+                    map.put(entry.getKey(), this.deserialize(entry.getValue(), entry.getValue().getClass(), context));
+                } else {
+                    map.put(entry.getKey(), context.deserialize(entry.getValue(), Object.class));
                 }
-            }
-            return null;
+            });
+            return ConfigurationSerialization.deserializeObject(map);
         }
-    };
+
+        @Override
+        public JsonElement serialize(ConfigurationSerializable src, Type typeOfSrc, JsonSerializationContext context) {
+            final ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
+            map.put(SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
+            map.putAll(src.serialize());
+            return context.serialize(map, objectStringMapType);
+        }
+    }
     public final static SimpleConverter<Block> BlockConverter = new SimpleConverter<Block>() {
         @Override
         public @NotNull JsonElement toJson(Block source) throws Exception {
@@ -537,32 +562,10 @@ public abstract class Converter {
         }
     };
 
-    public static class BukkitConverter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
 
-        final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
 
-        @Override
-        public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            final ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<String, Object>();
-            json.getAsJsonObject().entrySet().forEach(entry -> {
-                if (entry.getValue().isJsonObject() && entry.getValue().getAsJsonObject().has(SERIALIZED_TYPE_KEY)) {
-                    map.put(entry.getKey(), this.deserialize(entry.getValue(), entry.getValue().getClass(), context));
-                } else {
-                    map.put(entry.getKey(), context.deserialize(entry.getValue(), Object.class));
-                }
-            });
-            return ConfigurationSerialization.deserializeObject(map);
-        }
 
-        @Override
-        public JsonElement serialize(ConfigurationSerializable src, Type typeOfSrc, JsonSerializationContext context) {
-            final ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
-            map.put(SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
-            map.putAll(src.serialize());
-            return context.serialize(map, objectStringMapType);
-        }
-    }
+
 
 
 }

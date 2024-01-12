@@ -11,11 +11,11 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.Config;
+import cz.coffee.skjson.api.requests.Request;
+import cz.coffee.skjson.api.requests.RequestMethod;
 import cz.coffee.skjson.api.requests.Webhook;
-import cz.coffee.skjson.json.ParsedJson;
+import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.request.RequestMethods;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -29,16 +29,16 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.StreamCorruptedException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
-import static cz.coffee.skjson.api.Config.PROJECT_DEBUG;
+import static cz.coffee.skjson.api.ConfigRecords.PATH_VARIABLE_DELIMITER;
+import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.parser.ParserUtil.defaultConverter;
-import static cz.coffee.skjson.utils.LoggingUtil.enchantedError;
-import static cz.coffee.skjson.utils.LoggingUtil.error;
+import static cz.coffee.skjson.parser.ParserUtil.parse;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.PatternUtil.keyStruct;
 
 @Since("2.9")
 @SuppressWarnings("deprecation")
@@ -55,7 +55,7 @@ abstract class Types {
 
             }
         } catch (Exception e) {
-            if (PROJECT_DEBUG) error(e.getMessage());
+            if (PROJECT_DEBUG) error(e);
         }
 
          /*
@@ -126,116 +126,107 @@ abstract class Types {
                             }
 
                             @Override
+                            // mainJson
                             public void change(JsonElement @NotNull [] jsonInput, @Nullable Object @NotNull [] dataInput, @NotNull ChangeMode mode) {
                                 switch (mode) {
                                     case REMOVE -> {
-                                        ParsedJson pj;
                                         for (JsonElement mainJson : jsonInput) {
                                             for (Object unparsed : dataInput) {
                                                 try {
-                                                    pj = new ParsedJson(mainJson);
                                                     if (unparsed instanceof JsonElement jsonData) {
-                                                        if (new ParsedJson(jsonData).isExpression()) {
+                                                        if (JsonParser.isExpression(jsonData)) {
                                                             if (jsonData.isJsonObject()) {
                                                                 JsonObject parsed = jsonData.getAsJsonObject();
-                                                                LinkedList<String> path = new LinkedList<>();
+                                                                LinkedList<keyStruct> path = new LinkedList<>();
                                                                 String pathString = parsed.get("element-path").getAsString();
                                                                 String index = parsed.get("element-index").toString();
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    path = PatternUtil.convertStringToKeys(pathString, PATH_VARIABLE_DELIMITER);
                                                                     assert !path.isEmpty();
                                                                 }
-                                                                path.add(index);
-                                                                pj.removeByIndex(path);
+                                                                path.add(new keyStruct(index, PatternUtil.KeyType.KEY));
+                                                                JsonParser.remove(mainJson).byIndex(path);
                                                             }
                                                         }
                                                     } else {
                                                         if (unparsed instanceof List<?> list) {
                                                             String type = (String) list.get(0);
                                                             String pathString = (String) list.get(2);
-                                                            LinkedList<String> path = new LinkedList<>();
+                                                            LinkedList<keyStruct> path = new LinkedList<>();
                                                             Object[] items = (Object[]) list.get(1);
                                                             if (type.equalsIgnoreCase("object")) {
                                                                 boolean isValue = (boolean) list.get(3);
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER, false);
+                                                                    path = PatternUtil.convertStringToKeys(pathString, PATH_VARIABLE_DELIMITER, false);
                                                                     assert !path.isEmpty();
                                                                     for (Object item : items) {
-                                                                        JsonElement parsed = ParserUtil.parse(item);
+                                                                        JsonElement parsed = parse(item);
                                                                         if (isValue) {
-                                                                            pj.removeByValue(path, parsed);
+                                                                            JsonParser.remove(mainJson).byValue(path, parsed);
                                                                         } else {
-                                                                            path.add(item.toString());
-                                                                            pj.removeByKey(path);
+                                                                            path.add(new keyStruct(item.toString(), PatternUtil.KeyType.KEY));
+                                                                            JsonParser.remove(mainJson).byKey(path);
                                                                         }
                                                                     }
                                                                 } else {
                                                                     for (Object item : items) {
-                                                                        JsonElement parsed = ParserUtil.parse(item);
+                                                                        JsonElement parsed = parse(item);
                                                                         if (isValue) {
-                                                                            pj.removeByValue(path, parsed);
+                                                                            JsonParser.remove(mainJson).byValue(path, parsed);
                                                                         } else {
-                                                                            path.add(item.toString());
-                                                                            pj.removeByKey(path);
+                                                                            path.add(new keyStruct(item.toString(), PatternUtil.KeyType.KEY));
+                                                                            JsonParser.remove(mainJson).byKey(path);
                                                                         }
                                                                     }
                                                                 }
                                                             } else if (type.equalsIgnoreCase("array")) {
                                                                 if (!pathString.equals("Undefined")) {
-                                                                    path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                    path = PatternUtil.convertStringToKeys(pathString, PATH_VARIABLE_DELIMITER);
                                                                     assert !path.isEmpty();
                                                                     for (Object item : items) {
-                                                                        JsonElement parsed = ParserUtil.parse(item);
-                                                                        pj.removeByValue(path, parsed);
+                                                                        JsonElement parsed = parse(item);
+                                                                        JsonParser.remove(mainJson).byValue(path, parsed);
                                                                     }
                                                                 } else {
                                                                     for (Object item : items) {
-                                                                        JsonElement parsed = ParserUtil.parse(item);
-                                                                        pj.removeByValue(path, parsed);
+                                                                        JsonParser.remove(mainJson).byValue(path, parse(item));
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 } catch (Exception ex) {
-                                                    if (LOGGING_LEVEL > 1 && !PROJECT_DEBUG) {
-                                                        error(false, "Something happened in the Changer! If you wanna more information");
-                                                        if (!PROJECT_DEBUG)
-                                                            error(false, "Turn on debug in your config.");
-                                                    }
                                                     if (PROJECT_DEBUG)
-                                                        enchantedError(ex, ex.getStackTrace(), "  Input: " + Arrays.toString(jsonInput) + "  Keys?: " + Arrays.toString(dataInput) + "  Msg: Core changer");
+                                                        error(ex);
                                                 }
                                             }
                                         }
                                     }
                                     case REMOVE_ALL -> {
-                                        ParsedJson pj;
                                         for (JsonElement mainJson : jsonInput) {
                                             for (Object unparsed : dataInput) {
                                                 try {
-                                                    pj = new ParsedJson(mainJson);
                                                     if (unparsed instanceof List<?> list) {
                                                         String pathString = (String) list.get(2);
                                                         Object[] items = (Object[]) list.get(1);
-                                                        LinkedList<String> path;
+                                                        LinkedList<keyStruct> path;
                                                         if (!pathString.equals("Undefined")) {
                                                             for (Object item : items) {
-                                                                JsonElement parsed = ParserUtil.parse(item);
-                                                                path = PatternUtil.extractKeysToList(pathString, Config.PATH_VARIABLE_DELIMITER);
+                                                                JsonElement parsed = parse(item);
+                                                                path = PatternUtil.convertStringToKeys(pathString, PATH_VARIABLE_DELIMITER);
                                                                 //child
-                                                                pj.removeAllByValue(path, parsed);
+                                                                JsonParser.remove(mainJson).allByValue(path, parsed);
                                                             }
                                                         } else {
                                                             for (Object item : items) {
-                                                                JsonElement parsed = ParserUtil.parse(item);
+                                                                JsonElement parsed = parse(item);
                                                                 //root
-                                                                pj.removeAllByValue(null, parsed);
+                                                                JsonParser.remove(mainJson).allByValue(null, parsed);
                                                             }
                                                         }
                                                     }
                                                 } catch (Exception ex) {
-                                                    error(false, ex.getMessage());
+                                                    error(ex);
                                                 }
                                             }
                                         }
@@ -274,12 +265,47 @@ abstract class Types {
                         })
         );
 
-        Classes.registerClass(new EnumClassInfo<>(RequestMethods.class, "requestmethod", "request method")
+        Classes.registerClass(new EnumClassInfo<>(RequestMethod.class, "requestmethod", "request method")
                 .user("request ?method?")
                 .name("Request methods")
                 .description("represent allowed methods for make a request, e.g. POST, GET")
                 .examples("")
                 .since("2.9")
+        );
+
+        Classes.registerClass(
+                new ClassInfo<>(Request.class, "request")
+                        .user("request")
+                        .name("request")
+                        .description("Representation instance of Request")
+                        .since("2.9.9-pre API changes")
+                        .parser(new Parser<>() {
+                            @Override
+                            public @NotNull String toString(Request request, int i) {
+                                return request.toString();
+                            }
+
+                            @Override
+                            public @NotNull String toVariableNameString(Request request) {
+                                return toString(request, 0);
+                            }
+
+                            @Override
+                            public boolean canParse(@NonNull ParseContext context) {
+                                return false;
+                            }
+                        })
+                        .changer(new Changer<>() {
+                            @Override
+                            public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
+                                return null;
+                            }
+
+                            @Override
+                            public void change(Request[] what, @Nullable Object[] delta, ChangeMode mode) {
+
+                            }
+                        })
         );
     }
 

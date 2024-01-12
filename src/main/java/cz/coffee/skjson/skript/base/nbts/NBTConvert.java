@@ -10,11 +10,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 
-/**
- * Copyright coffeeRequired nd contributors
- * <p>
- * Created: úterý (08.08.2023)
- */
 public class NBTConvert {
     public static JsonElement parse(String key, NBTCompound cmp) {
         try {

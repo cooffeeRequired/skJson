@@ -58,6 +58,7 @@ public abstract class WatcherListener {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "make json watcher listen to " + exprId.toString(event, b);
         }
 
@@ -108,6 +109,7 @@ public abstract class WatcherListener {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return String.format("json id %s %s listened", exprId.toString(event, b), (line == 0 ? "is" : "isn't"));
         }
 

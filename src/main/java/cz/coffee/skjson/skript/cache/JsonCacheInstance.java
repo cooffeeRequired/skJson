@@ -11,12 +11,11 @@ import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
-import cz.coffee.skjson.api.FileWrapper;
-import cz.coffee.skjson.utils.LoggingUtil;
+import cz.coffee.skjson.api.FileHandler;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +24,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static cz.coffee.skjson.api.Config.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.ConfigRecords.LOGGING_LEVEL;
+import static cz.coffee.skjson.api.FileHandler.await;
+import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.simpleError;
 
 public abstract class JsonCacheInstance {
     @Name("Json storage")
@@ -42,7 +45,7 @@ public abstract class JsonCacheInstance {
     public static class JsonNonFileStorage extends Effect {
 
         static {
-            SkJson.registerEffect(JsonNonFileStorage.class, "[create] new json storage [named] %string%");
+            SkJsonElements.registerEffect(JsonNonFileStorage.class, "[create] new json storage [named] %string%");
         }
 
         private Expression<String> nameOfStorageExp;
@@ -51,13 +54,14 @@ public abstract class JsonCacheInstance {
         protected void execute(@NotNull Event e) {
             String nameOfStorage = nameOfStorageExp.getSingle(e);
             if (nameOfStorage == null)
-                if (LOGGING_LEVEL > 1) LoggingUtil.error("The name of the storage is not specified.");
+                if (LOGGING_LEVEL > 1) simpleError("The name of the storage is not specified.");
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             cache.addValue(nameOfStorage, new JsonObject(), new File("Undefined"));
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "create new json storage named " + nameOfStorageExp.toString(e, debug);
         }
 
@@ -81,7 +85,7 @@ public abstract class JsonCacheInstance {
     public static class LinkFile extends Effect {
 
         static {
-            SkJson.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
+            SkJsonElements.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
         }
 
         private Expression<String> exprFileString, expressionID;
@@ -95,8 +99,7 @@ public abstract class JsonCacheInstance {
             if (id == null || fileString == null) return;
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             File file = new File(fileString);
-            FileWrapper.from(file).whenComplete((cFile, cThrow) -> {
-                JsonElement json = cFile.get();
+            FileHandler.get(file).whenComplete((json, cThrow) -> {
                 if (json == null) return;
                 cache.addValue(id, json, file);
                 if (asAlive) if (!JsonWatcher.isRegistered(file)) JsonWatcher.register(id, file);
@@ -105,6 +108,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "link json file " + exprFileString.toString(e, debug) + " as " + expressionID.toString(e, debug) + (asAlive ? " and make json watcher listen" : "");
         }
 
@@ -134,7 +138,7 @@ public abstract class JsonCacheInstance {
     public static class AllJsonFromDirectory extends AsyncEffect {
 
         static {
-            SkJson.registerEffect(AllJsonFromDirectory.class,
+            SkJsonElements.registerEffect(AllJsonFromDirectory.class,
                     "[:async] load json files from %string% and save it in %string%",
                     "[:async] load json files from %string% and let json watcher listen to all with save it in %string%"
             );
@@ -160,46 +164,34 @@ public abstract class JsonCacheInstance {
             if (files == null || files.length == 0) return;
 
             if (isAsynchronous) {
-                CompletableFuture.runAsync(() -> {
-                    Stream.of(files)
-                            .filter(file -> !file.isDirectory())
-                            .map(File::getName)
-                            .toList().forEach(potentialFile -> {
-                                File potential = new File(pathDirectory + "/" + potentialFile);
-                                CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                                JsonElement json = ct.join().get();
-                                if (letWatching) {
-                                    String parentID = finalCacheDirectory + ";" + potentialFile;
-                                    if (!JsonWatcher.isRegistered(potential))
-                                        JsonWatcher.register(potentialFile, potential, parentID);
-                                }
-                                jsonFiles.add(potentialFile, json);
-                            });
-                    JsonCache<String, JsonElement, File> cache = Config.getCache();
-                    cache.addValue(finalCacheDirectory, jsonFiles, folder);
-                });
+                CompletableFuture.runAsync(() -> StreamOf(pathDirectory, folder, finalCacheDirectory, jsonFiles, files));
             } else {
-                Stream.of(files)
-                        .filter(file -> !file.isDirectory())
-                        .map(File::getName)
-                        .toList().forEach(potentialFile -> {
-                            File potential = new File(pathDirectory + "/" + potentialFile);
-                            CompletableFuture<FileWrapper.JsonFile> ct = FileWrapper.from(potential);
-                            JsonElement json = ct.join().get();
-                            if (letWatching) {
-                                String parentID = finalCacheDirectory + ";" + potentialFile;
-                                if (!JsonWatcher.isRegistered(potential))
-                                    JsonWatcher.register(potentialFile, potential, parentID);
-                            }
-                            jsonFiles.add(potentialFile, json);
-                        });
-                JsonCache<String, JsonElement, File> cache = Config.getCache();
-                cache.addValue(finalCacheDirectory, jsonFiles, folder);
+                StreamOf(pathDirectory, folder, finalCacheDirectory, jsonFiles, files);
             }
+        }
+
+        private void StreamOf(String pathDirectory, File folder, String finalCacheDirectory, JsonObject jsonFiles, File[] files) {
+            Stream.of(files)
+                    .filter(file -> !file.isDirectory())
+                    .map(File::getName)
+                    .toList().forEach(potentialFile -> {
+                        File potential = new File(pathDirectory + "/" + potentialFile);
+                        CompletableFuture<JsonElement> ct = FileHandler.get(potential);
+                        JsonElement json = ct.join();
+                        if (letWatching) {
+                            String parentID = finalCacheDirectory + ";" + potentialFile;
+                            if (!JsonWatcher.isRegistered(potential))
+                                JsonWatcher.register(potentialFile, potential, parentID);
+                        }
+                        jsonFiles.add(potentialFile, json);
+                    });
+            JsonCache<String, JsonElement, File> cache = Config.getCache();
+            cache.addValue(finalCacheDirectory, jsonFiles, folder);
         }
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
+            assert e != null;
             return "load json file from " + expressionPathDirectory.toString(e, debug) + " and save it in " + expressionCacheDirectory.toString(e, debug);
 
         }
@@ -210,6 +202,7 @@ public abstract class JsonCacheInstance {
             expressionPathDirectory = (Expression<String>) exprs[0];
             expressionCacheDirectory = (Expression<String>) exprs[1];
             letWatching = matchedPattern == 1;
+            isAsynchronous = parseResult.hasTag("async");
             return true;
         }
     }
@@ -223,7 +216,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class CondJsonIsCached extends Condition {
         static {
-            SkJson.registerCondition(CondJsonIsCached.class,
+            SkJsonElements.registerCondition(CondJsonIsCached.class,
                     "json %string% is (load|linked)",
                     "json %string% is(n't| not) (load|linked)"
             );
@@ -240,6 +233,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "cached json " + exprId.toString(event, b) + (line == 0 ? " is " : " is not") + "loaded";
         }
 
@@ -263,7 +257,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class SaveCache extends AsyncEffect {
         static {
-            SkJson.registerEffect(SaveCache.class,
+            SkJsonElements.registerEffect(SaveCache.class,
                     "save json %string%",
                     "save all jsons"
             );
@@ -282,15 +276,25 @@ public abstract class JsonCacheInstance {
                         ConcurrentHashMap<JsonElement, File> jsonMap = cache.get(id);
                         jsonMap.forEach((json, file) -> {
                             if (file.getName().equals("Undefined")) {
-                                LoggingUtil.error("You cannot save virtual storage of json.");
+                                simpleError("You cannot save virtual storage of json.");
                                 return;
                             }
-                            FileWrapper.write(file.toString(), json);
+                            try {
+                                await(FileHandler.createOrWrite(file.toString(), json));
+                            } catch (ExecutionException | InterruptedException ex) {
+                                error(ex, null, getParser().getNode());
+                            }
                         });
                     }
                 } else {
                     cache.forEach((key, map) -> map.forEach((json, file) -> {
-                        if (!file.getName().equals("Undefined")) FileWrapper.write(file.toString(), json);
+                        if (!file.getName().equals("Undefined")) {
+                            try {
+                                await(FileHandler.createOrWrite(file.toString(), json));
+                            } catch (ExecutionException | InterruptedException ex) {
+                                error(ex, null, getParser().getNode());
+                            }
+                        }
                     }));
                 }
             });
@@ -298,8 +302,10 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
-            if (line == 0) return "save cached json " + externalExprID.toString(e, debug);
-            else return "save all cached jsons";
+            if (line == 0) {
+                assert e != null;
+                return "save cached json " + externalExprID.toString(e, debug);
+            } else return "save all cached jsons";
         }
 
         @SuppressWarnings("unchecked")
@@ -321,7 +327,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class UnlinkFile extends Effect {
         static {
-            SkJson.registerEffect(UnlinkFile.class, "unlink json %string%");
+            SkJsonElements.registerEffect(UnlinkFile.class, "unlink json %string%");
         }
 
         private Expression<String> exprID;
@@ -342,6 +348,7 @@ public abstract class JsonCacheInstance {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
             return "unlink json " + exprID.toString(event, b);
         }
 
@@ -363,7 +370,7 @@ public abstract class JsonCacheInstance {
     public static class GetCachedJson extends SimpleExpression<JsonElement> {
 
         static {
-            SkJson.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
                     "json %string%",
                     "all cached jsons"
             );
@@ -407,6 +414,7 @@ public abstract class JsonCacheInstance {
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
             if (line == 0) {
+                assert event != null;
                 return "get cached json " + storedKeyExpr.toString(event, b);
             } else {
                 return "all cached jsons";
