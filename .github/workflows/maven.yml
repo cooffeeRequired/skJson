@@ -35,7 +35,7 @@ jobs:
           IFS='-.' read -ra tokens <<< "$jarFileName"
           Dversion="${tokens[1]}"
 
-          mvn install:install-file -Dfile=build/libs/$jarFileName -DgroupId=com.shanebeestudios.skbee -DartifactId=skbee -Dversion=$Dversion -Dpackaging=jar
+          mvn install:install-file -Dfile=build/libs/$jarFileName -DgroupId=com.shanebeestudios.skbee -DartifactId=skbee -Dversion=3.0.1 -Dpackaging=jar
         done
 
         cd ..
