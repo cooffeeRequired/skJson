@@ -2,9 +2,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: ["main", "3.0.0-pre"]
+    branches: ["3.0.0-pre", "main"]
   pull_request:
-    branches: ["main",  "3.0.0-pre"]
+    branches: ["3.0.0-pre", "main"]
 
 jobs:
   build:
@@ -18,8 +18,21 @@ jobs:
       run: chmod +x build-skbee.bat
 
     - name: Run build-skbee.bat
-      run: ./build-skbee.bat
+      run: |
+        git clone https://github.com/ShaneBeee/SkBee.git
+        cd SkBee
+        ./gradlew clean build
 
+        for file in $(ls -1t build/libs/*.jar | head -n 1); do
+          jarFileName=$(basename $file)
+          IFS='-.' read -ra tokens <<< "$jarFileName"
+          Dversion="${tokens[1]}"
+
+          mvn install:install-file -Dfile=build/libs/$jarFileName -DgroupId=com.shanebeestudios.skbee -DartifactId=skbee -Dversion=$Dversion -Dpackaging=jar
+        done
+
+        cd ..
+        rm -rf SkBee
     - uses: actions/checkout@v3
 
     - name: Set up JDK 17
