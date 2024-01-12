@@ -10,7 +10,7 @@
         "on json watcher save"
       ],
       "since": [
-        "2.9"
+        "2.9.2"
       ],
       "patterns": [
         "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
