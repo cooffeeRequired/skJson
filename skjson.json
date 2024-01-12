@@ -481,14 +481,14 @@
         "Returns the index of the key/value in the ListObject",
         "What is ListObject? ListObject is shortcut for `[{}, {} ...]`",
         "That means the object indexed by integer in the list",
-        "This expressions allows you found the key/value in the inner objects in the list."
+        "This expressions allows you found the value in the inner objects in the list."
       ],
       "since": [
         "2.9"
       ],
       "return type": "integer",
       "patterns": [
-        "[skJson] [get] index of (:key|:value) %object% in [object( |-)list] [%string%] of [json] %json%"
+        "[skJson] index of value %object% in [object( |-)list] [%string%] of [json] %json%"
       ]
     },
     {
@@ -518,16 +518,10 @@
       "id": "LoopExpression",
       "name": "Loops",
       "description": [
-        "loops of values/key for json",
-        "",
-        "json-value, json-key"
+        "        That will allow loop through json, and get key/index or value\n        **json-value**, **json-key**\n"
       ],
       "examples": [
-        "on script load:",
-        "\tset {_json} to json from location(10,1,1)",
-        "\tloop values of {_json}:",
-        "\t\tsend json-value, json-key",
-        ""
+        "    on script load:\n        set {_json} to json from \"{'key': 'value', 'array': [1, 2, 3, false, 'index/value']}\n        loop values \"array\" of {_json}:\n            send json-value # 1, 2, 3, false, index/value\n            send json-key # 1, 2, 3, 4, 5\n\n        loop values of {_json}:\n            send json-value # value, [1, 2, 3, false, \"index/value\"]\n            send json-key # 1, 2\n"
       ],
       "since": [
         "2.9"
@@ -863,14 +857,14 @@
         "Returns string/json from base64"
       ],
       "examples": [
-        "stringify: string(\"dHR0dA==\")"
+        "stringify: string(\"dHR0dA==\""
       ],
       "since": [
         "2.9.9-pre"
       ],
-      "return type": "String",
+      "return type": "Object",
       "patterns": [
-        "string(object: object<Base64>)"
+        "string(object: object)"
       ]
     }
   ],
