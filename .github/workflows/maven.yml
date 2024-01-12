@@ -14,6 +14,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
     - name: Set execute permission for build-skbee.bat
       run: chmod +x build-skbee.bat
 
@@ -34,13 +41,6 @@ jobs:
         cd ..
         rm -rf SkBee
     - uses: actions/checkout@v3
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
