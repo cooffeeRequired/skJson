@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Webhook;
 import cz.coffee.skjson.api.requests.WebhookFunction;
@@ -52,12 +53,12 @@ public abstract class Webhooks {
     public static class WebhookEvent extends Event {
         private static final HandlerList handlers = new HandlerList();
 
-        @Override
-        public @NotNull HandlerList getHandlers() {
+        public static HandlerList getHandlerList() {
             return handlers;
         }
 
-        public static HandlerList getHandlerList() {
+        @Override
+        public @NotNull HandlerList getHandlers() {
             return handlers;
         }
     }
@@ -120,8 +121,17 @@ public abstract class Webhooks {
     @Since("2.9")
     public static class WebHookSection extends Section {
         static {
-            SkJson.registerSection(WebHookSection.class, "[:async] send (:web|:discord) request %string%");
+            SkJsonElements.registerSection(WebHookSection.class, "[:async] send (:web|:discord) request %string%");
         }
+
+        private final List<String> contents = new ArrayList<>();
+        private final List<String> attachments = new ArrayList<>();
+        private boolean async;
+        private boolean isDiscord, isWeb, isEmbed;
+        private Expression<?> contentExpression, componentsExpression, actionsExpression, contentHeaders, contentBody;
+        private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail, contentUsername, contentAvatarURL;
+        private String contentTTS, embedID, embedColor;
+        private Expression<String> url;
 
         private EntryValidator getEntryValidator(String section) {
             return switch (section) {
@@ -165,15 +175,6 @@ public abstract class Webhooks {
                 default -> null;
             };
         }
-
-        private boolean async;
-        private boolean isDiscord, isWeb, isEmbed;
-        private Expression<?> contentExpression, componentsExpression, actionsExpression, contentHeaders, contentBody;
-        private Expression<?> embedFields, embedAuthor, embedTitle, embedThumbnail, contentUsername, contentAvatarURL;
-        private String contentTTS, embedID, embedColor;
-        private Expression<String> url;
-        private final List<String> contents = new ArrayList<>();
-        private final List<String> attachments = new ArrayList<>();
 
         @Override
         @SuppressWarnings("unchecked")

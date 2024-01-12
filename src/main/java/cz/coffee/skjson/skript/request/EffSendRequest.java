@@ -1,6 +1,9 @@
 package cz.coffee.skjson.skript.request;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -9,6 +12,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Request;
@@ -39,6 +43,8 @@ import static cz.coffee.skjson.utils.Logger.error;
 public class EffSendRequest extends Effect {
 
     private static final Field DELAYED;
+    private static final ExecutorService threadPool =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     static {
         Field _DELAYED = null;
@@ -51,16 +57,14 @@ public class EffSendRequest extends Effect {
         DELAYED = _DELAYED;
     }
 
-    private static final ExecutorService threadPool =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     static {
-        SkJson.registerEffect(EffSendRequest.class,
+        SkJsonElements.registerEffect(EffSendRequest.class,
                 "send [prepared] %request%"
         );
     }
 
     Expression<Request> exprRequest;
+
     @Override
     protected void execute(@NotNull Event event) {
         var request = exprRequest.getSingle(event);

@@ -13,7 +13,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,14 +43,14 @@ import static cz.coffee.skjson.api.ColorWrapper.Colors.*;
 
 public class PrettyPrint extends SimpleExpression<String> {
 
+    static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
+    static Expression<JsonElement> jsonExpression;
+
     static {
-        SkJson.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with [(:uncoloured|:uncolored)] pretty print");
+        SkJsonElements.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with [(:uncoloured|:uncolored)] pretty print");
     }
 
-    static Expression<JsonElement> jsonExpression;
     private boolean uncoloured_;
-    static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
-
 
     @Override
     protected @Nullable String @NotNull [] get(@NotNull Event e) {

@@ -15,21 +15,8 @@ import static cz.coffee.skjson.utils.Logger.webhookLog;
  */
 public class Webhook {
 
-    /**
-     * The enum Web hook type.
-     */
-    public enum WebHookType {
-        /**
-         * Discord web hook type.
-         */
-        DISCORD,
-        /**
-         * Web web hook type.
-         */
-        WEB
-    }
-
     private final WebHookType webHookType;
+    private List<String> attachments = new ArrayList<>();
 
     /**
      * Instantiates a new Webhook.
@@ -49,8 +36,6 @@ public class Webhook {
     public WebhookFunction create(JsonElement... json) {
         return create(RequestMethod.POST, json);
     }
-
-    private List<String> attachments = new ArrayList<>();
 
     /**
      * Add attachment webhook.
@@ -133,5 +118,19 @@ public class Webhook {
     @Override
     public String toString() {
         return "Webhook{" + "webHookType=" + webHookType + '}';
+    }
+
+    /**
+     * The enum Web hook type.
+     */
+    public enum WebHookType {
+        /**
+         * Discord web hook type.
+         */
+        DISCORD,
+        /**
+         * Web web hook type.
+         */
+        WEB
     }
 }

@@ -51,7 +51,7 @@
     <dependencies>
         <!-- ShaneBee - SkBee 3.0.1 File.jar -->
         <dependency>
-            <groupId>com.github.skbee</groupId>
+            <groupId>com.shanebeestudios.skbee</groupId>
             <artifactId>skbee</artifactId>
             <version>3.0.1</version>
         </dependency>

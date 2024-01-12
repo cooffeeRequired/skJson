@@ -18,7 +18,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
@@ -59,7 +59,7 @@ public abstract class SkJsonChanger {
     public static class JsonArrayChanger extends SimpleExpression<Object> {
 
         static {
-            SkJson.registerExpression(JsonArrayChanger.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(JsonArrayChanger.class, Object.class, ExpressionType.SIMPLE,
                     "json (list|array) [%-string%] in %jsons%",
                     "(1:value|2:key) of json (list|array) %string% in %json%",
                     "[value[s]] %objects% of json (list|array) [%-string%]",
@@ -73,6 +73,7 @@ public abstract class SkJsonChanger {
         private Expression<String> pathExpression;
         private Expression<Integer> integerExpression;
         private boolean isNested;
+        private Expression<?> dataExpression;
 
         @Override
         @SuppressWarnings("all")
@@ -215,8 +216,6 @@ public abstract class SkJsonChanger {
             }
         }
 
-        private Expression<?> dataExpression;
-
         @Override
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
@@ -255,7 +254,7 @@ public abstract class SkJsonChanger {
     })
     public static class JsonObjectChanger extends SimpleExpression<Object> {
         static {
-            SkJson.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(JsonObjectChanger.class, Object.class, ExpressionType.SIMPLE,
                     "(:key|:value)[2:s] of json object %-string% in %json%",
                     "[by] (:key|:value)[s] %objects% of json object [%-string%]",
                     "%objects% of json (object|array|list) [%-string%]"

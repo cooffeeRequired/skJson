@@ -23,28 +23,18 @@ import static cz.coffee.skjson.utils.Logger.watcherLog;
  * The type Json watcher.
  */
 public class JsonWatcher {
-    private final File file;
-    private final String id;
-    private final String parentID;
-    private EventWatcherSave event;
-    private final WatchService watchService;
     private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(runnable -> new Thread(runnable, "JsonWatcher"));
-    private final ScheduledFuture<?> future;
-    private final UUID uuid;
     /**
      * The Config.
      */
     static Config config;
-
-    /**
-     * Gets id.
-     *
-     * @return the id
-     */
-    @SuppressWarnings("unused")
-    public String getId() {
-        return id;
-    }
+    private final File file;
+    private final String id;
+    private final String parentID;
+    private final WatchService watchService;
+    private final ScheduledFuture<?> future;
+    private final UUID uuid;
+    private EventWatcherSave event;
 
     /**
      * Instantiates a new Json watcher.
@@ -89,10 +79,6 @@ public class JsonWatcher {
                 .anyMatch(watcher -> watcher.getFile().equals(file) && watcher.isActive());
     }
 
-    public void setEvent(EventWatcherSave event) {
-        this.event = event;
-    }
-
     /**
      * Register.
      *
@@ -119,7 +105,6 @@ public class JsonWatcher {
         }
     }
 
-
     /**
      * Unregister.
      *
@@ -135,6 +120,43 @@ public class JsonWatcher {
             }
             return null;
         });
+    }
+
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
+    public static Config getConfig() {
+        return JsonWatcher.config;
+    }
+
+    /**
+     * Unregister all.
+     */
+    public static void unregisterAll() {
+        try {
+            watcherLog("Trying to unregister all watchers!");
+            watcherCache.forEach((file, v_) -> unregister(file));
+        } catch (Exception e) {
+            watcherLog("Unregistering all watchers &cFailed!");
+        } finally {
+            watcherLog("Unregistering all watchers was &asuccessfully!");
+        }
+    }
+
+    /**
+     * Gets id.
+     *
+     * @return the id
+     */
+    @SuppressWarnings("unused")
+    public String getId() {
+        return id;
+    }
+
+    public void setEvent(EventWatcherSave event) {
+        this.event = event;
     }
 
     /**
@@ -233,28 +255,5 @@ public class JsonWatcher {
      */
     public File getFile() {
         return file;
-    }
-
-    /**
-     * Gets config.
-     *
-     * @return the config
-     */
-    public static Config getConfig() {
-        return JsonWatcher.config;
-    }
-
-    /**
-     * Unregister all.
-     */
-    public static void unregisterAll() {
-        try {
-            watcherLog("Trying to unregister all watchers!");
-            watcherCache.forEach((file, v_) -> unregister(file));
-        } catch (Exception e) {
-            watcherLog("Unregistering all watchers &cFailed!");
-        } finally {
-            watcherLog("Unregistering all watchers was &asuccessfully!");
-        }
     }
 }

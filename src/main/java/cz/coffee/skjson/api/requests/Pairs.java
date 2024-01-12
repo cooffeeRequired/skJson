@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class Pairs {
-    private String LEFT;
     private static final String DELIMITER = ":";
+    private String LEFT;
     private String RIGHT;
 
     public Pairs(Object input) {

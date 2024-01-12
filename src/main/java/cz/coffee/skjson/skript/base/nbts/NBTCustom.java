@@ -28,6 +28,14 @@ public enum NBTCustom {
     NBTTagStringList("string list", NBTType.NBTTagList, String[].class, true);
 
 
+    private static final Map<NBTType, NBTCustom> BY_TYPE = new HashMap<>();
+
+    static {
+        for (NBTCustom type : NBTCustom.values()) {
+            BY_TYPE.put(type.nbtType, type);
+        }
+    }
+
     final String name;
     final NBTType nbtType;
     final Class<?> typeClass;
@@ -46,18 +54,6 @@ public enum NBTCustom {
         this.nbtType = nbtType;
         this.typeClass = typeClass;
         this.isList = isList;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    private static final Map<NBTType, NBTCustom> BY_TYPE = new HashMap<>();
-
-    static {
-        for (NBTCustom type : NBTCustom.values()) {
-            BY_TYPE.put(type.nbtType, type);
-        }
     }
 
     @Nullable
@@ -82,5 +78,9 @@ public enum NBTCustom {
             return BY_TYPE.get(nbtType);
         }
         return null;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

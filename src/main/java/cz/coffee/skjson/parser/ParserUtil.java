@@ -8,11 +8,13 @@ import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.NBTCustom;
+import cz.coffee.skjson.api.DynamicObjectSerializer;
 import cz.coffee.skjson.skript.base.Converter;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +27,7 @@ import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.skript.base.Converter.*;
 import static cz.coffee.skjson.skript.base.SimpleConverter.SERIALIZED_JSON_TYPE_KEY;
 import static cz.coffee.skjson.utils.Logger.error;
+import static cz.coffee.skjson.utils.Logger.info;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
 /**
@@ -32,6 +35,17 @@ import static org.bukkit.configuration.serialization.ConfigurationSerialization.
  */
 @SuppressWarnings("all")
 public abstract class ParserUtil {
+    /**
+     * The constant GsonConverter.
+     */
+    public static Gson GsonConverter = new GsonBuilder()
+            .serializeNulls()
+            .enableComplexMapKeySerialization()
+            .disableHtmlEscaping()
+            .registerTypeHierarchyAdapter(Player.class, new DynamicObjectSerializer<Player>())
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Converter.BukkitConverter())
+            .create();
+
     /**
      * Fix quotes string.
      *
@@ -123,7 +137,6 @@ public abstract class ParserUtil {
         return null;
     }
 
-
     /**
      * Is classic type boolean.
      *
@@ -133,18 +146,13 @@ public abstract class ParserUtil {
      */
     public static <T> boolean isClassicType(T type) {
         Class<?> c = type.getClass();
-        return (c.isAssignableFrom(String.class) || c.isAssignableFrom(Number.class) || c.isAssignableFrom(Boolean.class) || type instanceof Number || c.isAssignableFrom(Integer.class) || c.isAssignableFrom(Long.class));
+        return
+                (c.isAssignableFrom(String.class) ||
+                        c.isAssignableFrom(Number.class) ||
+                        c.isAssignableFrom(Boolean.class) || type instanceof Number
+                        || c.isAssignableFrom(Integer.class)
+                        || c.isAssignableFrom(Long.class));
     }
-
-    /**
-     * The constant GsonConverter.
-     */
-    public static Gson GsonConverter = new GsonBuilder()
-            .serializeNulls()
-            .enableComplexMapKeySerialization()
-            .disableHtmlEscaping()
-            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Converter.BukkitConverter())
-            .create();
 
     /**
      * Default converter json element.
@@ -263,13 +271,12 @@ public abstract class ParserUtil {
     static <T> JsonElement assign(T object) {
         if (object == null) return JsonNull.INSTANCE;
         boolean isSerializable = (object instanceof YggdrasilSerializable || object instanceof ConfigurationSerializable);
-
         try {
             if (object instanceof World) {
                 return WorldConverter.toJson((World) object);
             }
             if (object instanceof Chunk) {
-                return ChunkConverter.toJson((Chunk) object);
+                ChunkConverter.toJson((Chunk) object);
             }
             if (object instanceof Block) {
                 return BlockConverter.toJson((Block) object);
@@ -293,13 +300,17 @@ public abstract class ParserUtil {
                 }
             }
             if (isSerializable) {
-                return GsonConverter.toJsonTree(object, ConfigurationSerializable.class);
+                return GsonConverter.toJsonTree(object);
             }
         } catch (Exception exception) {
             if (PROJECT_DEBUG) exception.printStackTrace();
             return null;
         }
-        return null;
+        try {
+            return GsonConverter.toJsonTree(object);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     /**
@@ -330,7 +341,7 @@ public abstract class ParserUtil {
             try {
                 if (World.class.isAssignableFrom(clazz))
                     return (T) WorldConverter.fromJson(finalJson.getAsJsonObject());
-                else if (Chunk.class.isAssignableFrom(clazz))
+                if (Chunk.class.isAssignableFrom(clazz))
                     return (T) ChunkConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ItemStackConverter.fromJson(finalJson.getAsJsonObject()));
@@ -342,7 +353,11 @@ public abstract class ParserUtil {
                     return (T) NBTContainerConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
                     return (T) GsonConverter.fromJson(finalJson, clazz);
-                else return null;
+                else {
+                    T o = (T) GsonConverter.fromJson(finalJson, clazz);
+                    if (o == null) return null;
+                    else return o;
+                }
             } catch (Exception ex) {
                 if (PROJECT_DEBUG) error(ex);
                 return null;

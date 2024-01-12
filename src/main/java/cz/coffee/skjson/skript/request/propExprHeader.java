@@ -1,7 +1,10 @@
 package cz.coffee.skjson.skript.request;
 
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -9,7 +12,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.requests.Pairs;
 import cz.coffee.skjson.api.requests.Request;
 import org.bukkit.event.Event;
@@ -21,26 +24,27 @@ import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Request headers")
 @Examples("""
-        # getting the Request headers;
-        send {_request}'s headers
-        send headers of {_request}
-        
-        # setting the Request content;
-        set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
-        set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
-        
-        #or
-        set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
-        set headers of {_request} to "Content-Type: application/json", "Restrict: false"
-""")
+                # getting the Request headers;
+                send {_request}'s headers
+                send headers of {_request}
+                
+                # setting the Request content;
+                set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
+                set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
+                
+                #or
+                set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
+                set headers of {_request} to "Content-Type: application/json", "Restrict: false"
+        """)
 @Description("set or get the current request headers")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
 public class propExprHeader extends PropertyExpression<Request, JsonElement> {
 
     static {
-        SkJson.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
+        SkJsonElements.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
     }
+
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] source) {
         var output = new JsonElement[source.length];
@@ -76,9 +80,9 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
 
     @Override
     @SuppressWarnings("all")
-    public Class<?> [] acceptChange(Changer.@NotNull ChangeMode mode) {
+    public Class<?>[] acceptChange(Changer.@NotNull ChangeMode mode) {
         return switch (mode) {
-            case SET ->  CollectionUtils.array(JsonElement.class, String[].class);
+            case SET -> CollectionUtils.array(JsonElement.class, String[].class);
             default -> null;
         };
     }

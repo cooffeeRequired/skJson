@@ -13,12 +13,29 @@ import java.util.*;
 @SuppressWarnings("all")
 public class MimeMultipartData {
 
+    private String boundary;
+    private HttpRequest.BodyPublisher bodyPublisher;
+    private MimeMultipartData() {
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public HttpRequest.BodyPublisher getBodyPublisher() throws IOException {
+        return bodyPublisher;
+    }
+
+    public String getContentType() {
+        return "multipart/form-data; boundary=" + boundary;
+    }
+
     public static class Builder {
 
-        private String boundary;
-        private Charset charset = StandardCharsets.UTF_8;
         private final List<MimedFile> files = new ArrayList<>();
         private final Map<String, String> texts = new LinkedHashMap<>();
+        private String boundary;
+        private Charset charset = StandardCharsets.UTF_8;
 
         private Builder() {
             this.boundary = new BigInteger(128, new Random()).toString();
@@ -88,24 +105,6 @@ public class MimeMultipartData {
                 this.mimeType = mimeType;
             }
         }
-    }
-
-    private String boundary;
-    private HttpRequest.BodyPublisher bodyPublisher;
-
-    private MimeMultipartData() {
-    }
-
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public HttpRequest.BodyPublisher getBodyPublisher() throws IOException {
-        return bodyPublisher;
-    }
-
-    public String getContentType() {
-        return "multipart/form-data; boundary=" + boundary;
     }
 
 }

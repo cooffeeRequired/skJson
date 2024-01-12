@@ -15,16 +15,6 @@ public class JsonCache<K, V, F> extends ConcurrentHashMap<K, ConcurrentHashMap<V
         });
     }
 
-    public CompletableFuture<F> getValue(K key, V innerKey) {
-        return CompletableFuture.supplyAsync(() -> {
-            ConcurrentHashMap<V, F> innerMap = get(key);
-            if (innerMap != null) {
-                return innerMap.get(innerKey);
-            }
-            return null;
-        });
-    }
-
     public CompletableFuture<Map<V, F>> getValuesByKey(K key) {
         return CompletableFuture.supplyAsync(() -> {
             ConcurrentHashMap<V, F> innerMap = get(key);

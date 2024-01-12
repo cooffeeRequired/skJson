@@ -2,8 +2,6 @@ package cz.coffee.skjson.utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import static cz.coffee.skjson.utils.Logger.times;
@@ -72,11 +70,5 @@ public abstract class Util {
             }
         }
         return true;
-    }
-
-    public static String getNow() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        return dtf.format(now);
     }
 }

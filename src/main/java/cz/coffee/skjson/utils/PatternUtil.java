@@ -71,14 +71,6 @@ public abstract class PatternUtil {
         return true;
     }
 
-    public enum KeyType {LIST, KEY}
-
-    public record keyStruct(String key, KeyType type) {
-        public boolean isList() {
-            return this.type == KeyType.LIST;
-        }
-    }
-
     public static LinkedList<keyStruct> convertStringToKeys(String inputString) {
         return convertStringToKeys(inputString, PATH_VARIABLE_DELIMITER + "(?![{}])");
     }
@@ -122,5 +114,13 @@ public abstract class PatternUtil {
             error(ex);
         }
         return keys;
+    }
+
+    public enum KeyType {LIST, KEY}
+
+    public record keyStruct(String key, KeyType type) {
+        public boolean isList() {
+            return this.type == KeyType.LIST;
+        }
     }
 }

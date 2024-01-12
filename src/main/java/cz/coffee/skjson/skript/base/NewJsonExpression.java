@@ -12,7 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.*;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
@@ -31,7 +31,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
-import static cz.coffee.skjson.parser.ParserUtil.isClassicType;
 import static cz.coffee.skjson.parser.ParserUtil.parse;
 import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.Logger.warn;
@@ -63,9 +62,8 @@ import static cz.coffee.skjson.utils.Logger.warn;
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
-
     static {
-        SkJson.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
+        SkJsonElements.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
                 "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
                 "@<^(\\{|\\[).+(\\}|\\])$>"
         );
@@ -76,7 +74,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     private Expression<?> input;
     private boolean inputIsRegex;
     private JsonExpressionString regexInput;
-    private static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
@@ -129,26 +126,14 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 }
             } else {
                 for (Object value : values) {
-                    if (value instanceof JsonElement json) {
-                        output.add(json);
-                    } else if (isClassicType(value)) {
-                        JsonElement json;
-                        try {
-                            json = JsonParser.parseString(value.toString());
-                        } catch (JsonParseException ex) {
-                            json = gson.toJsonTree(value);
+                    try {
+                        if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
+                            type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
+                        } else {
+                            output.add(parse(value));
                         }
-                        output.add(json);
-                    } else {
-                        try {
-                            if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
-                                type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
-                            } else {
-                                output.add(parse(value));
-                            }
-                        } catch (Exception ex) {
-                            if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
-                        }
+                    } catch (Exception ex) {
+                        if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
                     }
                 }
             }

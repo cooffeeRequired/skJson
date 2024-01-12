@@ -6,7 +6,7 @@ import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.registrations.DefaultClasses;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.ConfigRecords;
 import cz.coffee.skjson.parser.ParserUtil;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ import java.util.Base64;
 public class SkJsonFunctions {
     static {
 
-        SkJson.registerFunction(new SimpleJavaFunction<>("getDelimiter", new Parameter[]{}, DefaultClasses.STRING, true) {
+        SkJsonElements.registerFunction(new SimpleJavaFunction<>("getDelimiter", new Parameter[]{}, DefaultClasses.STRING, true) {
                     @Override
                     @SuppressWarnings("all")
                     public String @NotNull [] executeSimple(Object[] @NotNull [] params) {
@@ -31,7 +31,7 @@ public class SkJsonFunctions {
 
         @SuppressWarnings("all")
         Parameter<?>[] object = new Parameter[]{new Parameter<>("object", DefaultClasses.OBJECT, true, null)};
-        SkJson.registerFunction(new SimpleJavaFunction<>("b64", object, DefaultClasses.STRING, true) {
+        SkJsonElements.registerFunction(new SimpleJavaFunction<>("b64", object, DefaultClasses.STRING, true) {
                     @Override
                     @SuppressWarnings("all")
                     public String @NotNull [] executeSimple(Object[][] params) {
@@ -43,7 +43,7 @@ public class SkJsonFunctions {
                 .since("2.9")
                 .examples("serial: b64(\"This is a test\"");
 
-        SkJson.registerFunction(new SimpleJavaFunction<>("string", object, DefaultClasses.OBJECT, true) {
+        SkJsonElements.registerFunction(new SimpleJavaFunction<>("string", object, DefaultClasses.OBJECT, true) {
                     @Override
                     @SuppressWarnings("all")
                     public Object @NotNull [] executeSimple(Object[][] params) {

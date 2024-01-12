@@ -1,7 +1,6 @@
 package cz.coffee.skjson.api;
 
 import com.google.gson.*;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;

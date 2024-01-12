@@ -10,7 +10,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.RequestMethod;
 import org.bukkit.event.Event;
@@ -23,17 +23,17 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Prepare Web request")
 @Examples("""
-    set {_request} to prepare new GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn"
-    set {_request}'s request content to @{"A": true}
-    set {_request}'s headers to @{"Content-Type": "application/json+vhd"}
-    send prepared {_request}
-    
-    if response status is "OK":
-        send response status code of {_request}
-        send response content of {_request}
-        send response status code of {_request}
-        send response headers of {_request}
-""")
+            set {_request} to prepare new GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn"
+            set {_request}'s request content to @{"A": true}
+            set {_request}'s headers to @{"Content-Type": "application/json+vhd"}
+            send prepared {_request}
+            
+            if response status is "OK":
+                send response status code of {_request}
+                send response content of {_request}
+                send response status code of {_request}
+                send response headers of {_request}
+        """)
 @Description({
         "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
         "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",
@@ -47,12 +47,14 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 public class ExprPrepareRequest extends SimpleExpression<Request> {
 
     static {
-        SkJson.registerExpression(ExprPrepareRequest.class, Request.class, ExpressionType.SIMPLE,
+        SkJsonElements.registerExpression(ExprPrepareRequest.class, Request.class, ExpressionType.SIMPLE,
                 "prepare [new] %requestmethod% [request] on %string%"
         );
     }
+
     private Expression<RequestMethod> requestMethod;
     private Expression<String> requestUri;
+
     @Override
     protected Request @NotNull [] get(@NotNull Event event) {
         var method = requestMethod.getSingle(event);

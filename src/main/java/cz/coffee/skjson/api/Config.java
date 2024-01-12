@@ -36,19 +36,34 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuppressWarnings("ALL")
 public class Config {
-    final SkJsonLogger logger;
-    final JavaPlugin plugin;
-    PluginManager manager;
-    int version;
-    private boolean ready = true;
-    private final ArrayList<String> errors = new ArrayList<>();
-    private File configFile;
-    private FileConfiguration config;
-
+    /**
+     * The constant cache.
+     */
+    final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
+    private static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
+            Map.entry("CONFIG_VERSION", "version"),
+            Map.entry("PROJECT_DEBUG", "debug"),
+            Map.entry("LOGGING_LEVEL", "logging-level"),
+            Map.entry("DEFAULT_WATCHER_INTERVAL", "watcher-interval"),
+            Map.entry("PLUGIN_PREFIX", "prefixes-plugin"),
+            Map.entry("ERROR_PREFIX", "prefixes-error"),
+            Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
+            Map.entry("REQUESTS_PREFIX", "prefixes-request"),
+            Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
+            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
+            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
+    ));
     public static YamlConfiguration pluginYaml;
     public static ConcurrentHashMap<File, JsonWatcher> watcherCache = new ConcurrentHashMap<>();
     private static Config staticConfig;
-
+    final SkJsonLogger logger;
+    final JavaPlugin plugin;
+    private final ArrayList<String> errors = new ArrayList<>();
+    PluginManager manager;
+    int version;
+    private boolean ready = true;
+    private File configFile;
+    private FileConfiguration config;
 
     /**
      * Instantiates a new Config.
@@ -62,6 +77,35 @@ public class Config {
         Config.staticConfig = this;
     }
 
+    public static String getMapping(final String key) {
+        if (mapping.containsKey(key)) {
+            return mapping.get(key);
+        }
+        return null;
+    }
+
+    private static String convertStreamToString(InputStream inputStream) {
+        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
+    public static Config getConfig() {
+        return staticConfig;
+    }
+
+    /**
+     * Gets cache.
+     *
+     * @return the cache
+     */
+    public static JsonCache<String, JsonElement, File> getCache() {
+        return cache;
+    }
 
     /**
      * Load config file.
@@ -125,19 +169,6 @@ public class Config {
         return wrongFile;
     }
 
-    /**
-     * Gets plugin config.
-     *
-     * @param path the path
-     * @return the plugin config
-     */
-    public static Object getPluginConfig(String path) {
-        if (Config.pluginYaml != null) {
-            return Config.pluginYaml.get(path);
-        }
-        return null;
-    }
-
     private void matchConfig() {
         try {
             boolean hasUpdated = false;
@@ -163,7 +194,6 @@ public class Config {
             e.printStackTrace();
         }
     }
-
 
     private boolean getSetting(String setting) {
         return this.config.getBoolean("settings." + setting);
@@ -193,28 +223,6 @@ public class Config {
         return this.config.getBoolean("settings.features." + feature);
     }
 
-    private static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
-            Map.entry("CONFIG_VERSION", "version"),
-            Map.entry("PROJECT_DEBUG", "debug"),
-            Map.entry("LOGGING_LEVEL", "logging-level"),
-            Map.entry("DEFAULT_WATCHER_INTERVAL", "watcher-interval"),
-            Map.entry("PLUGIN_PREFIX", "prefixes-plugin"),
-            Map.entry("ERROR_PREFIX", "prefixes-error"),
-            Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
-            Map.entry("REQUESTS_PREFIX", "prefixes-request"),
-            Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
-            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
-            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
-    ));
-
-    public static String getMapping(final String key) {
-        if (mapping.containsKey(key)) {
-            return mapping.get(key);
-        }
-        return null;
-    }
-
-
     private void loadConfigs(CommandSender... sender_) {
         var sender = sender_ != null && sender_.length > 0 && sender_[0] != null;
         try {
@@ -240,16 +248,6 @@ public class Config {
             loadConfigFile(true);
         }
     }
-
-    private static String convertStreamToString(InputStream inputStream) {
-        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-
-    /**
-     * The constant cache.
-     */
-    final static JsonCache<String, JsonElement, File> cache = new JsonCache<>();
 
     /**
      * Init.
@@ -326,16 +324,6 @@ public class Config {
         ready = registerCommand(plugin, "skjson");
     }
 
-
-    /**
-     * Gets config.
-     *
-     * @return the config
-     */
-    public static Config getConfig() {
-        return staticConfig;
-    }
-
     /**
      * Ready boolean.
      *
@@ -343,15 +331,6 @@ public class Config {
      */
     public boolean ready() {
         return ready;
-    }
-
-    /**
-     * Gets cache.
-     *
-     * @return the cache
-     */
-    public static JsonCache<String, JsonElement, File> getCache() {
-        return cache;
     }
 
     /**

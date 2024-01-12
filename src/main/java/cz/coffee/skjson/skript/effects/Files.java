@@ -15,7 +15,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -52,7 +52,7 @@ public abstract class Files {
     public static class New extends Effect {
 
         static {
-            SkJson.registerEffect(New.class, "new json file %string% [(:with) content %-object%]");
+            SkJsonElements.registerEffect(New.class, "new json file %string% [(:with) content %-object%]");
         }
 
         private boolean withContent;
@@ -113,7 +113,7 @@ public abstract class Files {
     })
     public static class Edit extends Effect {
         static {
-            SkJson.registerEffect(Edit.class, "edit (0:value|1:key) %string% of json file %string% to %object%");
+            SkJsonElements.registerEffect(Edit.class, "edit (0:value|1:key) %string% of json file %string% to %object%");
         }
 
         private Expression<?> unparsedInput;
@@ -182,7 +182,7 @@ public abstract class Files {
     })
     public static class Write extends AsyncEffect {
         static {
-            SkJson.registerEffect(Write.class, "write %object% to json file %string%");
+            SkJsonElements.registerEffect(Write.class, "write %object% to json file %string%");
         }
 
         private Expression<?> unparsedInput;
@@ -222,7 +222,7 @@ public abstract class Files {
     @Since("2.8.0 - performance & clean")
     public static class CondFileExists extends Condition {
         static {
-            SkJson.registerCondition(CondFileExists.class,
+            SkJsonElements.registerCondition(CondFileExists.class,
                     "json [file] %string% exists",
                     "json [file] %string% does(n't| not) exist"
             );
@@ -271,7 +271,7 @@ public abstract class Files {
     @Since("2.8.0 - performance & clean")
     public static class CondJsonEmpty extends Condition {
         static {
-            SkJson.registerCondition(CondJsonEmpty.class,
+            SkJsonElements.registerCondition(CondJsonEmpty.class,
                     "json(-| )element %json% is empty",
                     "json(-| )element %json% is(n't| not) empty"
             );

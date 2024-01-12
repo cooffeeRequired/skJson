@@ -18,7 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
@@ -64,7 +64,7 @@ public abstract class JsonBase {
     @Since("2.9.9-pre (Api change)")
     public static class CountElements extends SimpleExpression<Integer> {
         static {
-            SkJson.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(CountElements.class, Integer.class, ExpressionType.SIMPLE,
                     "number of (0:key[s]|1:value[s]) %objects% in %json%"
             );
         }
@@ -135,7 +135,7 @@ public abstract class JsonBase {
     })
     public static class LoopExpression extends SimpleExpression<Object> {
         static {
-            SkJson.registerExpression(LoopExpression.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(LoopExpression.class, Object.class, ExpressionType.SIMPLE,
                     "[the] json-(:value|:key)[-<(\\d+)>]"
             );
         }
@@ -264,7 +264,7 @@ public abstract class JsonBase {
     })
     public static class Elements extends SimpleExpression<Object> {
         static {
-            SkJson.registerExpression(Elements.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(Elements.class, Object.class, ExpressionType.SIMPLE,
                     "(0:(value %-string% of %-json%)|1:(values [%-string%] of %-json%))"
             );
         }
@@ -454,9 +454,10 @@ public abstract class JsonBase {
     public static class JsonSupportElement extends SimpleExpression<Object> {
 
         public static final int lastElementConst = -928171;
+        private static final JsonObject JSON_OBJECT = new JsonObject();
 
         static {
-            SkJson.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.SIMPLE,
                     "(1:(1st|first)|2:(2nd|second)|3:(3rd|third)|4:last|5:%integer%) element of %jsons%"
             );
         }
@@ -464,8 +465,6 @@ public abstract class JsonBase {
         private Expression<Integer> intExpression;
         private Expression<JsonElement> jsonInput;
         private Integer tag;
-
-        private static final JsonObject JSON_OBJECT = new JsonObject();
 
         @Override
         @SuppressWarnings("all")
@@ -568,7 +567,7 @@ public abstract class JsonBase {
     public static class IndexListObject extends SimpleExpression<Integer> {
 
         static {
-            SkJson.registerExpression(IndexListObject.class, Integer.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(IndexListObject.class, Integer.class, ExpressionType.SIMPLE,
                     "[get] index of (:key|:value) %object% in [object( |-)list] [%-string%] of [json] %json%"
             );
         }
@@ -624,27 +623,13 @@ public abstract class JsonBase {
     public static class MapJson extends Effect {
 
         static {
-            SkJson.registerEffect(MapJson.class, "[:async] (map|copy) %json/string% to %objects%");
+            SkJsonElements.registerEffect(MapJson.class, "[:async] (map|copy) %json/string% to %objects%");
         }
 
         private Expression<?> jsonInput;
         private VariableString variableString;
         private boolean isLocal;
         private boolean async;
-
-        @Override
-        protected void execute(@NotNull Event e) {
-            Object jsonInputSingle = jsonInput.getSingle(e);
-            JsonElement json = ParserUtil.parse(jsonInputSingle);
-            String vv = variableString.getSingle(e);
-            String var = vv.substring(0, vv.length() - 3);
-            if (json == null) return;
-            if (async) {
-                CompletableFuture.runAsync(() -> toList(var + SEPARATOR, json, isLocal, e));
-            } else {
-                toList(var + SEPARATOR, json, isLocal, e);
-            }
-        }
 
         private static void toList(@NotNull String name, JsonElement inputJson, boolean isLocal, Event event) {
             if (inputJson.isJsonPrimitive()) {
@@ -704,6 +689,20 @@ public abstract class JsonBase {
         }
 
         @Override
+        protected void execute(@NotNull Event e) {
+            Object jsonInputSingle = jsonInput.getSingle(e);
+            JsonElement json = ParserUtil.parse(jsonInputSingle);
+            String vv = variableString.getSingle(e);
+            String var = vv.substring(0, vv.length() - 3);
+            if (json == null) return;
+            if (async) {
+                CompletableFuture.runAsync(() -> toList(var + SEPARATOR, json, isLocal, e));
+            } else {
+                toList(var + SEPARATOR, json, isLocal, e);
+            }
+        }
+
+        @Override
         public @NotNull String toString(@Nullable Event e, boolean debug) {
             return Classes.getDebugMessage(jsonInput);
         }
@@ -742,18 +741,11 @@ public abstract class JsonBase {
     public static class ParseVariable extends SimpleExpression<JsonElement> {
 
         static {
-            SkJson.registerPropertyExpression(ParseVariable.class, JsonElement.class, "form[atted json]", "jsons");
+            SkJsonElements.registerPropertyExpression(ParseVariable.class, JsonElement.class, "form[atted json]", "jsons");
         }
 
         private VariableString variable;
         private boolean isLocal;
-
-        @Override
-        protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
-            String variableName = variable.toString(e);
-            String var = (variableName.substring(0, variableName.length() - 1));
-            return new JsonElement[]{convert(var, isLocal, true, e)};
-        }
 
         private static JsonElement convert(String var, boolean isLocal, boolean nullable, Event event) {
             Map<String, Object> variable = (Map<String, Object>) Variables.getVariable(var + "*", event, isLocal);
@@ -823,6 +815,13 @@ public abstract class JsonBase {
         }
 
         @Override
+        protected @Nullable JsonElement @NotNull [] get(@NotNull Event e) {
+            String variableName = variable.toString(e);
+            String var = (variableName.substring(0, variableName.length() - 1));
+            return new JsonElement[]{convert(var, isLocal, true, e)};
+        }
+
+        @Override
         public boolean isSingle() {
             return true;
         }
@@ -866,7 +865,7 @@ public abstract class JsonBase {
     public static class CondJsonType extends Condition {
 
         static {
-            SkJson.registerCondition(CondJsonType.class,
+            SkJsonElements.registerCondition(CondJsonType.class,
                     "type of %json% (is|=) (1:primitive|2:json object|3:json array)",
                     "type of %json% (is(n't| not)|!=) (1:primitive|2:json object|3:json array)"
             );
@@ -917,7 +916,7 @@ public abstract class JsonBase {
     public static class CondJsonHas extends Condition {
 
         static {
-            SkJson.registerCondition(CondJsonHas.class,
+            SkJsonElements.registerCondition(CondJsonHas.class,
                     "%json% has [:directly] (:value|:key)[s] %objects%",
                     "%json% does(n't| not) have [:directly] (:value|:key)[s] %objects%"
             );
@@ -996,7 +995,7 @@ public abstract class JsonBase {
     public static class AllJsonInFolder extends SimpleExpression<String> {
 
         static {
-            SkJson.registerExpression(AllJsonInFolder.class, String.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(AllJsonInFolder.class, String.class, ExpressionType.SIMPLE,
                     "All json [files] (from|in) (dir|directory|folder) %string%"
             );
         }

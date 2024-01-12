@@ -11,7 +11,7 @@ import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.Cache.JsonCache;
 import cz.coffee.skjson.api.Cache.JsonWatcher;
 import cz.coffee.skjson.api.Config;
@@ -45,7 +45,7 @@ public abstract class JsonCacheInstance {
     public static class JsonNonFileStorage extends Effect {
 
         static {
-            SkJson.registerEffect(JsonNonFileStorage.class, "[create] new json storage [named] %string%");
+            SkJsonElements.registerEffect(JsonNonFileStorage.class, "[create] new json storage [named] %string%");
         }
 
         private Expression<String> nameOfStorageExp;
@@ -85,7 +85,7 @@ public abstract class JsonCacheInstance {
     public static class LinkFile extends Effect {
 
         static {
-            SkJson.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
+            SkJsonElements.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
         }
 
         private Expression<String> exprFileString, expressionID;
@@ -138,7 +138,7 @@ public abstract class JsonCacheInstance {
     public static class AllJsonFromDirectory extends AsyncEffect {
 
         static {
-            SkJson.registerEffect(AllJsonFromDirectory.class,
+            SkJsonElements.registerEffect(AllJsonFromDirectory.class,
                     "[:async] load json files from %string% and save it in %string%",
                     "[:async] load json files from %string% and let json watcher listen to all with save it in %string%"
             );
@@ -216,7 +216,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class CondJsonIsCached extends Condition {
         static {
-            SkJson.registerCondition(CondJsonIsCached.class,
+            SkJsonElements.registerCondition(CondJsonIsCached.class,
                     "json %string% is (load|linked)",
                     "json %string% is(n't| not) (load|linked)"
             );
@@ -257,7 +257,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class SaveCache extends AsyncEffect {
         static {
-            SkJson.registerEffect(SaveCache.class,
+            SkJsonElements.registerEffect(SaveCache.class,
                     "save json %string%",
                     "save all jsons"
             );
@@ -327,7 +327,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class UnlinkFile extends Effect {
         static {
-            SkJson.registerEffect(UnlinkFile.class, "unlink json %string%");
+            SkJsonElements.registerEffect(UnlinkFile.class, "unlink json %string%");
         }
 
         private Expression<String> exprID;
@@ -370,7 +370,7 @@ public abstract class JsonCacheInstance {
     public static class GetCachedJson extends SimpleExpression<JsonElement> {
 
         static {
-            SkJson.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
+            SkJsonElements.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
                     "json %string%",
                     "all cached jsons"
             );

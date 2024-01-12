@@ -32,12 +32,13 @@ import static cz.coffee.skjson.utils.Logger.*;
 
 public class RequestClient implements AutoCloseable {
     private static final String USER_AGENT_FORMAT = "SkJson-requests-%s";
+    private final LinkedList<File> attachments = new LinkedList<>();
+    private final Gson GSON = new GsonBuilder().disableHtmlEscaping().disableJdkUnsafe().serializeNulls().setLenient().create();
     private String uri;
     private HttpClient client;
     private Request request;
     private TimerWrapper timer;
-    private final LinkedList<File> attachments = new LinkedList<>();
-    private final Gson GSON = new GsonBuilder().disableHtmlEscaping().disableJdkUnsafe().serializeNulls().setLenient().create();
+    private boolean done = false;
 
     public RequestClient(String uri) {
         try {
@@ -53,9 +54,6 @@ public class RequestClient implements AutoCloseable {
     private boolean isOk(int statusCode) {
         return statusCode >= 200 && statusCode < 300;
     }
-
-
-    private boolean done = false;
 
     @SuppressWarnings("unused")
     private boolean isDone() {

@@ -289,6 +289,7 @@ abstract class Types {
                             public @NotNull String toVariableNameString(Request request) {
                                 return toString(request, 0);
                             }
+
                             @Override
                             public boolean canParse(@NonNull ParseContext context) {
                                 return false;
