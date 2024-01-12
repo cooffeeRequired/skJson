@@ -10,14 +10,14 @@
         "on json watcher save"
       ],
       "since": [
-        "2.9.2"
+        "2.9"
       ],
       "patterns": [
-        "[on] [json-] watcher save [with priority (lowest|low|normal|high|highest|monitor)]"
+        "[json-] watcher save"
       ],
       "event values": [
-        "event-object",
         "event-json",
+        "event-object",
         "event-object"
       ],
       "cancellable": false
@@ -270,10 +270,19 @@
       ]
     },
     {
-      "id": "SkJsonStopServer",
-      "name": "SkJsonStopServer",
+      "id": "EffSendRequest",
+      "name": "Send created/prepared request",
+      "description": [
+        "Send prepared/created request to the given method and uri"
+      ],
+      "examples": [
+        "send prepared {_request}"
+      ],
+      "since": [
+        "2.9.9-pre Api Changes"
+      ],
       "patterns": [
-        "[skJson] SkJson stop server with code [%integer%]"
+        "[skJson] send [prepared] %request%"
       ]
     },
     {
@@ -423,17 +432,21 @@
       "id": "CountElements",
       "name": "Count values/elements in the Json.",
       "description": [
-        "You can get the count values in the given json"
+        "You can get the number of values or keys in the given json",
+        "",
+        "**Explanatory notes**:",
+        "\t > `<json>`: represent a placeholder for your json e.g. `{_json}`"
       ],
       "examples": [
-        "number of key \"test\" in %json%"
+        "number of keys \"test\" and \"something\" in <json>",
+        "number of key \"test\" in <json>"
       ],
       "since": [
-        "2.9"
+        "2.9.9-pre (Api change)"
       ],
       "return type": "integer",
       "patterns": [
-        "[skJson] number of (0:key|1:value) %objects% in %json%"
+        "[skJson] number of (0:key[s]|1:value[s]) %objects% in %json%"
       ]
     },
     {
@@ -565,6 +578,28 @@
       ]
     },
     {
+      "id": "ExprPrepareRequest",
+      "name": "Prepare Web request",
+      "description": [
+        "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
+        "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",
+        "allowed value type of header is Json or (Pairs e.g. \"Content-Type: application/Json\", \"Allow: restrict\")",
+        "",
+        "You can execute the request by 'send prepared {_request}', otherwise the request will be not sent, but the request will be still stored",
+        "And you can get response status/content/headers like in the examples"
+      ],
+      "examples": [
+        "    set {_request} to prepare new GET request on \"https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn\"\n    set {_request}'s request content to @{\"A\": true}\n    set {_request}'s headers to @{\"Content-Type\": \"application/json+vhd\"}\n    send prepared {_request}\n\n    if response status is \"OK\":\n        send response status code of {_request}\n        send response content of {_request}\n        send response status code of {_request}\n        send response headers of {_request}\n"
+      ],
+      "since": [
+        "2.9.9-pre API changes"
+      ],
+      "return type": "request",
+      "patterns": [
+        "[skJson] prepare [new] %requestmethod% [request] on %string%"
+      ]
+    },
+    {
       "id": "PrettyPrint",
       "name": "Pretty print",
       "description": [
@@ -588,6 +623,66 @@
       "return type": "Text",
       "patterns": [
         "[skJson] %jsons% with [(:uncoloured|:uncolored)] pretty print"
+      ]
+    },
+    {
+      "id": "propExprContent",
+      "name": "Request content",
+      "description": [
+        "set or get the current request content"
+      ],
+      "examples": [
+        "        # getting the Request content;\n        send {_request}'s content\n        send content of {_request}\n\n        # setting the Request content;\n        set {_request}'s content to (json from \"{'Allow': false}\")\n        set content of {_request} to (json from \"{'Allow': false}\")\n"
+      ],
+      "since": [
+        "2.9.9-pre Api Changes"
+      ],
+      "return type": "json",
+      "changers": [
+        "set"
+      ],
+      "patterns": [
+        "[the] [request] content of %requests%",
+        "%requests%'[s] [request] content"
+      ]
+    },
+    {
+      "id": "propExprHeader",
+      "name": "Request headers",
+      "description": [
+        "set or get the current request headers"
+      ],
+      "examples": [
+        "        # getting the Request headers;\n        send {_request}'s headers\n        send headers of {_request}\n\n        # setting the Request content;\n        set {_request}'s headers to (json from \"{'Content-Type': 'application/json'}\")\n        set headers of {_request} to (json from \"{'Content-Type': 'application/json'}\")\n\n        #or\n        set {_request}'s headers to \"Content-Type: application/json\", \"Restrict: false\"\n        set headers of {_request} to \"Content-Type: application/json\", \"Restrict: false\"\n"
+      ],
+      "since": [
+        "2.9.9-pre Api Changes"
+      ],
+      "return type": "json",
+      "changers": [
+        "set"
+      ],
+      "patterns": [
+        "[the] [request] header[s] of %requests%",
+        "%requests%'[s] [request] header[s]"
+      ]
+    },
+    {
+      "id": "propExprResponseContent",
+      "name": "Response content, headers, status code, status",
+      "description": [
+        "get all response properties"
+      ],
+      "examples": [
+        "        send response status of {_request}\n        send response status code of {_request}\n        send response content of {_request}\n        send response status code of {_request}\n        send response headers of {_request}\n"
+      ],
+      "since": [
+        "2.9.9-pre Api Changes"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "[the] response [:content|:headers|:status code|:status] of %requests%",
+        "%requests%'[s] response [:content|:headers|:status code|:status]"
       ]
     },
     {
@@ -657,7 +752,7 @@
       ]
     },
     {
-      "id": "EvtvFile",
+      "id": "EvtFile",
       "name": "Watcher event value-expression File",
       "description": [
         "value-expression for getting file/link from current watcher event"
@@ -671,7 +766,7 @@
       ]
     },
     {
-      "id": "EvtvUUID",
+      "id": "EvtUUID",
       "name": "Watcher event value-expression UUID",
       "description": [
         "value-expression for getting uuid from current watcher event"
@@ -711,6 +806,19 @@
       "patterns": [
         "json-webhook"
       ]
+    },
+    {
+      "id": "Request",
+      "name": "request",
+      "description": [
+        "Representation instance of Request"
+      ],
+      "since": [
+        "2.9.9-pre API changes"
+      ],
+      "patterns": [
+        "request"
+      ]
     }
   ],
   "functions": [
@@ -732,20 +840,37 @@
       ]
     },
     {
-      "id": "function_skjson_getdelim",
-      "name": "skjson_getdelim",
+      "id": "function_getDelimiter",
+      "name": "getDelimiter",
       "description": [
         "Return a your defined delimiter in the config.yml"
       ],
       "examples": [
-        "send \"my delimiter is: %skjson_getdelim()%\""
+        "send \"my delimiter is: %getDelimiter()%\""
       ],
       "since": [
         "2.9"
       ],
       "return type": "Text",
       "patterns": [
-        "skjson_getdelim(bool: boolean)"
+        "getDelimiter"
+      ]
+    },
+    {
+      "id": "function_string",
+      "name": "string",
+      "description": [
+        "Returns string/json from base64"
+      ],
+      "examples": [
+        "stringify: string(\"dHR0dA==\")"
+      ],
+      "since": [
+        "2.9.9-pre"
+      ],
+      "return type": "String",
+      "patterns": [
+        "string(object: object<Base64>)"
       ]
     }
   ],
@@ -771,25 +896,6 @@
       ],
       "patterns": [
         "[skJson] [:async] send (:web|:discord) request %string%"
-      ]
-    },
-    {
-      "id": "SecCreateRequest",
-      "name": "[WEB] Request",
-      "description": [
-        "Create & handle requests via json",
-        "Checkout this link https://dummyjson.org for json examples of dummyJson api",
-        "Allowed all basic types of requests [GET, POST, PUT, DELETE, PATCH, HEAD, MOCK, MODIFY, ENTRY, NOTE]"
-      ],
-      "examples": [
-        "on load:\n    make new GET request to \"https://dummyjson.com/products/2\" and store it in {_data}:\n       content: {_content}\n       status code: {_code}\n    execute {_data} and wait\n    send {_content}\n\n\non script load:\n    async make POST request to \"https://dummyjson.com/carts/add\":\n        headers: \"Content-Type: application/json\"\n        content: json from text \"{userId: 1, products: [{id: 1, quantity: 1}, {id: 50, quantity: 2}]}\"\n        save incorrect response: true\n        lenient: true\n        save:\n            content: {-content}\n            headers: {-header}\n            status code: {-code}\n            url: {-url}\ncommand response:\n    trigger:\n        send {-content} with pretty print\n"
-      ],
-      "since": [
-        "2.9.4"
-      ],
-      "patterns": [
-        "[skJson] [:async] make [new] %requestmethod% request to %string%",
-        "[skJson] (create|make) [new] %requestmethod% request to %string% [with header[s] %json/strings% [and with body %json/strings%]] and (stored|store it) in %objects%"
       ]
     }
   ]
