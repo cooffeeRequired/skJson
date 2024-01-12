@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.Logger.times;
 
 /**
@@ -31,13 +32,14 @@ public abstract class Util {
      * @return the int
      */
     public static int parseNumber(Object potentialNumber) {
-        if (potentialNumber != null && potentialNumber.toString().matches("-?\\d+(\\.\\d+)?")) {
+        try {
             return Integer.parseInt(potentialNumber.toString());
+        } catch (NumberFormatException e) {
+            error(e);
         }
+
         return -9999;
     }
-
-
     /**
      * Is number boolean.
      *
