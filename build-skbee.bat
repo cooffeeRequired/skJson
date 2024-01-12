@@ -1,4 +1,5 @@
 @echo off
+REM CHMOD 777
 setlocal enabledelayedexpansion
 REM Clone the repository from GitHub
 git clone https://github.com/ShaneBeee/SkBee.git
