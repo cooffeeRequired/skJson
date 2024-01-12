@@ -15,9 +15,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set execute permission for build-skbee.bat
-      run: chmod +x build-skbee.bat
 
-    - name: Run build-skbee.bat
+    - name: Run build-skbee
       run: |
         git clone https://github.com/ShaneBeee/SkBee.git
         cd SkBee
