@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffee.skjson.api.FileHandler;
+import cz.coffee.skjson.api.requests.Attachment;
 import cz.coffee.skjson.api.requests.Pairs;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.TimerWrapper;
@@ -23,7 +24,6 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.api.http.RequestClientUtils.changeExtension;
@@ -31,7 +31,6 @@ import static cz.coffee.skjson.api.http.RequestClientUtils.colorizedMethod;
 import static cz.coffee.skjson.utils.Logger.*;
 
 public class RequestClient implements AutoCloseable {
-    private static final String USER_AGENT_FORMAT = "SkJson-requests-%s";
     private final LinkedList<File> attachments = new LinkedList<>();
     private final Gson GSON = new GsonBuilder().disableHtmlEscaping().disableJdkUnsafe().serializeNulls().setLenient().create();
     private String uri;
@@ -70,13 +69,6 @@ public class RequestClient implements AutoCloseable {
             case "PATCH" -> this.request.method("PATCH");
             case "HEAD" -> this.request.method("HEAD");
         }
-
-        String userAgent = String.format(USER_AGENT_FORMAT, 2);
-        this.request.headers((x) -> {
-            x.remove("User-agent");
-            x.add("User-agent", userAgent);
-        });
-
         return this;
     }
 
@@ -214,6 +206,21 @@ public class RequestClient implements AutoCloseable {
         return Optional.of(this);
     }
 
+    public RequestClient setAttachments(LinkedList<Attachment> attachments) {
+        if (attachments == null) return this;
+        for (var att : attachments) {
+            if (att.extension().endsWith(".sk")) {
+                try {
+                    att.regenerate(changeExtension(att.file(), ".vb"));
+                } catch (Exception exception) {
+                    error(exception);
+                }
+            }
+            if (att.file().exists()) this.attachments.add(att.file());
+        }
+        return this;
+    }
+
     public RequestClient postAttachments(JsonElement body) {
         this.postAttachments(GSON.toJson(body));
         return this;
@@ -221,11 +228,10 @@ public class RequestClient implements AutoCloseable {
 
     @SuppressWarnings("UnusedReturnValue")
     public Optional<RequestClient> postAttachments(String body) {
-        AtomicInteger i = new AtomicInteger(0);
         try (var mpr = new MultiPartRequestContent()) {
             attachments.forEach(attachment -> {
                 try {
-                    mpr.addPart(new MultiPart.PathPart("file" + i.incrementAndGet(), attachment.getName(), HttpFields.EMPTY, attachment.toPath()));
+                    mpr.addPart(new MultiPart.PathPart(attachment.getName(), attachment.getName(), HttpFields.EMPTY, attachment.toPath()));
                 } catch (Exception e) {
                     if (PROJECT_DEBUG) error(e);
                 }

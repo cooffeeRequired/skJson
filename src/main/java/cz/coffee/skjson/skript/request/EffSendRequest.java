@@ -97,13 +97,24 @@ public class EffSendRequest extends Effect {
     }
 
     private RequestResponse sendRequest(Request request) {
+        boolean hasAttachments = !request.attachments().isEmpty();
+
         try (var client = new RequestClient(request.uri())) {
-            var rsp = client
-                    .method(request.method().toString())
-                    .setContent(request.content())
-                    .setHeaders(request.header())
-                    .request(true)
-                    .get();
+            RequestResponse rsp;
+            if (hasAttachments) {
+                client.setAttachments(request.attachments());
+                rsp = client.method(request.method().toString())
+                        .setHeaders(request.header())
+                        .postAttachments(request.content())
+                        .request(true)
+                        .get();
+            } else {
+                rsp = client.method(request.method().toString())
+                        .setHeaders(request.header())
+                        .setContent(request.content())
+                        .request(true)
+                        .get();
+            }
             if (rsp != null) {
                 request.setStatus(rsp.isSuccessfully() ? RequestStatus.OK : RequestStatus.FAILED);
                 return rsp;

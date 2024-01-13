@@ -28,8 +28,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
             set {_request}'s headers to @{"Content-Type": "application/json+vhd"}
             send prepared {_request}
             
-            if response status is "OK":
-                send response status code of {_request}
+            if response status of {_request} is "OK":
                 send response content of {_request}
                 send response status code of {_request}
                 send response headers of {_request}

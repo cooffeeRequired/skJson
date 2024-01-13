@@ -2,15 +2,18 @@ package cz.coffee.skjson.api.requests;
 
 import com.google.gson.JsonElement;
 
+import java.util.LinkedList;
+
 import static cz.coffee.skjson.utils.Util.fstring;
 
 public class Request {
-    final String uri;
-    final RequestMethod method;
-    RequestStatus status = RequestStatus.UNKNOWN;
-    Response response = Response.empty();
-    JsonElement content;
-    Pairs[] header;
+    private final String uri;
+    private final RequestMethod method;
+    private JsonElement content;
+    private Pairs[] header;
+    private LinkedList<Attachment> attachments = new LinkedList<>();
+    private RequestStatus status = RequestStatus.UNKNOWN;
+    private Response response = Response.empty();
 
     public Request(String uri, RequestMethod method, JsonElement content, Pairs[] headers) {
         this.uri = uri;
@@ -65,6 +68,14 @@ public class Request {
     public Request setHeader(Pairs[] header) {
         this.header = header;
         return this;
+    }
+
+    public LinkedList<Attachment> attachments() {
+        return attachments;
+    }
+
+    public void setAttachments(LinkedList<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     @Override

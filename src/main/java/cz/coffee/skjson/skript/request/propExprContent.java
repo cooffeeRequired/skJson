@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.requests.Request;
 import org.bukkit.event.Event;
@@ -33,8 +34,12 @@ import static cz.coffee.skjson.utils.Util.fstring;
                 # setting the Request content;
                 set {_request}'s content to (json from "{'Allow': false}")
                 set content of {_request} to (json from "{'Allow': false}")
+                
+                # reset the content of the Request
+                reset {_request}'s content
+                reset content of {_request}
         """)
-@Description("set or get the current request content")
+@Description("set/reset or get the current request content")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
 public class propExprContent extends PropertyExpression<Request, JsonElement> {
@@ -71,15 +76,16 @@ public class propExprContent extends PropertyExpression<Request, JsonElement> {
     public Class<?>[] acceptChange(Changer.@NotNull ChangeMode mode) {
         return switch (mode) {
             case SET -> CollectionUtils.array(JsonElement.class, String.class);
+            case RESET -> CollectionUtils.array();
             default -> null;
         };
     }
 
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
+        var request = getExpr().getSingle(event);
+        assert request != null;
         if (mode == Changer.ChangeMode.SET) {
-            var request = getExpr().getSingle(event);
-            assert request != null;
             for (var d : delta) {
                 if (d instanceof String str) {
                     request.setContent(parse(str));
@@ -87,6 +93,8 @@ public class propExprContent extends PropertyExpression<Request, JsonElement> {
                     request.setContent(json);
                 }
             }
+        } else if (mode == Changer.ChangeMode.RESET) {
+            request.setContent(new JsonObject());
         }
     }
 }

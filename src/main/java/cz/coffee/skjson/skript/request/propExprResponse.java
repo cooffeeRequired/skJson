@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import static cz.coffee.skjson.utils.Util.fstring;
@@ -26,16 +27,18 @@ import static cz.coffee.skjson.utils.Util.fstring;
                 send response status of {_request}
                 send response status code of {_request}
                 send response content of {_request}
-                send response status code of {_request}
                 send response headers of {_request}
         """)
 @Description("get all response properties")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
-public class propExprResponseContent extends PropertyExpression<Request, Object> {
+public class propExprResponse extends PropertyExpression<Request, Object> {
 
     static {
-        SkJsonElements.registerProperty(propExprResponseContent.class, Object.class, "response [:content|:headers|:status code|:status]", "requests");
+        SkJsonElements.registerProperty(propExprResponse.class, Object.class,
+                "response [:content|:headers|:status code|:status]",
+                "requests"
+        );
     }
 
     private String tag;

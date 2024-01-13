@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.ConfigRecords;
+import cz.coffee.skjson.api.requests.Attachment;
 import cz.coffee.skjson.parser.ParserUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,5 +60,19 @@ public class SkJsonFunctions {
                 .description("Returns string/json from base64")
                 .since("2.9.9-pre")
                 .examples("stringify: string(\"dHR0dA==\"");
+
+        @SuppressWarnings("all")
+        Parameter<?>[] string = new Parameter[]{new Parameter<>("object", DefaultClasses.STRING, true, null)};
+        SkJsonElements.registerFunction(new SimpleJavaFunction<>("attachment", string, DefaultClasses.OBJECT, true) {
+            @Override
+            @SuppressWarnings("all")
+            public Attachment @NotNull [] executeSimple(Object[][] params) {
+                String data = params[0][0].toString();
+                return new Attachment[]{new Attachment(data)};
+            }
+        })
+        .description("Create new Attachment for the web request from path to file, when the file starts with */ the file will be found automatically.")
+        .since("2.9.9 API Changes")
+        .examples("attachment(\"*/test.json\") and attachment(\"*/config.sk\")");
     }
 }

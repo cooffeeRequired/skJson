@@ -35,6 +35,10 @@ import static cz.coffee.skjson.utils.Util.fstring;
                 #or
                 set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
                 set headers of {_request} to "Content-Type: application/json", "Restrict: false"
+                
+                # reset the headers of the Request
+                reset {_request}'s headers
+                reset headers of {_request}
         """)
 @Description("set or get the current request headers")
 @Since("2.9.9-pre Api Changes")
@@ -83,16 +87,17 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
     public Class<?>[] acceptChange(Changer.@NotNull ChangeMode mode) {
         return switch (mode) {
             case SET -> CollectionUtils.array(JsonElement.class, String[].class);
+            case RESET -> CollectionUtils.array();
             default -> null;
         };
     }
 
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
+        var request = getExpr().getSingle(event);
+        assert request != null;
         if (mode == Changer.ChangeMode.SET) {
-            var request = getExpr().getSingle(event);
             Pairs[] pairs = new Pairs[delta.length];
-            assert request != null;
             for (var i = 0; i < delta.length; i++) {
                 var d = delta[i];
                 if (d instanceof String str) {
@@ -102,6 +107,8 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
                 }
             }
             request.setHeader(pairs);
+        } else if (mode == Changer.ChangeMode.RESET) {
+            request.setHeader(new Pairs[0]);
         }
     }
 }
