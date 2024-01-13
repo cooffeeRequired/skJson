@@ -79,14 +79,23 @@ public class FileHandler {
         return future.get();
     }
 
+    public static CompletableFuture<Boolean> write(final String filePath, JsonElement content) {
+        return createOrWrite(filePath, content, true);
+    }
+
+    public static CompletableFuture<Boolean> createOrWrite(final String filePath, JsonElement content) {
+        return createOrWrite(filePath, content, false);
+    }
+
     /**
      * Create new file with given content and gets true or false depending on whether it was successfully.
      *
      * @param filePath the full path for the file what will be created.
      * @param content  the json content what will be inserted into created file.
+     * @param writing true or false if file will be created.
      * @return Boolean
      */
-    public static CompletableFuture<Boolean> createOrWrite(final String filePath, JsonElement content) {
+    public static CompletableFuture<Boolean> createOrWrite(final String filePath, JsonElement content, boolean writing) {
         assert filePath != null;
         if (content == null) content = new JsonObject();
         final JsonElement json = content;
@@ -96,7 +105,7 @@ public class FileHandler {
                 if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
                     simpleError(fstring("Cannot create a directory %s", file.getParentFile().getAbsoluteFile()));
                 }
-                if (file.exists()) {
+                if (file.exists() && !writing) {
                     warn("Cannot create a file %s cause the file already exists.", filePath);
                     return false;
                 }

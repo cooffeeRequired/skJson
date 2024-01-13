@@ -193,7 +193,7 @@ public abstract class Files {
             String file = inputFile.getSingle(e);
             Object unparsed = unparsedInput.getSingle(e);
             JsonElement parsedJson = ParserUtil.parse(unparsed, true);
-            CompletableFuture.runAsync(() -> FileHandler.createOrWrite(file, parsedJson).join());
+            CompletableFuture.runAsync(() -> FileHandler.write(file, parsedJson).join());
         }
 
         @Override
