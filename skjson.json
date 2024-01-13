@@ -16,9 +16,9 @@
         "[json-] watcher save"
       ],
       "event values": [
-        "event-json",
         "event-object",
-        "event-object"
+        "event-object",
+        "event-json"
       ],
       "cancellable": false
     }
@@ -583,7 +583,7 @@
         "And you can get response status/content/headers like in the examples"
       ],
       "examples": [
-        "    set {_request} to prepare new GET request on \"https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn\"\n    set {_request}'s request content to @{\"A\": true}\n    set {_request}'s headers to @{\"Content-Type\": \"application/json+vhd\"}\n    send prepared {_request}\n\n    if response status is \"OK\":\n        send response status code of {_request}\n        send response content of {_request}\n        send response status code of {_request}\n        send response headers of {_request}\n"
+        "    set {_request} to prepare new GET request on \"https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn\"\n    set {_request}'s request content to @{\"A\": true}\n    set {_request}'s headers to @{\"Content-Type\": \"application/json+vhd\"}\n    send prepared {_request}\n\n    if response status of {_request} is \"OK\":\n        send response content of {_request}\n        send response status code of {_request}\n        send response headers of {_request}\n"
       ],
       "since": [
         "2.9.9-pre API changes"
@@ -620,13 +620,31 @@
       ]
     },
     {
+      "id": "propExprAttachment",
+      "name": "Request attachment/s",
+      "description": [
+        "set/add/reset or get the current request attachment"
+      ],
+      "examples": [
+        "        # getting the Request attachment;\n        send {_request}'s attachments\n        send attachments of {_request}\n\n        # setting the Request attachment;\n        set {_request}'s attachments to attachment(\"*/test.sk\") and attachment(\"*/raw.json\")\n        set attachments of {_request} to attachment(\"*/test.sk\") and attachment(\"*/raw.json\")\n\n        # add the attachment to the Request attachments\n        add attachment(\"*/SkJson.json\") to {_request}'s attachments\n        add attachment(\"*/SkJson.json\") to attachments of {_request}\n\n        # reset the attachments of the Request\n        reset {_request}'s attachments\n        reset attachments of {_request}\n"
+      ],
+      "since": [
+        "2.9.9-pre Api Changes"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "[the] [request] attachments of %requests%",
+        "%requests%'[s] [request] attachments"
+      ]
+    },
+    {
       "id": "propExprContent",
       "name": "Request content",
       "description": [
-        "set or get the current request content"
+        "set/reset or get the current request content"
       ],
       "examples": [
-        "        # getting the Request content;\n        send {_request}'s content\n        send content of {_request}\n\n        # setting the Request content;\n        set {_request}'s content to (json from \"{'Allow': false}\")\n        set content of {_request} to (json from \"{'Allow': false}\")\n"
+        "        # getting the Request content;\n        send {_request}'s content\n        send content of {_request}\n\n        # setting the Request content;\n        set {_request}'s content to (json from \"{'Allow': false}\")\n        set content of {_request} to (json from \"{'Allow': false}\")\n\n        # reset the content of the Request\n        reset {_request}'s content\n        reset content of {_request}\n"
       ],
       "since": [
         "2.9.9-pre Api Changes"
@@ -647,7 +665,7 @@
         "set or get the current request headers"
       ],
       "examples": [
-        "        # getting the Request headers;\n        send {_request}'s headers\n        send headers of {_request}\n\n        # setting the Request content;\n        set {_request}'s headers to (json from \"{'Content-Type': 'application/json'}\")\n        set headers of {_request} to (json from \"{'Content-Type': 'application/json'}\")\n\n        #or\n        set {_request}'s headers to \"Content-Type: application/json\", \"Restrict: false\"\n        set headers of {_request} to \"Content-Type: application/json\", \"Restrict: false\"\n"
+        "        # getting the Request headers;\n        send {_request}'s headers\n        send headers of {_request}\n\n        # setting the Request content;\n        set {_request}'s headers to (json from \"{'Content-Type': 'application/json'}\")\n        set headers of {_request} to (json from \"{'Content-Type': 'application/json'}\")\n\n        #or\n        set {_request}'s headers to \"Content-Type: application/json\", \"Restrict: false\"\n        set headers of {_request} to \"Content-Type: application/json\", \"Restrict: false\"\n\n        # reset the headers of the Request\n        reset {_request}'s headers\n        reset headers of {_request}\n"
       ],
       "since": [
         "2.9.9-pre Api Changes"
@@ -662,13 +680,13 @@
       ]
     },
     {
-      "id": "propExprResponseContent",
+      "id": "propExprResponse",
       "name": "Response content, headers, status code, status",
       "description": [
         "get all response properties"
       ],
       "examples": [
-        "        send response status of {_request}\n        send response status code of {_request}\n        send response content of {_request}\n        send response status code of {_request}\n        send response headers of {_request}\n"
+        "        send response status of {_request}\n        send response status code of {_request}\n        send response content of {_request}\n        send response headers of {_request}\n"
       ],
       "since": [
         "2.9.9-pre Api Changes"
@@ -816,6 +834,23 @@
     }
   ],
   "functions": [
+    {
+      "id": "function_attachment",
+      "name": "attachment",
+      "description": [
+        "Create new Attachment for the web request from path to file, when the file starts with */ the file will be found automatically."
+      ],
+      "examples": [
+        "attachment(\"*/test.json\") and attachment(\"*/config.sk\")"
+      ],
+      "since": [
+        "2.9.9 API Changes"
+      ],
+      "return type": "Object",
+      "patterns": [
+        "attachment(object: string)"
+      ]
+    },
     {
       "id": "function_b64",
       "name": "b64",
