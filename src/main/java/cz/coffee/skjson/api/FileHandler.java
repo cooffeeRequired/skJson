@@ -45,7 +45,8 @@ public class FileHandler {
     public static CompletableFuture<JsonElement> get(final File file) {
         return CompletableFuture.supplyAsync(() -> {
             try (var reader = new BufferedReader(new FileReader(file))) {
-                var ext = file.getName().split("\\.")[1];
+                var split = file.getName().split("\\.");
+                var ext = split[split.length - 1];
                 switch (ext) {
                     case "json" -> {
                         return JsonParser.parseReader(reader);

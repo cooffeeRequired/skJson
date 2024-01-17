@@ -59,16 +59,26 @@ public class EffSendRequest extends Effect {
 
     static {
         SkJsonElements.registerEffect(EffSendRequest.class,
-                "send [prepared] %request%"
+                "[:sync] send [prepared] %request%"
         );
     }
 
     Expression<Request> exprRequest;
+    boolean sync;
 
     @Override
     protected void execute(@NotNull Event event) {
         var request = exprRequest.getSingle(event);
         assert request != null;
+        if (sync) {
+            var response = sendRequest(request);
+            assert response != null;
+            var rsp = new Response(response.getStatusCode(), response.getBodyContent(true), response.getResponseHeader().json());
+            request.setResponse(rsp);
+            this.walk(event);
+        }
+
+
         var vars = Variables.copyLocalVariables(event);
         CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
                 .whenComplete((resp, err) -> {
@@ -145,6 +155,7 @@ public class EffSendRequest extends Effect {
     @Override
     public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
         exprRequest = defendExpression(expressions[0]);
+        sync = parseResult.hasTag("sync");
         return canInitSafely(exprRequest);
     }
 }
