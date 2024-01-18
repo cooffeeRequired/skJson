@@ -99,6 +99,7 @@ public abstract class JsonCacheInstance {
             if (id == null || fileString == null) return;
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             File file = new File(fileString);
+            if (cache.containsKey(id)) return;
             FileHandler.get(file).whenComplete((json, error) -> {
                 cache.addValue(id, json, file);
                 if (asAlive) if (!JsonWatcher.isRegistered(file)) JsonWatcher.register(id, file);
@@ -186,6 +187,7 @@ public abstract class JsonCacheInstance {
                         jsonFiles.add(potentialFile, json);
                     });
             JsonCache<String, JsonElement, File> cache = Config.getCache();
+            if (cache.containsKey(finalCacheDirectory)) return;
             cache.addValue(finalCacheDirectory, jsonFiles, folder);
         }
 
@@ -280,7 +282,7 @@ public abstract class JsonCacheInstance {
                                 return;
                             }
                             try {
-                                await(FileHandler.createOrWrite(file.toString(), json));
+                                await(FileHandler.write(file.toString(), json));
                             } catch (ExecutionException | InterruptedException ex) {
                                 error(ex, null, getParser().getNode());
                             }
@@ -290,7 +292,7 @@ public abstract class JsonCacheInstance {
                     cache.forEach((key, map) -> map.forEach((json, file) -> {
                         if (!file.getName().equals("Undefined")) {
                             try {
-                                await(FileHandler.createOrWrite(file.toString(), json));
+                                await(FileHandler.write(file.toString(), json));
                             } catch (ExecutionException | InterruptedException ex) {
                                 error(ex, null, getParser().getNode());
                             }
@@ -371,7 +373,7 @@ public abstract class JsonCacheInstance {
 
         static {
             SkJsonElements.registerExpression(GetCachedJson.class, JsonElement.class, ExpressionType.SIMPLE,
-                    "json %string%",
+                    "json [id] %string%",
                     "all cached jsons"
             );
         }
@@ -415,15 +417,16 @@ public abstract class JsonCacheInstance {
         public @NotNull String toString(@Nullable Event event, boolean b) {
             if (line == 0) {
                 assert event != null;
-                return "get cached json " + storedKeyExpr.toString(event, b);
+                return "get json " + storedKeyExpr.toString(event, b);
             } else {
-                return "all cached jsons";
+                return "all jsons";
             }
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+        public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed,
+                @NotNull ParseResult parseResult) {
             line = matchedPattern;
             storedKeyExpr = (Expression<String>) exprs[0];
             return true;

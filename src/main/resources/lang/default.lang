@@ -13,6 +13,7 @@ types:
 	json: Json
 	jsonwebhook: Webhook
 	requestmethod: Metody
+	request: Request
 
 damage causes:
 	kill: This is error what i got!, Defined in .lang

@@ -63,24 +63,6 @@ public abstract class Converter {
             return new NBTContainer(json.get("nbt").getAsString());
         }
     };
-    public final static SimpleConverter<World> WorldConverter = new SimpleConverter<World>() {
-        @Override
-        public @NotNull JsonElement toJson(World source) {
-            final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            jsonObject.addProperty("name", source.getName());
-            return !jsonObject.isEmpty() ? jsonObject : JsonNull.INSTANCE;
-        }
-
-        @Override
-        public World fromJson(JsonObject json) {
-            if (json.has(SERIALIZED_JSON_TYPE_KEY)) {
-                World world;
-                if ((world = getWorld(json.get("name").getAsString())) != null) return world;
-            }
-            return null;
-        }
-    };
     public final static SimpleConverter<ItemStack> ItemStackConverter = new SimpleConverter<ItemStack>() {
 
         private static ItemStack enchants(ItemStack itemStack, final JsonObject meta) {

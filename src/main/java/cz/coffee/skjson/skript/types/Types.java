@@ -11,6 +11,7 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import cz.coffee.skjson.api.WorldAdapter;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.RequestMethod;
 import cz.coffee.skjson.api.requests.Webhook;
@@ -19,8 +20,8 @@ import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -44,10 +45,13 @@ import static cz.coffee.skjson.utils.PatternUtil.keyStruct;
 @SuppressWarnings("deprecation")
 abstract class Types {
     // JsonElement type
-    static final Collection<Class<?>> allowedTypes = List.of(ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class);
+    static final Collection<Class<?>> allowedTypes = List.of(
+            ItemStack.class, Location.class, Chunk.class, Inventory.class, ConfigurationSerializable.class
+    );
 
     static {
         try {
+            ConfigurationSerialization.registerClass(WorldAdapter.class, "World");
             if (Skript.getVersion().isLargerThan(new Version(2, 6, 4))) {
                 allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, ParserUtil::from));
             } else {

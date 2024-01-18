@@ -11,7 +11,6 @@ import com.shanebeestudios.skbee.api.nbt.NBTCustom;
 import cz.coffee.skjson.api.DynamicObjectSerializer;
 import cz.coffee.skjson.skript.base.Converter;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
@@ -27,7 +26,6 @@ import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.skript.base.Converter.*;
 import static cz.coffee.skjson.skript.base.SimpleConverter.SERIALIZED_JSON_TYPE_KEY;
 import static cz.coffee.skjson.utils.Logger.error;
-import static cz.coffee.skjson.utils.Logger.info;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
 /**
@@ -272,9 +270,6 @@ public abstract class ParserUtil {
         if (object == null) return JsonNull.INSTANCE;
         boolean isSerializable = (object instanceof YggdrasilSerializable || object instanceof ConfigurationSerializable);
         try {
-            if (object instanceof World) {
-                return WorldConverter.toJson((World) object);
-            }
             if (object instanceof Chunk) {
                 ChunkConverter.toJson((Chunk) object);
             }
@@ -339,8 +334,6 @@ public abstract class ParserUtil {
 
         if (clazz != null) {
             try {
-                if (World.class.isAssignableFrom(clazz))
-                    return (T) WorldConverter.fromJson(finalJson.getAsJsonObject());
                 if (Chunk.class.isAssignableFrom(clazz))
                     return (T) ChunkConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
