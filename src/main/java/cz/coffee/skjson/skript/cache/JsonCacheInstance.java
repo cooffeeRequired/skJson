@@ -82,7 +82,7 @@ public abstract class JsonCacheInstance {
             "\tlink json file \"<path to file>\" as \"mine.id\" and make json watcher listen"
     })
     @Since("2.8.0 - performance & clean")
-    public static class LinkFile extends Effect {
+    public static class LinkFile extends AsyncEffect {
 
         static {
             SkJsonElements.registerEffect(LinkFile.class, "link [json] file %string% as %string% [(:and make) [[json] watcher] listen]");
@@ -99,8 +99,7 @@ public abstract class JsonCacheInstance {
             if (id == null || fileString == null) return;
             JsonCache<String, JsonElement, File> cache = Config.getCache();
             File file = new File(fileString);
-            FileHandler.get(file).whenComplete((json, cThrow) -> {
-                if (json == null) return;
+            FileHandler.get(file).whenComplete((json, error) -> {
                 cache.addValue(id, json, file);
                 if (asAlive) if (!JsonWatcher.isRegistered(file)) JsonWatcher.register(id, file);
             });
@@ -116,6 +115,7 @@ public abstract class JsonCacheInstance {
         @SuppressWarnings("unchecked")
         public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
             asAlive = parseResult.hasTag("and make");
+            getParser().setHasDelayBefore(Kleenean.TRUE);
             exprFileString = (Expression<String>) exprs[0];
             expressionID = (Expression<String>) exprs[1];
             return true;
