@@ -250,11 +250,11 @@ public abstract class JsonCacheInstance {
     }
 
     @Name("Save cached json to file")
-    @Description("It's allow save cached json back to the file")
+    @Description({"It's allow save cached json back to the file", "Change syntax due Skript 2.8"})
     @Examples({
             "on unload:",
-            "\tsave json \"test\"",
-            "\tsave all jsons"
+            "\tsave cached json \"test\"",
+            "\tsave all cached jsons"
     })
     @Since("2.8.0 - performance & clean")
     public static class SaveCache extends AsyncEffect {

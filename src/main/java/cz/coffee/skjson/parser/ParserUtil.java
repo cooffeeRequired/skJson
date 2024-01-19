@@ -11,6 +11,7 @@ import com.shanebeestudios.skbee.api.nbt.NBTCustom;
 import cz.coffee.skjson.api.DynamicObjectSerializer;
 import cz.coffee.skjson.skript.base.Converter;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
@@ -270,18 +271,17 @@ public abstract class ParserUtil {
         if (object == null) return JsonNull.INSTANCE;
         boolean isSerializable = (object instanceof YggdrasilSerializable || object instanceof ConfigurationSerializable);
         try {
-            if (object instanceof Chunk) {
-                ChunkConverter.toJson((Chunk) object);
-            }
+            if (object instanceof World w) return WorldConverter.toJson(w);
+            if (object instanceof Chunk c) ChunkConverter.toJson(c);
             if (object instanceof Block) {
                 return BlockConverter.toJson((Block) object);
             }
             if (object instanceof ItemStack) {
                 return ItemStackConverter.toJson((ItemStack) object);
             }
-//            if (object instanceof Inventory) {
-//                return InventoryConverter.toJson((Inventory) object);
-//            }
+            if (object instanceof Inventory) {
+                return InventoryConverter.toJson((Inventory) object);
+            }
             if (object instanceof NBTContainer || object instanceof NBTCustom || object.getClass().getName().toString().contains("NBT")) {
                 try {
                     return NBTContainerConverter.toJson((NBTContainer) object);
@@ -334,12 +334,14 @@ public abstract class ParserUtil {
 
         if (clazz != null) {
             try {
+                if (World.class.isAssignableFrom(clazz))
+                    return (T) WorldConverter.fromJson(finalJson.getAsJsonObject());
                 if (Chunk.class.isAssignableFrom(clazz))
                     return (T) ChunkConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ItemStackConverter.fromJson(finalJson.getAsJsonObject()));
-//                else if (Inventory.class.isAssignableFrom(clazz))
-//                    return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
+                else if (Inventory.class.isAssignableFrom(clazz))
+                    return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
                 else if (Block.class.isAssignableFrom(clazz))
                     return (T) BlockConverter.fromJson(finalJson.getAsJsonObject());
                 else if (NBTContainer.class.isAssignableFrom(clazz))
@@ -359,4 +361,3 @@ public abstract class ParserUtil {
         return null;
     }
 }
-
