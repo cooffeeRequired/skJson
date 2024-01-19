@@ -1,12 +1,12 @@
-package cz.coffee.skjson.api;
+package cz.coffee.skjson.adapters;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SerializableAs("World")
@@ -16,13 +16,12 @@ public class WorldAdapter implements ConfigurationSerializable {
         this.worldName = world.getName();
     }
 
+    @SuppressWarnings("unused")
     public static World deserialize(Map<String, Object> args) {
         return Bukkit.getWorld(args.get("name").toString());
     }
     @Override
     public @NotNull Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", worldName);
-        return map;
+        return Map.of("name", worldName);
     }
 }

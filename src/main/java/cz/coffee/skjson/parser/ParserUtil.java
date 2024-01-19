@@ -279,9 +279,9 @@ public abstract class ParserUtil {
             if (object instanceof ItemStack) {
                 return ItemStackConverter.toJson((ItemStack) object);
             }
-            if (object instanceof Inventory) {
-                return InventoryConverter.toJson((Inventory) object);
-            }
+//            if (object instanceof Inventory) {
+//                return InventoryConverter.toJson((Inventory) object);
+//            }
             if (object instanceof NBTContainer || object instanceof NBTCustom || object.getClass().getName().toString().contains("NBT")) {
                 try {
                     return NBTContainerConverter.toJson((NBTContainer) object);
@@ -338,8 +338,8 @@ public abstract class ParserUtil {
                     return (T) ChunkConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ItemStack.class.isAssignableFrom(clazz))
                     return ((T) ItemStackConverter.fromJson(finalJson.getAsJsonObject()));
-                else if (Inventory.class.isAssignableFrom(clazz))
-                    return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
+//                else if (Inventory.class.isAssignableFrom(clazz))
+//                    return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
                 else if (Block.class.isAssignableFrom(clazz))
                     return (T) BlockConverter.fromJson(finalJson.getAsJsonObject());
                 else if (NBTContainer.class.isAssignableFrom(clazz))

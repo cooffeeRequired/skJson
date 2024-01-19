@@ -11,7 +11,8 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import cz.coffee.skjson.api.WorldAdapter;
+import cz.coffee.skjson.adapters.InventoryAdapter;
+import cz.coffee.skjson.adapters.WorldAdapter;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.RequestMethod;
 import cz.coffee.skjson.api.requests.Webhook;
@@ -52,6 +53,7 @@ abstract class Types {
     static {
         try {
             ConfigurationSerialization.registerClass(WorldAdapter.class, "World");
+            ConfigurationSerialization.registerClass(InventoryAdapter.class, "Inventory");
             if (Skript.getVersion().isLargerThan(new Version(2, 6, 4))) {
                 allowedTypes.forEach(clazz -> Converters.registerConverter(JsonElement.class, clazz, ParserUtil::from));
             } else {
@@ -306,7 +308,7 @@ abstract class Types {
                             }
 
                             @Override
-                            public void change(Request[] what, @Nullable Object[] delta, ChangeMode mode) {
+                            public void change(Request @NotNull [] what, Object @NotNull [] delta, @NotNull ChangeMode mode) {
 
                             }
                         })
