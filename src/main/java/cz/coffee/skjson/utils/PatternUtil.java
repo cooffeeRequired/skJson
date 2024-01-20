@@ -117,7 +117,6 @@ public abstract class PatternUtil {
         if (add) {
             remap(keyStructs, withDelim);
         }
-        Logger.info("struct?, %s", keyStructs);
         return keyStructs;
     }
 }
