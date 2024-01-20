@@ -69,6 +69,7 @@ public abstract class PatternUtil {
     public static LinkedList<keyStruct> tokenize(String input, boolean withDelim, boolean add, String delimiter) {
         LinkedList<keyStruct> keyStructs = new LinkedList<>();
         StringBuilder currentToken = new StringBuilder();
+        if (input == null) return keyStructs;
 
         boolean inBrackets = false;
         char[] inputChars = input.toCharArray();
@@ -116,6 +117,7 @@ public abstract class PatternUtil {
         if (add) {
             remap(keyStructs, withDelim);
         }
+        Logger.info("struct?, %s", keyStructs);
         return keyStructs;
     }
 }

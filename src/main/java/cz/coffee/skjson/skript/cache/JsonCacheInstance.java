@@ -260,8 +260,8 @@ public abstract class JsonCacheInstance {
     public static class SaveCache extends AsyncEffect {
         static {
             SkJsonElements.registerEffect(SaveCache.class,
-                    "save json %string%",
-                    "save all jsons"
+                    "save cached json %string%",
+                    "save all cached jsons"
             );
         }
 

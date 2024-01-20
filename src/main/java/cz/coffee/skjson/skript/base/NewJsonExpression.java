@@ -160,7 +160,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 case 2 -> isYaml ? "yaml file" : "json file";
                 case 3 -> "website file";
                 default -> "object";
-            } + " " + input.toString(e, debug);
+            } + " " + (this.input != null ? this.input.toString(e, debug) : this.regexInput.toString(e, debug));
         } catch (Exception ex) {
             error(ex, null, getParser().getNode());
         }
