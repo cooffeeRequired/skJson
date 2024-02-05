@@ -254,19 +254,20 @@
       "id": "SaveCache",
       "name": "Save cached json to file",
       "description": [
-        "It's allow save cached json back to the file"
+        "It's allow save cached json back to the file",
+        "Change syntax due Skript 2.8"
       ],
       "examples": [
         "on unload:",
-        "\tsave json \"test\"",
-        "\tsave all jsons"
+        "\tsave cached json \"test\"",
+        "\tsave all cached jsons"
       ],
       "since": [
         "2.8.0 - performance & clean"
       ],
       "patterns": [
-        "[skJson] save json %string%",
-        "[skJson] save all jsons"
+        "[skJson] save cached json %string%",
+        "[skJson] save all cached jsons"
       ]
     },
     {
@@ -282,7 +283,7 @@
         "2.9.9-pre Api Changes"
       ],
       "patterns": [
-        "[skJson] send [prepared] %request%"
+        "[skJson] [:sync] send [prepared] %request%"
       ]
     },
     {
@@ -470,7 +471,7 @@
         "reset"
       ],
       "patterns": [
-        "[skJson] json %string%",
+        "[skJson] json [id] %string%",
         "[skJson] all cached jsons"
       ]
     },
@@ -616,7 +617,7 @@
       ],
       "return type": "Text",
       "patterns": [
-        "[skJson] %jsons% with [(:uncoloured|:uncolored)] pretty print"
+        "[skJson] %json% with [(:uncoloured|:uncolored)] pretty print"
       ]
     },
     {
@@ -677,6 +678,28 @@
       "patterns": [
         "[the] [request] header[s] of %requests%",
         "%requests%'[s] [request] header[s]"
+      ]
+    },
+    {
+      "id": "propExprQueryParams",
+      "name": "Request query params",
+      "description": [
+        "set/add/reset or get the current request query params"
+      ],
+      "examples": [
+        "        # getting the Request query params;\n        send {_request}'s query params\n        send query params of {_request}\n\n        # setting the Request query params;\n        set {_request}'s query params to \"key:value\", \"key1:value1\"\n        set query params of {_request} to \"key:value\", \"key1:value1\"\n\n        # adding the query param to the URL\n\n        # reset the query params of the Request\n        reset {_request}'s query params\n        reset query params of {_request}\n"
+      ],
+      "since": [
+        "3.0.2"
+      ],
+      "return type": "json",
+      "changers": [
+        "add",
+        "set"
+      ],
+      "patterns": [
+        "[the] [request] query param(s|meters) of %requests%",
+        "%requests%'[s] [request] query param(s|meters)"
       ]
     },
     {
