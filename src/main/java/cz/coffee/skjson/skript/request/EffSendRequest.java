@@ -18,13 +18,16 @@ import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.RequestStatus;
 import cz.coffee.skjson.api.requests.Response;
+import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.ws.rs.core.UriBuilder;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -109,7 +112,17 @@ public class EffSendRequest extends Effect {
     private RequestResponse sendRequest(Request request) {
         boolean hasAttachments = !request.attachments().isEmpty();
 
-        try (var client = new RequestClient(request.uri())) {
+        URI URL = null;
+        try {
+            var uri = UriBuilder.fromUri(request.uri());
+            if (!request.getQueryParams().isEmpty())
+                request.getQueryParams().forEach(uri::queryParam);
+            URL = uri.build();
+        } catch (Exception ex) {
+            error(ex, null, getParser().getNode());
+        }
+
+        try (var client = new RequestClient(URL != null ? URL.toString() : request.uri())) {
             RequestResponse rsp;
             if (hasAttachments) {
                 client.setAttachments(request.attachments());

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Since("2.9")
 public class EvtUUID extends EventValueExpression<UUID> {
     static {
-        Skript.registerExpression(EvtUUID.class, UUID.class, ExpressionType.EVENT, "[the] [event-](uuid|id)");
+        Skript.registerExpression(EvtUUID.class, UUID.class, ExpressionType.SIMPLE, "[the] [event-](uuid|id)");
     }
 
     public EvtUUID() {

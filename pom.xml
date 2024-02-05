@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.github.SkriptLang</groupId>
             <artifactId>Skript</artifactId>
-            <version>2.8.0</version>
+            <version>2.7.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -79,6 +79,16 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>2.34</version> <!-- Zde zadejte odpovídající verzi Jersey -->
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -151,6 +161,10 @@
                             <pattern>de.tr7zw.annotations</pattern>
                             <shadedPattern>cz.coffee.api.nbt.annotations</shadedPattern>
                         </relocation>
+<!--                        <relocation>-->
+<!--                            <pattern>javax.ws.rs</pattern>-->
+<!--                            <shadedPattern>cz.coffee.api.ws.rs</shadedPattern>-->
+<!--                        </relocation>-->
                         <relocation>
                             <pattern>com.google.gson</pattern>
                             <shadedPattern>cz.coffee.api.gson</shadedPattern>

@@ -680,6 +680,7 @@ public abstract class JsonBase {
         }
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  Logger.info("PARSED -> (Variable) %s => &e%s", name, object);
             Variables.setVariable(name, object, event, isLocal);
         }
 
@@ -687,7 +688,7 @@ public abstract class JsonBase {
             if (name == null || input == null || event == null) return;
             Object o = jsonToType(defaultConverter(input));
             if (o != null) {
-                if (PROJECT_DEBUG && LOGGING_LEVEL > 2) info(o.getClass());
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  Logger.info("PRIMITIVE -> (Variable) %s => &e%s", name, input);
             }
             assert o != null;
             Variables.setVariable(name, o, event, isLocal);
@@ -947,7 +948,7 @@ public abstract class JsonBase {
                         break;
                     }
                 } else {
-                    String element = (String) value;
+                    String element = value.toString();
                     if (directly) {
                         final Queue<PatternUtil.keyStruct> list = convertStringToKeys(element, PATH_VARIABLE_DELIMITER, true);
                         final JsonElement result = JsonParser.search(json).key(list);
