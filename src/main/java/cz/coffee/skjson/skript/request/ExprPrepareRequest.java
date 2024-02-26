@@ -8,7 +8,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.requests.Request;
@@ -20,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
+import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Prepare Web request")
 @Examples("""
@@ -73,7 +73,8 @@ public class ExprPrepareRequest extends SimpleExpression<Request> {
 
     @Override
     public @NotNull String toString(@Nullable Event event, boolean debug) {
-        return Classes.getDebugMessage(this);
+        assert event != null;
+        return fstring("prepare [new] %s [request] on %s", this.requestMethod.toString(event, debug), this.requestUri.toString(event, debug));
     }
 
     @Override

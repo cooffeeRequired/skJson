@@ -2,7 +2,7 @@ package cz.coffee.skjson.api.requests;
 
 import com.google.gson.JsonElement;
 
-import java.util.LinkedList;
+import java.util.*;
 
 import static cz.coffee.skjson.utils.Util.fstring;
 
@@ -13,6 +13,7 @@ public class Request {
     private Pairs[] header;
     private LinkedList<Attachment> attachments = new LinkedList<>();
     private RequestStatus status = RequestStatus.UNKNOWN;
+    private HashMap<String, String[]> queryParams = new HashMap<>();
     private Response response = Response.empty();
 
     public Request(String uri, RequestMethod method, JsonElement content, Pairs[] headers) {
@@ -72,6 +73,18 @@ public class Request {
 
     public LinkedList<Attachment> attachments() {
         return attachments;
+    }
+
+    public  HashMap<String, String[]> getQueryParams() {
+        return this.queryParams;
+    }
+
+    public void addQueryParam(HashMap<String, String[]> queryParams) {
+        this.queryParams.putAll(queryParams);
+    }
+
+    public void setQueryParam(HashMap<String, String[]> queryParams) {
+        this.queryParams = queryParams;
     }
 
     public void setAttachments(LinkedList<Attachment> attachments) {

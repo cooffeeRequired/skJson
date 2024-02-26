@@ -15,7 +15,7 @@ import java.io.File;
 public class EvtFile extends EventValueExpression<File> {
 
     static {
-        Skript.registerExpression(EvtFile.class, File.class, ExpressionType.EVENT, "[the] [event-](file|link)");
+        Skript.registerExpression(EvtFile.class, File.class, ExpressionType.SIMPLE, "[the] [event-](file|link)");
     }
 
     public EvtFile() {

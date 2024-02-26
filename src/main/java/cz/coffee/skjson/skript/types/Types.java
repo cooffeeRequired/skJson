@@ -43,6 +43,7 @@ import static cz.coffee.skjson.utils.PatternUtil.keyStruct;
 @Since("2.9")
 @SuppressWarnings("deprecation")
 abstract class Types {
+
     // JsonElement type
     static final Collection<Class<?>> allowedTypes = List.of(
             ItemStack.class, Location.class, World.class, Chunk.class, Inventory.class, ConfigurationSerializable.class
@@ -289,23 +290,12 @@ abstract class Types {
 
                             @Override
                             public @NotNull String toVariableNameString(Request request) {
-                                return toString(request, 0);
+                                return request.toString();
                             }
 
                             @Override
                             public boolean canParse(@NonNull ParseContext context) {
                                 return false;
-                            }
-                        })
-                        .changer(new Changer<>() {
-                            @Override
-                            public Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
-                                return null;
-                            }
-
-                            @Override
-                            public void change(Request[] what, @Nullable Object[] delta, ChangeMode mode) {
-
                             }
                         })
         );

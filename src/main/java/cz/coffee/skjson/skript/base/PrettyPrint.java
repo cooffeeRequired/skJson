@@ -44,17 +44,18 @@ import static cz.coffee.skjson.api.ColorWrapper.Colors.*;
 public class PrettyPrint extends SimpleExpression<String> {
 
     static final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
-    static Expression<JsonElement> jsonExpression;
+    private Expression<JsonElement> jElements;
 
     static {
-        SkJsonElements.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE, "%jsons% with [(:uncoloured|:uncolored)] pretty print");
+        SkJsonElements.registerExpression(PrettyPrint.class, String.class, ExpressionType.SIMPLE,
+                "%json% with [(:uncoloured|:uncolored)] pretty print");
     }
 
     private boolean uncoloured_;
 
     @Override
     protected @Nullable String @NotNull [] get(@NotNull Event e) {
-        JsonElement[] jsons = jsonExpression.getAll(e);
+        JsonElement[] jsons = jElements.getAll(e);
         ArrayList<String> coloredJsons = new ArrayList<>();
 
         if (uncoloured_) {
@@ -73,7 +74,7 @@ public class PrettyPrint extends SimpleExpression<String> {
 
     @Override
     public boolean isSingle() {
-        return jsonExpression.isSingle();
+        return jElements.isSingle();
     }
 
     @Override
@@ -83,14 +84,17 @@ public class PrettyPrint extends SimpleExpression<String> {
 
     @Override
     public @NotNull String toString(@Nullable Event e, boolean debug) {
-        assert e != null;
-        return jsonExpression.toString(e, debug) + " with pretty print";
+        if(e != null) {
+            return jElements.toString(e, debug) + " with pretty print";
+        } else {
+            return "json with pretty print";
+        }
     }
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
-        jsonExpression = LiteralUtils.defendExpression(exprs[0]);
+        jElements = LiteralUtils.defendExpression(exprs[0]);
         uncoloured_ = parseResult.hasTag("uncoloured") || parseResult.hasTag("uncolored");
-        return LiteralUtils.canInitSafely(jsonExpression);
+        return LiteralUtils.canInitSafely(jElements);
     }
 }

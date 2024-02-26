@@ -60,23 +60,23 @@ public class SkJsonCommand implements CommandExecutor {
                 info("%s 🟠 &econfig reloading...", PLUGIN_PREFIX);
                 try {
                     final HashMap<String, ?> before = new HashMap<>(Map.ofEntries(
-                            Map.entry("CONFIG_VERSION", CONFIG_VERSION),
-                            Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
-                            Map.entry("LOGGING_LEVEL", LOGGING_LEVEL),
-                            Map.entry("DEFAULT_WATCHER_INTERVAL", DEFAULT_WATCHER_INTERVAL),
-                            Map.entry("PLUGIN_PREFIX", PLUGIN_PREFIX),
-                            Map.entry("ERROR_PREFIX", ERROR_PREFIX),
-                            Map.entry("WATCHER_PREFIX", WATCHER_PREFIX),
-                            Map.entry("REQUESTS_PREFIX", REQUESTS_PREFIX),
-                            Map.entry("WEBHOOK_PREFIX", WEBHOOK_PREFIX),
-                            Map.entry("PATH_VARIABLE_DELIMITER", PATH_VARIABLE_DELIMITER),
-                            Map.entry("ALLOWED_LINE_LITERAL", ALLOWED_LINE_LITERAL)
+                            Map.entry("CONFIG_VERSION", ConfigRecords.CONFIG_VERSION),
+                            Map.entry("PROJECT_DEBUG", ConfigRecords.PROJECT_DEBUG),
+                            Map.entry("LOGGING_LEVEL", ConfigRecords.LOGGING_LEVEL),
+                            Map.entry("DEFAULT_WATCHER_INTERVAL", ConfigRecords.DEFAULT_WATCHER_INTERVAL),
+                            Map.entry("PLUGIN_PREFIX", ConfigRecords.PLUGIN_PREFIX),
+                            Map.entry("ERROR_PREFIX", ConfigRecords.ERROR_PREFIX),
+                            Map.entry("WATCHER_PREFIX", ConfigRecords.WATCHER_PREFIX),
+                            Map.entry("REQUESTS_PREFIX", ConfigRecords.REQUESTS_PREFIX),
+                            Map.entry("WEBHOOK_PREFIX", ConfigRecords.WEBHOOK_PREFIX),
+                            Map.entry("PATH_VARIABLE_DELIMITER", ConfigRecords.PATH_VARIABLE_DELIMITER),
+                            Map.entry("ALLOWED_LINE_LITERAL", ConfigRecords.ALLOWED_LINE_LITERAL)
                     ));
                     Config.getConfig().loadConfigFile(false);
                     AtomicBoolean changed = new AtomicBoolean(false);
                     before.forEach((key, value) -> {
                         try {
-                            Field field = Config.class.getDeclaredField(key);
+                            Field field = ConfigRecords.class.getDeclaredField(key);
                             field.setAccessible(true);
                             Object fieldValue = field.get(null);
                             // Porovnejte hodnotu ve fieldu s hodnotou v mapě

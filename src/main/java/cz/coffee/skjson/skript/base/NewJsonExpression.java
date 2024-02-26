@@ -11,7 +11,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonParser;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.api.http.RequestClient;
@@ -160,7 +162,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 case 2 -> isYaml ? "yaml file" : "json file";
                 case 3 -> "website file";
                 default -> "object";
-            } + " " + input.toString(e, debug);
+            } + " " + (this.input != null ? this.input.toString(e, debug) : this.regexInput.toString(e, debug));
         } catch (Exception ex) {
             error(ex, null, getParser().getNode());
         }

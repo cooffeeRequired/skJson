@@ -13,10 +13,6 @@ import static cz.coffee.skjson.utils.Logger.info;
 
 public final class SkJson extends JavaPlugin {
 
-    static {
-        //ConfigurationSerialization.registerClass(WorldAdapter.class, "World");
-    }
-
     public static double CONFIG_PRIMARY_VERSION = 1.4;
     static SkJson plugin;
     Config config = new Config(this);

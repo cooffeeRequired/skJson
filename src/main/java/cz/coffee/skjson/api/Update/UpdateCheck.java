@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import cz.coffee.skjson.api.Config;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
+import cz.coffee.skjson.utils.Util;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -78,14 +79,16 @@ public class UpdateCheck {
     }
 
     private int sanitizeVersion(String version) {
+        String sanitized = "";
         try {
             String replaced = version.replaceAll("[.]", "");
+            sanitized = String.join("", replaced.replaceAll("[^0-9.]+", " ").trim().split("\\s+"));
             if (replaced.length() == 2) replaced = replaced + 0;
             return Integer.parseInt(replaced);
         } catch (NumberFormatException exception) {
-            if (PROJECT_DEBUG) error(exception);
+            return Util.parseNumber(sanitized);
+            //if (PROJECT_DEBUG) error(exception);
         }
-        return 0;
     }
 
     private JsonElement getGithubConfig() {
