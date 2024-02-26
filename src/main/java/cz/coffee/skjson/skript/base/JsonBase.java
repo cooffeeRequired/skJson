@@ -211,7 +211,7 @@ public abstract class JsonBase {
             if (matchingPattern.matches()) {
                 String[] split = firstField.split("-");
                 s = split[1];
-                i = parseNumber(group);
+                i = (int) parseNumber(group);
             }
             Class<?> inputClass = Classes.getClassFromUserInput(s);
             name = s;

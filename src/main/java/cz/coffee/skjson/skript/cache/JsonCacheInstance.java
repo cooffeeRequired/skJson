@@ -329,7 +329,7 @@ public abstract class JsonCacheInstance {
     @Since("2.8.0 - performance & clean")
     public static class UnlinkFile extends Effect {
         static {
-            SkJsonElements.registerEffect(UnlinkFile.class, "unlink json %string%");
+            SkJsonElements.registerEffect(UnlinkFile.class, "unlink json %string% [(:with) [a] file]");
         }
 
         private Expression<String> exprID;

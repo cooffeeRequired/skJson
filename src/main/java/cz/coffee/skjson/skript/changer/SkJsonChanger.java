@@ -355,7 +355,7 @@ public abstract class SkJsonChanger {
                             }
                         }
                     } catch (Exception ex) {
-                        error(new RuntimeException("Input or json cannot be null"), null, getParser().getNode());
+                        error(ex, null, getParser().getNode());
                     }
                 }
             }

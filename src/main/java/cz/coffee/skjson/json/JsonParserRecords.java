@@ -266,12 +266,12 @@ public class JsonParserRecords {
             Deque<JsonElement> currents = new ConcurrentLinkedDeque<>();
             currents.offerLast(this.json);
             JsonElement current;
+            if (keys.isEmpty()) return;
             PatternUtil.keyStruct lastKey = keys.removeLast();
             while ((current = currents.pollLast()) != null) {
                 for (PatternUtil.keyStruct struct : keys) {
                     if (struct.key().isEmpty() || struct.key().isBlank()) continue;
                     try {
-                        int index = Util.isNumber(struct.key()) ? parseNumber(struct.key()) : -1;
                         if (current instanceof JsonObject jsonobject) {
                             if (!jsonobject.has(struct.key())) {
                                 if (struct.isList()) {
@@ -282,6 +282,7 @@ public class JsonParserRecords {
                             }
                             current = jsonobject.get(struct.key());
                         } else if (current instanceof JsonArray jsonArray) {
+                            int index = Util.isNumber(struct.key()) ? parseNumber(struct.key()) : -1;
                             if (index >= jsonArray.size()) {
                                 if (struct.isList()) {
                                     jsonArray.add(new JsonArray());

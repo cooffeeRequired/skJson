@@ -30,6 +30,10 @@
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>skript</id>
             <url>https://repo.skriptlang.org/releases</url>
         </repository>
@@ -83,7 +87,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>2.34</version> <!-- Zde zadejte odpovídající verzi Jersey -->
+            <version>2.34</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -161,10 +165,6 @@
                             <pattern>de.tr7zw.annotations</pattern>
                             <shadedPattern>cz.coffee.api.nbt.annotations</shadedPattern>
                         </relocation>
-<!--                        <relocation>-->
-<!--                            <pattern>javax.ws.rs</pattern>-->
-<!--                            <shadedPattern>cz.coffee.api.ws.rs</shadedPattern>-->
-<!--                        </relocation>-->
                         <relocation>
                             <pattern>com.google.gson</pattern>
                             <shadedPattern>cz.coffee.api.gson</shadedPattern>
@@ -206,7 +206,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/server/plugins"/>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="${project.basedir}/server/plugins/SkJson.jar"/>
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="E:/Git/mc_server/plugins/SkJson.jar"/>
                                 <echo message="Copied successfully" />
                             </target>
                         </configuration>

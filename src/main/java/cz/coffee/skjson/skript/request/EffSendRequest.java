@@ -18,7 +18,6 @@ import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.RequestStatus;
 import cz.coffee.skjson.api.requests.Response;
-import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -62,7 +61,7 @@ public class EffSendRequest extends Effect {
 
     static {
         SkJsonElements.registerEffect(EffSendRequest.class,
-                "[:sync] send [prepared] %request%"
+                "[:sync] (send|execute) [prepared] %request%"
         );
     }
 
@@ -78,34 +77,35 @@ public class EffSendRequest extends Effect {
             assert response != null;
             var rsp = new Response(response.getStatusCode(), response.getBodyContent(true), response.getResponseHeader().json());
             request.setResponse(rsp);
-            this.walk(event);
+        } else {
+            var vars = Variables.copyLocalVariables(event);
+            CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
+                    .whenComplete((resp, err) -> {
+                        if (err != null) {
+                            error(err, null, getParser().getNode());
+                            request.setResponse(Response.empty());
+                            return;
+                        }
+                        if (resp != null) {
+                            Bukkit.getScheduler().runTask(SkJson.getInstance(), () -> {
+                                var rsp = new Response(resp.getStatusCode(), resp.getBodyContent(true), resp.getResponseHeader().json());
+                                request.setResponse(rsp);
+                                Variables.setLocalVariables(event, vars);
+                                if (getNext() != null) TriggerItem.walk(getNext(), event);
+                            });
+                        }
+                    });
         }
-
-
-        var vars = Variables.copyLocalVariables(event);
-        CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
-                .whenComplete((resp, err) -> {
-                    if (err != null) {
-                        error(err, null, getParser().getNode());
-                        request.setResponse(Response.empty());
-                        return;
-                    }
-                    if (resp != null) {
-                        Bukkit.getScheduler().runTask(SkJson.getInstance(), () -> {
-                            var rsp = new Response(resp.getStatusCode(), resp.getBodyContent(true), resp.getResponseHeader().json());
-                            request.setResponse(rsp);
-                            Variables.setLocalVariables(event, vars);
-                            if (getNext() != null) TriggerItem.walk(getNext(), event);
-                        });
-                    }
-                });
     }
 
     @Override
     protected TriggerItem walk(@NotNull Event e) {
+        var rq = this.exprRequest.getSingle(e);
+        if (rq == null) return null;
         debug(e, true);
-        delay(e);
+        if (!sync) delay(e);
         execute(e);
+        if (sync) return super.walk(e);
         return null;
     }
 
@@ -151,7 +151,7 @@ public class EffSendRequest extends Effect {
     @Override
     public @NotNull String toString(@Nullable Event event, boolean debug) {
         assert event != null;
-        return "send prepared " + this.exprRequest.toString(event, debug);
+        return "execute prepared " + this.exprRequest.toString(event, debug);
     }
 
     @SuppressWarnings("unchecked")
