@@ -2,17 +2,21 @@ package cz.coffee.skjson.api;
 
 import cz.coffee.skjson.SkJson;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static cz.coffee.skjson.api.Config.getMapping;
-import static cz.coffee.skjson.api.ConfigRecords.*;
+import static cz.coffee.skjson.api.ConfigRecords.CONFIG_VERSION;
+import static cz.coffee.skjson.api.ConfigRecords.PLUGIN_PREFIX;
 import static cz.coffee.skjson.utils.Logger.info;
 
 /**
@@ -21,7 +25,7 @@ import static cz.coffee.skjson.utils.Logger.info;
  * Created: středa (12.07.2023)
  */
 @SuppressWarnings("ALL")
-public class SkJsonCommand implements CommandExecutor {
+public class SkJsonCommand implements TabExecutor {
     String formatDesc(String desc) {
         if (desc.contains("%nl%")) {
             var builder = new StringBuilder();
@@ -106,7 +110,7 @@ public class SkJsonCommand implements CommandExecutor {
                     sender.sendMessage(ColorWrapper.translate(PLUGIN_PREFIX + "&7reload &cunsuccessfully."));
                     return false;
                 }
-            } else if (args[0].equalsIgnoreCase("about")) {
+            } else if (args[0].equalsIgnoreCase("about") || args[0].equalsIgnoreCase("?")) {
                 sendAbout(sender);
                 return true;
             }
@@ -115,5 +119,20 @@ public class SkJsonCommand implements CommandExecutor {
         sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson reload"));
         sender.sendMessage(ColorWrapper.translate("&7Usage: &a/skjson about"));
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        ArrayList<String> completations = new ArrayList<>();
+        if (command.getName().equalsIgnoreCase("skjson")) {
+            switch (strings.length) {
+                case 1 -> {
+                    completations.add("reload");
+                    completations.add("about");
+                    completations.add("?");
+                }
+            }
+        }
+        return completations;
     }
 }
