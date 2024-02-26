@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.3</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
@@ -64,7 +64,7 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
             <version>12.0.1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
@@ -82,17 +82,13 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
             <version>2.34</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -161,22 +157,18 @@
                             <pattern>com.github.skbee</pattern>
                             <shadedPattern>cz.coffee.api.nbt</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>de.tr7zw.annotations</pattern>
-                            <shadedPattern>cz.coffee.api.nbt.annotations</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.google.gson</pattern>
-                            <shadedPattern>cz.coffee.api.gson</shadedPattern>
-                        </relocation>
+<!--                        <relocation>-->
+<!--                            <pattern>de.tr7zw.annotations</pattern>-->
+<!--                            <shadedPattern>cz.coffee.api.nbt.annotations</shadedPattern>-->
+<!--                        </relocation>-->
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>cz.coffee.api.bstats</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>org.eclipse.jetty</pattern>
-                            <shadedPattern>cz.coffee.api.jetty</shadedPattern>
-                        </relocation>
+<!--                        <relocation>-->
+<!--                            <pattern>org.eclipse.jetty</pattern>-->
+<!--                            <shadedPattern>cz.coffee.api.jetty</shadedPattern>-->
+<!--                        </relocation>-->
                     </relocations>
                 </configuration>
                 <executions>

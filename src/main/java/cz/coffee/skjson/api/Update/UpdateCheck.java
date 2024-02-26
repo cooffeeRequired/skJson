@@ -63,7 +63,10 @@ public class UpdateCheck {
                 } catch (Exception ignored) {
                 }
                 int sanitizeOnlineVersion = sanitizeVersion(onlineVersion);
-                if (sanitizedCurrentVersion == sanitizeOnlineVersion) {
+                if (sanitizeOnlineVersion == -100) {
+                    info("&eDo you have internet connection? Version check &c&lFailed");
+                }
+                else if (sanitizedCurrentVersion == sanitizeOnlineVersion) {
                     info("You're running on &alast&f stable version. %sv.", onlineVersion);
                 } else if (sanitizeOnlineVersion > sanitizedCurrentVersion) {
                     info("&cskJson is not up to date!");
@@ -80,6 +83,7 @@ public class UpdateCheck {
 
     private int sanitizeVersion(String version) {
         String sanitized = "";
+        if (version.equalsIgnoreCase("")) return -100;
         try {
             String replaced = version.replaceAll("[.]", "");
             sanitized = String.join("", replaced.replaceAll("[^0-9.]+", " ").trim().split("\\s+"));

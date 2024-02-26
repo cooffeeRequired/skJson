@@ -5,11 +5,14 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -44,22 +47,18 @@ public class FileHandler {
      */
     public static CompletableFuture<JsonElement> get(final File file) {
         return CompletableFuture.supplyAsync(() -> {
-            try (var reader = new BufferedReader(new FileReader(file))) {
+            try (var reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 var split = file.getName().split("\\.");
                 var ext = split[split.length - 1];
-                switch (ext) {
-                    case "json" -> {
-                        return JsonParser.parseReader(reader);
-                    }
+                return switch (ext) {
+                    case "json" -> JsonParser.parseReader(reader);
                     case "yml", "yaml" -> {
-                        Yaml yml = new Yaml();
-                        var loader = yml.load(reader);
-                        return JsonParser.parseString(loader.toString());
+                        var yaml = new Yaml();
+                        var map = (LinkedHashMap<?, ?>) yaml.load(reader);
+                        yield GSON.toJsonTree(map);
                     }
-                    default -> {
-                        return JsonNull.INSTANCE;
-                    }
-                }
+                    default -> JsonNull.INSTANCE;
+                };
             } catch (Exception ex) {
                 error(ex);
                 return JsonNull.INSTANCE;
