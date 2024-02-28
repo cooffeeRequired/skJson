@@ -77,25 +77,25 @@ public class EffSendRequest extends Effect {
             assert response != null;
             var rsp = new Response(response.getStatusCode(), response.getBodyContent(true), response.getResponseHeader().json());
             request.setResponse(rsp);
-        } else {
-            var vars = Variables.copyLocalVariables(event);
-            CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
-                    .whenComplete((resp, err) -> {
-                        if (err != null) {
-                            error(err, null, getParser().getNode());
-                            request.setResponse(Response.empty());
-                            return;
-                        }
-                        if (resp != null) {
-                            Bukkit.getScheduler().runTask(SkJson.getInstance(), () -> {
-                                var rsp = new Response(resp.getStatusCode(), resp.getBodyContent(true), resp.getResponseHeader().json());
-                                request.setResponse(rsp);
-                                Variables.setLocalVariables(event, vars);
-                                if (getNext() != null) TriggerItem.walk(getNext(), event);
-                            });
-                        }
-                    });
+            return;
         }
+        var vars = Variables.copyLocalVariables(event);
+        CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
+                .whenComplete((resp, err) -> {
+                    if (err != null) {
+                        error(err, null, getParser().getNode());
+                        request.setResponse(Response.empty());
+                        return;
+                    }
+                    if (resp != null) {
+                        Bukkit.getScheduler().runTask(SkJson.getInstance(), () -> {
+                            var rsp = new Response(resp.getStatusCode(), resp.getBodyContent(true), resp.getResponseHeader().json());
+                            request.setResponse(rsp);
+                            Variables.setLocalVariables(event, vars);
+                            if (getNext() != null) TriggerItem.walk(getNext(), event);
+                        });
+                    }
+                });
     }
 
     @Override
@@ -104,12 +104,15 @@ public class EffSendRequest extends Effect {
         if (rq == null) return null;
         debug(e, true);
         if (!sync) delay(e);
-        execute(e);
+        if (!sync) execute(e);
         if (sync) return super.walk(e);
         return null;
     }
 
     private RequestResponse sendRequest(Request request) {
+
+        System.out.println("Here " + request);
+
         boolean hasAttachments = !request.attachments().isEmpty();
 
         URI URL = null;
