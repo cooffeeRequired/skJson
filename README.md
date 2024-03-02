@@ -15,7 +15,7 @@
 <p align="center" style="align: center; text-align: center">
 <img align="center" alt="SkJson" width="40%" src="https://i.ibb.co/DrTZJGP/banner-with-info.png">
 </p>
-<h1 align="center">SkJson</h1>
+<h1 align="center">SkJson <img align="center" style="border-radius: 20px;" alt="SkJson" width="5%" src="https://i.ibb.co/zV3Pxht/New-Project-4.png"></h1>
 
 <h3 align="center">The modern way how to handle JSON in the Skript</h3>
 <h6 align="center">The addon uses GSON &#40;Google JSON&#41; for work with JSON in Skript</h6>
