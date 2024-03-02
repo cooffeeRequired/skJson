@@ -4,7 +4,7 @@
 ![GitHub All Downloads](https://img.shields.io/github/downloads/SkJsonTeam/skJson/total?style=for-the-badge)
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/dsZq5Cs9fd)
 ![License](https://img.shields.io/github/license/SkJsonTeam/skJson?style=for-the-badge)
-[![CodeFactor](https://www.codefactor.io/repository/github/coffeerequired/skjson/badge)](https://www.codefactor.io/repository/github/coffeerequired/skjson)
+[![CodeFactor](https://www.codefactor.io/repository/github/cooffeerequired/skjson/badge)](https://www.codefactor.io/repository/github/cooffeerequired/skjson)
 [![Java CI with Maven](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml)
 
 
