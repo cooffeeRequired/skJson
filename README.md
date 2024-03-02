@@ -13,7 +13,7 @@
 
 [//]: # (<- Header ->)
 <p align="center" style="align: center; text-align: center">
-<img align="center" alt="SkJson" width="40%" src="https://skjson.xyz/imgs/skjson/banner.png">
+<img align="center" alt="SkJson" width="40%" src="https://i.ibb.co/DrTZJGP/banner-with-info.png">
 </p>
 <h1 align="center">SkJson</h1>
 
