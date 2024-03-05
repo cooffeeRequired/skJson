@@ -4,7 +4,7 @@
 ![GitHub All Downloads](https://img.shields.io/github/downloads/SkJsonTeam/skJson/total?style=for-the-badge)
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/dsZq5Cs9fd)
 ![License](https://img.shields.io/github/license/SkJsonTeam/skJson?style=for-the-badge)
-[![CodeFactor](https://www.codefactor.io/repository/github/SkJsonTeam/skjson/badge)](https://www.codefactor.io/repository/github/SkJsonTeam/skjson)
+[![CodeFactor](https://www.codefactor.io/repository/github/cooffeerequired/skjson/badge)](https://www.codefactor.io/repository/github/cooffeerequired/skjson)
 [![Java CI with Maven](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml)
 
 
@@ -13,9 +13,9 @@
 
 [//]: # (<- Header ->)
 <p align="center" style="align: center; text-align: center">
-<img align="center" alt="SkJson" width="40%" src="https://skjson.xyz/imgs/skjson/banner.png">
+<img align="center" alt="SkJson" width="40%" src="https://i.ibb.co/DrTZJGP/banner-with-info.png">
 </p>
-<h1 align="center">SkJson</h1>
+<h1 align="center">SkJson <img align="center" style="border-radius: 20px;" alt="SkJson" width="5%" src="https://i.ibb.co/zV3Pxht/New-Project-4.png"></h1>
 
 <h3 align="center">The modern way how to handle JSON in the Skript</h3>
 <h6 align="center">The addon uses GSON &#40;Google JSON&#41; for work with JSON in Skript</h6>
