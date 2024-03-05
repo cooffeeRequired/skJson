@@ -110,9 +110,6 @@ public class EffSendRequest extends Effect {
     }
 
     private RequestResponse sendRequest(Request request) {
-
-        System.out.println("Here " + request);
-
         boolean hasAttachments = !request.attachments().isEmpty();
 
         URI URL = null;
@@ -130,13 +127,13 @@ public class EffSendRequest extends Effect {
             if (hasAttachments) {
                 client.setAttachments(request.attachments());
                 rsp = client.method(request.method().toString())
-                        .setHeaders(request.header())
+                        //setHeaders(request.header())
                         .postAttachments(request.content())
                         .request(true)
                         .get();
             } else {
                 rsp = client.method(request.method().toString())
-                        .setHeaders(request.header())
+                        //.setHeaders(request.header())
                         .setContent(request.content())
                         .request(true)
                         .get();

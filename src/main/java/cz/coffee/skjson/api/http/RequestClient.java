@@ -61,6 +61,7 @@ public class RequestClient implements AutoCloseable {
 
     public RequestClient method(String method) {
         this.request = this.client.newRequest(this.uri);
+        this.request.headers((it) -> it.add("User-Agent", "SkJson 3.0.3/Client Jetty"));
         switch (method.toUpperCase()) {
             case "GET", "MOCK" -> this.request.method("GET");
             case "POST" -> this.request.method("POST");
@@ -154,7 +155,7 @@ public class RequestClient implements AutoCloseable {
 
 
     public RequestClient setContent(final JsonElement body) {
-        this.request.body(new StringRequestContent(GSON.toJson(body)));
+        if (body != null) this.request.body(new StringRequestContent(GSON.toJson(body)));
         return this;
     }
 
@@ -206,6 +207,7 @@ public class RequestClient implements AutoCloseable {
         return Optional.of(this);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public RequestClient setAttachments(LinkedList<Attachment> attachments) {
         if (attachments == null) return this;
         for (var att : attachments) {

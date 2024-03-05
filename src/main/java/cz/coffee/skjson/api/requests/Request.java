@@ -93,7 +93,10 @@ public class Request {
 
     @Override
     public String toString() {
-        return fstring("Request{ uri: %s, method: %s, content: %s, header: %s, status: %s }", this.uri, this.method, this.content, this.header, this.status);
+        return fstring(
+                "prepared request for uri %s, method %s, content %s, header %s, status %s",
+                this.uri, this.method, this.content, Arrays.toString(this.header), this.status
+        )   ;
     }
 }
 
