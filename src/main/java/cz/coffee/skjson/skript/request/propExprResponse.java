@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Objects;
 
 import static cz.coffee.skjson.utils.Util.fstring;
@@ -29,7 +28,7 @@ import static cz.coffee.skjson.utils.Util.fstring;
                 send response content of {_request}
                 send response headers of {_request}
         """)
-@Description("get all response properties")
+@Description({"get all response properties", "The status codes could be \"OK\", \"UNKNOWN\", \"FAILED\""})
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
 public class propExprResponse extends PropertyExpression<Request, Object> {
