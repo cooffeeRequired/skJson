@@ -8,9 +8,11 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonElement;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.requests.Request;
 import cz.coffee.skjson.api.requests.Response;
+import cz.coffee.skjson.parser.ParserUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +50,15 @@ public class propExprResponse extends PropertyExpression<Request, Object> {
                 .filter(Objects::nonNull)
                 .map(Request::response);
         return switch (tag) {
-            case "content" -> rsp.map(Response::content).toArray();
+            case "content" -> rsp.map((it) -> {
+                var content = it.content();
+                if (content == null) return null;
+                if (content instanceof JsonElement element) {
+                    return ParserUtil.from(element);
+                } else {
+                    return content;
+                }
+            }).toArray();
             case "headers", "header" -> rsp.map(Response::headers).toArray();
             case "status code" -> rsp.map(Response::statusCode).toArray();
             case "status" -> Arrays.stream(source).filter(Objects::nonNull).map(r -> r.status().toString()).toArray();

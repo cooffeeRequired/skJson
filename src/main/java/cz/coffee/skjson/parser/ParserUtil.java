@@ -316,8 +316,8 @@ public abstract class ParserUtil {
      * @return the t
      */
     public static <T> T from(JsonElement json) {
-        if (json == null || json.isJsonPrimitive() || json.isJsonArray() || json.isJsonNull()) return null;
-        //if (json instanceof JsonElement) return ParserUtil.jsonToType(json);
+        if (json == null || json.isJsonArray() || json.isJsonNull()) return null;
+        else if (json.isJsonPrimitive()) return ParserUtil.jsonToType(json);
         final JsonElement finalJson = json.deepCopy();
         Class<?> clazz = null;
         String potentialClass = null;
