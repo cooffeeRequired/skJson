@@ -357,7 +357,8 @@ public abstract class ParserUtil {
                 if (PROJECT_DEBUG) error(ex);
                 return null;
             }
+        } else {
+            return (T) json;
         }
-        return null;
     }
 }

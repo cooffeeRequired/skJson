@@ -102,7 +102,8 @@ public class FileHandler {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 File file = new File(filePath);
-                if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                var parent = file.getParentFile();
+                if (parent != null && !file.getParentFile().exists() && !parent.mkdirs()) {
                     simpleError(fstring("Cannot create a directory %s", file.getParentFile().getAbsoluteFile()));
                 }
                 if (file.exists() && !writing) {

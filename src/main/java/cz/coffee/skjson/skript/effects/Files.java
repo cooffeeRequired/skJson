@@ -140,7 +140,7 @@ public abstract class Files {
                     }
                 }
                 try {
-                    await(FileHandler.createOrWrite(path, json));
+                    await(FileHandler.createOrWrite(path, json, false));
                 } catch (ExecutionException | InterruptedException ex) {
                     error(ex, null, getParser().getNode());
                 }
