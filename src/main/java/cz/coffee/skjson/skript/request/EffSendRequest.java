@@ -117,23 +117,23 @@ public class EffSendRequest extends Effect {
             var uri = UriBuilder.fromUri(request.uri());
             if (!request.getQueryParams().isEmpty())
                 request.getQueryParams().forEach(uri::queryParam);
-            URL = uri.build();
+            URL = uri.build().normalize();
         } catch (Exception ex) {
             error(ex, null, getParser().getNode());
         }
 
-        try (var client = new RequestClient(URL != null ? URL.toString() : request.uri())) {
+        try (var client = new RequestClient((URL != null ? URL : request.uri()).toString().replaceAll("§", "&"))) {
             RequestResponse rsp;
             if (hasAttachments) {
                 client.setAttachments(request.attachments());
                 rsp = client.method(request.method().toString())
-                        //setHeaders(request.header())
+                        .setHeaders(request.header())
                         .postAttachments(request.content())
                         .request(true)
                         .get();
             } else {
                 rsp = client.method(request.method().toString())
-                        //.setHeaders(request.header())
+                        .setHeaders(request.header())
                         .setContent(request.content())
                         .request(true)
                         .get();

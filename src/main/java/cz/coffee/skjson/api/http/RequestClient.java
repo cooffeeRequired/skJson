@@ -61,7 +61,6 @@ public class RequestClient implements AutoCloseable {
 
     public RequestClient method(String method) {
         this.request = this.client.newRequest(this.uri);
-        this.request.headers((it) -> it.add("User-Agent", "SkJson 3.0.3/Client Jetty"));
         switch (method.toUpperCase()) {
             case "GET", "MOCK" -> this.request.method("GET");
             case "POST" -> this.request.method("POST");

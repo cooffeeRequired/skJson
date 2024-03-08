@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
