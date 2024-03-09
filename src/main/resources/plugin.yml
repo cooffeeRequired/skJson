@@ -2,8 +2,8 @@ name: SkJson
 version: '${project.version}'
 main: cz.coffee.skjson.SkJson
 api-version: '1.16'
-revision-version: '12ee287ae - after changing file fix.'
-full-revision-sha1: '12ee287ae569d549611da6250f40ccd80c3dad133105a00cfde2af7d1a4462a2'
+revision-version: '4552fe8ba'
+full-revision-sha1: '4552fe8ba495afac07a1d93cbb777d4ccdd763808b1c9d740696612efe183c79'
 depend:
   - Skript
 prefix: SkJson
@@ -14,6 +14,10 @@ commands:
   skjson:
     description: basic skjson
     usage: /skjson
+permissions:
+  skjson.use:
+    default: op
+    description: Allows you to use skjson
 libraries:
   - org.glassfish.jersey.core:jersey-server:2.34
   - org.eclipse.jetty:jetty-client:12.0.1

@@ -54,6 +54,10 @@ public class SkJsonCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
+        if (!sender.hasPermission(" skjson.use")) {
+            sender.sendMessage(ColorWrapper.translate("&cYou don't have permission to use this command!"));
+            return true;
+        }
         if (command.getName().equalsIgnoreCase("skjson")) {
             if (args.length == 0) {
                 info("&7Usage: &a/skjson reload");
