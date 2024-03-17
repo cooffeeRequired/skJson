@@ -6,7 +6,7 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>3.0.5</version>
+    <version>3.0.6</version>
     <packaging>jar</packaging>
 
     <name>SkJson</name>
@@ -26,8 +26,6 @@
                 <url>https://repo.bytecode.space/repository/maven-public/</url>
             </pluginRepository>
     </pluginRepositories>
-
-
     <repositories>
         <repository>
             <id>jitpack.io</id>

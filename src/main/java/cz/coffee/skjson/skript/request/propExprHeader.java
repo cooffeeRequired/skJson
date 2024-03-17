@@ -20,6 +20,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Request headers")
@@ -97,16 +100,15 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
         var request = getExpr().getSingle(event);
         assert request != null;
         if (mode == Changer.ChangeMode.SET) {
-            Pairs[] pairs = new Pairs[delta.length];
-            for (var i = 0; i < delta.length; i++) {
-                var d = delta[i];
+            LinkedList<Pairs> pairs = new LinkedList<>();
+            for (Object d : delta) {
                 if (d instanceof String str) {
-                    pairs[i] = new Pairs(str);
+                    pairs.add(new Pairs(str));
                 } else if (d instanceof JsonElement json) {
-                    pairs[i] = new Pairs(json);
+                    json.getAsJsonObject().entrySet().forEach(entry -> pairs.add(new Pairs(entry.getKey() + ":" +entry.getValue().getAsString())));
                 }
             }
-            request.setHeader(pairs);
+            request.setHeader(pairs.toArray(new Pairs[0]));
         } else if (mode == Changer.ChangeMode.RESET) {
             request.setHeader(new Pairs[0]);
         }

@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.ws.rs.core.UriBuilder;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -121,7 +122,6 @@ public class EffSendRequest extends Effect {
         } catch (Exception ex) {
             error(ex, null, getParser().getNode());
         }
-
         try (var client = new RequestClient((URL != null ? URL : request.uri()).toString().replaceAll("§", "&"))) {
             RequestResponse rsp;
             if (hasAttachments) {
