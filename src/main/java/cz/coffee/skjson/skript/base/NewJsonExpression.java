@@ -77,6 +77,14 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     private boolean inputIsRegex;
     private JsonExpressionString regexInput;
 
+    @SuppressWarnings("DataFlowIssue")
+    private File sanitizedFile(String file) {
+        if (file.startsWith("~")) {
+            return new File(Bukkit.getPluginManager().getPlugin("Skript").getDataFolder(), "scripts" + "/" + file.substring(1));
+        }
+        return new File(file);
+    }
+
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
         List<JsonElement> output = new ArrayList<>();
@@ -94,7 +102,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
             if (isFile) {
                 String stringifyFile = values[0].toString();
                 if (stringifyFile != null) {
-                    final File file = new File(stringifyFile);
+                    final File file = sanitizedFile(stringifyFile);
 
                     // make a sensitization for Failed get from FileWrapper
                     JsonElement json = FileHandler.get(file).join();

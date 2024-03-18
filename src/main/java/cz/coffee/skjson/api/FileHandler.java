@@ -1,6 +1,8 @@
 package cz.coffee.skjson.api;
 
 import com.google.gson.*;
+import cz.coffee.skjson.utils.Logger;
+import org.bukkit.Bukkit;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
@@ -47,6 +49,10 @@ public class FileHandler {
      */
     public static CompletableFuture<JsonElement> get(final File file) {
         return CompletableFuture.supplyAsync(() -> {
+            if (!file.exists()) {
+                Logger.warn("File " + file + " does not exist");
+                return JsonNull.INSTANCE;
+            }
             try (var reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 var split = file.getName().split("\\.");
                 var ext = split[split.length - 1];
@@ -79,11 +85,19 @@ public class FileHandler {
         return future.get();
     }
 
-    public static CompletableFuture<Boolean> write(final String filePath, JsonElement content) {
+    public static CompletableFuture<Boolean> write(String filePath, JsonElement content) {
+        if (filePath.startsWith("~")) {
+            //noinspection DataFlowIssue
+            filePath = Bukkit.getPluginManager().getPlugin("Skript").getDataFolder() + "/scripts" + "/" + filePath.substring(1);
+        }
         return createOrWrite(filePath, content, true);
     }
 
-    public static CompletableFuture<Boolean> createOrWrite(final String filePath, JsonElement content) {
+    public static CompletableFuture<Boolean> createOrWrite(String filePath, JsonElement content) {
+        if (filePath.startsWith("~")) {
+            //noinspection DataFlowIssue
+            filePath = Bukkit.getPluginManager().getPlugin("Skript").getDataFolder() + "/scripts" + "/" + filePath.substring(1);
+        }
         return createOrWrite(filePath, content, false);
     }
 
