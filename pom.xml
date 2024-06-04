@@ -6,9 +6,9 @@
 
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
-    <version>3.0.7</version>
+    <version>3.0.91</version>
     <packaging>jar</packaging>
-
+    
     <name>SkJson</name>
 
     <properties>
@@ -21,10 +21,10 @@
             <id>maven-snapshots</id>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </pluginRepository>
-            <pluginRepository>
-                <id>bytecode.space</id>
-                <url>https://repo.bytecode.space/repository/maven-public/</url>
-            </pluginRepository>
+        <pluginRepository>
+            <id>bytecode.space</id>
+            <url>https://repo.bytecode.space/repository/maven-public/</url>
+        </pluginRepository>
     </pluginRepositories>
     <repositories>
         <repository>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.shanebeestudios.skbee</groupId>
             <artifactId>skbee</artifactId>
-            <version>3.0.1</version>
+            <version>3.5.2</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-client -->
         <dependency>
@@ -97,8 +97,6 @@
     </dependencies>
 
 
-
-
     <build>
         <plugins>
             <plugin>
@@ -130,7 +128,7 @@
                     <minimizeJar>false</minimizeJar>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
                     </transformers>
                     <filters>
                         <filter>
@@ -155,18 +153,10 @@
                             <pattern>com.github.skbee</pattern>
                             <shadedPattern>cz.coffee.api.nbt</shadedPattern>
                         </relocation>
-<!--                        <relocation>-->
-<!--                            <pattern>de.tr7zw.annotations</pattern>-->
-<!--                            <shadedPattern>cz.coffee.api.nbt.annotations</shadedPattern>-->
-<!--                        </relocation>-->
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>cz.coffee.api.bstats</shadedPattern>
                         </relocation>
-<!--                        <relocation>-->
-<!--                            <pattern>org.eclipse.jetty</pattern>-->
-<!--                            <shadedPattern>cz.coffee.api.jetty</shadedPattern>-->
-<!--                        </relocation>-->
                     </relocations>
                 </configuration>
                 <executions>
@@ -196,38 +186,13 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/server/plugins"/>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="E:/Git/mc_server/plugins/SkJson.jar"/>
-                                <echo message="Copied successfully" />
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="D:/Server/plugins/SkJson.jar"/>
+                                <echo message="Copied successfully"/>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>exec-maven-plugin</artifactId>
-               <version>1.6.0</version>
-               <configuration>
-                 <executable>java</executable>
-                   <workingDirectory>${project.basedir}/gen_server</workingDirectory>
-                   <arguments>
-                     <argument>-Xms6G</argument>
-                      <argument>-Xmx6G</argument>
-                       <argument>-jar</argument>
-                       <argument>paper.jar</argument>
-                       <argument>-u worlds</argument>
-                        <argument>nogui</argument>
-                    </arguments>
-              </configuration>
-                <executions>
-                    <execution>
-                       <phase>package</phase>
-                       <goals>
-                            <goal>exec</goal>
-                       </goals>
-                   </execution>
-               </executions>
-           </plugin>-->
         </plugins>
         <resources>
             <resource>

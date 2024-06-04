@@ -39,35 +39,35 @@ import static cz.coffee.skjson.utils.Logger.warn;
 
 @Name("New json")
 @Description({
-        "latest:",
-        "\t\t- support now also multiple items as input",
-        "\t\t- support json content from webpage",
-        "\t\t- removed empty json array/object, cause it's not necessary while",
-        "skJson know parsing object",
-        "original docs: https://skjsonteam.github.io/skJsonDocs/exprs#new-json",
-        "skripthub docs:",
-        "<br />",
-        "It's allow create json from any source also from the file"
+    "latest:",
+    "\t\t- support now also multiple items as input",
+    "\t\t- support json content from webpage",
+    "\t\t- removed empty json array/object, cause it's not necessary while",
+    "skJson know parsing object",
+    "original docs: https://skjsonteam.github.io/skJsonDocs/exprs#new-json",
+    "skripthub docs:",
+    "<br />",
+    "It's allow create json from any source also from the file"
 })
-@Since("2.9, 2.9.3 - Literal parsing")
+@Since("2.9, 2.9.3 - Literal parsing, 3.1.0 - Request checks fix")
 @Examples({
-        "on script load:",
-        "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
-        "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
-        "\tset {_json} to json from diamond tools",
-        "\tset {_json} to json from player's location",
-        "\tset {_json} to json from player's inventory",
-        "\tset {_json} to json from yaml file <path>",
-        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
-        "*Literal",
-        "set {_json} to @{\"test\": true, \"var\": {_test}}"
+    "on script load:",
+    "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
+    "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
+    "\tset {_json} to json from diamond tools",
+    "\tset {_json} to json from player's location",
+    "\tset {_json} to json from player's inventory",
+    "\tset {_json} to json from yaml file <path>",
+    "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+    "*Literal",
+    "set {_json} to @{\"test\": true, \"var\": {_test}}"
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
     static {
         SkJsonElements.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-                "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
-                "@<^(\\{|\\[).+(\\}|\\])$>"
+            "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
+            "@<^(\\{|\\[).+(\\}|\\])$>"
         );
     }
 
@@ -119,20 +119,21 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                     RequestResponse rp = null;
                     try (var client = new RequestClient(url.toString())) {
                         rp = client
-                                .method("GET")
-                                .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
-                                .request().join();
+                            .method("GET")
+                            .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
+                            .request().join();
                     } catch (Exception ex) {
                         error(ex, Bukkit.getConsoleSender(), getParser().getNode());
                     }
                     return rp;
                 });
-                JsonElement elem = (JsonElement) ft.join().getBodyContent(false);
-                if (elem instanceof JsonNull nil) {
-                    warn("You cannot get non-json content via this.");
-                    output.add(nil);
+                RequestResponse joined = ft.join();
+                if (joined != null && joined.isSuccessfully()) {
+                    JsonElement element = (JsonElement) joined.getBodyContent(false);
+                    output.add(element);
                 } else {
-                    output.add(elem);
+                    warn("You cannot get non-json content via this.");
+                    output.add(JsonNull.INSTANCE);
                 }
             } else {
                 for (Object value : values) {

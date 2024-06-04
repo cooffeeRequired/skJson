@@ -9,7 +9,6 @@ depend:
 prefix: SkJson
 author: CoffeeRequired
 description: ' SkJson is module/addon for well-known programming language Skript for minecraft world. %nl% SkJson is used for parsing JSON data from any object like website api,%nl% skript object e.g. (item, location), file, yaml-file, text.'
-website: https://www.skjson.xyz/
 commands:
   skjson:
     description: basic skjson
