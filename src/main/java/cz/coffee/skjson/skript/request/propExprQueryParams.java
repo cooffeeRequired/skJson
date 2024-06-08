@@ -29,20 +29,20 @@ import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Request query params")
 @Examples("""
-            # getting the Request query params;
-            send {_request}'s query params
-            send query params of {_request}
-            
-            # setting the Request query params;
-            set {_request}'s query params to "key:value", "key1:value1"
-            set query params of {_request} to "key:value", "key1:value1"
-            
-            # adding the query param to the URL
-            
-            # reset the query params of the Request
-            reset {_request}'s query params
-            reset query params of {_request}
-        """)
+         # getting the Request query params;
+         send {_request}'s query params
+         send query params of {_request}
+        \s
+         # setting the Request query params;
+         set {_request}'s query params to "key:value", "key1:value1"
+         set query params of {_request} to "key:value", "key1:value1"
+        \s
+         # adding the query param to the URL
+        \s
+         # reset the query params of the Request
+         reset {_request}'s query params
+         reset query params of {_request}
+    \s""")
 @Description("set/add/reset or get the current request query params")
 @Since("3.0.2")
 @ApiStatus.Experimental
@@ -55,10 +55,10 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] requests) {
         return Arrays.stream(requests)
-                .filter(Objects::nonNull)
-                .map(Request::getQueryParams)
-                .map(ParserUtil::parse)
-                .toArray(JsonElement[]::new);
+            .filter(Objects::nonNull)
+            .map(Request::getQueryParams)
+            .map(ParserUtil::parse)
+            .toArray(JsonElement[]::new);
     }
 
     @Override

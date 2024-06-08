@@ -25,13 +25,14 @@ public final class SkJson extends JavaPlugin {
         return Bukkit.getServer();
     }
 
+
     @Override
     @SuppressWarnings("all")
     public void onEnable() {
         plugin = this;
         if (Bukkit.getServer().getName().equals("CraftBukkit")) {
             System.out.println("\033[0;31m-------------------------SPIGOT DETECTED------------------------------");
-            System.out.println("Please install SkJson for Spigot version " + this.getPluginMeta().getVersion());
+            System.out.printf("%s is no longer supported! Please change your server file to Paper/Purpur", Bukkit.getServer().getName());
             System.out.println("---------------------------------------------------------------------\033[0m");
             Bukkit.getPluginManager().disablePlugin(this);
         } else {

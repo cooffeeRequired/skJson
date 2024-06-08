@@ -36,11 +36,11 @@ public abstract class StringJsonParser {
     /**
      * The Case simple variable regex.
      */
-    static final Pattern CASE_SIMPLE_VARIABLE_REGEX = Pattern.compile("\\{[A-z_*:0-9]+}");
+    static final Pattern CASE_SIMPLE_VARIABLE_REGEX = Pattern.compile("\\{[A-z*:0-9]+}");
     /**
      * The Case simple expression regex.
      */
-    static final Pattern CASE_SIMPLE_EXPRESSION_REGEX = Pattern.compile("([A-z-Z-a-0-9\\s\\W]+)");
+    static final Pattern CASE_SIMPLE_EXPRESSION_REGEX = Pattern.compile("([A-z-0-9\\s\\W]+)");
     /**
      * The Case unknown expression regex.
      */
@@ -60,8 +60,13 @@ public abstract class StringJsonParser {
      *
      * @param input    the input
      * @param finished the finished
-     * @return the string
+     * @return {String} the string
      */
+
+
+    // @{allow: $boolen} --> 400ms
+    // @{allow: true, customers: [$val, $val2]} --> 1000ms
+    // @{allow: true, customers: all customers of the server}
     public static String parseInput(String input, boolean finished) {
         try {
             input = input.replaceAll(PATTERN_SPECIAL_COLON, SPECIAL_REPLACER);

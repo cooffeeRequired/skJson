@@ -27,22 +27,22 @@ import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Request headers")
 @Examples("""
-                # getting the Request headers;
-                send {_request}'s headers
-                send headers of {_request}
-                
-                # setting the Request content;
-                set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
-                set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
-                
-                #or
-                set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
-                set headers of {_request} to "Content-Type: application/json", "Restrict: false"
-                
-                # reset the headers of the Request
-                reset {_request}'s headers
-                reset headers of {_request}
-        """)
+             # getting the Request headers;
+             send {_request}'s headers
+             send headers of {_request}
+            \s
+             # setting the Request content;
+             set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
+             set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
+            \s
+             #or
+             set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
+             set headers of {_request} to "Content-Type: application/json", "Restrict: false"
+            \s
+             # reset the headers of the Request
+             reset {_request}'s headers
+             reset headers of {_request}
+    \s""")
 @Description("set or get the current request headers")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
@@ -105,7 +105,7 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
                 if (d instanceof String str) {
                     pairs.add(new Pairs(str));
                 } else if (d instanceof JsonElement json) {
-                    json.getAsJsonObject().entrySet().forEach(entry -> pairs.add(new Pairs(entry.getKey() + ":" +entry.getValue().getAsString())));
+                    json.getAsJsonObject().entrySet().forEach(entry -> pairs.add(new Pairs(entry.getKey() + ":" + entry.getValue().getAsString())));
                 }
             }
             request.setHeader(pairs.toArray(new Pairs[0]));

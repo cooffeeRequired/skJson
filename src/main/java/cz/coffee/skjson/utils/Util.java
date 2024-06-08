@@ -3,6 +3,8 @@ package cz.coffee.skjson.utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.Logger.times;
@@ -11,6 +13,13 @@ import static cz.coffee.skjson.utils.Logger.times;
  * The type Util.
  */
 public abstract class Util {
+
+    @FunctionalInterface
+    @SuppressWarnings("unused")
+    public interface call<T> {
+        T _call();
+    }
+
 
     public static String fstring(String message, Object... arguments) {
         return String.format(message, arguments);
@@ -40,6 +49,7 @@ public abstract class Util {
 
         return -9999;
     }
+
     /**
      * Is number boolean.
      *
