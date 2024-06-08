@@ -1,4 +1,3 @@
-
 # Check PowerShell version
 function Check-Powershell {
     $minimumVersion = [Version]"7.0.0"
@@ -8,11 +7,9 @@ function Check-Powershell {
         Write-Host "This script requires PowerShell version 7.0 or newer. Please update PowerShell." -ForegroundColor Red
         exit 1
     } else {
-        Write-Host "Powershell was 7.0^ found" -ForegroundColor Green
+        Write-Host "Powershell version 7.0 or newer found" -ForegroundColor Green
     }
 }
-
-
 
 # Function to write text with a specific color
 function Write-ColorText {
@@ -31,7 +28,6 @@ function Write-ColorText {
         Write-Host $Text
     }
 }
-
 
 # Function to check Java version
 function Get-JavaVersion {
@@ -65,7 +61,7 @@ function Install-SkBee {
     Write-ColorText "Installing SkBee" Cyan
     
     # Set local JAVA_HOME and update PATH for JDK 20
-    $graalvmPath = "C:\tools\.jdks\graalvm-ce-21.0.2"
+    $graalvmPath = "" #"C:\tools\.jdks\graalvm-ce-21.0.22"
     
     # Check if folder exists
     if (Test-Path $graalvmPath) {
@@ -188,6 +184,11 @@ function Install-SkBee {
 
 }
 
-
+# Run the script
 Check-Powershell
+
+# Title and Introduction
+Write-ColorText "SkBee Installation Script" Cyan
+Write-Host "This script will install SkBee and its dependencies." -ForegroundColor Green
+
 Install-SkBee
