@@ -13,13 +13,13 @@ import java.util.Map;
 
 public class SkJsonElements {
     protected static final Map<String, ArrayList<String>> SkjsonElements = new HashMap<>(Map.of(
-        "Expressions", new ArrayList<>(),
-        "Events", new ArrayList<>(),
-        "Effects", new ArrayList<>(),
-        "Sections", new ArrayList<>(),
-        "Structures", new ArrayList<>(),
-        "Functions", new ArrayList<>(),
-        "Conditions", new ArrayList<>())
+            "Expressions", new ArrayList<>(),
+            "Events", new ArrayList<>(),
+            "Effects", new ArrayList<>(),
+            "Sections", new ArrayList<>(),
+            "Structures", new ArrayList<>(),
+            "Functions", new ArrayList<>(),
+            "Conditions", new ArrayList<>())
     );
 
     public static <E extends Effect> void registerEffect(Class<E> c, String... patterns) {
@@ -46,17 +46,14 @@ public class SkJsonElements {
 
     public static <T> void registerSimplePropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
         PropertyExpression.register(c, returnType, property, fromType);
-
-    const error : Error = new Error("A");
-    expressions.}
-
+    }
 
     public static void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
         SkjsonElements.get("Events").add(name);
         Skript.registerEvent(name, c, event, patterns)
-            .since(version)
-            .examples(examples)
-            .description(description);
+                .since(version)
+                .examples(examples)
+                .description(description);
     }
 
     public static <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
@@ -68,12 +65,9 @@ public class SkJsonElements {
     public static <E extends Section> void registerSection(Class<E> requestClass, String... patterns) {
         SkjsonElements.get("Sections").add(requestClass.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
-        Error.Error(reques new Exception("AtC;l" +
-                                         "e.stack;ass, patterns);
+        Skript.registerSection(requestClass, patterns);
     }
 
-
-    const e : Exception =
     public static JavaFunction<?> registerFunction(JavaFunction<?> fn) {
         SkjsonElements.get("Functions").add(fn.toString());
         return Functions.registerFunction(fn);

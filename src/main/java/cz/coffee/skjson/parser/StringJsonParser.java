@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffee.skjson.utils.Logger.error;
+// import static cz.coffee.skjson.utils.Logger.error;
 
 /**
  * The type String json parser.
@@ -59,51 +59,47 @@ public abstract class StringJsonParser {
      * Parse input string.
      *
      * @param input    the input
-     * @param finished the finished
-     * @return {String} the string
+     * @param argv the finished
+     * @return the string
      */
 
+    public static String parseInput(String input, boolean ...argv) {
+        var finished = argv != null && argv.length > 0 && argv[0];
 
-    // @{allow: $boolen} --> 400ms
-    // @{allow: true, customers: [$val, $val2]} --> 1000ms
-    // @{allow: true, customers: all customers of the server}
-    public static String parseInput(String input, boolean finished) {
-        try {
-            input = input.replaceAll(PATTERN_SPECIAL_COLON, SPECIAL_REPLACER);
-            Matcher m = PATTER_SPLIT.matcher(input);
-            Matcher array_matcher = PATTERN_ARRAY.matcher(input);
+        if (finished) {
+            return finishParsing(input);
+        } else {
+            try {
+                input = input.replaceAll(PATTERN_SPECIAL_COLON, SPECIAL_REPLACER);
+                Matcher m = PATTER_SPLIT.matcher(input);
+                Matcher array_matcher = PATTERN_ARRAY.matcher(input);
 
-            int i = 0;
-            while (array_matcher.find()) {
-                var g = array_matcher.group();
-                var array = Arrays.stream(g.substring(1, g.length() - 1).split("},\\s(\\{)")).toList();
-                input = evaluateArray(input, array, i);
-                i++;
-            }
-            while (m.find()) {
-                var v = m.group(2).trim();
-                var stringCase = getValueCase(v);
-                var start_index = input.indexOf(v);
-                var end_index = start_index + v.length();
-                switch (stringCase) {
-                    case VARIABLE, EXPRESSION, FUNCTION, EXPRESSION_CASE -> {
-                        if (start_index != -1) {
-                            input = input.substring(0, start_index) + makeQuoted(v) + input.substring(end_index);
+                int i = 0;
+                while (array_matcher.find()) {
+                    var g = array_matcher.group();
+                    var array = Arrays.stream(g.substring(1, g.length() - 1).split("},\\s(\\{)")).toList();
+                    input = evaluateArray(input, array, i);
+                    i++;
+                }
+                while (m.find()) {
+                    var v = m.group(2).trim();
+                    var stringCase = getValueCase(v);
+                    var start_index = input.indexOf(v);
+                    var end_index = start_index + v.length();
+                    switch (stringCase) {
+                        case VARIABLE, EXPRESSION, FUNCTION, EXPRESSION_CASE -> {
+                            if (start_index != -1) {
+                                input = input.substring(0, start_index) + makeQuoted(v) + input.substring(end_index);
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                //error(e);
+                e.printStackTrace();
+            } finally {
+                input = parseInput(input, true);
             }
-        } catch (Exception e) {
-            error(e);
-        }
-        if (finished) {
-            if (!valuedArrays.isEmpty()) {
-                for (var entry : valuedArrays.entrySet()) {
-                    input = input.replaceAll(entry.getKey(), entry.getValue());
-                }
-            }
-            return finishParsing(input);
-        } else {
             return input;
         }
     }
@@ -146,12 +142,17 @@ public abstract class StringJsonParser {
     /**
      * Finish parsing string.
      *
-     * @param v the v
+     * @param input the v
      * @return the string
      */
-    static String finishParsing(String v) {
-        v = v.replaceAll("%%", "%");
-        return v.replaceAll(PATTERN_SPECIAL_SPL, ":");
+    static String finishParsing(String input) {
+        if (!StringJsonParser.valuedArrays.isEmpty()) {
+            for (var entry : StringJsonParser.valuedArrays.entrySet()) {
+                input = input.replaceAll(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return input.replaceAll("%%", "%").replaceAll(PATTERN_SPECIAL_SPL, ":");
     }
 
     /**
