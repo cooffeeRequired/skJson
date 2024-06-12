@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>cz.coffee</groupId>
     <artifactId>skJson</artifactId>
     <version>3.0.91</version>
     <packaging>jar</packaging>
-    
     <name>SkJson</name>
-
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <pluginRepositories>
         <pluginRepository>
             <id>maven-snapshots</id>
@@ -49,14 +43,7 @@
             <layout>default</layout>
         </repository>
     </repositories>
-
     <dependencies>
-        <!-- ShaneBee - SkBee 3.0.1 File.jar -->
-        <dependency>
-            <groupId>com.shanebeestudios.skbee</groupId>
-            <artifactId>skbee</artifactId>
-            <version>3.5.2</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-client -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -94,9 +81,18 @@
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.shanebeestudios.skbee</groupId>
+            <artifactId>skbee</artifactId>
+            <version>$Dversion</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-
     <build>
         <plugins>
             <plugin>
@@ -128,7 +124,8 @@
                     <minimizeJar>false</minimizeJar>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
                     </transformers>
                     <filters>
                         <filter>
@@ -167,7 +164,9 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar</outputFile>
+                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}
+                                (shaded).jar
+                            </outputFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -186,7 +185,8 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/server/plugins"/>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="D:/Server/plugins/SkJson.jar"/>
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar"
+                                      tofile="D:/Server/plugins/SkJson.jar"/>
                                 <echo message="Copied successfully"/>
                             </target>
                         </configuration>
@@ -206,5 +206,16 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+                <targetPath>.</targetPath>
+                <includes>
+                    <include>test.yml</include>
+                    <include>test.json</include>
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 </project>

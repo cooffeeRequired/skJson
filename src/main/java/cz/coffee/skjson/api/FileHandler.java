@@ -47,12 +47,15 @@ public class FileHandler {
      * @param file given file path
      * @return File
      */
+    //TODO file handler
     public static CompletableFuture<JsonElement> get(final File file) {
         return CompletableFuture.supplyAsync(() -> {
             if (!file.exists()) {
                 Logger.warn("File " + file + " does not exist");
                 return JsonNull.INSTANCE;
             }
+
+
             try (var reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 var split = file.getName().split("\\.");
                 var ext = split[split.length - 1];

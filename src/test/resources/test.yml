@@ -1,0 +1,9 @@
+home: !location
+  - x: 20
+  - y: 10
+nice:
+  - q: "hello"
+  - w: "world"
+  qwe: !JAAAAAAA
+    - a: 1
+    - b: 2

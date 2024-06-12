@@ -1,0 +1,108 @@
+{
+  "name": !location,
+  "description": "A complex YAML example demonstrating various features.",
+  "version": "1.0.0",
+  "release_date": "2024-06-10",
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin",
+    "password": "secret",
+    "settings": {
+      "pool_size": 20,
+      "timeout": 5000,
+      "ssl": true
+    }
+  },
+  "servers": [
+    {
+      "name": "webserver",
+      "ip": "192.168.1.1",
+      "roles": [
+        "frontend",
+        "backend"
+      ]
+    },
+    {
+      "name": "dbserver",
+      "ip": "192.168.1.2",
+      "roles": [
+        "database",
+        "replica"
+      ]
+    }
+  ],
+  "matrix": [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ],
+  "default_settings": {
+    "retries": 5,
+    "timeout": 1000
+  },
+  "production_settings": {
+    "retries": 5,
+    "timeout": 3000,
+    "environment": "production"
+  },
+  "development_settings": {
+    "retries": 5,
+    "timeout": 1000,
+    "environment": "development"
+  },
+  "services": {
+    "auth-service": {
+      "url": "https://auth.example.com",
+      "endpoints": [
+        "login",
+        "logout",
+        "register"
+      ],
+      "metadata": {
+        "version": "2.1.0",
+        "last_updated": "2024-01-15"
+      }
+    },
+    "payment-service": {
+      "url": "https://pay.example.com",
+      "endpoints": [
+        "create-payment",
+        "refund",
+        "history"
+      ],
+      "metadata": {
+        "version": "1.8.3",
+        "last_updated": "2023-12-05"
+      }
+    }
+  },
+  "terms_of_service": "Welcome to Example Project!\n\nPlease read the following terms and conditions carefully before using our services.\n\n1. Introduction\n2. Acceptance of Terms\n3. User Obligations\n4. Privacy Policy\n5. Termination\n",
+  "misc": [
+    42,
+    "string value",
+    true,
+    [1, 2, 3],
+    {
+      "key": "value",
+      "another_key": 10
+    }
+  ],
+  "features": {
+    "enable_logging": true,
+    "enable_authentication": false
+  },
+  "schedule": {
+    "meeting": "2024-06-15T10:00:00+00:00",
+    "deadline": "2024-06-30"
+  },
+  "optional_values": {
+    "key1": null,
+    "key2": null,
+    "key3": ""
+  },
+  "aliases": {
+    "canonical": ["foo", "bar"],
+    "use_alias": ["foo", "bar"]
+  }
+}

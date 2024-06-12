@@ -155,7 +155,8 @@ public abstract class Converter {
             }
             return null;
         }
-    };    public final static SimpleConverter<ItemMeta> ItemMetaConverter = new SimpleConverter<ItemMeta>() {
+    };
+    public final static SimpleConverter<ItemMeta> ItemMetaConverter = new SimpleConverter<ItemMeta>() {
 
         final HashMap<Integer, String> metaTypes = new HashMap<>() {{
             put(0, "BANNER");
@@ -229,10 +230,10 @@ public abstract class Converter {
         private CompassMeta compassMeta(final JsonObject rawMeta) {
             if (rawMeta.has("LodestonePosWorld") && rawMeta.has("LodestoneTracked")) {
                 Location loc = new Location(
-                        SkJson.getThisServer().getWorlds().get(0),
-                        rawMeta.remove("LodestonePosX").getAsDouble(),
-                        rawMeta.remove("LodestonePosY").getAsDouble(),
-                        rawMeta.remove("LodestonePosZ").getAsDouble()
+                    SkJson.getThisServer().getWorlds().get(0),
+                    rawMeta.remove("LodestonePosX").getAsDouble(),
+                    rawMeta.remove("LodestonePosY").getAsDouble(),
+                    rawMeta.remove("LodestonePosZ").getAsDouble()
                 );
                 rawMeta.remove("LodestonePosWorld");
                 boolean tracked = rawMeta.remove("LodestoneTracked").getAsBoolean();
@@ -302,12 +303,12 @@ public abstract class Converter {
                     }
                     assert fType != null;
                     FireworkEffect fireworkEffect = FireworkEffect.builder()
-                            .with(fType)
-                            .withColor(colorList)
-                            .withFade(fadeColorList)
-                            .trail(fTrail)
-                            .flicker(fFlicker)
-                            .build();
+                        .with(fType)
+                        .withColor(colorList)
+                        .withFade(fadeColorList)
+                        .trail(fTrail)
+                        .flicker(fFlicker)
+                        .build();
 
                     fireworkEffectList.add(fireworkEffect);
                 }
@@ -341,12 +342,12 @@ public abstract class Converter {
                 JsonArray jsonEffects = rawMeta.remove("effects").getAsJsonArray();
                 ArrayList<PotionEffect> potionEffects = new ArrayList<>();
                 jsonEffects.forEach(e -> potionEffects.add(new PotionEffect(
-                        Objects.requireNonNull(PotionEffectType.getById(e.getAsJsonObject().get("effect").getAsInt())),
-                        e.getAsJsonObject().get("duration").getAsInt(),
-                        e.getAsJsonObject().get("amplifier").getAsInt(),
-                        e.getAsJsonObject().get("ambient").getAsBoolean(),
-                        e.getAsJsonObject().get("has-particles").getAsBoolean(),
-                        e.getAsJsonObject().get("has-icon").getAsBoolean()
+                    Objects.requireNonNull(PotionEffectType.getById(e.getAsJsonObject().get("effect").getAsInt())),
+                    e.getAsJsonObject().get("duration").getAsInt(),
+                    e.getAsJsonObject().get("amplifier").getAsInt(),
+                    e.getAsJsonObject().get("ambient").getAsBoolean(),
+                    e.getAsJsonObject().get("has-particles").getAsBoolean(),
+                    e.getAsJsonObject().get("has-icon").getAsBoolean()
                 )));
 
                 ItemMeta meta = GsonConverter.fromJson(rawMeta, ItemMeta.class);
@@ -458,6 +459,7 @@ public abstract class Converter {
             return meta;
         }
     };
+
     public static class BukkitConverter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
 
         final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
@@ -484,6 +486,7 @@ public abstract class Converter {
             return context.serialize(map, objectStringMapType);
         }
     }
+
     public final static SimpleConverter<Block> BlockConverter = new SimpleConverter<Block>() {
         @Override
         public @NotNull JsonElement toJson(Block source) throws Exception {
@@ -562,11 +565,6 @@ public abstract class Converter {
             return inventory;
         }
     };
-
-
-
-
-
 
 
 }
