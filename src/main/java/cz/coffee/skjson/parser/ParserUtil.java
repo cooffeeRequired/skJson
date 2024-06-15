@@ -58,7 +58,7 @@ public abstract class ParserUtil {
         }
         if (finalParsingContext) {
             orig = orig.replaceAll("(?<!\\\")\\\"(?!\\\")", "\"\"");
-            orig = StringJsonParser.parseInput(orig, true);
+            orig = StringJsonParser.parseInput(orig);
         }
         return orig;
     }

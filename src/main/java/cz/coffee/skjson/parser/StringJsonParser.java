@@ -1,11 +1,12 @@
 package cz.coffee.skjson.parser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import cz.coffee.skjson.utils.ConsoleColors;
+
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 // import static cz.coffee.skjson.utils.Logger.error;
 
@@ -50,6 +51,8 @@ public abstract class StringJsonParser {
      */
     static final Pattern PATTERN_ARRAY = Pattern.compile("\\[.*?]");
 
+    static final Pattern PATTERN_OBJECT = Pattern.compile("\\{.*}");
+
     /**
      * The Valued arrays.
      */
@@ -65,7 +68,6 @@ public abstract class StringJsonParser {
 
     public static String parseInput(String input, boolean ...argv) {
         var finished = argv != null && argv.length > 0 && argv[0];
-
         if (finished) {
             return finishParsing(input);
         } else {
@@ -74,13 +76,20 @@ public abstract class StringJsonParser {
                 Matcher m = PATTER_SPLIT.matcher(input);
                 Matcher array_matcher = PATTERN_ARRAY.matcher(input);
 
-                int i = 0;
                 while (array_matcher.find()) {
-                    var g = array_matcher.group();
-                    var array = Arrays.stream(g.substring(1, g.length() - 1).split("},\\s(\\{)")).toList();
-                    input = evaluateArray(input, array, i);
-                    i++;
+                    var matched = array_matcher.group();
+                    //System.out.println("Matched: " + matched);
+                    if (!matched.isEmpty()) {
+                        //System.out.println("parseInput-array [matched]: " + matched);
+                        //System.out.println("M: "+ matched);
+                        //System.out.println(".... => " + input);
+                        String evaluated = evaluateArray(matched.substring(1, matched.length() -1));
+                        //System.out.println("Evaluated: " + evaluated);
+                        input = input.replace(matched, evaluated);
+                    }
                 }
+
+
                 while (m.find()) {
                     var v = m.group(2).trim();
                     var stringCase = getValueCase(v);
@@ -96,6 +105,7 @@ public abstract class StringJsonParser {
                 }
             } catch (Exception e) {
                 //error(e);
+                input += ConsoleColors.RED + " -> @has_error: " + e.getMessage() + ConsoleColors.RESET;
                 e.printStackTrace();
             } finally {
                 input = parseInput(input, true);
@@ -111,32 +121,75 @@ public abstract class StringJsonParser {
      * @return the string
      */
     static String makeQuoted(final String v) {
-        return v.startsWith("%") && v.endsWith("%") ? v : '%' + v + '%';
+        //System.out.println(v);
+        //System.out.println(ConsoleColors.RED + out + ConsoleColors.RESET);
+        return v.startsWith("%") && v.endsWith("%") ? v.trim() : '%' + v.trim() + '%';
     }
 
     /**
      * Evaluate array string.
      *
      * @param input the input
-     * @param array the array
-     * @param i     the
      * @return the string
      */
-    static String evaluateArray(String input, List<String> array, int i) {
-        if (!array.isEmpty()) {
-            for (var value : array) {
-                if (value.charAt(0) != '{') value = "{" + value;
-                if (value.charAt(0) == '{' && value.charAt(value.length() - 1) != '}') value += "}";
+    static String evaluateArray(String input) {
 
-                var start_index = input.indexOf(value);
-                var end_index = start_index + value.length();
-                input = input.substring(0, start_index) + "@" + i + input.substring(end_index);
-                var parsed_value = parseInput(value, false);
-                valuedArrays.put("@" + i, parsed_value);
-                i++;
-            }
+//        System.out.println("evaluateArray [input]: " + input);
+//        System.out.println("evaluateArray [i]: " + i);
+
+        TreeMap<String, String> __map = new TreeMap<>();
+
+        Matcher vars = CASE_SIMPLE_VARIABLE_REGEX.matcher(input);
+        Matcher funcs = CASE_FUNCTION_REGEX.matcher(input);
+        int z = 0;
+        while (funcs.find()) {
+            String group = funcs.group().trim();
+            input = input.replace(group, "__FUN"+z);
+            __map.put("__FUN"+z, makeQuoted(group));
+            z++;
         }
-        return input;
+
+        while (vars.find()) {
+            String group = vars.group().trim();
+            input = input.replace(group, "_VAR"+z);
+            __map.put("_VAR"+z, makeQuoted(group));
+        }
+
+
+        //return input;
+
+
+        Matcher m = PATTERN_OBJECT.matcher(input);
+        int x = 0;
+        while (m.find()) {
+            String group = m.group();
+            int groupLength = group.length();
+            int startIndex = input.indexOf(group);
+            var unparsed = input.substring(startIndex, startIndex+groupLength-1);
+            valuedArrays.put("@" + x, parseInput(unparsed));
+            input = input.substring(0, startIndex) + "@"+x + input.substring( startIndex + groupLength-1);
+            x++;
+        }
+
+        for (String expression : input.split(",")) {
+            String proccesed = expression.trim();
+            ExpressionCase case_ = getValueCase(expression);
+            //System.out.println("Case: " + case_ + " => " + proccesed);
+            switch (case_) {
+                case EXPRESSION -> {
+                    if (!expression.startsWith("@")) proccesed = makeQuoted(expression);
+                }
+                case VARIABLE, FUNCTION, EXPRESSION_CASE -> proccesed = makeQuoted(expression);
+            }
+            input = input.replaceAll(expression, proccesed);
+        }
+
+        for (String expression : __map.keySet()) {
+            input = input.replaceAll(expression, __map.get(expression));
+        };
+        //System.out.println(ConsoleColors.PURPLE + input + ConsoleColors.RESET);
+        //System.out.println(ConsoleColors.CYAN + valuedArrays + ConsoleColors.RESET);
+        return "[" + input + "]";
     }
 
     /**
@@ -164,12 +217,14 @@ public abstract class StringJsonParser {
     public static ExpressionCase getValueCase(String v) {
         if (v.startsWith("\"") && v.endsWith("\"")) {
             return ExpressionCase.STRING;
+        } else if (v.trim().startsWith("_VAR")) {
+            return ExpressionCase.UNKNOWN;
         } else if (v.matches("(true|false)")) {
             return ExpressionCase.BOOLEAN;
         } else if (v.matches("(\\d+(\\.\\d+)?)")) {
             return ExpressionCase.NUMBER;
         } else {
-            if (CASE_FUNCTION_REGEX.matcher(v).matches()) {
+            if (CASE_FUNCTION_REGEX.matcher(v).matches() || v.startsWith("__FUN")) {
                 return ExpressionCase.FUNCTION;
             } else if (CASE_SIMPLE_VARIABLE_REGEX.matcher(v).matches()) {
                 return ExpressionCase.VARIABLE;

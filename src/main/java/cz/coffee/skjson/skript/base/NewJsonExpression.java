@@ -20,6 +20,7 @@ import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
 import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -191,6 +192,8 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 var parsed = parseResult.regexes.get(0).group(0);
                 var fixed = ParserUtil.parseExpressionContext(parsed, true);
                 regexInput = JsonExpressionString.newInstance(fixed);
+                Logger.info("Parsed: %s, \nFixed: %s, \n Input: %s", parsed, fixed, regexInput);
+
                 return true;
             }
         } else {

@@ -177,7 +177,6 @@
               <target>
                 <mkdir dir="${project.basedir}/server/plugins"/>
                 <copy file="${project.build.directory}/${project.artifactId}-${project.version} (shaded).jar" tofile="D:/Server/plugins/SkJson.jar"/>
-                <echo message="Copied successfully"/>
               </target>
             </configuration>
           </execution>
