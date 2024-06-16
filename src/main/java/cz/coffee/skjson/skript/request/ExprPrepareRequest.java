@@ -23,23 +23,23 @@ import static cz.coffee.skjson.utils.Util.fstring;
 
 @Name("Prepare Web request")
 @Examples("""
-            set {_request} to prepare new GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn"
-            set {_request}'s request content to @{"A": true}
-            set {_request}'s headers to @{"Content-Type": "application/json+vhd"}
-            send prepared {_request}
-            
-            if response status of {_request} is "OK":
-                send response content of {_request}
-                send response status code of {_request}
-                send response headers of {_request}
-        """)
+         set {_request} to prepare new GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.jsonn"
+         set {_request}'s request content to @{"A": true}
+         set {_request}'s headers to @{"Content-Type": "application/json+vhd"}
+         send prepared {_request}
+        \s
+         if response status of {_request} is "OK":
+             send response content of {_request}
+             send response status code of {_request}
+             send response headers of {_request}
+    \s""")
 @Description({
-        "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
-        "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",
-        "allowed value type of header is Json or (Pairs e.g. \"Content-Type: application/Json\", \"Allow: restrict\")",
-        "",
-        "You can execute the request by 'send prepared {_request}', otherwise the request will be not sent, but the request will be still stored",
-        "And you can get response status/content/headers like in the examples"
+    "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
+    "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",
+    "allowed value type of header is Json or (Pairs e.g. \"Content-Type: application/Json\", \"Allow: restrict\")",
+    "",
+    "You can execute the request by 'send prepared {_request}', otherwise the request will be not sent, but the request will be still stored",
+    "And you can get response status/content/headers like in the examples"
 })
 @Since("2.9.9-pre API changes")
 @ApiStatus.Experimental
@@ -47,7 +47,7 @@ public class ExprPrepareRequest extends SimpleExpression<Request> {
 
     static {
         SkJsonElements.registerExpression(ExprPrepareRequest.class, Request.class, ExpressionType.SIMPLE,
-                "prepare [new] %requestmethod% [request] on %string%"
+            "prepare [new] %requestmethod% [request] on %string%"
         );
     }
 

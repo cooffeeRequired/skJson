@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "maven",
+            "name": "Maven configuration",
+            "tasks": [
+                "mvn clean package"
+            ],
+        },
+    ]
+}
