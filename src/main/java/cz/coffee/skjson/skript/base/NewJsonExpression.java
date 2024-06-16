@@ -43,8 +43,6 @@ import static cz.coffee.skjson.utils.Logger.warn;
     "\t\t- support json content from webpage",
     "\t\t- removed empty json array/object, cause it's not necessary while",
     "skJson know parsing object",
-    "original docs: https://skjsonteam.github.io/skJsonDocs/exprs#new-json",
-    "skripthub docs:",
     "<br />",
     "It's allow create json from any source also from the file"
 })
