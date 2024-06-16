@@ -18,9 +18,7 @@ import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.api.http.RequestClient;
 import cz.coffee.skjson.api.http.RequestResponse;
-import cz.coffee.skjson.parser.JsonExpressionString;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +48,7 @@ import static cz.coffee.skjson.utils.Logger.warn;
     "<br />",
     "It's allow create json from any source also from the file"
 })
-@Since("2.9, 2.9.3 - Literal parsing, 3.1.0 - Request checks fix")
+@Since("2.9, 2.9.3 - Literal parsing, 3.1.0 - Request checks fix, 4.0 - remove literals.")
 @Examples({
     "on script load:",
     "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
@@ -60,15 +58,12 @@ import static cz.coffee.skjson.utils.Logger.warn;
     "\tset {_json} to json from player's inventory",
     "\tset {_json} to json from yaml file <path>",
     "\tset {_json} to json from website file \"https://json.org/sample.json\"",
-    "*Literal",
-    "set {_json} to @{\"test\": true, \"var\": {_test}}"
 })
 
 public class NewJsonExpression extends SimpleExpression<JsonElement> {
     static {
         SkJsonElements.registerExpression(NewJsonExpression.class, JsonElement.class, ExpressionType.COMBINED,
-            "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%",
-            "@<^(\\{|\\[).+(\\}|\\])$>"
+            "json from [1:(text|string)|2:([json]|:yaml) file|3:web[site] [file]] [object] %objects%"
         );
     }
 
@@ -76,7 +71,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     private int mark;
     private Expression<?> input;
     private boolean inputIsRegex;
-    private JsonExpressionString regexInput;
 
     @SuppressWarnings("DataFlowIssue")
     private File sanitizedFile(String file) {
@@ -89,64 +83,53 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event e) {
         List<JsonElement> output = new ArrayList<>();
-        if (inputIsRegex) {
-            var parsedRegex = regexInput.getSingle(e);
-            JsonElement json;
-            try {
-                json = JsonParser.parseString(parsedRegex);
-                output.add(json);
-            } catch (Exception ignored) {
-            }
+        Object[] values = input.getAll(e);
+        if (isFile) {
+            String stringifyFile = values[0].toString();
+            if (stringifyFile != null) {
+                final File file = sanitizedFile(stringifyFile);
 
-        } else {
-            Object[] values = input.getAll(e);
-            if (isFile) {
-                String stringifyFile = values[0].toString();
-                if (stringifyFile != null) {
-                    final File file = sanitizedFile(stringifyFile);
-
-                    // make a sensitization for Failed get from FileWrapper
-                    JsonElement json = FileHandler.get(file).join();
-                    if (json == null) {
-                        output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
-                    } else {
-                        output.add(json);
-                    }
-                }
-            } else if (isWebFile) {
-                final Object url = input.getSingle(e);
-                if (url == null) return new JsonElement[0];
-                CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
-                    RequestResponse rp = null;
-                    try (var client = new RequestClient(url.toString())) {
-                        rp = client
-                            .method("GET")
-                            .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
-                            .request().join();
-                    } catch (Exception ex) {
-                        error(ex, Bukkit.getConsoleSender(), getParser().getNode());
-                    }
-                    return rp;
-                });
-                RequestResponse joined = ft.join();
-                if (joined != null && joined.isSuccessfully()) {
-                    JsonElement element = (JsonElement) joined.getBodyContent(false);
-                    output.add(element);
+                // make a sensitization for Failed get from FileWrapper
+                JsonElement json = FileHandler.get(file).join();
+                if (json == null) {
+                    output.add(JsonParser.parseString("{Error: 'File does not exist! Or File is corrupted! " + stringifyFile + "'}"));
                 } else {
-                    warn("You cannot get non-json content via this.");
-                    output.add(JsonNull.INSTANCE);
+                    output.add(json);
                 }
+            }
+        } else if (isWebFile) {
+            final Object url = input.getSingle(e);
+            if (url == null) return new JsonElement[0];
+            CompletableFuture<RequestResponse> ft = CompletableFuture.supplyAsync(() -> {
+                RequestResponse rp = null;
+                try (var client = new RequestClient(url.toString())) {
+                    rp = client
+                        .method("GET")
+                        .addHeaders(new WeakHashMap<>(Map.of("Content-Type", "application/json")))
+                        .request().join();
+                } catch (Exception ex) {
+                    error(ex, Bukkit.getConsoleSender(), getParser().getNode());
+                }
+                return rp;
+            });
+            RequestResponse joined = ft.join();
+            if (joined != null && joined.isSuccessfully()) {
+                JsonElement element = (JsonElement) joined.getBodyContent(false);
+                output.add(element);
             } else {
-                for (Object value : values) {
-                    try {
-                        if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
-                            type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
-                        } else {
-                            output.add(parse(value));
-                        }
-                    } catch (Exception ex) {
-                        if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
+                warn("You cannot get non-json content via this.");
+                output.add(JsonNull.INSTANCE);
+            }
+        } else {
+            for (Object value : values) {
+                try {
+                    if ((value instanceof ItemType type) && type.getTypes().size() > 1) {
+                        type.getTypes().forEach(data -> output.add(ParserUtil.parse(data)));
+                    } else {
+                        output.add(parse(value));
                     }
+                } catch (Exception ex) {
+                    if (PROJECT_DEBUG) error(ex, null, getParser().getNode());
                 }
             }
         }
@@ -172,7 +155,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
                 case 2 -> isYaml ? "yaml file" : "json file";
                 case 3 -> "website file";
                 default -> "object";
-            } + " " + (this.input != null ? this.input.toString(e, debug) : this.regexInput.toString(e, debug));
+            } + " " + (this.input != null ? this.input.toString(e, debug) : "");
         } catch (Exception ex) {
             error(ex, null, getParser().getNode());
         }
@@ -185,26 +168,13 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
         mark = parseResult.mark;
         isFile = mark == 2;
         isWebFile = mark == 3;
-        inputIsRegex = matchedPattern == 1 || matchedPattern == 2;
         isYaml = (isFile && parseResult.hasTag("yaml"));
-        if (inputIsRegex) {
-            if (!parseResult.regexes.isEmpty()) {
-                var parsed = parseResult.regexes.get(0).group(0);
-                var fixed = ParserUtil.parseExpressionContext(parsed, true);
-                regexInput = JsonExpressionString.newInstance(fixed);
-                Logger.info("Parsed: %s, \nFixed: %s, \n Input: %s", parsed, fixed, regexInput);
-
-                return true;
+        input = LiteralUtils.defendExpression(exprs[0]);
+        if (isWebFile || isFile) {
+            if (!input.isSingle()) {
+                return false;
             }
-        } else {
-            input = LiteralUtils.defendExpression(exprs[0]);
-            if (isWebFile || isFile) {
-                if (!input.isSingle()) {
-                    return false;
-                }
-            }
-            return LiteralUtils.canInitSafely(input);
         }
-        return false;
+        return LiteralUtils.canInitSafely(input);
     }
 }

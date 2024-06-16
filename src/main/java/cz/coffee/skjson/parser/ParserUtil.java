@@ -10,6 +10,7 @@ import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.NBTCustom;
 import cz.coffee.skjson.api.DynamicObjectSerializer;
 import cz.coffee.skjson.skript.base.Converter;
+import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -45,23 +46,6 @@ public abstract class ParserUtil {
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new Converter.BukkitConverter())
             .create();
 
-    /**
-     * Fix quotes string.
-     *
-     * @param orig                the orig
-     * @param finalParsingContext the finalParsingContext
-     * @return the string
-     */
-    public static String parseExpressionContext(String orig, boolean finalParsingContext) {
-        if (orig == null || orig.isEmpty()) {
-            return null;
-        }
-        if (finalParsingContext) {
-            orig = orig.replaceAll("(?<!\\\")\\\"(?!\\\")", "\"\"");
-            orig = StringJsonParser.parseInput(orig);
-        }
-        return orig;
-    }
 
     /**
      * Check values boolean.
