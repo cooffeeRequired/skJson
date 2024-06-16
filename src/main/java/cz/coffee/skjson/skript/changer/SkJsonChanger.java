@@ -15,7 +15,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -34,7 +33,6 @@ import java.util.List;
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
 import static cz.coffee.skjson.utils.Logger.error;
-import static cz.coffee.skjson.utils.Logger.info;
 import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
 
 public abstract class SkJsonChanger {
@@ -152,22 +150,11 @@ public abstract class SkJsonChanger {
                                 JsonElement input = inputJsonExpression.getSingle(e);
                                 path = pathExpression.getSingle(e);
                                 LinkedList<PatternUtil.keyStruct> keys = convertStringToKeys(path, PATH_VARIABLE_DELIMITER, false);
-                                JsonElement old = json;
                                 if (!keys.isEmpty()) json = JsonParser.search(input).key(keys);
-                                if (json == null) {
-                                    json = old;
-                                    JsonParser.change(input).value(keys, new JsonArray());
-                                    json = JsonParser.search(input).key(keys);
-                                    keys.clear();
-                                    keys.add(new PatternUtil.keyStruct("assets", PatternUtil.KeyType.KEY));
-                                    json = JsonParser.search(json).key(keys);
-                                }
                             } else {
                                 json = inputJsonExpression.getSingle(e);
                             }
                             if (json == null) return;
-
-
                             if (json.isJsonArray()) {
                                 if (parsedJson instanceof JsonElement element) {
                                     if (!element.isJsonNull()) json.getAsJsonArray().add(element);
