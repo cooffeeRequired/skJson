@@ -10,7 +10,6 @@ import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import com.shanebeestudios.skbee.api.nbt.NBTCustom;
 import cz.coffee.skjson.api.DynamicObjectSerializer;
 import cz.coffee.skjson.skript.base.Converter;
-import cz.coffee.skjson.utils.Logger;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;

@@ -70,7 +70,6 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
     private boolean isFile, isYaml, isWebFile;
     private int mark;
     private Expression<?> input;
-    private boolean inputIsRegex;
 
     @SuppressWarnings("DataFlowIssue")
     private File sanitizedFile(String file) {
@@ -138,7 +137,7 @@ public class NewJsonExpression extends SimpleExpression<JsonElement> {
 
     @Override
     public boolean isSingle() {
-        return inputIsRegex || input.isSingle();
+        return input.isSingle();
     }
 
     @Override
