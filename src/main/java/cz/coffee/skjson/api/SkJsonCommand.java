@@ -77,8 +77,7 @@ public class SkJsonCommand implements TabExecutor {
                             Map.entry("WATCHER_PREFIX", ConfigRecords.WATCHER_PREFIX),
                             Map.entry("REQUESTS_PREFIX", ConfigRecords.REQUESTS_PREFIX),
                             Map.entry("WEBHOOK_PREFIX", ConfigRecords.WEBHOOK_PREFIX),
-                            Map.entry("PATH_VARIABLE_DELIMITER", ConfigRecords.PATH_VARIABLE_DELIMITER),
-                            Map.entry("ALLOWED_LINE_LITERAL", ConfigRecords.ALLOWED_LINE_LITERAL)
+                            Map.entry("PATH_VARIABLE_DELIMITER", ConfigRecords.PATH_VARIABLE_DELIMITER)
                     ));
                     Config.getConfig().loadConfigFile(false);
                     AtomicBoolean changed = new AtomicBoolean(false);

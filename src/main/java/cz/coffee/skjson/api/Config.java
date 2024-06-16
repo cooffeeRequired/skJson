@@ -50,8 +50,7 @@ public class Config {
             Map.entry("WATCHER_PREFIX", "prefixes-watcher"),
             Map.entry("REQUESTS_PREFIX", "prefixes-request"),
             Map.entry("WEBHOOK_PREFIX", "prefixes-webhook"),
-            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter"),
-            Map.entry("ALLOWED_LINE_LITERAL", "features-literal-parsing-single-line")
+            Map.entry("PATH_VARIABLE_DELIMITER", "path-delimiter")
     ));
     public static YamlConfiguration pluginYaml;
     public static ConcurrentHashMap<File, JsonWatcher> watcherCache = new ConcurrentHashMap<>();
@@ -236,7 +235,6 @@ public class Config {
             REQUESTS_PREFIX = getPrefix("request");
             WEBHOOK_PREFIX = getPrefix("webhook");
             PATH_VARIABLE_DELIMITER = getString("path-delimiter");
-            ALLOWED_LINE_LITERAL = getFeatures("literal-parsing-single-line");
 
             if (PATH_VARIABLE_DELIMITER.matches("[$#^\\[\\]{}_-]")) {
                 info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");

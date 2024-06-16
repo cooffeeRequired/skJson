@@ -8,13 +8,6 @@ settings:
   debug: false
   # Beta features
   features:
-    # That feature will you allow use tld. literal string for e.g.
-    # @{userId: 1, products: [{id: {_i}, quantity: 1}, {id: {_j}, quantity: 2}]}
-    # Inside the Literal string you don't need use a % for evaluate variables or expressions.
-    # Also,you don't need to use string escape as like "", you can basically json string escape for e.g.
-    # @{test: "This is \"New\" String"}
-    # So the literal start always with @ and then continue a with a JSON
-    literal-parsing-single-line: false
 
   # 0 - Basic debug mode
   # 1 - More verbose debug mode

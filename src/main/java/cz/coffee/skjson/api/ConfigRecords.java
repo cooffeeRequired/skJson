@@ -10,7 +10,6 @@ public abstract class ConfigRecords {
     public static Long DEFAULT_WATCHER_INTERVAL;
     public static String REQUESTS_PREFIX;
     public static String WEBHOOK_PREFIX;
-    public static Boolean ALLOWED_LINE_LITERAL;
     public static Double CONFIG_VERSION;
 
 }
