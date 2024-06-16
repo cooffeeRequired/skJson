@@ -25,7 +25,7 @@ public class SkJsonElements {
     public static <E extends Effect> void registerEffect(Class<E> c, String... patterns) {
         SkjsonElements.get("Effects").add(c.toString());
         for (int i = 0; i < patterns.length; i++) patterns[i] = "[skJson] " + patterns[i];
-        Skript.registerEffect(c, patterns);
+        Skript.registerEffect(c, patterns); //
     }
 
     public static <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
