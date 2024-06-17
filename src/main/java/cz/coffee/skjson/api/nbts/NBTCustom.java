@@ -1,4 +1,4 @@
-package cz.coffee.skjson.skript.base.nbts;
+package cz.coffee.skjson.api.nbts;
 
 import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import com.shanebeestudios.skbee.api.nbt.NBTType;

@@ -32,7 +32,7 @@ import static cz.coffee.skjson.utils.Logger.*;
 
 public class RequestClient implements AutoCloseable {
     private final LinkedList<File> attachments = new LinkedList<>();
-    private final Gson GSON = new GsonBuilder().disableHtmlEscaping().disableJdkUnsafe().serializeNulls().setLenient().create();
+    private final Gson GSON = new GsonBuilder().disableHtmlEscaping().serializeNulls().setLenient().create();
     private String uri;
     private HttpClient client;
     private Request request;
