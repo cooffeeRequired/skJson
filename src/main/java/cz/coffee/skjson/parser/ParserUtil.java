@@ -6,11 +6,13 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
-import com.shanebeestudios.skbee.api.nbt.NBTContainer;
-import com.shanebeestudios.skbee.api.nbt.NBTCustom;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTItem;
 import cz.coffee.skjson.api.DynamicObjectSerializer;
+import cz.coffee.skjson.api.nbts.NBTConvert;
 import cz.coffee.skjson.skript.base.Converter;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -20,8 +22,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static cz.coffee.skjson.api.ConfigRecords.PROJECT_DEBUG;
 import static cz.coffee.skjson.skript.base.Converter.*;
@@ -34,6 +40,15 @@ import static org.bukkit.configuration.serialization.ConfigurationSerialization.
  */
 @SuppressWarnings("all")
 public abstract class ParserUtil {
+
+    public static final String NBT_COMPONENTS_KEY = "components";
+    public static final String NBT_JSON_CUSTOM_KEY = "custom";
+    public static final String NBT_CUSTOM_MC_KEY = "minecraft:custom_data";
+    final static List<String> ignored = List.of("Enchantments", "display", "Damage", "AttributeModifiers", "CustomModelData", "DamageEquation");
+
+    final static Pattern NBT_PATTERN = Pattern.compile(Pattern.quote("custom=") + "[A-Za-z0-9+/=]+");
+
+
     /**
      * The constant GsonConverter.
      */
@@ -75,6 +90,36 @@ public abstract class ParserUtil {
         }
         return found;
     }
+
+    public static JsonElement parseNBTCustom(ItemStack source, JsonElement i) {
+        Matcher nbtMatcher = NBT_PATTERN.matcher(source.toString());
+
+        if (source == null) return i;
+        if (!nbtMatcher.find()) return i;
+
+
+        final JsonObject tags = new JsonObject();
+
+        i.getAsJsonObject().getAsJsonObject("meta").remove(NBT_JSON_CUSTOM_KEY);
+
+        NBTCompound cmp = NBTItem.convertItemtoNBT(source)
+                .getCompound("components")
+                .getCompound("minecraft:custom_data");
+
+        cmp.getKeys()
+            .stream()
+            .filter(key -> !ignored.contains(key))
+            .forEach(key -> tags.add(key, NBTConvert.parse(key, cmp)));
+
+        i.getAsJsonObject().getAsJsonObject("meta").add(NBT_JSON_CUSTOM_KEY, tags);
+        return i;
+    }
+
+    public static void t() {
+
+        ItemStack i = new ItemStack(Material.DIAMOND_SWORD);
+    }
+
 
     /**
      * Check keys boolean.
@@ -265,18 +310,6 @@ public abstract class ParserUtil {
             if (object instanceof Inventory) {
                 return InventoryConverter.toJson((Inventory) object);
             }
-            if (object instanceof NBTContainer || object instanceof NBTCustom || object.getClass().getName().toString().contains("NBT")) {
-                try {
-                    return NBTContainerConverter.toJson((NBTContainer) object);
-                } catch (Exception ex) {
-                    try {
-                        return NBTContainerConverter.toJson(new NBTContainer(object.toString()));
-                    } catch (Exception ex_) {
-                        error(ex);
-                        error(ex_);
-                    }
-                }
-            }
             if (isSerializable) {
                 return GsonConverter.toJsonTree(object);
             }
@@ -328,8 +361,6 @@ public abstract class ParserUtil {
                     return (T) InventoryConverter.fromJson(finalJson.getAsJsonObject());
                 else if (Block.class.isAssignableFrom(clazz))
                     return (T) BlockConverter.fromJson(finalJson.getAsJsonObject());
-                else if (NBTContainer.class.isAssignableFrom(clazz))
-                    return (T) NBTContainerConverter.fromJson(finalJson.getAsJsonObject());
                 else if (ConfigurationSerializable.class.isAssignableFrom(clazz))
                     return (T) GsonConverter.fromJson(finalJson, clazz);
                 else {

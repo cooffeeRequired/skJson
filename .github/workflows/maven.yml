@@ -14,32 +14,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up JDK 17
+    - name: Set up JDK 20
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '20'
         distribution: 'temurin'
         cache: maven
-
-    - name: Set execute permission for build-skbee.bat
-      run: chmod +x build-skbee.bat
-
-    - name: Run build-skbee.bat
-      run: |
-        git clone https://github.com/ShaneBeee/SkBee.git
-        cd SkBee
-        ./gradlew clean build
-
-        for file in $(ls -1t build/libs/*.jar | head -n 1); do
-          jarFileName=$(basename $file)
-          IFS='-.' read -ra tokens <<< "$jarFileName"
-          Dversion="${tokens[1]}"
-
-          mvn install:install-file -Dfile=build/libs/$jarFileName -DgroupId=com.shanebeestudios.skbee -DartifactId=skbee -Dversion=3.0.1 -Dpackaging=jar
-        done
-
-        cd ..
-        rm -rf SkBee
+        
     - uses: actions/checkout@v3
     
     - name: Build with Maven

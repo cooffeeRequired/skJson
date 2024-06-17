@@ -23,6 +23,7 @@ import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
+import cz.coffee.skjson.utils.Logger;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -154,12 +155,14 @@ public abstract class SkJsonChanger {
                                 LinkedList<PatternUtil.keyStruct> keys = convertStringToKeys(path, PATH_VARIABLE_DELIMITER, false);
                                 JsonElement old = json;
                                 if (!keys.isEmpty()) json = JsonParser.search(input).key(keys);
+                                var last = keys.getLast().key();
+
                                 if (json == null) {
                                     json = old;
                                     JsonParser.change(input).value(keys, new JsonArray());
                                     json = JsonParser.search(input).key(keys);
                                     keys.clear();
-                                    keys.add(new PatternUtil.keyStruct("assets", PatternUtil.KeyType.KEY));
+                                    keys.add(new PatternUtil.keyStruct(last, PatternUtil.KeyType.LIST));
                                     json = JsonParser.search(json).key(keys);
                                 }
                             } else {

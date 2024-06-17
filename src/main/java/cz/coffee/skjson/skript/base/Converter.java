@@ -2,12 +2,9 @@ package cz.coffee.skjson.skript.base;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import com.shanebeestudios.skbee.api.nbt.NBTCompound;
-import com.shanebeestudios.skbee.api.nbt.NBTContainer;
-import com.shanebeestudios.skbee.api.nbt.NBTItem;
 import cz.coffee.skjson.SkJson;
+import cz.coffee.skjson.api.nbts.NBTConvert;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.skript.base.nbts.NBTConvert;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -35,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
+import static cz.coffee.skjson.utils.Logger.info;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
@@ -46,23 +44,6 @@ public abstract class Converter {
     /**
      * The constant WebhookConventer.
      */
-
-
-    public final static SimpleConverter<NBTContainer> NBTContainerConverter = new SimpleConverter<NBTContainer>() {
-
-        @Override
-        public @NotNull JsonElement toJson(NBTContainer source) {
-            JsonObject o = new JsonObject();
-            o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
-            o.addProperty("nbt", source.toString());
-            return !o.isEmpty() ? o : JsonNull.INSTANCE;
-        }
-
-        @Override
-        public NBTContainer fromJson(JsonObject json) {
-            return new NBTContainer(json.get("nbt").getAsString());
-        }
-    };
 
     public final static SimpleConverter<World> WorldConverter = new SimpleConverter<World>() {
         @Override
@@ -101,35 +82,42 @@ public abstract class Converter {
                 JsonObject o = new JsonObject();
                 o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
                 JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
-                if (source.toString().contains("internal")) {
-                    i.getAsJsonObject().getAsJsonObject("meta").remove("internal");
-                    final JsonObject tags = new JsonObject();
-                    final List<String> ignored = List.of("Enchantments", "display", "Damage", "AttributeModifiers", "CustomModelData", "DamageEquation");
-                    NBTCompound cmp = NBTItem.convertItemtoNBT(source).getCompound("tag");
-                    cmp.getKeys().stream().filter(cmpkey -> !ignored.contains(cmpkey)).forEach(cmpkey -> {
-                        tags.add(cmpkey, NBTConvert.parse(cmpkey, cmp));
-                    });
-                    i.getAsJsonObject().getAsJsonObject("meta").add("custom_tags", tags);
-                }
-                return i;
+                return ParserUtil.parseNBTCustom(source, i);
             }
         }
 
         @Override
         public ItemStack fromJson(JsonObject json) {
+
             if (json.has("meta")) {
+                JsonObject metaJson = json.getAsJsonObject("meta");
+                JsonElement customTags = metaJson.remove("custom");
                 ItemMeta im = ItemMetaConverter.fromJson(json);
-                final JsonObject meta = json.remove("meta").getAsJsonObject();
-                boolean hasCustomTags = meta.has("custom_tags");
                 ItemStack stack = GsonConverter.fromJson(json, ItemStack.class);
-                stack.setItemMeta(im);
-                stack = enchants(stack, meta);
-                if (hasCustomTags) {
-                    final JsonObject tags = meta.remove("custom_tags").getAsJsonObject();
-                    stack = NBTConvert.parseFromJson(stack, tags);
+
+                //info("stack: %s, ct: %s", stack, customTags);
+
+                try {
+                    if (customTags != null) {
+                        //info("&a[customtags] &fstack: %s", stack);
+                        stack = NBTConvert.parseFromJson(stack, customTags.getAsJsonObject(), false);
+                        //info("&a[customtags - after] &fstack: %s", stack);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+
+
+
+                //info("&6[before - enchants] &fstack: %s", stack);
+                stack = enchants(stack, metaJson);
+                //info("&c[after - enchants] &fstack: %s", stack);
+                stack.setItemMeta(im);
+                //info("&c[after - meta] &fstack: %s", stack);
                 return stack;
             }
+
             return GsonConverter.fromJson(json, ItemStack.class);
         }
     };

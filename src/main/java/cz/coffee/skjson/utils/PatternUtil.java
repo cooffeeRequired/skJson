@@ -65,8 +65,14 @@ public abstract class PatternUtil {
             Logger.simpleError("&cYou using not allowed delimiter.. Banned delimiters are &e'%s'", String.join(" ,", banned));
             return new LinkedList<>();
         }
-        return tokenize(input, false, add, delimiter);
+
+/*        t.forEach(keyStruct -> {
+            Logger.simpleError("key: %s, type: %s", keyStruct.key(), keyStruct.type());
+        });*/
+
+        return tokenize(input, delimiter.isEmpty(), add, delimiter);
     }
+
 
     private static LinkedList<keyStruct> tokenize(String input, boolean withDelim, boolean add, String delimiter) {
         LinkedList<keyStruct> keyStructs = new LinkedList<>();
@@ -77,7 +83,7 @@ public abstract class PatternUtil {
         for (int i = 0; i < inputChars.length; i++) {
             char currentChar = inputChars[i];
             if (currentChar == '[') {
-                keyStructs.add(new keyStruct(currentToken.toString(), KeyType.KEY));
+                keyStructs.add(new keyStruct(currentToken.toString(), KeyType.LIST));
                 currentToken.setLength(0);
                 inBrackets = true;
                 currentToken.append(currentChar);
