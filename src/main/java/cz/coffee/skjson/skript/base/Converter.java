@@ -81,6 +81,7 @@ public abstract class Converter {
                 JsonObject o = new JsonObject();
                 o.addProperty(SERIALIZED_JSON_TYPE_KEY, source.getClass().getName());
                 JsonElement i = GsonConverter.toJsonTree(source, ItemStack.class);
+
                 return ParserUtil.parseNBTCustom(source, i);
             }
         }

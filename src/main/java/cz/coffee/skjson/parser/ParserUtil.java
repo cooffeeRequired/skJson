@@ -93,7 +93,11 @@ public abstract class ParserUtil {
 
     public static JsonElement parseNBTCustom(ItemStack source, JsonElement i) {
         Matcher nbtMatcher = NBT_PATTERN.matcher(source.toString());
-        if (source == null && !nbtMatcher.find()) return i;
+
+        if (source == null) return i;
+        if (!nbtMatcher.find()) return i;
+
+
         final JsonObject tags = new JsonObject();
 
         i.getAsJsonObject().getAsJsonObject("meta").remove(NBT_JSON_CUSTOM_KEY);

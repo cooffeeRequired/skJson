@@ -271,6 +271,7 @@ public class JsonParserRecords {
             PatternUtil.keyStruct lastKey = keys.removeLast();
             while ((current = currents.pollLast()) != null) {
                 for (PatternUtil.keyStruct struct : keys) {
+                    //Logger.info("&a[value] &7: %s  -> &a %s", current, struct);
                     if (struct.key().isEmpty() || struct.key().isBlank()) continue;
                     try {
                         if (current instanceof JsonObject jsonobject) {
