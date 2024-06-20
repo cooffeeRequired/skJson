@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
-import static cz.coffee.skjson.utils.Logger.info;
 import static org.bukkit.Bukkit.getWorld;
 import static org.bukkit.configuration.serialization.ConfigurationSerialization.SERIALIZED_TYPE_KEY;
 
@@ -94,27 +93,15 @@ public abstract class Converter {
                 JsonElement customTags = metaJson.remove("custom");
                 ItemMeta im = ItemMetaConverter.fromJson(json);
                 ItemStack stack = GsonConverter.fromJson(json, ItemStack.class);
-
-                //info("stack: %s, ct: %s", stack, customTags);
-
                 try {
                     if (customTags != null) {
-                        //info("&a[customtags] &fstack: %s", stack);
                         stack = NBTConvert.parseFromJson(stack, customTags.getAsJsonObject(), false);
-                        //info("&a[customtags - after] &fstack: %s", stack);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
-
-
-                //info("&6[before - enchants] &fstack: %s", stack);
                 stack = enchants(stack, metaJson);
-                //info("&c[after - enchants] &fstack: %s", stack);
                 stack.setItemMeta(im);
-                //info("&c[after - meta] &fstack: %s", stack);
                 return stack;
             }
 
