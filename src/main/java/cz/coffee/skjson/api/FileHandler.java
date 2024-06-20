@@ -173,6 +173,7 @@ public class FileHandler {
      * @param directoryPath root path for walking this
      * @return String[]
      */
+    @SuppressWarnings("unused")
     public static CompletableFuture<String[]> walkDirectory(final String directoryPath) {
         return CompletableFuture.supplyAsync(() -> {
             File input = new File(directoryPath);
@@ -185,6 +186,20 @@ public class FileHandler {
                     .map(File::getPath)
                     .filter(file -> file.endsWith(".json"))
                     .toArray(String[]::new);
+        });
+    }
+
+    public static CompletableFuture<File[]> walkDirectoryFiles(final String directoryPath) {
+        return CompletableFuture.supplyAsync(() -> {
+            File input = new File(directoryPath);
+            if (!input.isDirectory() && !input.canRead()) return new File[0];
+
+            var files = input.listFiles(File::isFile);
+            if (files == null) return new File[0];
+
+            return Arrays.stream(files)
+                    .filter(file -> file.getPath().endsWith(".json"))
+                    .toArray(File[]::new);
         });
     }
 }

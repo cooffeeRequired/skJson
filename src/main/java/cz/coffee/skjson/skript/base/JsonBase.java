@@ -2,16 +2,14 @@ package cz.coffee.skjson.skript.base;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
@@ -22,7 +20,6 @@ import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.Logger;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -30,6 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -169,8 +167,8 @@ public abstract class JsonBase {
                 if (isKey) return new String[]{entry.getKey()};
                 Object[] first = (Object[]) Array.newInstance(getReturnType(), 1);
                 if (entry.getValue() instanceof JsonElement element) {
-                    Object assignedValue = ParserUtil.parse(element);
-                    if (assignedValue == null) assignedValue = ParserUtil.jsonToType(element);
+                    Object assignedValue = parse(element);
+                    if (assignedValue == null) assignedValue = jsonToType(element);
                     first[0] = assignedValue;
                 } else {
                     first[0] = entry.getValue();
@@ -216,12 +214,12 @@ public abstract class JsonBase {
             Class<?> inputClass = Classes.getClassFromUserInput(s);
             name = s;
             int j = 1;
+
+            System.out.println("1: j: " + j + " i: " + i + " s: " + s + " inputClass: " + inputClass);
+
             SecLoop loop = null;
             for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-                if ((inputClass != null
-                        && inputClass.isAssignableFrom(l.getLoopedExpression().getReturnType()))
-                        || l.getLoopedExpression().isLoopOf("value")
-                ) {
+                if ((inputClass != null && inputClass.isAssignableFrom(l.getLoopedExpression().getReturnType())) || l.getLoopedExpression().isLoopOf("value")) {
                     if (j < i) {
                         j++;
                         continue;
@@ -285,15 +283,15 @@ public abstract class JsonBase {
                 ((JsonObject) current).entrySet().forEach(entry -> {
                     JsonElement value = entry.getValue();
                     if (value != null) {
-                        Object assign = ParserUtil.from(value);
-                        results.add(value.isJsonPrimitive() ? ParserUtil.jsonToType(value) : assign == null ? value : assign);
+                        Object assign = from(value);
+                        results.add(value.isJsonPrimitive() ? jsonToType(value) : assign == null ? value : assign);
                     }
                 });
             } else if (current.isJsonArray()) {
                 ((JsonArray) current).forEach(value -> {
                     if (value != null) {
-                        Object assign = ParserUtil.from(value);
-                        results.add(value.isJsonPrimitive() ? ParserUtil.jsonToType(value) : assign == null ? value : assign);
+                        Object assign = from(value);
+                        results.add(value.isJsonPrimitive() ? jsonToType(value) : assign == null ? value : assign);
                     }
                 });
             }
@@ -308,7 +306,7 @@ public abstract class JsonBase {
                 try {
                     json = jsonInput.getSingle(e);
                 } catch (Exception ex) {
-                    Logger.error(ex, null, getParser().getNode());
+                    error(ex, null, getParser().getNode());
                 }
                 if (json == null) return new Object[0];
                 String keys = !emptyPath ? pathInput.getSingle(e) : null;
@@ -325,9 +323,9 @@ public abstract class JsonBase {
                 } else {
                     JsonElement jsonResult = JsonParser.search(json).key(wrappedKeys);
                     Object[] result;
-                    Object assigned = ParserUtil.from(jsonResult);
+                    Object assigned = from(jsonResult);
                     if (assigned == null) {
-                        assigned = ParserUtil.jsonToType(jsonResult);
+                        assigned = jsonToType(jsonResult);
                         if (assigned == null) return new Object[0];
                     }
                     result = new Object[]{assigned};
@@ -420,7 +418,7 @@ public abstract class JsonBase {
                     if (finalObject.isJsonArray()) {
                         final WeakHashMap<String, Object> weak = new WeakHashMap<>();
                         JsonArray array = finalObject.getAsJsonArray();
-                        weak.put(String.valueOf(index), ParserUtil.jsonToType(array.get(index)));
+                        weak.put(String.valueOf(index), jsonToType(array.get(index)));
                         index++;
                         return weak;
                     } else if (finalObject.isJsonObject()) {
@@ -428,7 +426,7 @@ public abstract class JsonBase {
                         Set<String> keys = json.keySet();
                         final WeakHashMap<String, Object> weak = new WeakHashMap<>();
                         String declaredKey = keys.toArray(new String[0])[index];
-                        weak.put(declaredKey, ParserUtil.jsonToType(json.get(declaredKey)));
+                        weak.put(declaredKey, jsonToType(json.get(declaredKey)));
                         index++;
                         return weak;
                     }
@@ -511,9 +509,9 @@ public abstract class JsonBase {
                             }
                         }
                     }
-                    Object assigned = ParserUtil.from(jsonResult);
+                    Object assigned = from(jsonResult);
                     if (assigned == null) {
-                        assigned = ParserUtil.jsonToType(jsonResult);
+                        assigned = jsonToType(jsonResult);
                         if (assigned == null) return new Object[0];
                         return new Object[]{assigned};
                     }
@@ -643,7 +641,7 @@ public abstract class JsonBase {
                 if (inputJson instanceof JsonArray list) {
                     for (int index = 0; index < list.size(); index++) {
                         JsonElement element = list.get(index);
-                        Object parsed = ParserUtil.from(element);
+                        Object parsed = from(element);
                         if (parsed == null) {
                             if (element.isJsonPrimitive()) {
                                 primitive(name + (index + 1), element.getAsJsonPrimitive(), isLocal, event);
@@ -660,7 +658,7 @@ public abstract class JsonBase {
                     map.keySet().stream().filter(Objects::nonNull).forEach(key -> {
                         try {
                             JsonElement element = map.get(key);
-                            Object parsed = ParserUtil.from(element);
+                            Object parsed = from(element);
                             // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
                             if (parsed == null) {
                                 if (element.isJsonPrimitive()) {
@@ -680,7 +678,7 @@ public abstract class JsonBase {
         }
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  Logger.info("PARSED -> (Variable) %s => &e%s", name, object);
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PARSED -> (Variable) %s => &e%s", name, object);
             Variables.setVariable(name, object, event, isLocal);
         }
 
@@ -688,7 +686,7 @@ public abstract class JsonBase {
             if (name == null || input == null || event == null) return;
             Object o = jsonToType(defaultConverter(input));
             if (o != null) {
-                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  Logger.info("PRIMITIVE -> (Variable) %s => &e%s", name, input);
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PRIMITIVE -> (Variable) %s => &e%s", name, input);
             }
             assert o != null;
             Variables.setVariable(name, o, event, isLocal);
@@ -754,7 +752,7 @@ public abstract class JsonBase {
         private boolean isLocal;
 
         private static JsonElement convert(String var, boolean isLocal, boolean nullable, Event event) {
-            Map<String, Object> variable = (Map<String, Object>) Variables.getVariable(var + "*", event, isLocal);
+            Map<String, Object> variable = (Map<String, Object>) getVariable(var + "*", event, isLocal);
             if (variable == null) return nullable ? null : new JsonObject();
             List<String> checkKeys = variable.keySet().stream().filter(Objects::nonNull).filter(f -> !f.equals("*")).toList();
 
@@ -765,9 +763,9 @@ public abstract class JsonBase {
                         Object value = subNode(var + key, isLocal, event);
                         JsonElement data = GsonConverter.toJsonTree(value);
                         if (value instanceof JsonPrimitive) {
-                            JsonElement primitive = ParserUtil.defaultConverter(value);
+                            JsonElement primitive = defaultConverter(value);
                             if (Util.isNumber(primitive)) {
-                                structure.add(ParserUtil.defaultConverter(value));
+                                structure.add(defaultConverter(value));
                             } else {
                                 structure.add(primitive);
                             }
@@ -815,7 +813,7 @@ public abstract class JsonBase {
             }
 
             if (!(variable instanceof String || variable instanceof Number || variable instanceof Boolean || variable instanceof JsonElement || variable instanceof Map || variable instanceof List)) {
-                if (variable != null) variable = ParserUtil.parse(variable);
+                if (variable != null) variable = parse(variable);
             }
             return variable;
         }
@@ -943,7 +941,7 @@ public abstract class JsonBase {
             for (Object value : values) {
                 if (isValues) {
                     JsonElement element = ParserUtil.parse(value);
-                    if (!ParserUtil.checkValues(element, json)) {
+                    if (!checkValues(element, json)) {
                         found = false;
                         break;
                     }
@@ -957,7 +955,7 @@ public abstract class JsonBase {
                             break;
                         }
                     } else {
-                        if (!ParserUtil.checkKeys(element, json)) {
+                        if (!checkKeys(element, json)) {
                             found = false;
                             break;
                         }
@@ -988,31 +986,214 @@ public abstract class JsonBase {
     }
 
     @Name("All json files in directory")
-    @Description("You can get multiple file from directory and load that as json")
+    @Description({
+            "You can get multiple file from directory and load that as json",
+            "While you will use ... as files, then you can use an loop-filename => that will return name of looped file"
+    })
     @Examples({
+            "\tset {_jsons::*} to all json files from dir \"./plugins/test\" as files",
+            "That will return file type",
             "on script load:",
-            "\tset {_jsons::*} to all json file from dir \"./plugins/test\"",
+            "\tset {_jsons::*} to all json files from dir \"./plugins/test\"",
             "\t#Or you can loop trough that",
-            "\tloop all json file from dir \"./plugins/test\":",
+            "\tloop all json files from dir \"./plugins/test\":",
             "\t\tsend loop-file",
             "\t\tsend json from file loop-file",
     })
-    @Since("2.9.7")
-    public static class AllJsonInFolder extends SimpleExpression<String> {
+    @Since("2.9.7, 4.0.1 - as files")
+    public static class AllJsonInFolder extends SimpleExpression<Object> {
 
         static {
-            SkJsonElements.registerExpression(AllJsonInFolder.class, String.class, ExpressionType.SIMPLE,
-                    "All json [files] (from|in) (dir|directory|folder) %string%"
+            SkJsonElements.registerExpression(AllJsonInFolder.class, Object.class, ExpressionType.SIMPLE,
+                    "all json [files] (from|in) (dir[ectory]|folder) %string% [:as files]"
             );
         }
 
         private Expression<String> directoryInputString;
+        boolean asFiles;
+
+        @Override
+        protected Object @NotNull [] get(@NotNull Event event) {
+            var inputDirectory = directoryInputString.getSingle(event);
+            return Arrays.stream((FileHandler.walkDirectoryFiles(inputDirectory)).join()).toArray();
+        }
+
+        @Override
+        public boolean isSingle() {
+            return false;
+        }
+
+        @Override
+        public @NotNull Class<?> getReturnType() {
+            return Object.class;
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event event, boolean b) {
+            assert event != null;
+            return "All json files from directory " + directoryInputString.toString(event, b) + " " + (asFiles ? "as files" : "");
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
+            directoryInputString = (Expression<String>) expressions[0];
+            asFiles = parseResult.hasTag("as files");
+            return true;
+        }
+
+        @Override
+        public boolean isLoopOf(@NotNull String s) {
+            return s.equals("file");
+        }
+    }
+
+    @NoDoc
+    public static class FilenameLoopExpression extends SimpleExpression<Object> {
+        static {
+            SkJsonElements.registerExpression(FilenameLoopExpression.class, Object.class, ExpressionType.SIMPLE,
+                    "[the] loop-filename[-<(\\d+)>]"
+            );
+        }
+
+        private String name;
+        private SecLoop loop;
+        private boolean isCanceled = false;
+
+
+        @Override
+        protected @Nullable Object @NotNull [] get(@NotNull Event e) {
+            if (isCanceled) return new Object[0];
+            try {
+                File current = (File) loop.getCurrent(e);
+                assert current != null;
+                return new Object[]{current.getName()};
+            } catch (ClassCastException exception) {
+                if (PROJECT_DEBUG) error(exception);
+                return new Object[0];
+            }
+        }
+
+        @Override
+        public boolean isSingle() {
+            return true;
+        }
+
+        @Override
+        public @NotNull Class<?> getReturnType() {
+            if (loop == null) return Object.class;
+            return loop.getLoopedExpression().getReturnType();
+        }
+
+        @Override
+        public @NotNull String toString(@Nullable Event e, boolean debug) {
+            if (e == null) return name;
+            return Classes.getDebugMessage(loop.getCurrent(e));
+        }
+
+        @Override
+        public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
+            MatchResult numberOfLoop = !parseResult.regexes.isEmpty() ? parseResult.regexes.get(0) : null;
+            Object group = 0;
+            if (numberOfLoop != null) group = numberOfLoop.group(0);
+            int i = 0;
+            String firstField = parseResult.expr, s = "";
+            Pattern pattern = Pattern.compile("loop-(.+)(.)");
+            Matcher matchingPattern = pattern.matcher(firstField);
+
+            if (matchingPattern.matches()) {
+                String[] split = firstField.split("-");
+                s = split[1];
+                i = parseNumber(group);
+            }
+
+            Class<?> inputClass = Classes.getClassFromUserInput(s);
+
+
+            name = s;
+            int j = 1;
+            boolean wrongFormat = false;
+
+
+            SecLoop loop = null;
+            for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
+                if ((inputClass != null
+                        && inputClass.isAssignableFrom(l.getLoopedExpression().getReturnType()))
+                        || l.getLoopedExpression().isLoopOf("file")
+                ) {
+                    if (j < i) {
+                        j++;
+                        continue;
+                    }
+                    if (loop != null) {
+                        isCanceled = true;
+                        break;
+                    }
+                    loop = l;
+                    wrongFormat = !(loop.toString().endsWith("as files"));
+                    if (j == i) break;
+                }
+            }
+            if (loop == null) {
+                Skript.error("There's no sloop that matches loop-" + s + "'", ErrorQuality.SEMANTIC_ERROR);
+                return false;
+            }
+
+            if (isCanceled) {
+                Skript.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify witch loop's value you want.", ErrorQuality.SEMANTIC_ERROR);
+                return false;
+            }
+            if (wrongFormat) {
+                Skript.error("There are files loop without return as File, if you want get filename you may use '" + loop+" as files:'", ErrorQuality.SEMANTIC_ERROR);
+                return false;
+            }
+            this.loop = loop;
+            return true;
+        }
+
+        public boolean isLoopOf(@NotNull String s) {
+            return false;
+        }
+    }
+
+
+    @Name("Get all keys from Json Object")
+    @Description({
+            "You can get all potentials keys from the Json Object."
+    })
+    @Examples({
+            "on script load:",
+            "\tset {_j} to json from \"{data: {A: 'B', C: 'C', 'G': G}}\"",
+            "\tsend {_j}",
+            "\tset {_keys::*} to all keys of \"data\" of {_j}",
+            "\tsend \"&aKeys: %{_keys::*}%\"",
+    })
+    @Since("4.0.1")
+    public static class AllKeysOfJsonObject extends SimpleExpression<String> {
+
+        static {
+            SkJsonElements.registerExpression(AllKeysOfJsonObject.class, String.class, ExpressionType.SIMPLE, "[all] keys [of] %string% of [json] %json%");
+        }
+
+        private Expression<JsonElement> jsonElementExpression;
+        private Expression<String> pathExpression;
+
 
         @Override
         protected String @NotNull [] get(@NotNull Event event) {
-            var inputDirectory = directoryInputString.getSingle(event);
-            ArrayList<String> store = new ArrayList<>(Arrays.asList(FileHandler.walkDirectory(inputDirectory).join()));
-            return store.toArray(String[]::new);
+            String path = pathExpression.getSingle(event);
+            JsonElement json = jsonElementExpression.getSingle(event);
+            if (json == null) return new String[0];
+            json = JsonParser.search(json).key(convertStringToKeys(path));
+            if (json == null || json.isJsonNull()) {
+                simpleError("The path what you search for doesn't exist.");
+                return new String[0];
+            }
+            if (json.isJsonArray()) {
+                simpleError("The path what you search for handle an JsonArray, but this type doesn't have any keys.");
+                return new String[0];
+            }
+            return json.getAsJsonObject().keySet().toArray(new String[0]);
         }
 
         @Override
@@ -1027,20 +1208,14 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
-            assert event != null;
-            return "All json files from directory " + directoryInputString.toString(event, b);
+            return "all keys of " + pathExpression.toString(event, b) + " of json " + jsonElementExpression.toString(event, b);
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public boolean init(Expression<?> @NotNull [] expressions, int i, @NotNull Kleenean kleenean, @NotNull ParseResult parseResult) {
-            directoryInputString = (Expression<String>) expressions[0];
-            return true;
-        }
-
-        @Override
-        public boolean isLoopOf(@NotNull String s) {
-            return s.equals("file");
+            pathExpression = LiteralUtils.defendExpression(expressions[0]);
+            jsonElementExpression = LiteralUtils.defendExpression(expressions[1]);
+            return LiteralUtils.canInitSafely(expressions[0]) && LiteralUtils.canInitSafely(expressions[1]);
         }
     }
 }
