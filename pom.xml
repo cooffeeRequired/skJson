@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cz.coffee</groupId>
   <artifactId>skJson</artifactId>
-  <version>4.0</version>
+  <version>4.0.1</version>
   <packaging>jar</packaging>
   <name>SkJson</name>
   <properties>

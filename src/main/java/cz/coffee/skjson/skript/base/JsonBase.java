@@ -215,8 +215,6 @@ public abstract class JsonBase {
             name = s;
             int j = 1;
 
-            System.out.println("1: j: " + j + " i: " + i + " s: " + s + " inputClass: " + inputClass);
-
             SecLoop loop = null;
             for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
                 if ((inputClass != null && inputClass.isAssignableFrom(l.getLoopedExpression().getReturnType())) || l.getLoopedExpression().isLoopOf("value")) {
@@ -1052,13 +1050,15 @@ public abstract class JsonBase {
     public static class FilenameLoopExpression extends SimpleExpression<Object> {
         static {
             SkJsonElements.registerExpression(FilenameLoopExpression.class, Object.class, ExpressionType.SIMPLE,
-                    "[the] loop-filename[-<(\\d+)>]"
+                    "[the] loop-file's (1:name|2:path|3:size|4:content)[-<(\\d+)>] [:without file type]"
             );
         }
 
         private String name;
         private SecLoop loop;
         private boolean isCanceled = false;
+        private int mark;
+        private boolean withoutExtension;
 
 
         @Override
@@ -1067,9 +1067,16 @@ public abstract class JsonBase {
             try {
                 File current = (File) loop.getCurrent(e);
                 assert current != null;
-                return new Object[]{current.getName()};
+                return switch (this.mark) {
+                    case 1 -> new Object[]{withoutExtension ? current.getName().replaceAll("\\.(.*)", "") : current.getName()};
+                    case 2 -> new Object[]{current.getPath()};
+                    case 3 -> new Object[]{current.length()};
+                    case 4 -> new Object[]{FileHandler.get(current).join()};
+                    default -> new Object[]{current};
+                };
             } catch (ClassCastException exception) {
                 if (PROJECT_DEBUG) error(exception);
+                exception.getStackTrace();
                 return new Object[0];
             }
         }
@@ -1095,6 +1102,8 @@ public abstract class JsonBase {
         public boolean init(Expression<?> @NotNull [] exprs, int matchedPattern, @NotNull Kleenean isDelayed, @NotNull ParseResult parseResult) {
             MatchResult numberOfLoop = !parseResult.regexes.isEmpty() ? parseResult.regexes.get(0) : null;
             Object group = 0;
+            this.mark = parseResult.mark;
+            this.withoutExtension = parseResult.hasTag("without file type");
             if (numberOfLoop != null) group = numberOfLoop.group(0);
             int i = 0;
             String firstField = parseResult.expr, s = "";
@@ -1172,7 +1181,7 @@ public abstract class JsonBase {
     public static class AllKeysOfJsonObject extends SimpleExpression<String> {
 
         static {
-            SkJsonElements.registerExpression(AllKeysOfJsonObject.class, String.class, ExpressionType.SIMPLE, "[all] keys [of] %string% of [json] %json%");
+            SkJsonElements.registerExpression(AllKeysOfJsonObject.class, String.class, ExpressionType.SIMPLE, "[all] keys [[of] %-string%] of %json%");
         }
 
         private Expression<JsonElement> jsonElementExpression;
@@ -1181,16 +1190,19 @@ public abstract class JsonBase {
 
         @Override
         protected String @NotNull [] get(@NotNull Event event) {
-            String path = pathExpression.getSingle(event);
+            String path;
             JsonElement json = jsonElementExpression.getSingle(event);
             if (json == null) return new String[0];
-            json = JsonParser.search(json).key(convertStringToKeys(path));
+            if (pathExpression != null) {
+                path = pathExpression.getSingle(event);
+                json = JsonParser.search(json).key(convertStringToKeys(path));
+            }
             if (json == null || json.isJsonNull()) {
-                simpleError("The path what you search for doesn't exist.");
+                simpleError("&cThe path what you search for doesn't exist.");
                 return new String[0];
             }
             if (json.isJsonArray()) {
-                simpleError("The path what you search for handle an JsonArray, but this type doesn't have any keys.");
+                simpleError("ccThe path what you search for handle an Json Array, but this type doesn't have any keys.");
                 return new String[0];
             }
             return json.getAsJsonObject().keySet().toArray(new String[0]);
@@ -1208,7 +1220,7 @@ public abstract class JsonBase {
 
         @Override
         public @NotNull String toString(@Nullable Event event, boolean b) {
-            return "all keys of " + pathExpression.toString(event, b) + " of json " + jsonElementExpression.toString(event, b);
+            return "all keys of " + (pathExpression != null ? pathExpression.toString(event, b) : null) + " of json " + jsonElementExpression.toString(event, b);
         }
 
         @Override

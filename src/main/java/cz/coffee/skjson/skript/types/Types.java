@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.io.File;
 import java.io.StreamCorruptedException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -258,6 +259,30 @@ abstract class Types {
 
                             @Override
                             public @NonNull String toVariableNameString(Webhook o) {
+                                return toString(o, 0);
+                            }
+
+                            @Override
+                            public boolean canParse(@NonNull ParseContext context) {
+                                return false;
+                            }
+                        })
+        );
+
+        Classes.registerClass(
+                new ClassInfo<>(File.class, "file")
+                        .user("json-file")
+                        .name("json-file")
+                        .description("represents Java File")
+                        .since("2.9")
+                        .parser(new Parser<>() {
+                            @Override
+                            public @NonNull String toString(@NonNull File o, int flags) {
+                                return "file named " + o.getName().replace("\\.*", "") + " and with file type " + o.getPath().substring(o.getPath().lastIndexOf(".") + 1);
+                            }
+
+                            @Override
+                            public @NonNull String toVariableNameString(File o) {
                                 return toString(o, 0);
                             }
 
