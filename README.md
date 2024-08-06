@@ -42,7 +42,7 @@
 
 #### All tutorials are based on the latest version **`2.9`**
 
-for the first time and recommend working with [SkJson Documentation](https://skjson.xyz/)
+for the first time and recommend working with [SkJson Documentation](https://github.com/cooffeeRequired/skJson/wiki)
 
 #### 🗝️ Create json object/array from sources.
 
