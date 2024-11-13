@@ -1,7 +1,9 @@
 import java.security.MessageDigest
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar // Import ShadowJar
 
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.5'
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -41,10 +43,10 @@ def fullRev = generateSHA1()
 def shortRev = generateShortSHA1(fullRev)
 
 tasks.processResources {
-    filesMatching("plugin.yml") {
+    filesMatching(Set.of("plugin.yml", "lang/default.lang")) {
         expand(
                 "version": project.version,
-                "rev": "" + shortRev
+                "rev": shortRev
         )
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -59,9 +61,11 @@ jar {
     }
 }
 
-task shadeJar(type: Jar) {
+tasks.withType(ShadowJar) {
     archiveClassifier.set('shaded')
-    from(sourceSets.main.output)
+
+    // Relocate bStats to avoid classpath conflicts
+    relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
 
     // Exclude META-INF files
     exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
@@ -69,22 +73,15 @@ task shadeJar(type: Jar) {
     doLast {
         copy {
             from archiveFile.get().asFile
-            into 'C:\\Users\\Coffee\\Desktop\\mc-developing\\plugins'
+            into 'C:\\Users\\nexti\\Desktop\\projects\\mc-developing\\plugins'
             rename { 'SkJson.jar' }
         }
     }
 }
 
 task withServer {
-    doLast {
-        copy {
-            from tasks.named("shadeJar").get().archiveFile.get().asFile
-            into 'C:\\Users\\Coffee\\Desktop\\mc-developing\\plugins'
-            rename { 'SkJson.jar' }
-        }
-    }
     dependsOn 'clean'
-    dependsOn 'shadeJar'
+    dependsOn 'shadowJar'
     finalizedBy 'runServer'
 }
 

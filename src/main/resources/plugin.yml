@@ -1,7 +1,7 @@
 name: SkJson
 version: '${version}'
 main: cz.coffeerequired.SkJson
-api-version: '1.16'
+api-version: '1.21'
 revision-version: '${rev}'
 depend:
   - Skript
