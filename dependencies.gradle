@@ -1,0 +1,34 @@
+dependencies {
+    // Jetty client
+    implementation 'org.eclipse.jetty:jetty-client:12.1.0.alpha0'
+
+    // Paper API
+    compileOnly 'io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT'
+
+    // Skript
+    compileOnly 'com.github.SkriptLang:Skript:2.9.3'
+
+    // Gson
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+
+    // Jersey server
+    compileOnly 'org.glassfish.jersey.core:jersey-server:2.34'
+
+    // bStats Bukkit
+    compileOnly 'org.bstats:bstats-bukkit:3.1.0'
+}
+
+configurations { provided }
+
+dependencies {
+    provided 'io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT'
+    provided 'com.github.SkriptLang:Skript:2.9.3'
+    provided 'com.google.code.gson:gson:2.10.1'
+    provided 'org.glassfish.jersey.core:jersey-server:2.34'
+    provided 'org.bstats:bstats-bukkit:3.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+}

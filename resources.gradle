@@ -1,0 +1,31 @@
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/resources'
+            include 'plugin.yml', 'config.yml', 'lang/default.lang'
+        }
+    }
+}
+
+//tasks.register("copyJar", Copy) {
+//    dependsOn 'build'
+//    from("$buildDir/libs/${project.name}-${version}.jar")
+//    into 'D:/Server/plugins'
+//    rename { String fileName -> 'SkJson.jar' }
+//}
+//
+//tasks.register('shadeJar', Jar) {
+//    archiveClassifier.set('shaded')
+//    from(sourceSets.main.output)
+//
+//    // Exclude META-INF files
+//    exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+//
+//    doLast {
+////        copy {
+////            from archiveFile
+////            into 'D:/Server/plugins'
+////            rename { 'SkJson.jar' }
+////        }
+//    }
+//}
