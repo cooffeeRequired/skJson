@@ -1,6 +1,7 @@
 package cz.coffeerequired.api;
 
 import cz.coffeerequired.support.AnsiColorConverter;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -14,8 +15,8 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class CustomLogger extends Logger {
 
-    private static final String GRADIENT_PREFIX = "\u001B[38;5;74mS\u001B[38;5;75mk\u001B[38;5;81mJ\u001B[38;5;87ms\u001B[38;5;123mo\u001B[38;5;159mn\u001B[0m";
-    static LegacyComponentSerializer converter = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat().character('&').hexColors().build();
+    @Getter private static final String GRADIENT_PREFIX = "\u001B[38;5;74mS\u001B[38;5;75mk\u001B[38;5;81mJ\u001B[38;5;87ms\u001B[38;5;123mo\u001B[38;5;159mn\u001B[0m";
+    @Getter static LegacyComponentSerializer converter = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat().character('&').hexColors().build();
 
     public CustomLogger(String name) {
         super(name, null);
@@ -34,9 +35,9 @@ public class CustomLogger extends Logger {
     @Override
     public void log(Level level, String message) {
         if (level == Level.INFO) {
-            Bukkit.getConsoleSender().sendMessage("[" + GRADIENT_PREFIX + "]: " + message + "\u001B[0m");
+            Bukkit.getConsoleSender().sendMessage(converter.deserialize("[" + GRADIENT_PREFIX + "]: " + message + "\u001B[0m"));
         } else if (level == Level.SEVERE) {
-            log(Level.SEVERE, message);
+            super.log(level, message);
         } else {
             super.log(level, message);
         }
@@ -47,7 +48,7 @@ public class CustomLogger extends Logger {
     }
 
     public void error(String message) {
-        Bukkit.getConsoleSender().sendMessage("[" + GRADIENT_PREFIX + "]: " + AnsiColorConverter.RED  + message + "\u001B[0m");
+        Bukkit.getConsoleSender().sendMessage("[" + GRADIENT_PREFIX + "]: " + AnsiColorConverter.RED + message + "\u001B[0m");
     }
 
     public void debug(String message) {
@@ -65,11 +66,10 @@ public class CustomLogger extends Logger {
 
             if (record.getLevel() == Level.INFO) {
                 return String.format("[%s] [INFO]: %s\n", GRADIENT_PREFIX, record.getMessage());
-            }
-            else if (record.getLevel() == Level.SEVERE) {
-                output.append("\u001B[31m"); 
+            } else if (record.getLevel() == Level.SEVERE) {
+                output.append("\u001B[31m");
                 output.append("\n====== Exception Log Start ======\n");
-                output.append("Level: SEVERE\n"); 
+                output.append("Level: SEVERE\n");
                 output.append("Time: ").append(new java.util.Date(record.getMillis())).append("\n");
                 output.append("Source: ").append(record.getSourceClassName()).append(".").append(record.getSourceMethodName()).append("\n");
                 output.append("Message: ").append(record.getMessage()).append("\n");
@@ -85,7 +85,7 @@ public class CustomLogger extends Logger {
                     }
                 }
                 output.append("======= Exception Log End =======\n\n");
-                output.append("\u001B[0m"); 
+                output.append("\u001B[0m");
                 Bukkit.getConsoleSender().sendMessage(output.toString());
             } else {
                 output.append(String.format("[%s] [%s]: %s\n", GRADIENT_PREFIX, record.getLevel().getName(), record.getMessage()));
