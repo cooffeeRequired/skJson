@@ -2,6 +2,8 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.annotators.ExternalAPI;
@@ -73,7 +75,11 @@ public class JsonFileWatcher {
         String jsonContent;
         try {
             jsonContent = new String(Files.readAllBytes(file.toPath()));
-            jsonifyFile = GsonParser.gson.fromJson(jsonContent, JsonElement.class);
+            if (!isValidJson(jsonContent)) {
+                SkJson.logger().warning("Invalid JSON content in " + file.getName());
+                return;
+            }
+            jsonifyFile = JsonParser.parseString(jsonContent);
         } catch (IOException e) {
             SkJson.logger().exception(e.getMessage(), e);
         }
@@ -134,6 +140,15 @@ public class JsonFileWatcher {
 
     public boolean isDone() {
         return future != null && future.isDone();
+    }
+
+    private boolean isValidJson(String json) {
+        try {
+            JsonParser.parseString(json);
+            return true;
+        } catch (JsonSyntaxException e) {
+            return false;
+        }
     }
 
 
