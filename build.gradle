@@ -1,0 +1,97 @@
+import java.security.MessageDigest
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar // Import ShadowJar
+
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.5'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
+}
+
+group = 'cz.coffee'
+version = '4.1.0'
+sourceCompatibility = '21'
+targetCompatibility = '21'
+
+static def generateSHA1() {
+    def time = System.currentTimeMillis().toString()
+    def md = MessageDigest.getInstance("SHA-1")
+    def digest = md.digest(time.bytes)
+    return new BigInteger(1, digest).toString(16).padLeft(40, '0')
+}
+
+static def generateShortSHA1(sha1) {
+    return sha1.substring(0, 8)
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://repo.skriptlang.org/releases" }
+    maven { url "https://oss.sonatype.org/content/groups/public/" }
+    maven { url "https://repo.papermc.io/repository/maven-public/" }
+    maven { url "https://repo.purpurmc.org/snapshots" }
+    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+}
+
+apply from: 'dependencies.gradle'
+apply from: 'resources.gradle'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+def fullRev = generateSHA1()
+def shortRev = generateShortSHA1(fullRev)
+
+tasks.processResources {
+    filesMatching(Set.of("plugin.yml", "lang/default.lang")) {
+        expand(
+                "version": project.version,
+                "rev": shortRev
+        )
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'SkJson',
+                'Implementation-Version': version
+        )
+    }
+}
+
+tasks.withType(ShadowJar) {
+    archiveClassifier.set('shaded')
+
+    // Relocate bStats to avoid classpath conflicts
+    relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
+    relocate 'de.tr7zw.changeme.nbtapi', 'cz.coffee.shadowed.nbtapi'
+
+
+    // Exclude META-INF files
+    exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+    doLast {
+        copy {
+            from archiveFile.get().asFile
+            into 'C:\\Users\\nexti\\Desktop\\projects\\mc-developing\\plugins'
+            rename { 'SkJson.jar' }
+        }
+    }
+}
+
+task withServer {
+    dependsOn 'clean'
+    dependsOn 'shadowJar'
+    finalizedBy 'runServer'
+}
+
+runServer {
+    minecraftVersion("1.21.3")
+
+    downloadPlugins {
+        url('https://github.com/SkriptLang/Skript/releases/download/2.9.4/Skript-2.9.4.jar')
+    }
+}
