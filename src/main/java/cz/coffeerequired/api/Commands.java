@@ -1,5 +1,6 @@
 package cz.coffeerequired.api;
 
+import cz.coffeerequired.SkJson;
 import lombok.Setter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +28,10 @@ public class Commands {
 
 
     public static void registerCommand(final JavaPlugin plugin) {
-        Objects.requireNonNull(plugin.getCommand(mainCommand)).setExecutor(new CommandManager());
+        var cmd = plugin.getCommand(mainCommand);
+        var e = new NullPointerException("Command is null");
+        if (cmd == null) SkJson.logger().exception(e.getMessage(), e);
+        else cmd.setExecutor(new CommandManager());
     }
 
     private record CommandHandler(BiConsumer<CommandSender, String[]> commandExecutor,
