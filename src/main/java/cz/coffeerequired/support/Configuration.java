@@ -1,5 +1,10 @@
 package cz.coffeerequired.support;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import cz.coffeerequired.SkJson;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -9,21 +14,38 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.util.Formatter;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import cz.coffeerequired.SkJson;
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class Configuration {
 
     private static final String REPOSITORY = "skJson";
     private static final String USERNAME = "cooffeeRequired";
     private final JavaPlugin plugin;
-    @SuppressWarnings("unused") private final PluginConfigHandler configHandler = new PluginConfigHandler(SkJson.getInstance());
+    @SuppressWarnings("unused")
+    private final PluginConfigHandler configHandler = new PluginConfigHandler(SkJson.getInstance());
 
     public Configuration(JavaPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    public static void applyScheduledUpdate() {
+        File updateFile = new File(SkJson.getInstance().getDataFolder(), "updated.yml");
+        if (updateFile.exists()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(updateFile));
+                String targetFile = reader.readLine().split(": ")[1];
+                String tempFile = reader.readLine().split(": ")[1];
+                reader.close();
+
+                targetFile = targetFile.replaceFirst(".paper-remapped\\\\", "");
+                // Move the temp file to the target location
+                Files.move(Path.of(tempFile), Path.of(targetFile), StandardCopyOption.REPLACE_EXISTING);
+                SkJson.logger().info("Update applied successfully.");
+
+                // Delete the update file
+                Files.delete(updateFile.toPath());
+            } catch (IOException e) {
+                SkJson.logger().exception("Failed to apply the scheduled update.", e);
+            }
+        }
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -111,27 +133,5 @@ public class Configuration {
             writer.write("new_file_hash: " + newFileHash);
         }
         SkJson.logger().info("Update scheduled, it will be applied after server restart.");
-    }
-
-    public static void applyScheduledUpdate() {
-        File updateFile = new File(SkJson.getInstance().getDataFolder(), "updated.yml");
-        if (updateFile.exists()) {
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(updateFile));
-                String targetFile = reader.readLine().split(": ")[1];
-                String tempFile = reader.readLine().split(": ")[1];
-                reader.close();
-
-                targetFile = targetFile.replaceFirst(".paper-remapped\\\\", "");
-                // Move the temp file to the target location
-                Files.move(Path.of(tempFile), Path.of(targetFile), StandardCopyOption.REPLACE_EXISTING);
-                SkJson.logger().info("Update applied successfully.");
-
-                // Delete the update file
-                Files.delete(updateFile.toPath());
-            } catch (IOException e) {
-                SkJson.logger().exception("Failed to apply the scheduled update.", e);
-            }
-        }
     }
 }

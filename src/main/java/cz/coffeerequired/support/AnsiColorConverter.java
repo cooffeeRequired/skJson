@@ -1,7 +1,5 @@
 package cz.coffeerequired.support;
 
-import org.bukkit.Bukkit;
-
 public class AnsiColorConverter {
     // ANSI color codes
     public static final String RESET = "\u001B[0m";

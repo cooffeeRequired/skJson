@@ -16,6 +16,8 @@ dependencies {
 
     // bStats Bukkit
     implementation 'org.bstats:bstats-bukkit:3.1.0'
+
+    implementation 'de.tr7zw:item-nbt-api:2.14.0'
 }
 
 configurations { provided }
@@ -31,4 +33,6 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    provided 'de.tr7zw:item-nbt-api:2.14.0'
 }

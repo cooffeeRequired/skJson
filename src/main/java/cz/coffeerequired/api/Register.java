@@ -29,10 +29,29 @@ import static cz.coffeerequired.SkJson.logger;
 
 public class Register {
 
+    static final String prefix = "[skjson]";
     static ArrayDeque<Class<? extends Modulable>> modules = new ArrayDeque<>();
     @Getter
     private static SkriptAddon addon;
-    static final String prefix = "[skjson]";
+    @Getter
+    private SkriptRegister skriptRegister = new SkriptRegister();
+
+    @ExternalAPI
+    public static <T extends Modulable> void registerModules(JavaPlugin plugin, Class<T> module) {
+        try {
+            if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
+                Module annotation = module.getAnnotation(Module.class);
+                String moduleName = annotation.module();
+                String moduleVersion = annotation.version();
+                logger().info("[" + plugin.getName() + "]Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
+                modules.add(module);
+            } else {
+                throw new IllegalCallerException("Class what extends Modulable always need to be annotated by @Module");
+            }
+        } catch (Exception e) {
+            logger().exception(e.getMessage(), e);
+        }
+    }
 
     public void tryRegisterSkript() {
 
@@ -100,7 +119,8 @@ public class Register {
                     m.load();
                     m.registerElements(this.getSkriptRegister());
                     printAllRegistered(m);
-                } catch (ModulableException | InstantiationException | IllegalAccessException | InvocationTargetException |
+                } catch (ModulableException | InstantiationException | IllegalAccessException |
+                         InvocationTargetException |
                          NoSuchMethodException e) {
                     SkJson.logger().exception(e.getMessage(), e);
                 }
@@ -112,25 +132,29 @@ public class Register {
         }
     }
 
-    @ExternalAPI
-    public static <T extends Modulable> void registerModules(JavaPlugin plugin, Class<T> module) {
-        try {
-            if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
-                Module annotation = module.getAnnotation(Module.class);
-                String moduleName = annotation.module();
-                String moduleVersion = annotation.version();
-                logger().info("[" + plugin.getName() + "]Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
-                modules.add(module);
-            } else {
-                throw new IllegalCallerException("Class what extends Modulable always need to be annotated by @Module");
-            }
-        } catch (Exception e) {
-            logger().exception(e.getMessage(), e);
-        }
+    String coloredElement(String input) {
+        return switch (input) {
+            case "Expressions" -> "&aExpressions";
+            case "Effects" -> "&bEffects";
+            case "Events" -> "&5Events";
+            case "Sections" -> "&fSections";
+            case "Conditions" -> "&4Conditions";
+            case "Functions" -> "&7Functions";
+            case "Structures" -> "&9Structures";
+            default -> input;
+        };
     }
 
-    @Getter
-    private SkriptRegister skriptRegister = new SkriptRegister();
+    public void logElement(String id, int count) {
+        Bukkit.getConsoleSender()
+                .sendMessage(CustomLogger
+                        .getConverter()
+                        .deserialize(String.format(
+                                "[%s]: &8&l" + AnsiColorConverter.hexToAnsi("#47a5ff") + "+ %s &f%d",
+                                CustomLogger.getGRADIENT_PREFIX(), coloredElement(id), count) + AnsiColorConverter.RESET
+                        )
+                );
+    }
 
     @SuppressWarnings("unused")
     public static class SkriptRegister {
@@ -192,29 +216,5 @@ public class Register {
             modulable.addNewElement("Functions", fn.getClass());
             return Functions.registerFunction(fn);
         }
-    }
-
-    String coloredElement(String input) {
-        return switch (input) {
-            case "Expressions" -> "&aExpressions";
-            case "Effects" -> "&bEffects";
-            case "Events" -> "&5Events";
-            case "Sections" -> "&fSections";
-            case "Conditions" -> "&4Conditions";
-            case "Functions" -> "&7Functions";
-            case "Structures" -> "&9Structures";
-            default -> input;
-        };
-    }
-
-    public void logElement(String id, int count) {
-        Bukkit.getConsoleSender()
-            .sendMessage(CustomLogger
-                .getConverter()
-                .deserialize(String.format(
-                        "[%s]: &8&l" + AnsiColorConverter.hexToAnsi("#47a5ff") + "+ %s &f%d",
-                        CustomLogger.getGRADIENT_PREFIX(), coloredElement(id), count) + AnsiColorConverter.RESET
-                )
-        );
     }
 }

@@ -29,9 +29,9 @@ import java.util.logging.Logger;
 @SuppressWarnings("all")
 public class PluginConfigHandler {
     private final File configFile;
-    private FileConfiguration config;
     private final Logger logger;
     private final JavaPlugin plugin;
+    private FileConfiguration config;
 
     public PluginConfigHandler(JavaPlugin plugin) {
         this(plugin, "config.yml");

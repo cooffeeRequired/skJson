@@ -2,6 +2,7 @@ package cz.coffeerequired.api;
 
 import cz.coffeerequired.SkJson;
 import org.bukkit.Bukkit;
+
 public abstract class Api {
 
 

@@ -1,6 +1,5 @@
 package cz.coffeerequired.api;
 
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.exceptions.ModulableException;
 import lombok.Getter;
 
@@ -11,7 +10,8 @@ import java.util.Map;
 @Getter
 public abstract class Modulable {
 
-    @Getter public final Map<String, ArrayList<Class<?>>> loadedElements = new HashMap<>(Map.of(
+    @Getter
+    public final Map<String, ArrayList<Class<?>>> loadedElements = new HashMap<>(Map.of(
             "Expressions", new ArrayList<>(),
             "Events", new ArrayList<>(),
             "Effects", new ArrayList<>(),
