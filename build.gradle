@@ -9,8 +9,8 @@ plugins {
 
 group = 'cz.coffee'
 version = '4.1.0'
-sourceCompatibility = '21'
-targetCompatibility = '21'
+sourceCompatibility = '22'
+targetCompatibility = '22'
 
 static def generateSHA1() {
     def time = System.currentTimeMillis().toString()
