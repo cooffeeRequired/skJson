@@ -5,15 +5,28 @@ import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.Commands;
 import cz.coffeerequired.api.CustomLogger;
 import cz.coffeerequired.api.Register;
+import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.support.Configuration;
+import de.tr7zw.changeme.nbtapi.NBT;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.kyori.adventure.text.Component;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
+
 
 @Slf4j
 public final class SkJson extends JavaPlugin {
@@ -63,6 +76,29 @@ public final class SkJson extends JavaPlugin {
                     "hello",
                     (sender, _) -> sender.sendMessage("Hello, world!"),
                     (_, _) -> List.of("world", "there", "player")
+            );
+
+            Commands.add(
+                    "about",
+                    (sender, _) -> {
+                        if (! sender.hasPermission("skjson.use")) {
+                            sender.sendMessage(logger().colorize("&cYou don't have permission to use this command."));
+                        } else {
+                            sender.sendMessage(logger().colorize("&aSkJson plugin by &cCoffeeRequired"));
+                            //noinspection UnstableApiUsage
+                            sender.sendMessage(logger().colorize("&aVersion: &f" + this.getPluginMeta().getVersion()));
+                            sender.sendMessage(logger().colorize("&aWebsite: &fhttps://github.com/CoffeeRequired/SkJson"));
+                            sender.sendMessage(logger().colorize("&aAuthor: &fCoffeeRequired"));
+                            sender.sendMessage(logger().colorize(String.format("&aRevision version: &f%s", SkJson.getInstance().getConfig().get("revision-version"))));
+                            sender.sendMessage(logger().colorize("&aDescription: &fSkript JSON library"));
+                            sender.sendMessage(logger().colorize("&aContributors: &fCoffeeRequired"));
+                            sender.sendMessage(logger().colorize("&aDependencies: &fSkript"));
+                            sender.sendMessage(logger().colorize("&aWebsite: &fhttps://github.com/SkriptLang/Skript"));
+                            sender.sendMessage(logger().colorize("&aAuthor: &fSkriptLang"));
+                            sender.sendMessage(logger().colorize("&aDescription: &fSkript"));
+                        }
+                    },
+                    (_, _) -> List.of()
             );
 
             Commands.registerCommand(this);

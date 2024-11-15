@@ -1,23 +1,32 @@
 package cz.coffeerequired.api.json;
 
 import com.google.gson.*;
+import cz.coffeerequired.SkJson;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
 
     @Override
     public JsonElement serialize(ConfigurationSerializable src, Type typeOfSrc, JsonSerializationContext context) {
-        Map<String, Object> map = src.serialize();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("class", src.getClass().getName());
 
-        map.forEach((key, value) -> {
-            JsonElement jsonElement = context.serialize(value);
-            jsonObject.add(key, jsonElement);
-        });
+        for (Field field : src.getClass().getDeclaredFields()) {
+            if (Modifier.isPublic(field.getModifiers())) {
+                try {
+                    Object value = field.get(src);
+                    if (value != null) {
+                        jsonObject.add(field.getName(), context.serialize(value));
+                    }
+                } catch (IllegalAccessException e) {
+                    SkJson.logger().exception(e.getMessage(), e);
+                }
+            }
+        }
 
         return jsonObject;
     }
@@ -25,7 +34,6 @@ public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSe
     @Override
     public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-
         String className = jsonObject.get("class").getAsString();
         try {
             Class<?> clazz = Class.forName(className);
@@ -33,13 +41,21 @@ public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSe
                 throw new JsonParseException("Class " + className + " does not implement ConfigurationSerializable");
             }
 
-            Map<String, Object> map = context.deserialize(jsonObject, Map.class);
-            return (ConfigurationSerializable) clazz.getDeclaredMethod("deserialize", Map.class).invoke(null, map);
+            ConfigurationSerializable instance = (ConfigurationSerializable) clazz.getDeclaredConstructor().newInstance();
+
+            for (Field field : clazz.getDeclaredFields()) {
+                if (Modifier.isPublic(field.getModifiers())) {
+                    JsonElement element = jsonObject.get(field.getName());
+                    if (element != null) {
+                        Object value = context.deserialize(element, field.getType());
+                        field.set(instance, value);
+                    }
+                }
+            }
+            return instance;
 
         } catch (Exception e) {
             throw new JsonParseException("Could not deserialize class: " + className, e);
         }
     }
 }
-
-

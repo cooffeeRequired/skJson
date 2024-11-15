@@ -22,7 +22,7 @@ public class CustomLogger extends Logger {
         initialize();
     }
 
-    public static Component colorize(String text) {
+    public Component colorize(String text) {
         return converter.deserialize(text);
     }
 
