@@ -44,7 +44,6 @@ public class CustomLogger extends Logger {
             return;
         }
 
-
         if (level == Level.INFO) {
             Bukkit.getConsoleSender().sendMessage(converter.deserialize("[" + GRADIENT_PREFIX + "]: " + message + "\u001B[0m"));
         } else if (level == Level.SEVERE) {

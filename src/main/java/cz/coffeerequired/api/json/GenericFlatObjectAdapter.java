@@ -19,11 +19,8 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
             try {
                 field.setAccessible(true);
 
-                // Získáme pouze veřejná, privátní a chráněná pole, vynecháme statické a transientní
                 if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers())) {
                     Object value = field.get(src);
-
-                    // Zabráníme vnořené serializaci a uložíme pouze `toString` reprezentaci
                     if (value != null) {
                         jsonObject.addProperty(field.getName(), value.toString());
                     }
@@ -55,7 +52,6 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
                     if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers())) {
                         JsonElement element = jsonObject.get(field.getName());
                         if (element != null) {
-                            // Pokusíme se načíst hodnotu zpět podle typu pole
                             Object value = context.deserialize(element, field.getType());
                             field.set(instance, value);
                         }

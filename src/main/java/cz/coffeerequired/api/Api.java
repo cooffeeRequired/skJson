@@ -50,4 +50,9 @@ public abstract class Api {
     static boolean canInstantiateServer(ServerType type) {
         return type == ServerType.PURPUR_CORE || type == ServerType.SPIGOT_CORE || type == ServerType.SPONGE_CORE || type == ServerType.PAPER_CORE;
     }
+
+    public static class Records {
+        public static boolean PROJECT_DEBUG;
+        public static boolean PROJECT_VERSION;
+    }
 }

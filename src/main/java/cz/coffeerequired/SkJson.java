@@ -65,9 +65,13 @@ public final class SkJson extends JavaPlugin {
         }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onEnable() {
         logger.info("Enabling...");
+
+        var plMeta = this.getPluginMeta();
+
         if (Api.canInstantiateSafety()) {
             register.registerNewHook(Skript.class);
 
@@ -84,18 +88,12 @@ public final class SkJson extends JavaPlugin {
                         if (! sender.hasPermission("skjson.use")) {
                             sender.sendMessage(logger().colorize("&cYou don't have permission to use this command."));
                         } else {
-                            sender.sendMessage(logger().colorize("&aSkJson plugin by &cCoffeeRequired"));
-                            //noinspection UnstableApiUsage
-                            sender.sendMessage(logger().colorize("&aVersion: &f" + this.getPluginMeta().getVersion()));
-                            sender.sendMessage(logger().colorize("&aWebsite: &fhttps://github.com/CoffeeRequired/SkJson"));
-                            sender.sendMessage(logger().colorize("&aAuthor: &fCoffeeRequired"));
-                            sender.sendMessage(logger().colorize(String.format("&aRevision version: &f%s", SkJson.getInstance().getConfig().get("revision-version"))));
+                            sender.sendMessage(logger().colorize("&aVersion: &f" + plMeta.getVersion()));
+                            sender.sendMessage(logger().colorize("&aWebsite: &f" + plMeta.getWebsite()));
+                            sender.sendMessage(logger().colorize("&aAuthor: &c" + plMeta.getAuthors()));
+                            sender.sendMessage(logger().colorize(String.format("&aRevision version: &f%s", this.getConfig().get("revision-version"))));
                             sender.sendMessage(logger().colorize("&aDescription: &fSkript JSON library"));
-                            sender.sendMessage(logger().colorize("&aContributors: &fCoffeeRequired"));
-                            sender.sendMessage(logger().colorize("&aDependencies: &fSkript"));
-                            sender.sendMessage(logger().colorize("&aWebsite: &fhttps://github.com/SkriptLang/Skript"));
-                            sender.sendMessage(logger().colorize("&aAuthor: &fSkriptLang"));
-                            sender.sendMessage(logger().colorize("&aDescription: &fSkript"));
+                            sender.sendMessage(logger().colorize(String.format("&aDependencies: &f%s", plMeta.getPluginDependencies())));
                         }
                     },
                     (_, _) -> List.of()
