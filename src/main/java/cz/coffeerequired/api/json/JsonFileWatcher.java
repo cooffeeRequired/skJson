@@ -30,8 +30,8 @@ import java.util.concurrent.*;
  * }
  * </pre>
  *
- * <p>This will start watching the specified folder for any JSON file changes 
- * (creation or modification) and process them according to your implementation 
+ * <p>This will start watching the specified folder for any JSON file changes
+ * (creation or modification) and process them according to your implementation
  * in the processJsonFile method.</p>
  */
 
@@ -44,15 +44,18 @@ public class JsonFileWatcher {
         service = Executors.newSingleThreadScheduledExecutor();
     }
 
-    private EventFileWatcher event;
-    @Getter private final UUID uuid;
+    @Getter
+    private final UUID uuid;
     private final ScheduledFuture<?> future;
-    private WatchService watchService;
     private final String parentID;
-    @Getter private final String id;
-    @Getter private final File file;
+    @Getter
+    private final String id;
+    @Getter
+    private final File file;
+    private EventFileWatcher event;
+    private WatchService watchService;
 
-    public JsonFileWatcher(File file, String id, String parentID,long interval) {
+    public JsonFileWatcher(File file, String id, String parentID, long interval) {
         this.uuid = UUID.randomUUID();
         this.parentID = parentID;
         this.id = id;
@@ -98,7 +101,7 @@ public class JsonFileWatcher {
 
         WatchKey key;
         try {
-            while ((key = watchService.take()) != null)  {
+            while ((key = watchService.take()) != null) {
                 for (WatchEvent<?> event : key.pollEvents()) {
                     // ? TODO maybe convert to the string
                     if (event.context().equals(file.toPath().getFileName()) && !Objects.equals(potentialJsonContent, jsonifyFile)) {
@@ -185,7 +188,8 @@ public class JsonFileWatcher {
             Api.getWatchers().computeIfPresent(file, (f, w) -> {
                 if (w.isActive()) {
                     w.cancel();
-                    if (w.isCancelled() && w.isDone()) SkJson.logger().info(String.format("File &7(&e%s&7) was &asuccessfully &7unlinked frm watcher{%s}", f, w.getUuid()));
+                    if (w.isCancelled() && w.isDone())
+                        SkJson.logger().info(String.format("File &7(&e%s&7) was &asuccessfully &7unlinked frm watcher{%s}", f, w.getUuid()));
                 }
                 return null;
             });

@@ -12,8 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Api {
 
-    @Getter public static final ConcurrentHashMap<File, JsonFileWatcher> watchers = new ConcurrentHashMap<>();
-    @Getter public static final JsonCache<String, JsonElement, File> cache = new JsonCache<>();
+    @Getter
+    public static final ConcurrentHashMap<File, JsonFileWatcher> watchers = new ConcurrentHashMap<>();
+    @Getter
+    public static final JsonCache<String, JsonElement, File> cache = new JsonCache<>();
 
     /**
      * This method will also check if the given server supports all necessary requirements. <br />

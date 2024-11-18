@@ -12,6 +12,9 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
 
     @Override
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+
+        if (src.getClass().isAssignableFrom(String.class)) return JsonParser.parseString(src.toString());
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("class", src.getClass().getName());
 

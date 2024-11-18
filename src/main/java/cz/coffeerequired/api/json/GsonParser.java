@@ -13,12 +13,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class GsonParser {
-    @Getter final static Gson gson = new GsonBuilder()
+    @Getter
+    final static Gson gson = new GsonBuilder()
             .serializeNulls()
             .enableComplexMapKeySerialization()
             .registerTypeAdapter(ItemStack.class, new NBTFallBackItemStackAdapter())
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
-           .registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
+            .registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
             .setPrettyPrinting()
             .create();
 

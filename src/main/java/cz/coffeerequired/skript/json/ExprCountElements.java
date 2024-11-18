@@ -1,16 +1,26 @@
-package cz.coffeerequired.modules.cache;
+package cz.coffeerequired.skript.json;
 
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-public class EffLoadCache extends Effect {
+public class ExprCountElements extends SimpleExpression<Integer> {
     @Override
-    protected void execute(Event event) {
-        System.out.println("TRUEEEEE");
+    protected @Nullable Integer[] get(Event event) {
+        return new Integer[0];
+    }
+
+    @Override
+    public boolean isSingle() {
+        return false;
+    }
+
+    @Override
+    public Class<? extends Integer> getReturnType() {
+        return null;
     }
 
     @Override
@@ -20,6 +30,6 @@ public class EffLoadCache extends Effect {
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        return true;
+        return false;
     }
 }

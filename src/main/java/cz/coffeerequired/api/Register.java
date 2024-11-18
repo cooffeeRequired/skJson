@@ -3,10 +3,12 @@ package cz.coffeerequired.api;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
+import ch.njol.skript.registrations.Classes;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.api.annotators.Module;
@@ -141,6 +143,7 @@ public class Register {
             case "Conditions" -> "&4Conditions";
             case "Functions" -> "&7Functions";
             case "Structures" -> "&9Structures";
+            case "Types" -> "&6Types";
             default -> input;
         };
     }
@@ -174,6 +177,11 @@ public class Register {
         public <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
             modulable.addNewElement("Expressions", expressionClass);
             Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+        }
+
+        public <T> void registerType(ClassInfo<T> classInfo, String name) {
+            modulable.addNewElement("Types", classInfo.getClass());
+            Classes.registerClass(classInfo);
         }
 
         public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {

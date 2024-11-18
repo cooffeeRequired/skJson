@@ -5,9 +5,12 @@ api-version: '1.21'
 revision-version: '${rev}'
 depend:
   - Skript
+soft-depend:
+  - NBT-API
 prefix: SkJson
 author: CoffeeRequired
-description: ' SkJson is module/addon for well-known programming language Skript for minecraft world. %nl% SkJson is used for parsing JSON data from any object like website api,%nl% skript object e.g. (item, location), file, yaml-file, text.'
+description: '&aDescription: &fSkript JSON library'
+website: 'https://skjson.coffeerequired.info'
 commands:
   skjson:
     description: basic skjson
@@ -17,5 +20,5 @@ permissions:
     default: op
     description: Allows you to use skjson
 libraries:
-  - org.glassfish.jersey.core:jersey-server:2.34
-  - org.eclipse.jetty:jetty-client:12.0.1
+#  - org.glassfish.jersey.core:jersey-server:2.34
+#  - org.eclipse.jetty:jetty-client:12.0.1

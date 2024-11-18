@@ -9,14 +9,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class Commands {
     private static final Map<String, CommandHandler> commandMap = new HashMap<>();
 
-    @Setter private static String mainCommand = "";
+    @Setter
+    private static String mainCommand = "";
 
 
     public static void add(String cmd,

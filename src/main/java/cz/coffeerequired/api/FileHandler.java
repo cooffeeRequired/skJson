@@ -22,7 +22,7 @@ public abstract class FileHandler {
 
     public static CompletableFuture<JsonElement> get(File file) {
         return CompletableFuture.supplyAsync(() -> {
-            if (! file.exists()) {
+            if (!file.exists()) {
                 SkJson.logger().info("&cFile " + file + " doesn't exist");
                 return JsonNull.INSTANCE;
             }
@@ -90,7 +90,7 @@ public abstract class FileHandler {
             Deque<File> fileQue = new ArrayDeque<>();
             File current;
             fileQue.add(rootDirectory == null ? root : rootDirectory);
-            while((current = fileQue.poll()) != null) {
+            while ((current = fileQue.poll()) != null) {
                 File[] files = current.listFiles();
                 if (files == null) continue;
                 for (final File file : files) {
@@ -104,16 +104,16 @@ public abstract class FileHandler {
 
     public static CompletableFuture<String[]> walk(final String directoryPath) {
         return CompletableFuture.supplyAsync(() -> {
-           File input = new File(directoryPath);
-           if (!input.isDirectory() && !input.canRead()) return new String[0];
+            File input = new File(directoryPath);
+            if (!input.isDirectory() && !input.canRead()) return new String[0];
 
-           var files = input.listFiles(File::isFile);
-           if (files == null) return new String[0];
+            var files = input.listFiles(File::isFile);
+            if (files == null) return new String[0];
 
-           return Arrays.stream(files)
-                   .map(File::getPath)
-                   .filter(f -> f.endsWith(".json"))
-                   .toArray(String[]::new);
+            return Arrays.stream(files)
+                    .map(File::getPath)
+                    .filter(f -> f.endsWith(".json"))
+                    .toArray(String[]::new);
         });
     }
 }

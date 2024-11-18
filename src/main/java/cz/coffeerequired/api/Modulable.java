@@ -13,13 +13,14 @@ public abstract class Modulable {
     @Getter
     public final Map<String, ArrayList<Class<?>>> loadedElements = new HashMap<>(Map.of(
             "Expressions", new ArrayList<>(),
+            "Types", new ArrayList<>(),
             "Events", new ArrayList<>(),
             "Effects", new ArrayList<>(),
             "Sections", new ArrayList<>(),
             "Structures", new ArrayList<>(),
             "Functions", new ArrayList<>(),
-            "Conditions", new ArrayList<>())
-    );
+            "Conditions", new ArrayList<>()
+    ));
 
     protected String sign;
     protected String skriptElementPath;
@@ -47,6 +48,9 @@ public abstract class Modulable {
                 break;
             case "conditions":
                 loadedElements.get("Conditions").add(element);
+                break;
+            case "types":
+                loadedElements.get("Types").add(element);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported type: " + type);

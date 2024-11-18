@@ -15,9 +15,9 @@ public class JsonCache<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashMap<J
     public synchronized void addValue(S id, J jsonElement, F file) {
         lock.writeLock().lock();
         CompletableFuture.runAsync(() -> {
-           ConcurrentHashMap<J, F> inner = getOrDefault(id, new ConcurrentHashMap<>());
-           inner.put(jsonElement, file);
-           put(id, inner);
+            ConcurrentHashMap<J, F> inner = getOrDefault(id, new ConcurrentHashMap<>());
+            inner.put(jsonElement, file);
+            put(id, inner);
         });
     }
 

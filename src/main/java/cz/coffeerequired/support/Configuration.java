@@ -3,6 +3,7 @@ package cz.coffeerequired.support;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffeerequired.SkJson;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -10,9 +11,14 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
+import java.util.Enumeration;
 import java.util.Formatter;
+import java.util.Objects;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class Configuration {
 
@@ -24,6 +30,13 @@ public class Configuration {
 
     public Configuration(JavaPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    public static YamlConfiguration getPluginConfig() {
+        InputStream pluginYmlStream = SkJson.getInstance().getResource("plugin.yml");
+        assert pluginYmlStream != null;
+
+        return YamlConfiguration.loadConfiguration(new InputStreamReader(pluginYmlStream));
     }
 
     public static void applyScheduledUpdate() {
@@ -133,5 +146,32 @@ public class Configuration {
             writer.write("new_file_hash: " + newFileHash);
         }
         SkJson.logger().info("Update scheduled, it will be applied after server restart.");
+    }
+
+    public void copySkriptTests() {
+        try {
+            Path targetDirectory = Paths.get("plugins/Skript/scripts");
+            Files.createDirectories(targetDirectory);
+
+            String jarPath = Configuration.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            if (jarPath.endsWith(".jar")) {
+                try (JarFile jarFile = new JarFile(jarPath)) {
+                    Enumeration<JarEntry> entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        String entryName = entry.getName();
+                        if (entryName.startsWith("tests/") && !entry.isDirectory()) {
+                            try (InputStream inputStream = jarFile.getInputStream(entry)) {
+                                Path targetFile = targetDirectory.resolve(entryName.substring("tests/".length()));
+                                Files.createDirectories(targetFile.getParent());
+                                Files.copy(Objects.requireNonNull(inputStream), targetFile, StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            SkJson.logger().exception("Error occured while copying test scripts from jar file!", e);
+        }
     }
 }

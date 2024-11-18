@@ -2,7 +2,8 @@ sourceSets {
     main {
         resources {
             srcDir 'src/main/resources'
-            include 'plugin.yml', 'config.yml', 'lang/default.lang'
+            include 'plugin.yml', 'config.yml', 'lang/default.lang', 'tests/**'
+
         }
     }
 }
