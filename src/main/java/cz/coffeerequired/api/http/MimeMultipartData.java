@@ -149,10 +149,6 @@ public class MimeMultipartData {
             byteArrayOutputStream.write(("--" + boundary + "--").getBytes(charset));
             byteArrayOutputStream.write(newline);
 
-            // Debugging: Print the full content of the body
-            SkJson.logger().info("&6DEBUG: Multipart Body Content:");
-            SkJson.logger().info("\r\n&b" + byteArrayOutputStream.toString(StandardCharsets.UTF_8));
-
             mimeMultipartData.bodyPublisher = HttpRequest.BodyPublishers.ofByteArray(byteArrayOutputStream.toByteArray());
             return mimeMultipartData;
         }

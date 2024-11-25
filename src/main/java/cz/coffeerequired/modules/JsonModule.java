@@ -8,8 +8,11 @@ import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.skript.json.*;
 
+import java.util.Arrays;
+
 @Module(module = "json", version = "1.0.0")
 public class JsonModule extends Modulable {
+
     public JsonModule() {
         this.sign = this.getClass().getSimpleName();
         this.skriptElementPath = "cz.coffeerequired.skript.json";
@@ -36,5 +39,17 @@ public class JsonModule extends Modulable {
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
         register.registerExpression(ExprPrettyPrint.class, JsonElement.class, ExpressionType.SIMPLE, "%json% as pretty[-printed]", "%json% as uncolo[u]red pretty[-printed]");
         register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsons");
+    }
+
+    void test(Object ...args) {
+        System.out.println(args.length);
+    }
+
+    public static void main(String ...args) {
+        String[] objects = new String[1];
+
+        Integer[] ints = Arrays.stream(objects)
+                .map(o -> o.getClass().cast(int.class))
+                .toArray(Integer[]::new);
     }
 }

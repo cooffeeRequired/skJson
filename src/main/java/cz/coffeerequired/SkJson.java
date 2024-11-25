@@ -54,23 +54,6 @@ public final class SkJson extends JavaPlugin {
             logger.info("Unable to find Json watchers.");
             logger.exception(e.getMessage(), e);
         }
-
-//        ExampleUsage.main(new String[]{});
-//
-//
-//        // {a: [.,., {B: [.,{C: [., ]}]}]}
-//        String path = "root.items.1.names.0";
-//        // when ends with \\d+, the element bef;ore needs to be list.
-//        var it = SkriptJsonInputParser.tokenize(path, ".");
-//        JsonElement elem = JsonParser.parseString("{'root': {'items': ['A', {}]}}");
-//
-//        logger.info(elem.toString());
-//
-//
-//        while(it.hasNext()) {
-//            Map.Entry<Integer, Map.Entry<String, SkriptJsonInputParser.Type>> entry = it.next();
-//            logger.info("Index: " + entry.getKey() + ", Token: " + entry.getValue().getKey() + ", Type: " + entry.getValue().getValue());
-//        }
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -108,6 +91,7 @@ public final class SkJson extends JavaPlugin {
             );
 
             Commands.registerCommand(this);
+
         }
     }
 
