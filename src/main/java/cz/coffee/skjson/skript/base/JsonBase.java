@@ -18,11 +18,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
-import cz.coffee.skjson.api.SkJsonLogger;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
-import cz.coffee.skjson.utils.ConsoleColors;
-import cz.coffee.skjson.utils.Logger;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -635,18 +632,28 @@ public abstract class JsonBase {
         private boolean isLocal;
         private boolean async;
 
+        private static boolean cannotBeParsed(JsonElement element) {
+            return from(element) instanceof JsonElement;
+        }
+
+
+
         private static void toList(@NotNull String name, JsonElement inputJson, boolean isLocal, Event event) {
             if (inputJson.isJsonPrimitive()) {
                 primitive(name, inputJson.getAsJsonPrimitive(), isLocal, event);
             } else if (inputJson.isJsonObject()) {
+                Object parsed = from(inputJson);
+
                 JsonObject jsonObject = inputJson.getAsJsonObject();
                 for (String key : jsonObject.keySet()) {
                     JsonElement element = jsonObject.get(key);
                     String newName = name + key + SEPARATOR;
-                    if (element.isJsonPrimitive()) {
-                        primitive(newName, element.getAsJsonPrimitive(), isLocal, event);
-                    } else {
+                    Object parsed_ = from(element);
+
+                    if (cannotBeParsed(element)) {
                         toList(newName, element, isLocal, event);
+                    } else {
+                        parsed(newName, parsed_, isLocal, event);
                     }
                 }
             } else if (inputJson.isJsonArray()) {
@@ -654,37 +661,42 @@ public abstract class JsonBase {
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonElement element = jsonArray.get(i);
                     String newName = name + (i + 1) + SEPARATOR;
-                    if (element.isJsonPrimitive()) {
-                        primitive(newName, element.getAsJsonPrimitive(), isLocal, event);
-                    } else {
+                    Object parsed = from(element);
+
+                    if (cannotBeParsed(element)) {
                         toList(newName, element, isLocal, event);
+                    } else {
+                        parsed(newName, parsed, isLocal, event);
                     }
                 }
             }
         }
 
 
+
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
-            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PARSED -> (Variable) %s => &e%s", name, object);
-            Variables.setVariable(name, object, event, isLocal);
+            if (ParserUtil.isClassicType(object)) {
+                primitive(name, object, isLocal, event);
+            } else {
+                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PARSED -> (%s) %s => &a%s", object.getClass().getName(), name, object);
+                Variables.setVariable(name, object, event, isLocal);
+            }
         }
 
-        static void primitive(String name, JsonPrimitive input, boolean isLocal, Event event) {
+        static void primitive(String name, Object input, boolean isLocal, Event event) {
             if (name == null || input == null || event == null) return;
-            Object o = jsonToType(defaultConverter(input));
-            if (o != null) {
-                if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PRIMITIVE -> (Variable) %s => &e%s", name, input);
-            }
-            assert o != null;
-            Variables.setVariable(name, o, event, isLocal);
+            if (PROJECT_DEBUG && LOGGING_LEVEL > 2) info("&8PRIMITIVE&r -> (%s) %s => &e%s", input.getClass().getName(),name, input);
+            Variables.setVariable(name, input, event, isLocal);
         }
 
         @Override
         protected void execute(@NotNull Event e) {
             Object jsonInputSingle = jsonInput.getSingle(e);
             JsonElement json = ParserUtil.parse(jsonInputSingle);
+
             String vv = variableString.getSingle(e);
             String var = vv.substring(0, vv.length() - 3);
+
             if (json == null) return;
             if (async) {
                 CompletableFuture.runAsync(() -> toList(var + SEPARATOR, json, isLocal, e));
