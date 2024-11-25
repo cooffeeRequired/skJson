@@ -18,8 +18,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.api.FileHandler;
+import cz.coffee.skjson.api.SkJsonLogger;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
+import cz.coffee.skjson.utils.ConsoleColors;
+import cz.coffee.skjson.utils.Logger;
 import cz.coffee.skjson.utils.PatternUtil;
 import cz.coffee.skjson.utils.Util;
 import org.bukkit.event.Event;
@@ -635,45 +638,31 @@ public abstract class JsonBase {
         private static void toList(@NotNull String name, JsonElement inputJson, boolean isLocal, Event event) {
             if (inputJson.isJsonPrimitive()) {
                 primitive(name, inputJson.getAsJsonPrimitive(), isLocal, event);
-            } else if (inputJson.isJsonObject() || inputJson.isJsonArray()) {
-                if (inputJson instanceof JsonArray list) {
-                    for (int index = 0; index < list.size(); index++) {
-                        JsonElement element = list.get(index);
-                        Object parsed = from(element);
-                        if (parsed == null) {
-                            if (element.isJsonPrimitive()) {
-                                primitive(name + (index + 1), element.getAsJsonPrimitive(), isLocal, event);
-                            } else {
-                                toList(name + (index + 1) + SEPARATOR, element, isLocal, event);
-                            }
-                        } else {
-                            if (PROJECT_DEBUG && LOGGING_LEVEL > 2)
-                                info("List-Element &b %s &fParsed? -> &a %s", element, parsed);
-                            parsed(name + (index + 1), parsed, isLocal, event);
-                        }
+            } else if (inputJson.isJsonObject()) {
+                JsonObject jsonObject = inputJson.getAsJsonObject();
+                for (String key : jsonObject.keySet()) {
+                    JsonElement element = jsonObject.get(key);
+                    String newName = name + key + SEPARATOR;
+                    if (element.isJsonPrimitive()) {
+                        primitive(newName, element.getAsJsonPrimitive(), isLocal, event);
+                    } else {
+                        toList(newName, element, isLocal, event);
                     }
-                } else if (inputJson instanceof JsonObject map) {
-                    map.keySet().stream().filter(Objects::nonNull).forEach(key -> {
-                        try {
-                            JsonElement element = map.get(key);
-                            Object parsed = from(element);
-                            // parsed means that return a parsed value from BUKKIT/SKRIPT Objects
-                            if (parsed == null) {
-                                if (element.isJsonPrimitive()) {
-                                    primitive(name + key, element.getAsJsonPrimitive(), isLocal, event);
-                                } else {
-                                    toList(name + key + SEPARATOR, element, isLocal, event);
-                                }
-                            } else {
-                                parsed(name + key, parsed, isLocal, event);
-                            }
-                        } catch (Exception e) {
-                            error(e);
-                        }
-                    });
+                }
+            } else if (inputJson.isJsonArray()) {
+                JsonArray jsonArray = inputJson.getAsJsonArray();
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JsonElement element = jsonArray.get(i);
+                    String newName = name + (i + 1) + SEPARATOR;
+                    if (element.isJsonPrimitive()) {
+                        primitive(newName, element.getAsJsonPrimitive(), isLocal, event);
+                    } else {
+                        toList(newName, element, isLocal, event);
+                    }
                 }
             }
         }
+
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
             if (PROJECT_DEBUG && LOGGING_LEVEL > 2)  info("PARSED -> (Variable) %s => &e%s", name, object);
