@@ -675,6 +675,9 @@ public abstract class JsonBase {
 
 
         static <T> void parsed(String name, T object, boolean isLocal, Event event) {
+
+            name = name.substring(0, name.length() - 2);
+
             if (ParserUtil.isClassicType(object)) {
                 primitive(name, object, isLocal, event);
             } else {
