@@ -23,6 +23,10 @@ public class GsonParser {
             .setPrettyPrinting()
             .create();
 
+    public static String toPrettyPrintString(JsonElement json) {
+        return GsonParser.gson.toJson(json);
+    }
+
     public static <T> JsonElement toJson(T object) {
         switch (object) {
             case World w -> {
@@ -70,7 +74,12 @@ public class GsonParser {
                 }
                 return o;
             }
-            case null, default -> {
+            case null -> {
+                return JsonNull.INSTANCE;
+            }
+            default -> {
+                JsonElement serialized = SerializedJsonUtils.lazyConvenver(object);
+                if (serialized != null && !serialized.isJsonNull()) return serialized;
                 return gson.toJsonTree(object);
             }
         }
@@ -78,6 +87,9 @@ public class GsonParser {
 
     @SuppressWarnings("unchecked")
     public static <T> T fromJson(JsonElement json, Class<? extends T> clazz) {
+
+        if (json.isJsonPrimitive()) return gson.fromJson(json, clazz);
+
         if (clazz == World.class || clazz.isAssignableFrom(World.class)) {
             return (T) Bukkit.getWorld(json.getAsJsonObject().get("worldName").getAsString());
         } else if (clazz == Chunk.class || clazz.isAssignableFrom(Chunk.class)) {

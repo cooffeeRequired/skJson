@@ -1,5 +1,8 @@
 package cz.coffeerequired.skript.json;
 
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -7,6 +10,14 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
+
+@Name("Size of json object/array")
+@Examples({
+    "set {_json} to json from \"{'sample': {}, 'second': []}\"",
+    "send {_json} is bigger than 1."
+})
+@Since("4.1-update")
 public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {
 
     protected @NotNull String getPropertyName() {

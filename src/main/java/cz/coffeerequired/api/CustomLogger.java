@@ -4,6 +4,7 @@ import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 
 import java.util.logging.*;
@@ -25,6 +26,9 @@ public class CustomLogger extends Logger {
     public Component colorize(String text) {
         return converter.deserialize(text);
     }
+
+    @SuppressWarnings("deprecation")
+    public String legacy(String text) { return ChatColor.translateAlternateColorCodes('&', text); }
 
     private void initialize() {
         ConsoleHandler handler = new ConsoleHandler();
@@ -58,7 +62,7 @@ public class CustomLogger extends Logger {
     }
 
     public void debug(String message) {
-        Bukkit.getConsoleSender().sendMessage("[" + GRADIENT_PREFIX + "] " + "\u001B[38;5;245m:" + message + "\u001B[0m");
+        Bukkit.getConsoleSender().sendMessage(colorize(message));
     }
 
     public void exception(String message, Throwable throwable) {
