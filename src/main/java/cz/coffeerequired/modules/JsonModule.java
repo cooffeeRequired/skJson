@@ -8,8 +8,6 @@ import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.skript.json.*;
 
-import java.util.Arrays;
-
 @Module(module = "json", version = "1.0.0")
 public class JsonModule extends Modulable {
 
@@ -31,25 +29,19 @@ public class JsonModule extends Modulable {
         );
 
         register.registerEffect(EffNewFile.class, "new json file %~string%", "new json file %~string% with [content] %-objects%");
+
         register.registerEffect(EffMapJson.class, "[:async] (map|copy) %json% to %objects%");
 
         register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) in %json%");
+
         register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.SIMPLE, "element %-string% of %json%", "elements %-string% of %json%");
+
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "formatted [json]", "jsons");
+        // #Done("26.11.24")
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
-        register.registerExpression(ExprPrettyPrint.class, JsonElement.class, ExpressionType.SIMPLE, "%json% as pretty[-printed]", "%json% as uncolo[u]red pretty[-printed]");
+        // #Done("26.11.24")
+        register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% as pretty[ printed]", "%json% as uncolo[u]red pretty[ printed]");
+        // #Done("26.11.24")
         register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsons");
-    }
-
-    void test(Object ...args) {
-        System.out.println(args.length);
-    }
-
-    public static void main(String ...args) {
-        String[] objects = new String[1];
-
-        Integer[] ints = Arrays.stream(objects)
-                .map(o -> o.getClass().cast(int.class))
-                .toArray(Integer[]::new);
     }
 }

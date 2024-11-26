@@ -28,27 +28,33 @@ package cz.coffeerequired.api.json;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SkriptJsonInputParser {
 
-    public static Iterator<Map.Entry<Integer, Map.Entry<String, Type>>> tokenize(String path, String delim) {
-        if (path == null || path.isEmpty()) {
-            return null;
-        }
-
+    private static ArrayList<Map.Entry<String, Type>> getTokens(String path, String delim) {
+        if (path == null || path.isEmpty()) return null;
         String[] tokens = path.split(Pattern.quote(delim));
-        Map<Integer, Map.Entry<String, Type>> tokensMap = new LinkedHashMap<>();
+        ArrayList<Map.Entry<String, Type>> tokensList = new ArrayList<>();
 
         for (int i = 0; i < tokens.length; i++) {
             String currentToken = tokens[i];
             Type type = getType(i, tokens, currentToken);
-            tokensMap.put(i, Map.entry(currentToken, type));
+            tokensList.add(Map.entry(currentToken, type));
         }
-        return tokensMap.entrySet().iterator();
+        return tokensList;
+    }
+
+    @SuppressWarnings("unused")
+    public static Iterator<Map.Entry<String, Type>> tokenizeIterator(String path, String delim) {
+        return getTokens(path, delim).iterator();
+    }
+
+    public static ArrayList<Map.Entry<String, Type>> tokenize(String path, String delim) {
+        return getTokens(path, delim);
     }
 
     private static @NotNull Type getType(int i, String[] tokens, String currentToken) {
@@ -82,14 +88,5 @@ public class SkriptJsonInputParser {
         return type;
     }
 
-    public void create(String path, Object value) {
-
-    }
-
-
-    public enum Type {
-        Index,
-        List,
-        Object
-    }
+    public enum Type { Index, List, Object }
 }

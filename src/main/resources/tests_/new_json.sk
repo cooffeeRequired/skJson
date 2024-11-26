@@ -1,0 +1,4 @@
+on load:
+    set {_json} to json from "{}"
+    set {_json} to json from website "https://dummyjson.com/products"
+    set {_json} to json from location(0, 0, 0)

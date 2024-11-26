@@ -91,7 +91,6 @@ public final class SkJson extends JavaPlugin {
             );
 
             Commands.registerCommand(this);
-
         }
     }
 

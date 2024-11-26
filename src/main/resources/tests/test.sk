@@ -1,9 +1,0 @@
-on load:
-    set {_json::*} to json from "{'hello there': 1}" and location(0,0,1, world("world_nether")) and diamond sword named "&ctest" and world("world_nether")
-    send {_json::*} to console
-
-    set {_filej} to json from file "version_history.json"
-    send {_filej}
-
-    set {_rsp} to json from website "https://dummyjson.com/products"
-    send {_rsp}
