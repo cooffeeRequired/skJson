@@ -1,7 +1,6 @@
 package cz.coffeerequired.api.json;
 
 import com.google.gson.*;
-import cz.coffeerequired.SkJson;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -51,17 +50,15 @@ public abstract class SerializedJsonUtils {
 
     public static JsonElement handle(JsonElement json, Object key) throws SerializedJsonException, NumberFormatException {
         if (json instanceof JsonObject object) {
-            SkJson.logger().debug("&aObject: " + object + " | Key: " + key + " |");
             return object.get(key.toString());
         } else if (json instanceof JsonArray element) {
-            SkJson.logger().debug("&eArray: " + element + " | Key: " + key + " |");
             return element.get(Integer.parseInt(key.toString()));
         } else {
             throw new SerializedJsonException("Json is not object or array");
         }
     }
 
-    public static <T> JsonElement lazyConvenver(T object) {
+    public static <T> JsonElement lazyObjectConverter(T object) {
         JsonParser parser = new JsonParser();
         if(object == null) return null;
         if (object instanceof JsonElement element) return element;
@@ -75,4 +72,23 @@ public abstract class SerializedJsonUtils {
         else if (object instanceof JsonPrimitive jsonPrimitive) return jsonPrimitive;
         else return null;
     }
+
+
+    public static <T> T lazyJsonConverter(JsonElement json) {
+        if (json == null || json.isJsonNull()) return null;
+        if (json.isJsonArray() || json.isJsonObject()) return (T) json;
+        else if (json.isJsonPrimitive()) return (T) GsonParser.getGson().fromJson(json, Object.class);
+        else return null;
+    }
+
+    public static boolean isJavaType(Object object) {
+        Class<?> c = object.getClass();
+        return (c.isAssignableFrom(String.class) ||
+                c.isAssignableFrom(Number.class) ||
+                c.isAssignableFrom(Boolean.class) ||
+                object instanceof Number ||
+                c.isAssignableFrom(Integer.class) ||
+                c.isAssignableFrom(Long.class));
+    }
+
 }

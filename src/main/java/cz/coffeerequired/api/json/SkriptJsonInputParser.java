@@ -1,31 +1,5 @@
 package cz.coffeerequired.api.json;
 
-/*
- * ! {"key": "value", "nested": {"key1": "v1"}, "n1": [{"k2": "v3"}]}}
- *
- * when a number appears in the path, the handling need by handle as like for JSON array
- *
- * update {current, nested, root}[key, value]
- * create {current, nested, new}[value ^ key]
- * delete {current, nested}[value, key ^ value]
- * get {current, nested}[value]
- *? - parser.getNested("nested.key1", Type.Key) == v1
- *  - parser.getNested("n1.0.k2", Type.Key) == v3
- *  - parser.get("nested", Type.Key) == {"key1: "v1"}
- *
- * // KEYS
- * - parser.getNested("v1", Type.Value) == key1
- * - parser.get("key",. Type.Value) == value
- *
- * {"new": {"new": []}}
- * {"new": {"new": [1]}}
- * - parser.create("new.new[]", 1)
- *
- * {}
- * {"new": {"raw": 1}}
- * - parser.create("new.raw", 1)
- */
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

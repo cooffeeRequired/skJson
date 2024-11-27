@@ -8,6 +8,8 @@ import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
+import static cz.coffeerequired.api.Api.SERIALIZED_TYPE_KEY;
+
 public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T> {
 
     @Override
@@ -16,7 +18,7 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
         if (src.getClass().isAssignableFrom(String.class)) return JsonParser.parseString(src.toString());
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("class", src.getClass().getName());
+        jsonObject.addProperty(SERIALIZED_TYPE_KEY, src.getClass().getName());
 
         for (Field field : src.getClass().getDeclaredFields()) {
             try {
@@ -41,7 +43,7 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
     @Override
     public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        String className = jsonObject.get("class").getAsString();
+        String className = jsonObject.get(SERIALIZED_TYPE_KEY).getAsString();
 
         try {
             Class<?> clazz = Class.forName(className);

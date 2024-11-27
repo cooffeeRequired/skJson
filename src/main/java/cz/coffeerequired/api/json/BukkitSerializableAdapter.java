@@ -8,12 +8,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
+import static cz.coffeerequired.api.Api.SERIALIZED_TYPE_KEY;
+
 public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
 
     @Override
     public JsonElement serialize(ConfigurationSerializable src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("class", src.getClass().getName());
+        jsonObject.addProperty(SERIALIZED_TYPE_KEY, src.getClass().getName());
 
         for (Field field : src.getClass().getDeclaredFields()) {
             if (Modifier.isPublic(field.getModifiers())) {
@@ -34,7 +36,7 @@ public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSe
     @Override
     public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        String className = jsonObject.get("class").getAsString();
+        String className = jsonObject.get(SERIALIZED_TYPE_KEY).getAsString();
         try {
             Class<?> clazz = Class.forName(className);
             if (!ConfigurationSerializable.class.isAssignableFrom(clazz)) {

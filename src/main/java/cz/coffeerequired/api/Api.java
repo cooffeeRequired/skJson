@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Api {
 
+    public static final String SERIALIZED_TYPE_KEY = "class";
+
     @Getter
     public static final ConcurrentHashMap<File, JsonFileWatcher> watchers = new ConcurrentHashMap<>();
     @Getter

@@ -28,15 +28,14 @@ public class JsonModule extends Modulable {
                 "type.json"
         );
 
-        register.registerEffect(EffNewFile.class, "new json file %~string%", "new json file %~string% with [content] %-objects%");
-
-        register.registerEffect(EffMapJson.class, "[:async] (map|copy) %json% to %objects%");
 
         register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) in %json%");
 
         register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.SIMPLE, "element %-string% of %json%", "elements %-string% of %json%");
-
-        register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "formatted [json]", "jsons");
+        // #Done("26.11.24")
+        register.registerEffect(EffMapJson.class, "[:async] (map|copy) %json% to %objects%");
+        // #Done("26.11.24")
+        register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsons");
         // #Done("26.11.24")
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
         // #Done("26.11.24")
