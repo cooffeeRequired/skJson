@@ -103,8 +103,6 @@ public abstract class SkriptUtils {
         } else if (json instanceof JsonObject object) {
             var parsed = GsonParser.fromJson(object);
 
-            SkJson.logger().info(String.format("IN OBJECT &a: %s", parsed));
-
             for (String key : object.keySet()) {
                 JsonElement value = object.get(key);
                 String pathKey = variableName + key + SEPARATOR;

@@ -3,6 +3,8 @@ package cz.coffeerequired.api.json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
+import lombok.Getter;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -13,7 +15,7 @@ import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
 
 @SuppressWarnings("unused")
 public class SerializedJson {
-    private final JsonElement json;
+    @Getter private final JsonElement json;
 
     public changer changer;
     public counter counter;
@@ -181,7 +183,7 @@ public class SerializedJson {
         }
     }
     public record searcher(JsonElement json) {
-        public Object key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public Object keyOrIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
@@ -192,12 +194,18 @@ public class SerializedJson {
                 current = handle(current, inLoopKey);
             }
 
-            if (!current.isJsonObject()) {
-                throw new SerializedJsonException("Key could be searched only in Json Objects");
-            } else {
+            if (current instanceof JsonArray array) {
+                Number index = SerializedJsonUtils.isNumeric(key);
+                if (index != null && index.intValue() <= array.size()) {
+                    return GsonParser.fromJson(array.get(index.intValue()));
+                }
+            } else if (current instanceof JsonObject object) {
                 var searched = current.getAsJsonObject().get(key);
                 return GsonParser.fromJson(searched);
+            } else {
+                throw new SerializedJsonException("Key could be searched only in Json Objects\\Arrays");
             }
+            return null;
         }
     }
 

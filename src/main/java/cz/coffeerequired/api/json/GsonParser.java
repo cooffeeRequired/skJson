@@ -18,6 +18,7 @@ public class GsonParser {
             .registerTypeAdapter(ItemStack.class, new NBTFallBackItemStackAdapter())
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
             .registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
+            .setLenient()
             .setPrettyPrinting()
             .create();
 

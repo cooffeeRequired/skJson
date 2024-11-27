@@ -57,5 +57,6 @@ public abstract class Api {
     public static class Records {
         public static boolean PROJECT_DEBUG;
         public static boolean PROJECT_VERSION;
+        public static String PROJECT_DELIM = "::";
     }
 }
