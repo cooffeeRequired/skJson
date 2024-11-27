@@ -12,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Api {
 
-    public static final String SERIALIZED_TYPE_KEY = "class";
-
     @Getter
     public static final ConcurrentHashMap<File, JsonFileWatcher> watchers = new ConcurrentHashMap<>();
     @Getter
@@ -55,6 +53,7 @@ public abstract class Api {
         return type == ServerType.PURPUR_CORE || type == ServerType.SPIGOT_CORE || type == ServerType.SPONGE_CORE || type == ServerType.PAPER_CORE;
     }
 
+    @SuppressWarnings("unused")
     public static class Records {
         public static boolean PROJECT_DEBUG;
         public static boolean PROJECT_VERSION;

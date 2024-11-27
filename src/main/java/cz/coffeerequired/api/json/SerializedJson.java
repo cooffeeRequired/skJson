@@ -11,6 +11,7 @@ import java.util.Map;
 
 import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
 
+@SuppressWarnings("unused")
 public class SerializedJson {
     private final JsonElement json;
 
@@ -195,7 +196,7 @@ public class SerializedJson {
                 throw new SerializedJsonException("Key could be searched only in Json Objects");
             } else {
                 var searched = current.getAsJsonObject().get(key);
-                return GsonParser.fromJson(searched, Object.class);
+                return GsonParser.fromJson(searched);
             }
         }
     }
