@@ -48,7 +48,7 @@ public final class SkJson extends JavaPlugin {
         logger.info("bStats metrics enabled.");
 
         try {
-            Class.forName("cz.coffeerequired.api.json.JsonFileWatcher");
+            Class.forName("cz.coffeerequired.api.json.CacheStorageWatcher");
             logger.info("Json watchers found & enabled.");
         } catch (ClassNotFoundException e) {
             logger.info("Unable to find Json watchers.");

@@ -61,6 +61,11 @@ public class CustomLogger extends Logger {
         Bukkit.getConsoleSender().sendMessage("[" + GRADIENT_PREFIX + "]: " + AnsiColorConverter.RED + message + "\u001B[0m");
     }
 
+    @Override
+    public void warning(String msg) {
+        Bukkit.getConsoleSender().sendMessage(converter.deserialize("[" + GRADIENT_PREFIX + "] &eWARN: " + msg));
+    }
+
     public void debug(String message) {
         Bukkit.getConsoleSender().sendMessage(colorize(message));
     }
@@ -68,6 +73,7 @@ public class CustomLogger extends Logger {
     public void exception(String message, Throwable throwable) {
         log(Level.SEVERE, message, throwable);
     }
+
 
     private static class CustomFormatter extends Formatter {
         @Override

@@ -3,6 +3,8 @@ package cz.coffeerequired.api.json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
+import lombok.Getter;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -11,8 +13,9 @@ import java.util.Map;
 
 import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
 
+@SuppressWarnings("unused")
 public class SerializedJson {
-    private final JsonElement json;
+    @Getter private final JsonElement json;
 
     public changer changer;
     public counter counter;
@@ -50,7 +53,8 @@ public class SerializedJson {
 
         public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
+            var temp = deque.removeLast();
+            var key = temp.getKey();
             JsonElement current = json;
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
@@ -62,9 +66,16 @@ public class SerializedJson {
             Number index;
 
             if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
+                if (current == null) current = new JsonArray();
                 if (!current.isJsonArray()) throw new SerializedJsonException("Index could be changed only in Json Arrays");
-                ((JsonArray) current).set(index.intValue(), value);
+
+                if (((JsonArray) current).isEmpty()) {
+                    ((JsonArray) current).add(value);
+                } else {
+                    ((JsonArray) current).set(index.intValue(), value);
+                }
             } else {
+                if (current == null) current = new JsonObject();
                 if (!current.isJsonObject()) throw new SerializedJsonException("Key could be changed only in Json Objects");
                 ((JsonObject) current).add(key, value);
             }
@@ -180,7 +191,7 @@ public class SerializedJson {
         }
     }
     public record searcher(JsonElement json) {
-        public Object key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public Object keyOrIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
@@ -191,12 +202,18 @@ public class SerializedJson {
                 current = handle(current, inLoopKey);
             }
 
-            if (!current.isJsonObject()) {
-                throw new SerializedJsonException("Key could be searched only in Json Objects");
-            } else {
+            if (current instanceof JsonArray array) {
+                Number index = SerializedJsonUtils.isNumeric(key);
+                if (index != null && index.intValue() <= array.size()) {
+                    return GsonParser.fromJson(array.get(index.intValue()));
+                }
+            } else if (current instanceof JsonObject object) {
                 var searched = current.getAsJsonObject().get(key);
-                return GsonParser.fromJson(searched, Object.class);
+                return GsonParser.fromJson(searched);
+            } else {
+                throw new SerializedJsonException("Key could be searched only in Json Objects\\Arrays");
             }
+            return null;
         }
     }
 

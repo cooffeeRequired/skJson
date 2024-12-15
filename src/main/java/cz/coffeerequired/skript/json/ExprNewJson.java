@@ -14,6 +14,7 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +50,7 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
         return switch (currentTag) {
             case ANY -> Arrays.stream(anyObjectExpression.getAll(event))
+                    .filter(SerializedJsonUtils::isValidJson)
                     .map(GsonParser::toJson)
                     .toArray(JsonElement[]::new);
             case FILE -> switch (fileType) {

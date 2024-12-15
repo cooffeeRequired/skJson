@@ -1,12 +1,10 @@
 package cz.coffeerequired.api.json;
 
 import com.google.gson.*;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
@@ -17,9 +15,11 @@ public class GsonParser {
     final static Gson gson = new GsonBuilder()
             .serializeNulls()
             .enableComplexMapKeySerialization()
+            .registerTypeAdapter(Location.class, new LocationAdapter())
             .registerTypeAdapter(ItemStack.class, new NBTFallBackItemStackAdapter())
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
             .registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
+            .setLenient()
             .setPrettyPrinting()
             .create();
 
@@ -78,7 +78,7 @@ public class GsonParser {
                 return JsonNull.INSTANCE;
             }
             default -> {
-                JsonElement serialized = SerializedJsonUtils.lazyConvenver(object);
+                JsonElement serialized = SerializedJsonUtils.lazyObjectConverter(object);
                 if (serialized != null && !serialized.isJsonNull()) return serialized;
                 return gson.toJsonTree(object);
             }
@@ -86,43 +86,65 @@ public class GsonParser {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T fromJson(JsonElement json, Class<? extends T> clazz) {
+    public static <T> T fromJson(JsonElement json) {
 
-        if (json.isJsonPrimitive()) return gson.fromJson(json, clazz);
+        if (json == null) {
+            var ex = new SerializedJsonException("Cannot handle json, cause json input is null");
+            SkJson.logger().exception("Depth error", ex);
+            return null;
+        }
 
-        if (clazz == World.class || clazz.isAssignableFrom(World.class)) {
-            return (T) Bukkit.getWorld(json.getAsJsonObject().get("worldName").getAsString());
-        } else if (clazz == Chunk.class || clazz.isAssignableFrom(Chunk.class)) {
-            JsonObject jsonObject = json.getAsJsonObject();
-            World world = Bukkit.getWorld(jsonObject.get("worldName").getAsString());
-            int x = jsonObject.get("x").getAsInt();
-            int z = jsonObject.get("z").getAsInt();
-            assert world != null;
-            return (T) world.getChunkAt(x, z);
-        } else if (clazz == Block.class || clazz.isAssignableFrom(Block.class)) {
-            JsonObject jsonObject = json.getAsJsonObject();
-            World world = Bukkit.getWorld(jsonObject.get("worldName").getAsString());
-            assert world != null;
-            Block block = world.getBlockAt(jsonObject.get("x").getAsInt(), jsonObject.get("y").getAsInt(), jsonObject.get("z").getAsInt());
-            block.setType(Material.valueOf(jsonObject.get("type").getAsString()));
-            return (T) block;
-        } else if (clazz == Inventory.class || clazz.isAssignableFrom(Inventory.class)) {
-            JsonObject jsonObject = json.getAsJsonObject();
-            int size = jsonObject.get("size").getAsInt();
-            String title = jsonObject.get("title").getAsString();
-            Inventory inventory = Bukkit.createInventory(null, size, Component.text(title));
+        if (json.isJsonPrimitive()) return SerializedJsonUtils.lazyJsonConverter(json);
 
-            JsonArray itemsArray = jsonObject.getAsJsonArray("slots");
-            for (int i = 0; i < itemsArray.size(); i++) {
-                JsonElement itemElement = itemsArray.get(i);
-                if (!itemElement.isJsonNull()) {
-                    ItemStack item = gson.fromJson(itemElement, ItemStack.class);
-                    inventory.setItem(i, item);
+        Class<?> clazz = null;
+
+        try {
+            if (json.isJsonObject()) {
+                if (json.getAsJsonObject().has("class")) {
+                    String className = json.getAsJsonObject().get("class").getAsString();
+                    clazz = Class.forName(className);
                 }
             }
-            return (T) inventory;
-        } else {
-            return gson.fromJson(json, clazz);
+        } catch (Exception e) {
+            throw new JsonParseException("Could not deserialize class");
         }
+
+        if (clazz != null) {
+            if (clazz == World.class || World.class.isAssignableFrom(clazz)) {
+                return (T) Bukkit.getWorld(json.getAsJsonObject().get("worldName").getAsString());
+            } else if (clazz == Chunk.class || Chunk.class.isAssignableFrom(clazz)) {
+                JsonObject jsonObject = json.getAsJsonObject();
+                World world = Bukkit.getWorld(jsonObject.get("worldName").getAsString());
+                int x = jsonObject.get("x").getAsInt();
+                int z = jsonObject.get("z").getAsInt();
+                assert world != null;
+                return (T) world.getChunkAt(x, z);
+            } else if (clazz == Block.class || Block.class.isAssignableFrom(clazz)) {
+                JsonObject jsonObject = json.getAsJsonObject();
+                World world = Bukkit.getWorld(jsonObject.get("worldName").getAsString());
+                assert world != null;
+                Block block = world.getBlockAt(jsonObject.get("x").getAsInt(), jsonObject.get("y").getAsInt(), jsonObject.get("z").getAsInt());
+                block.setType(Material.valueOf(jsonObject.get("type").getAsString()));
+                return (T) block;
+            } else if (clazz == Inventory.class || Inventory.class.isAssignableFrom(clazz)) {
+                JsonObject jsonObject = json.getAsJsonObject();
+                int size = jsonObject.get("size").getAsInt();
+                String title = jsonObject.get("title").getAsString();
+                Inventory inventory = Bukkit.createInventory(null, size, Component.text(title));
+
+                JsonArray itemsArray = jsonObject.getAsJsonArray("slots");
+                for (int i = 0; i < itemsArray.size(); i++) {
+                    JsonElement itemElement = itemsArray.get(i);
+                    if (!itemElement.isJsonNull()) {
+                        ItemStack item = gson.fromJson(itemElement, ItemStack.class);
+                        inventory.setItem(i, item);
+                    }
+                }
+                return (T) inventory;
+            } else {
+                return (T) gson.fromJson(json, clazz);
+            }
+        }
+        return (T) json;
     }
 }

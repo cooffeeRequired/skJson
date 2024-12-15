@@ -1,7 +1,6 @@
 package cz.coffeerequired.api.http;
 
 import com.google.errorprone.annotations.RestrictedApi;
-import cz.coffeerequired.SkJson;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;

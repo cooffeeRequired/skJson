@@ -1,12 +1,14 @@
 package cz.coffeerequired.api;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonWriter;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import org.bukkit.Bukkit;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
@@ -35,7 +37,6 @@ public abstract class FileHandler {
                         try {
                             yield JsonParser.parseReader(reader);
                         } catch (JsonParseException ignored) {
-                            //? TODO handle that as a line loop and make a new json from it
                             yield JsonNull.INSTANCE;
                         }
                     }
@@ -54,14 +55,52 @@ public abstract class FileHandler {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static CompletableFuture<Boolean> write(String filePath, JsonElement content, boolean replace) {
+    public static CompletableFuture<Boolean> write(String filePath, JsonElement content, String[] configuration) {
+
+        boolean replace = false;
+        int tabs = 4;
+        String encoding = "UTF-8";
+
+        if (configuration != null) {
+            for (String config : configuration) {
+                String[] parts = config.replaceAll("[\\[\\]]", "").trim().split("=", 2);
+                if (parts.length != 2) continue;
+
+                String key = parts[0].trim();
+                String value = parts[1].trim();
+
+                try {
+                    switch (key) {
+                        case "replace":
+                            replace = Boolean.parseBoolean(value);
+                            break;
+                        case "tabs":
+                            tabs = Integer.parseInt(value);
+                            break;
+                        case "encoding":
+                            if (!value.isBlank()) {
+                                encoding = value;
+                            }
+                            break;
+                        default:
+                            SkJson.logger().warning("Unknown configuration option: " + key);
+                    }
+                } catch (NumberFormatException e) {
+                    SkJson.logger().warning("Invalid value for " + key + ": " + value);
+                }
+            }
+        }
+
         if (filePath.startsWith("~")) {
             filePath = Bukkit.getPluginManager().getPlugin("Skript").getDataFolder().getPath() + "/scripts/" + filePath.substring(1);
         }
-        if (!(content == null && content.isJsonNull())) content = new JsonObject();
+        if (content == null || content.isJsonNull()) content = new JsonObject();
         String finalFilePath = filePath;
         final JsonElement json = content;
+        String finalEncoding = encoding;
 
+        boolean finalReplace = replace;
+        int finalTabs = tabs;
         return CompletableFuture.supplyAsync(() -> {
             final File file = new File(finalFilePath);
             var parent = file.getParentFile();
@@ -70,13 +109,18 @@ public abstract class FileHandler {
                 SkJson.logger().exception(e.getMessage(), e);
             }
 
-            if (file.exists() && !replace) {
+            if (file.exists() && !finalReplace) {
                 SkJson.logger().warning(String.format("Cannot create a file %s, file already exists", finalFilePath));
                 return false;
             }
 
-            try {
-                Files.writeString(file.toPath(), GsonParser.getGson().toJson(json));
+            try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), Charset.forName(finalEncoding));
+                 JsonWriter jsonWriter = new JsonWriter(writer)) {
+
+                jsonWriter.setIndent(" ".repeat(finalTabs)); // Set indentation dynamically
+                Gson gson = new Gson();
+                gson.toJson(json, jsonWriter);
+
                 return true;
             } catch (IOException e) {
                 SkJson.logger().exception(e.getMessage(), e);
@@ -84,6 +128,9 @@ public abstract class FileHandler {
             }
         });
     }
+
+
+
 
     public static CompletableFuture<File> search(final String filename, File rootDirectory) {
         return CompletableFuture.supplyAsync(() -> {
