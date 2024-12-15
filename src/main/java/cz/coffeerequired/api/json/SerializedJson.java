@@ -53,7 +53,8 @@ public class SerializedJson {
 
         public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
+            var temp = deque.removeLast();
+            var key = temp.getKey();
             JsonElement current = json;
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
@@ -65,9 +66,16 @@ public class SerializedJson {
             Number index;
 
             if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
+                if (current == null) current = new JsonArray();
                 if (!current.isJsonArray()) throw new SerializedJsonException("Index could be changed only in Json Arrays");
-                ((JsonArray) current).set(index.intValue(), value);
+
+                if (((JsonArray) current).isEmpty()) {
+                    ((JsonArray) current).add(value);
+                } else {
+                    ((JsonArray) current).set(index.intValue(), value);
+                }
             } else {
+                if (current == null) current = new JsonObject();
                 if (!current.isJsonObject()) throw new SerializedJsonException("Key could be changed only in Json Objects");
                 ((JsonObject) current).add(key, value);
             }

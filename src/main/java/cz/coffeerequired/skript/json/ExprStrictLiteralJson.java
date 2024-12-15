@@ -1,6 +1,10 @@
 package cz.coffeerequired.skript.json;
 
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -8,7 +12,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -22,7 +25,50 @@ import java.util.Map;
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
-public class ExprJsonGetter extends SimpleExpression<Object> {
+@Name("Simple json literal")
+@Description({
+        "This syntax is strictly limited to its intended use; it does not allow other expressions or variables to be used.",
+        "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep.",
+        "Can handle strict (get/set)",
+        "* at the end means you want to return a skript list.",
+        "If the data is a JSON array, it is straightforward.",
+        "If it is a JSON object, all the values are extracted and converted into Java objects, making them directly usable within the skript."
+})
+@Examples("""
+set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+
+send {_json}.array[0]* # will print 1,2,3,{}
+
+#send {_json}.array[0] # will print {A: 1, B: 2, C: 3, location: {}}
+
+set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key 
+
+# OUTPUT
+{
+  "array": [
+    {
+      "A": 1,
+      "B": 2,
+      "C": 3,
+      "location": {
+        "loc": {
+          "class": "org.bukkit.Location",
+          "world": "world",
+          "x": 1.0,
+          "y": 2.0,
+          "z": 3.0,
+          "pitch": 0.0,
+          "yaw": 0.0
+        }
+      }
+    }
+  ]
+}
+
+send {_json} as uncolored pretty printed
+""")
+@Since("4.1 - API UPDATE")
+public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens;
 
@@ -62,14 +108,9 @@ public class ExprJsonGetter extends SimpleExpression<Object> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         var r =  parseResult.regexes.getFirst();
-
         jsonElementExpression = defendExpression(expressions[0]);
         tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
-        //return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
-
-        SkJson.logger().info("group: " + r.group() + " tokens: " + tokens);
-
-        return true;
+        return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
 
     @SuppressWarnings("SwitchStatementWithTooFewBranches")

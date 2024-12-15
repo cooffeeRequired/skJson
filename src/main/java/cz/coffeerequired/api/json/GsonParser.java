@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.json;
 
 import com.google.gson.*;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -86,6 +87,12 @@ public class GsonParser {
 
     @SuppressWarnings("unchecked")
     public static <T> T fromJson(JsonElement json) {
+
+        if (json == null) {
+            var ex = new SerializedJsonException("Cannot handle json, cause json input is null");
+            SkJson.logger().exception("Depth error", ex);
+            return null;
+        }
 
         if (json.isJsonPrimitive()) return SerializedJsonUtils.lazyJsonConverter(json);
 

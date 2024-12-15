@@ -30,7 +30,7 @@ public class JsonModule extends Modulable {
                 "type.json"
         );
 
-        register.registerExpression(ExprJsonGetter.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+        register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
                 "%json%.<(\\w+|[\\{\\}}])(\\[\\]|\\[\\d+\\])?(\\*)?(\\.)?>"
         );
 
@@ -59,5 +59,12 @@ public class JsonModule extends Modulable {
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
         register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% as pretty[ printed]", "%json% as uncolo[u]red pretty[ printed]");
         register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsons");
+        register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
+        register.registerEffect(EffNewFile.class,
+                "create json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
+                "create json file %string% and write to it %object% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]"
+        );
+        register.registerCondition(CondJsonFileExist.class, "json file %string% exists", "json file %string% does(n't| not) exist");
+        register.registerCondition(CondJsonIsEmpty.class, "json %json% is empty", "json %json% is(n't| not) empty");
     }
 }

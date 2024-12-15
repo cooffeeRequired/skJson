@@ -9,8 +9,6 @@ plugins {
 
 group = 'cz.coffee'
 version = '4.1.0'
-sourceCompatibility = '22'
-targetCompatibility = '22'
 
 static def generateSHA1() {
     def time = System.currentTimeMillis().toString()
@@ -36,7 +34,7 @@ repositories {
 apply from: 'dependencies.gradle'
 apply from: 'resources.gradle'
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
@@ -62,7 +60,7 @@ jar {
     }
 }
 
-tasks.withType(ShadowJar) {
+tasks.withType(ShadowJar).configureEach {
     archiveClassifier.set('shaded')
 
     // Relocate bStats to avoid classpath conflicts
@@ -76,13 +74,13 @@ tasks.withType(ShadowJar) {
     doLast {
         copy {
             from archiveFile.get().asFile
-            into 'C:\\Users\\nexti\\Desktop\\projects\\mc-developing\\plugins'
+            into 'C:\\projects\\mc-developing\\plugins'
             rename { 'SkJson.jar' }
         }
     }
 }
 
-task withServer {
+tasks.register('withServer') {
     dependsOn 'clean'
     dependsOn 'shadowJar'
 
