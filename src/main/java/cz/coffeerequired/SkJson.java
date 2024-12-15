@@ -1,7 +1,6 @@
 package cz.coffeerequired;
 
 import ch.njol.skript.Skript;
-import com.google.gson.JsonParser;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.Commands;
 import cz.coffeerequired.api.CustomLogger;
@@ -49,7 +48,7 @@ public final class SkJson extends JavaPlugin {
         logger.info("bStats metrics enabled.");
 
         try {
-            Class.forName("cz.coffeerequired.api.json.JsonFileWatcher");
+            Class.forName("cz.coffeerequired.api.json.CacheStorageWatcher");
             logger.info("Json watchers found & enabled.");
         } catch (ClassNotFoundException e) {
             logger.info("Unable to find Json watchers.");

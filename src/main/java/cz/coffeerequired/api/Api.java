@@ -2,8 +2,8 @@ package cz.coffeerequired.api;
 
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.JsonCache;
-import cz.coffeerequired.api.json.JsonFileWatcher;
+import cz.coffeerequired.api.json.CachedStorage;
+import cz.coffeerequired.api.json.CacheStorageWatcher;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class Api {
 
     @Getter
-    public static final ConcurrentHashMap<File, JsonFileWatcher> watchers = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<File, CacheStorageWatcher> watchers = new ConcurrentHashMap<>();
     @Getter
-    public static final JsonCache<String, JsonElement, File> cache = new JsonCache<>();
+    public static final CachedStorage<String, JsonElement, File> cache = new CachedStorage<>();
 
     /**
      * This method will also check if the given server supports all necessary requirements. <br />

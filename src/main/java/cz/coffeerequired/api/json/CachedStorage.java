@@ -1,5 +1,6 @@
 package cz.coffeerequired.api.json;
 
+import com.google.common.base.MoreObjects;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 
 import java.util.concurrent.CompletableFuture;
@@ -7,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @ExternalAPI
-public class JsonCache<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashMap<J, F>> {
+public class CachedStorage<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashMap<J, F>> {
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 

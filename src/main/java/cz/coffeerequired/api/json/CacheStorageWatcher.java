@@ -36,7 +36,7 @@ import java.util.concurrent.*;
  */
 
 
-public class JsonFileWatcher {
+public class CacheStorageWatcher {
     private static final ScheduledExecutorService service;
     private static final long DEFAULT_INTERVAL = 1000;
 
@@ -55,7 +55,7 @@ public class JsonFileWatcher {
     private EventFileWatcher event;
     private WatchService watchService;
 
-    public JsonFileWatcher(File file, String id, String parentID, long interval) {
+    public CacheStorageWatcher(File file, String id, String parentID, long interval) {
         this.uuid = UUID.randomUUID();
         this.parentID = parentID;
         this.id = id;
@@ -72,7 +72,7 @@ public class JsonFileWatcher {
     }
 
     private void watch() {
-        JsonCache<String, JsonElement, File> cache = Api.getCache();
+        CachedStorage<String, JsonElement, File> cache = Api.getCache();
 
         JsonElement jsonifyFile = null;
         String jsonContent;
@@ -174,7 +174,7 @@ public class JsonFileWatcher {
 
             if (found[0]) {
                 String parentFile = parent != null ? parent : file.toString();
-                JsonFileWatcher watcher = new JsonFileWatcher(file, id, parentFile, DEFAULT_INTERVAL);
+                CacheStorageWatcher watcher = new CacheStorageWatcher(file, id, parentFile, DEFAULT_INTERVAL);
                 watcher.invokeEvent(new EventFileWatcher(true, watcher.file, watcher.id, watcher.uuid, new JsonObject()));
 
                 watchers.put(file, watcher);
