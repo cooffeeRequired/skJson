@@ -39,8 +39,7 @@ public class SerializedJson {
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, true);
             }
 
             if (!current.isJsonObject()) {
@@ -55,12 +54,14 @@ public class SerializedJson {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var temp = deque.removeLast();
             var key = temp.getKey();
+
+            SkJson.logger().info("keys: " + tokens);
+
             JsonElement current = json;
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, true);
             }
 
             Number index;
@@ -133,8 +134,7 @@ public class SerializedJson {
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, false);
             }
 
             if (!current.isJsonObject()) {
@@ -150,8 +150,7 @@ public class SerializedJson {
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, false);
             }
 
             Number index;
@@ -168,8 +167,7 @@ public class SerializedJson {
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, false);
             }
 
             JsonElement valueElement = GsonParser.toJson(value);
@@ -198,8 +196,7 @@ public class SerializedJson {
             Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
-                var inLoopKey = currentKey.getKey();
-                current = handle(current, inLoopKey);
+                current = handle(current, currentKey, true);
             }
 
             if (current instanceof JsonArray array) {

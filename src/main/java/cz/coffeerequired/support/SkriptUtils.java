@@ -8,12 +8,12 @@ import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
 public abstract class SkriptUtils {
-    @SuppressWarnings("unchecked")
     public static TreeMap<String, Object> getListVariable(String name, Event event, boolean isLocal) {
         return (TreeMap<String, Object>) Variables.getVariable(name, event, isLocal);
     }
@@ -149,6 +149,14 @@ public abstract class SkriptUtils {
                 Variables.setVariable(variableName, o, event, isLocal);
             }
         }
+    }
+
+    public static boolean isSingleton(Collection<?> collection) {
+        return collection != null && collection.size() == 1;
+    }
+
+    public static <T> boolean isSingleton(T[] collection) {
+        return collection != null && collection.length == 1;
     }
 
 

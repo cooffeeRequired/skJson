@@ -1,7 +1,6 @@
 package cz.coffeerequired;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 public class Test {
     public static void main(String[] args) {
