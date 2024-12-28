@@ -1,6 +1,5 @@
 package cz.coffeerequired.api.json;
 
-import com.google.common.base.MoreObjects;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 
 import java.util.concurrent.CompletableFuture;
@@ -12,19 +11,38 @@ public class CachedStorage<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashM
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-
-    public synchronized void addValue(S id, J jsonElement, F file) {
-        lock.writeLock().lock();
+    public void addValue(S id, J jsonElement, F file) {
         CompletableFuture.runAsync(() -> {
-            ConcurrentHashMap<J, F> inner = getOrDefault(id, new ConcurrentHashMap<>());
-            inner.put(jsonElement, file);
-            put(id, inner);
+            lock.writeLock().lock();
+            try {
+                computeIfAbsent(id, _ -> new ConcurrentHashMap<>()).put(jsonElement, file);
+            } finally {
+                lock.writeLock().unlock();
+            }
         });
     }
 
-    public synchronized CompletableFuture<ConcurrentHashMap<J, F>> getValuesById(final S id) {
-        lock.readLock().lock();
-        return CompletableFuture.supplyAsync(() -> get(id));
+    public CompletableFuture<ConcurrentHashMap<J, F>> getValuesById(final S id) {
+        return CompletableFuture.supplyAsync(() -> {
+            lock.readLock().lock();
+            try {
+                return get(id);
+            } finally {
+                lock.readLock().unlock();
+            }
+        });
     }
 
+    public void removeIfPresent(S id) {
+        CompletableFuture.runAsync(() -> {
+            lock.writeLock().lock();
+            try {
+                if (containsKey(id)) {
+                    remove(id);
+                }
+            } finally {
+                lock.writeLock().unlock();
+            }
+        });
+    }
 }

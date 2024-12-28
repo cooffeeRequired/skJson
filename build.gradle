@@ -74,18 +74,36 @@ tasks.withType(ShadowJar).configureEach {
     doLast {
         copy {
             from archiveFile.get().asFile
-            into 'C:\\projects\\mc-developing\\plugins'
-            rename { 'SkJson.jar' }
+            into '/home/coffee/mc/plugins'
+            rename { "SkJson.jar" }
         }
     }
 }
 
-tasks.register('withServer') {
+tasks.register('withRemote') {
     dependsOn 'clean'
     dependsOn 'shadowJar'
 
-    finalizedBy 'runServer'
+    finalizedBy 'runRemote'
 }
+
+tasks.register("runRemote") {
+    doLast {
+        def command = "curl http://localhost:8080/command?cmd=reload+confirm"
+        println "Executing: $command"
+        def process = command.execute()
+        def output = new StringBuffer()
+        process.consumeProcessOutput(output, System.err)
+        process.waitFor()
+
+        if (process.exitValue() == 0) {
+            println "Command executed successfully:\n$output"
+        } else {
+            println "Command failed with exit code ${process.exitValue()}."
+        }
+    }
+}
+
 
 runServer {
     minecraftVersion("1.21.3")

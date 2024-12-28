@@ -13,9 +13,8 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.exceptions.ModulableException;
-import cz.coffeerequired.modules.CacheModule;
 import cz.coffeerequired.modules.HttpModule;
-import cz.coffeerequired.modules.JsonModule;
+import cz.coffeerequired.modules.Core;
 import cz.coffeerequired.modules.NbtModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
@@ -32,14 +31,14 @@ import static cz.coffeerequired.SkJson.logger;
 public class Register {
 
     static final String prefix = "[skjson]";
-    static ArrayDeque<Class<? extends Modulable>> modules = new ArrayDeque<>();
+    static ArrayDeque<Class<? extends Extensible>> modules = new ArrayDeque<>();
     @Getter
     private static SkriptAddon addon;
     @Getter
     private SkriptRegister skriptRegister = new SkriptRegister();
 
     @ExternalAPI
-    public static <T extends Modulable> void registerModules(JavaPlugin plugin, Class<T> module) {
+    public static <T extends Extensible> void registerModules(JavaPlugin plugin, Class<T> module) {
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
@@ -64,9 +63,8 @@ public class Register {
             logger().info("Trying register Skript addon...");
             logger().info("Trying register Skript elements...");
 
+            registerModule(Core.class);
             registerModule(HttpModule.class);
-            registerModule(JsonModule.class);
-            registerModule(CacheModule.class);
             registerModule(NbtModule.class);
 
         } else {
@@ -74,7 +72,7 @@ public class Register {
         }
     }
 
-    private void printAllRegistered(Modulable m) {
+    private void printAllRegistered(Extensible m) {
         m.getLoadedElements().forEach((key, value) -> {
             if (value.isEmpty()) return;
             logElement(key, value.size());
@@ -108,7 +106,7 @@ public class Register {
         }
     }
 
-    public <T extends Modulable> void registerModule(Class<T> module) {
+    public <T extends Extensible> void registerModule(Class<T> module) {
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
@@ -117,7 +115,7 @@ public class Register {
                 logger().info("Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
 
                 try {
-                    Modulable m = module.getDeclaredConstructor().newInstance();
+                    Extensible m = module.getDeclaredConstructor().newInstance();
                     m.load();
                     m.registerElements(this.getSkriptRegister());
                     printAllRegistered(m);
@@ -162,9 +160,9 @@ public class Register {
     @SuppressWarnings("unused")
     public static class SkriptRegister {
 
-        Modulable modulable;
+        Extensible modulable;
 
-        public void apply(final Modulable modulable) {
+        public void apply(final Extensible modulable) {
             this.modulable = modulable;
         }
 

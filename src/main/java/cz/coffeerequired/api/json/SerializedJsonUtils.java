@@ -3,12 +3,12 @@ package cz.coffeerequired.api.json;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.skript.json.SupportSkriptJson;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
-import static cz.coffeerequired.skript.json.SupportSkriptJson.JsonSupportElement.SearchType;
+import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement.SearchType;
 
 @SuppressWarnings("ALL")
 public abstract class SerializedJsonUtils {
@@ -53,15 +53,42 @@ public abstract class SerializedJsonUtils {
         }
     }
 
-    public static JsonElement handle(JsonElement json, Object key) throws SerializedJsonException, NumberFormatException {
+    public static JsonElement handle(JsonElement json, Map.Entry<String,SkriptJsonInputParser. Type> key_, boolean inSetMode) throws SerializedJsonException {
+        if (json == null || json.isJsonNull()) {
+            throw new SerializedJsonException("Cannot handle a null JSON element");
+        }
+
+        String key = key_.getKey();
+
         if (json instanceof JsonObject object) {
-            return object.get(key.toString());
-        } else if (json instanceof JsonArray element) {
-            return element.get(Integer.parseInt(key.toString()));
+            if (!object.has(key) && inSetMode) {
+                var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) ? new JsonArray() : new JsonObject();
+                object.add(key, newObject);
+                return newObject;
+            }
+            return object.get(key);
+        } else if (json instanceof JsonArray array) {
+            int index = Integer.parseInt(key);
+            if (inSetMode) {
+                while (array.size() <= index) {
+                    array.add(JsonNull.INSTANCE);
+                }
+                JsonElement element = array.get(index);
+                if (element.isJsonNull()) {
+                    var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) ? new JsonArray() : new JsonObject();
+                    array.set(index, newObject);
+                    return newObject;
+                }
+                return element;
+            } else {
+                JsonElement element = array.get(index);
+                return element;
+            }
         } else {
-            throw new SerializedJsonException("Json is not object or array: " + json.toString());
+            throw new SerializedJsonException("Json is not an object or array: " + json.toString());
         }
     }
+
 
     public static <T> JsonElement lazyObjectConverter(T object) {
         try {
@@ -82,6 +109,7 @@ public abstract class SerializedJsonUtils {
                     return new JsonPrimitive((Integer) object);
                 }
             }
+
             if (clazz.equals(Boolean.class))
                 return new JsonPrimitive((Boolean) object);
             if (clazz.equals(Double.class) || clazz.equals(Float.class))

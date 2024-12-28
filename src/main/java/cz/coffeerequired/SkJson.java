@@ -73,7 +73,7 @@ public final class SkJson extends JavaPlugin {
                     "about",
                     (sender, _) -> {
 
-                        @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) pluginConfig.get("soft-depend");
+                        ArrayList<String> list = (ArrayList<String>) pluginConfig.get("soft-depend");
 
                         if (!sender.hasPermission("skjson.use")) {
                             sender.sendMessage(logger().colorize("&cYou don't have permission to use this command."));

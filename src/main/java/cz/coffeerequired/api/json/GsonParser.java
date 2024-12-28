@@ -85,7 +85,6 @@ public class GsonParser {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T fromJson(JsonElement json) {
 
         if (json == null) {
