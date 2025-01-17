@@ -55,8 +55,8 @@ public abstract class Api {
 
     @SuppressWarnings("unused")
     public static class Records {
-        public static boolean PROJECT_DEBUG;
+        public static boolean PROJECT_DEBUG = true;
         public static boolean PROJECT_VERSION;
-        public static String PROJECT_DELIM = "::";
+        public static String PROJECT_DELIM = "."; // will be loaded
     }
 }

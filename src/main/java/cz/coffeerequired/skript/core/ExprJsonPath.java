@@ -7,6 +7,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.json.JsonPath;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
@@ -26,7 +27,7 @@ public class ExprJsonPath extends SimpleExpression<JsonPath> {
         JsonElement jsonElement = exprJson.getSingle(event);
         if (jsonElement == null) return new JsonPath[0];
         String path = exprPath.getSingle(event);
-        var tokens = SkriptJsonInputParser.tokenize(path, ".");
+        var tokens = SkriptJsonInputParser.tokenize(path, Api.Records.PROJECT_DELIM);
         return new JsonPath[] {new JsonPath(jsonElement, path, tokens)};
     }
 

@@ -1,5 +1,7 @@
 package cz.coffeerequired.api.json;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,8 +45,11 @@ public class SerializedJson {
             }
 
             if (!current.isJsonObject()) {
-                throw new SerializedJsonException("Key could be changed only in Json Objects");
+                Skript.error("Key could be changed only in Json Object but found (" + current.getClass().getSimpleName() + ")", ErrorQuality.SEMANTIC_ERROR);
             } else {
+
+                SkJson.logger().debug("current:? " + current);
+
                 ((JsonObject) current).add(newKey, current.getAsJsonObject().get(key));
                 ((JsonObject) current).remove(key);
             }
@@ -55,7 +60,7 @@ public class SerializedJson {
             var temp = deque.removeLast();
             var key = temp.getKey();
 
-            SkJson.logger().info("keys: " + tokens);
+            SkJson.logger().debug("keys: " + tokens);
 
             JsonElement current = json;
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
@@ -72,13 +77,21 @@ public class SerializedJson {
 
                 if (((JsonArray) current).isEmpty()) {
                     ((JsonArray) current).add(value);
+                } else if (((JsonArray) current).size() <= index.intValue()) {
+                    ((JsonArray) current).add(value);
                 } else {
                     ((JsonArray) current).set(index.intValue(), value);
                 }
             } else {
                 if (current == null) current = new JsonObject();
-                if (!current.isJsonObject()) throw new SerializedJsonException("Key could be changed only in Json Objects");
-                ((JsonObject) current).add(key, value);
+
+                if (current instanceof JsonArray jArray) {
+                    jArray.add(value);
+                } else if (current instanceof JsonObject jsonObject) {
+                    jsonObject.add(key, value);
+                } else {
+                    throw new SerializedJsonException("Key could be changed only in Json Objects");
+                }
             }
         }
     }

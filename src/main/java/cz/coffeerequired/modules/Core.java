@@ -1,6 +1,7 @@
 package cz.coffeerequired.modules;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ExpressionType;
@@ -8,6 +9,8 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Version;
+import ch.njol.util.coll.CollectionUtils;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Extensible;
@@ -22,12 +25,13 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.IntStream;
 
+import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
 
@@ -83,7 +87,58 @@ public class Core extends Extensible {
                 .description("Json path representation")
                 .since("4.1 - API UPDATE")
                 .parser(JsonPath.parser)
-                .serializer(JsonPath.serializer),
+                .serializer(JsonPath.serializer)
+                .changer(new Changer<>() {
+                    @Override
+                    public @Nullable Class<?>[] acceptChange(ChangeMode changeMode) {
+                        return switch (changeMode) {
+                            case ADD -> CollectionUtils.array(Object.class, Object[].class);
+                            default -> null;
+                        };
+                    }
+
+                    @Override
+                    public void change(JsonPath[] what, @Nullable Object[] delta, ChangeMode changeMode) {
+                        if (changeMode == ChangeMode.ADD) {
+                            if (delta == null || delta.length < 1) {
+                                logger().exception("delta need to be defined", new Exception("delta is null"));
+                                return;
+                            }
+
+                            JsonPath path = what[0];
+                            if (path == null) {
+                                logger().exception("json path is null", new Exception("Cannot invoke add to null!"));
+                                return;
+                            }
+
+                            logger().debug("path: " + path.getInput());
+
+                            SerializedJson serializedJson = new SerializedJson(path.getInput());
+                            var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
+
+                            IntStream.range(0, converted.length).forEach(idx -> {
+                                var json = converted[idx];
+                                var result = serializedJson.searcher.keyOrIndex(path.getKeys());
+                                if (result == null) {
+                                    logger().exception("result need to be defined", new Exception("result of search is null"));
+                                    return;
+                                }
+                                if (!(result instanceof JsonArray)) {
+                                    logger().exception("additional can be used only for JSON arrays.", new Exception("Property misstype, expected JSON array given " + result.getClass().getSimpleName()));
+                                    return;
+                                }
+                                var keys = path.getKeys();
+                                var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
+                                keys.add(key);
+
+                                logger().debug("KEY &c : " + key);
+
+
+                                serializedJson.changer.value(keys, json);
+                            });
+                        }
+                    }
+                }),
                 "type.jsonpath"
         );
 

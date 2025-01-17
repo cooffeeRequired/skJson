@@ -67,7 +67,7 @@ public class CustomLogger extends Logger {
     }
 
     public void debug(String message) {
-        Bukkit.getConsoleSender().sendMessage(colorize(message));
+        if (Api.Records.PROJECT_DEBUG) Bukkit.getConsoleSender().sendMessage(converter.deserialize("&e[debug] &8&o " + message));
     }
 
     public void exception(String message, Throwable throwable) {
