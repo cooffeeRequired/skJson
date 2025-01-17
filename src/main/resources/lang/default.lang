@@ -11,10 +11,7 @@ request method:
 
 types:
 	json: Json
+	jsonpath: JsonPath
 	jsonwebhook: Webhook
 	requestmethod: Metody
-	request: Request
-
-damage causes:
-	kill: This is error what i got!, Defined in .lang
-	world_border: This is world_border
+	request: Requestsk

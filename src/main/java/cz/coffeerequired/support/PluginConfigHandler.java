@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.coffeerequired.SkJson.logger;
+
 /**
  * A handler class for managing plugin configuration files.
  * This class provides methods to load, regenerate, save, and retrieve
@@ -135,9 +137,9 @@ public class PluginConfigHandler {
         if (configFile.exists()) {
             try {
                 this.config = YamlConfiguration.loadConfiguration(configFile);
-                logger.info("Config reloaded from file.");
+                logger().info("Config reloaded from file.");
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
+                logger().log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
                 regenerateConfig();
             }
         } else {

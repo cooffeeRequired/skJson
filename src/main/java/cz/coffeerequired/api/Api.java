@@ -6,8 +6,11 @@ import cz.coffeerequired.api.json.CacheStorageWatcher;
 import cz.coffeerequired.api.json.CachedStorage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Api {
@@ -55,8 +58,18 @@ public abstract class Api {
 
     @SuppressWarnings("unused")
     public static class Records {
+        public static final @NotNull String PROJECT_PERMISSION = "skjson.use";
         public static boolean PROJECT_DEBUG = true;
         public static boolean PROJECT_VERSION;
         public static String PROJECT_DELIM = "."; // will be loaded
+
+
+        @Getter
+        public static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
+                Map.entry("PROJECT_PERMISSION", "plugin.permission"),
+                Map.entry("PROJECT_DEBUG", "plugin.debug"),
+                Map.entry("PROJECT_VERSION", "plugin.version"),
+                Map.entry("PROJECT_DELIM", "json.path-delimiter")
+        ));
     }
 }
