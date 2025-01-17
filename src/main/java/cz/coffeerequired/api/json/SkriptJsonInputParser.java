@@ -2,15 +2,18 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.support.SkriptUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 public class SkriptJsonInputParser {
@@ -22,13 +25,30 @@ public class SkriptJsonInputParser {
 
         for (int i = 0; i < tokens.length; i++) {
             String currentToken = tokens[i];
-            Type type = getType(i, tokens, currentToken);
+            Type type;
+            var rsp = getType(i, tokens, currentToken);
+            if (rsp.size() == 2) {
+                type = (Type) rsp.get(0);
+                currentToken = (String) rsp.get(1);
 
-            currentToken = currentToken
-                    .replaceFirst("\\*", "")
-                    .replaceFirst("\\[]", "");
+                currentToken = currentToken
+                        .replaceFirst("\\*", "")
+                        .replaceFirst("\\[]", "");
 
-            tokensList.add(Map.entry(currentToken, type));
+                tokensList.add(Map.entry(currentToken, type));
+            } else if (rsp.size() > 2) {
+                for (int x = 0; x < rsp.size(); x = x+2) {
+                    type = (Type) rsp.get(x);
+                    currentToken = (String) rsp.get(x+1);
+
+                    currentToken = currentToken
+                            .replaceFirst("\\*", "")
+                            .replaceFirst("\\[]", "");
+
+                    tokensList.add(Map.entry(currentToken, type));
+                }
+            }
+
         }
         return tokensList;
     }
@@ -42,14 +62,26 @@ public class SkriptJsonInputParser {
         return getTokens(path, delim);
     }
 
-    private static @NotNull Type getType(int i, String[] tokens, String currentToken) {
+    private static @NotNull List<Object> getType(int i, String[] tokens, String currentToken) {
         String previousToken = i - 1 >= 0 ? tokens[i - 1] : null;
         String nextToken = i + 1 < tokens.length ? tokens[i + 1] : null;
         String last = tokens[tokens.length - 1];
         Type type;
 
+        logger().debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
+
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;
+        } else if (currentToken.matches(".+\\[\\d+]")) {
+            try {
+                var indexOfNumber = currentToken.indexOf('[');
+                var string = currentToken.substring(0, indexOfNumber);
+                currentToken = currentToken.substring(indexOfNumber + 1, currentToken.length() - 1);
+                return List.of(Type.List, string, Type.Index, currentToken);
+
+            } catch (NumberFormatException ignored) {
+                type = Type.Object;
+            }
         } else if (currentToken.endsWith("*")) {
             type = Type.ListAll;
         } else if (currentToken.matches("\\d+")) {
@@ -73,7 +105,7 @@ public class SkriptJsonInputParser {
                 }
             }
         }
-        return type;
+        return List.of(type, currentToken);
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {

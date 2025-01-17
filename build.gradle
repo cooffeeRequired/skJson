@@ -93,7 +93,7 @@ tasks.register("runRemote") {
         println "Executing: $command"
         def process = command.execute()
         def output = new StringBuffer()
-        process.consumeProcessOutput(output, System.err)
+        //process.consumeProcessOutput(output, System.in)
         process.waitFor()
 
         if (process.exitValue() == 0) {

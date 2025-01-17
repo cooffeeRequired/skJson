@@ -62,7 +62,7 @@ public abstract class SerializedJsonUtils {
 
         if (json instanceof JsonObject object) {
             if (!object.has(key) && inSetMode) {
-                var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) ? new JsonArray() : new JsonObject();
+                var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) || key_.getValue().equals(SkriptJsonInputParser.Type.Index) ? new JsonArray() : new JsonObject();
                 object.add(key, newObject);
                 return newObject;
             }
@@ -75,7 +75,7 @@ public abstract class SerializedJsonUtils {
                 }
                 JsonElement element = array.get(index);
                 if (element.isJsonNull()) {
-                    var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) ? new JsonArray() : new JsonObject();
+                    var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) || key_.getValue().equals(SkriptJsonInputParser.Type.Index) ? new JsonArray() : new JsonObject();
                     array.set(index, newObject);
                     return newObject;
                 }
