@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.http;
 
 import com.google.errorprone.annotations.RestrictedApi;
+import com.google.gson.JsonElement;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
@@ -97,6 +98,11 @@ public class MimeMultipartData {
 
         public Builder addContent(String jsonBody) {
             this.jsonContent = jsonBody;
+            return this;
+        }
+
+        public Builder addContent(JsonElement jsonBody) {
+            this.jsonContent = jsonBody.toString();
             return this;
         }
 

@@ -94,12 +94,15 @@ public final class SkJson extends JavaPlugin {
                         try {
                             final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
                                Map.entry("PROJECT_DEBUG", Api.Records.PROJECT_DEBUG),
-                               Map.entry("PROJECT_VERSION", Api.Records.PROJECT_VERSION),
                                Map.entry("PROJECT_DELIM", Api.Records.PROJECT_DELIM),
-                               Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION)
+                               Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION),
+                                Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
+                                Map.entry("PROJECT_ENABLED_NBT", Api.Records.PROJECT_ENABLED_NBT),
+                                Map.entry("WATCHER_INTERVAL", Api.Records.WATCHER_INTERVAL),
+                                Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE)
                             ));
                             configuration.getHandler().reloadConfig();
-                            Boolean[] changed = new Boolean[1];
+                            Boolean[] changed = new Boolean[]{false};
                             before.forEach((key, value) -> {
                                 try {
                                     var field = Api.Records.class.getDeclaredField(key);
@@ -108,7 +111,7 @@ public final class SkJson extends JavaPlugin {
 
                                     if (!value.equals(fieldValue)) {
                                         if (!changed[0]) changed[0] = true;
-                                        logger().info("&7The field " + Configuration.getMapping(key) + " has been changed from &e ." + value + " to &e" + fieldValue);
+                                        logger().info("&7The field " + Configuration.getMapping(key) + " has been changed from &e" + value + "&7 to &f" + fieldValue);
                                     }
                                 } catch (NoSuchFieldException | IllegalAccessException e) {
                                     logger().exception("Cannot handle that field " + key, e);

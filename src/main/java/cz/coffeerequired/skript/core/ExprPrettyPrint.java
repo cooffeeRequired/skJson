@@ -42,14 +42,12 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
 
         if (format.equals(Format.PRETTY)) {
             defaultStringifyJson = defaultStringifyJson
+                    .replaceAll("(\\s+\".*?\")", "&2$1&7")
                     .replaceAll("(?i:true)", "&2$0&f") // Green for 'true'
                     .replaceAll("(?i:false)", "&4$0&f") // Red for 'false'
                     .replaceAll("(?i:null)", "&5$0&f") // Purple for 'null'
-                    .replaceAll("([{}])|([\\[\\]])", "&7$1&e$2&f") // Gray for brackets
-                    .replaceAll("(?<!\")(?<!\\w)([+-]?\\d*\\.?\\d+)(?!\")", "&b$1&f") // Blue for standalone numbers
-                    .replaceAll("(\".*?\")", "&a$1&f"); // Green for strings (quotes and content)
-
-
+                    .replaceAll("[{}]", "&7$0&f")
+                    .replaceAll("[\\[\\]]", "&6$0&f");
         }
         return new String[]{SkJson.logger().legacy(defaultStringifyJson)};
     }

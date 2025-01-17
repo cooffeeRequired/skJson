@@ -47,7 +47,7 @@ public class Register {
                 logger().info("[" + plugin.getName() + "]Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
                 modules.add(module);
             } else {
-                throw new IllegalCallerException("Class what extends Modulable always need to be annotated by @Module");
+                throw new IllegalCallerException("Class what extends Extensible always need to be annotated by @Module");
             }
         } catch (Exception e) {
             logger().exception(e.getMessage(), e);
@@ -64,8 +64,14 @@ public class Register {
             logger().info("Trying register Skript elements...");
 
             registerModule(Core.class);
-            registerModule(HttpModule.class);
-            registerModule(NbtModule.class);
+
+            if (Api.Records.PROJECT_ENABLED_HTTP) {
+                registerModule(HttpModule.class);
+            }
+
+            if (Api.Records.PROJECT_ENABLED_NBT) {
+                registerModule(NbtModule.class);
+            }
 
         } else {
             logger().error("Skript plugin not detected.");

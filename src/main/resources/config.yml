@@ -1,8 +1,9 @@
 plugin:
   config-version: 4
-  version: 1.0
   debug: false
   permission: "skjson.use"
+  enabled-http: true
+  enabled-nbt: false
 
 json:
   path-delimiter: "."

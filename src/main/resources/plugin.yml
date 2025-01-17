@@ -21,4 +21,3 @@ permissions:
     description: Allows you to use skjson
 libraries:
 #  - org.glassfish.jersey.core:jersey-server:2.34
-#  - org.eclipse.jetty:jetty-client:12.0.1

@@ -3,9 +3,7 @@ package cz.coffeerequired.modules;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Version;
@@ -26,6 +24,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.File;
 import java.util.*;
@@ -54,11 +53,7 @@ public class Core extends Extensible {
 
     public void tryRegisterDefaultConverters() {
         try {
-            if (Skript.getVersion().isLargerThan(new Version(2, 6, 4))) {
-                allowedTypes.forEach(type -> org.skriptlang.skript.lang.converter.Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
-            } else {
-                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
-            }
+            allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
         } catch (Exception e) {
             SkJson.logger().exception("Error while registering default converters", e);
         }
@@ -207,28 +202,35 @@ public class Core extends Extensible {
                 "[json-] watcher save"
         );
 
-        EventValues.registerEventValue(JSONFileWatcherSave.class, JsonElement.class,
-                new Getter<>() {
-                    @Override
-                    public JsonElement get(JSONFileWatcherSave event) {
-                        return event.getJson();
-                    }
-                }, 0);
-
-        EventValues.registerEventValue(JSONFileWatcherSave.class, UUID.class,
-                new Getter<>() {
-                    @Override
-                    public UUID get(JSONFileWatcherSave event) {
-                        return event.getUuid();
-                    }
-                }, 0);
-
-        EventValues.registerEventValue(JSONFileWatcherSave.class, File.class,
-                new Getter<>() {
-                    @Override
-                    public File get(JSONFileWatcherSave event) {
-                        return event.getLinkedFile();
-                    }
-                }, 0);
+        if (Skript.getVersion().isSmallerThan(new Version(2, 10, 0))) {
+            //noinspection removal
+            EventValues.registerEventValue(JSONFileWatcherSave.class, JsonElement.class,
+                    new Getter<>() {
+                        @Override
+                        public JsonElement get(JSONFileWatcherSave event) {
+                            return event.getJson();
+                        }
+                    }, 0);
+            //noinspection removal
+            EventValues.registerEventValue(JSONFileWatcherSave.class, UUID.class,
+                    new Getter<>() {
+                        @Override
+                        public UUID get(JSONFileWatcherSave event) {
+                            return event.getUuid();
+                        }
+                    }, 0);
+            //noinspection removal
+            EventValues.registerEventValue(JSONFileWatcherSave.class, File.class,
+                    new Getter<>() {
+                        @Override
+                        public File get(JSONFileWatcherSave event) {
+                            return event.getLinkedFile();
+                        }
+                    }, 0);
+        } else {
+            EventValues.registerEventValue(JSONFileWatcherSave.class, JsonElement.class, JSONFileWatcherSave::getJson, 0);
+            EventValues.registerEventValue(JSONFileWatcherSave.class, UUID.class, JSONFileWatcherSave::getUuid, 0);
+            EventValues.registerEventValue(JSONFileWatcherSave.class, File.class, JSONFileWatcherSave::getLinkedFile, 0);
+        }
     }
 }

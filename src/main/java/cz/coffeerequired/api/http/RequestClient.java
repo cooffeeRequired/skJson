@@ -2,15 +2,22 @@ package cz.coffeerequired.api.http;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.api.requests.Attachment;
+import cz.coffeerequired.api.requests.Pairs;
+import cz.coffeerequired.api.requests.RequestMethod;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @SuppressWarnings("unused")
 public class RequestClient implements AutoCloseable {
 
@@ -18,6 +25,7 @@ public class RequestClient implements AutoCloseable {
     private final Gson gson;
     private HttpRequest.Builder requestBuilder;
     private HttpRequest.BodyPublisher bodyPublisher; // Keep track of the actual body publisher
+    private RequestMethod method;
 
     public RequestClient() {
         this.httpClient = HttpClient.newBuilder()
@@ -27,8 +35,7 @@ public class RequestClient implements AutoCloseable {
     }
 
     public RequestClient setUri(String uri) {
-        this.requestBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(uri));
+        this.requestBuilder = HttpRequest.newBuilder(URI.create(uri));
         return this;
     }
 
@@ -40,11 +47,19 @@ public class RequestClient implements AutoCloseable {
         return this;
     }
 
+    public RequestClient method(RequestMethod method) {
+        this.method = method;
+        return method(method.toString().toUpperCase());
+    }
+
     public RequestClient setJsonBody(JsonElement body) {
         if (this.requestBuilder == null) {
             throw new IllegalStateException("Request builder is not initialized.");
         }
-        this.bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(body));
+        this.bodyPublisher = body == null ?
+                HttpRequest.BodyPublishers.noBody() :
+                HttpRequest.BodyPublishers.ofString(gson.toJson(body));
+
         this.requestBuilder.header("Content-Type", "application/json")
                 .POST(this.bodyPublisher);
         return this;
@@ -70,6 +85,26 @@ public class RequestClient implements AutoCloseable {
             this.requestBuilder.header(key, value);
         });
         return this;
+    }
+
+    public RequestClient addHeader(Pairs[] pairs) {
+        if (this.requestBuilder == null) {
+            throw new IllegalStateException("Request builder is not initialized.");
+        }
+
+        if (pairs == null || pairs.length == 0) return this;
+
+        Arrays.stream(pairs).forEach(pair -> {
+            if ("Content-Type".equalsIgnoreCase(pair.getKey()) && this.requestBuilder.build().headers().firstValue(pair.getKey()).isPresent()) {
+                return;
+            }
+            this.requestBuilder.header(pair.getKey(), pair.getValue());
+        });
+        return this;
+    }
+
+    public void setAttachments(LinkedList<Attachment> attachments) {
+
     }
 
     public HttpResponse<String> send() throws Exception {

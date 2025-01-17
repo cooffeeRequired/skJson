@@ -46,6 +46,7 @@ public class Commands {
         return (_, _) -> List.of();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static BiConsumer<CommandSender, String[]> emptyCommand() {
         return (_, _) -> List.of();
     }
