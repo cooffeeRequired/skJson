@@ -25,7 +25,6 @@ public class RequestClient implements AutoCloseable {
     private final Gson gson;
     private HttpRequest.Builder requestBuilder;
     private HttpRequest.BodyPublisher bodyPublisher; // Keep track of the actual body publisher
-    private RequestMethod method;
 
     public RequestClient() {
         this.httpClient = HttpClient.newBuilder()
@@ -48,11 +47,10 @@ public class RequestClient implements AutoCloseable {
     }
 
     public RequestClient method(RequestMethod method) {
-        this.method = method;
         return method(method.toString().toUpperCase());
     }
 
-    public RequestClient setJsonBody(JsonElement body) {
+    public void setJsonBody(JsonElement body) {
         if (this.requestBuilder == null) {
             throw new IllegalStateException("Request builder is not initialized.");
         }
@@ -62,16 +60,14 @@ public class RequestClient implements AutoCloseable {
 
         this.requestBuilder.header("Content-Type", "application/json")
                 .POST(this.bodyPublisher);
-        return this;
     }
 
-    public RequestClient setBodyPublisher(HttpRequest.BodyPublisher bodyPublisher) {
+    public void setBodyPublisher(HttpRequest.BodyPublisher bodyPublisher) {
         if (this.requestBuilder == null) {
             throw new IllegalStateException("Request builder is not initialized.");
         }
         this.bodyPublisher = bodyPublisher;
         this.requestBuilder.POST(bodyPublisher);
-        return this;
     }
 
     public RequestClient addHeaders(Map<String, String> headers) {
