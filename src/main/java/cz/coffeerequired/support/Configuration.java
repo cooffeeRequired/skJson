@@ -3,6 +3,7 @@ package cz.coffeerequired.support;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffeerequired.SkJson;
+import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,13 +21,16 @@ import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static cz.coffeerequired.api.Api.Records.mapping;
+
 public class Configuration {
 
     private static final String REPOSITORY = "skJson";
     private static final String USERNAME = "cooffeeRequired";
     private final JavaPlugin plugin;
     @SuppressWarnings("unused")
-    private final PluginConfigHandler configHandler = new PluginConfigHandler(SkJson.getInstance());
+    @Getter
+    private final PluginConfigHandler handler = new PluginConfigHandler(SkJson.getInstance());
 
     public Configuration(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -173,5 +177,12 @@ public class Configuration {
         } catch (Exception e) {
             SkJson.logger().exception("Error occured while copying test scripts from jar file!", e);
         }
+    }
+
+    public static String getMapping(final String key) {
+        if (mapping.containsKey(key)) {
+            return mapping.get(key);
+        }
+        return null;
     }
 }

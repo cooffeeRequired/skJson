@@ -6,8 +6,11 @@ import cz.coffeerequired.api.json.CacheStorageWatcher;
 import cz.coffeerequired.api.json.CachedStorage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Api {
@@ -55,8 +58,30 @@ public abstract class Api {
 
     @SuppressWarnings("unused")
     public static class Records {
+        public static @NotNull String PROJECT_PERMISSION = "skjson.use";
         public static boolean PROJECT_DEBUG = true;
-        public static boolean PROJECT_VERSION;
+
+        public static boolean PROJECT_ENABLED_HTTP;
+        public static boolean PROJECT_ENABLED_NBT;
+
         public static String PROJECT_DELIM = "."; // will be loaded
+
+        public static int WATCHER_INTERVAL;
+        public static int WATCHER_REFRESH_RATE;
+
+
+        @Getter
+        public static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
+                Map.entry("PROJECT_PERMISSION", "plugin.permission"),
+                Map.entry("PROJECT_DEBUG", "plugin.debug"),
+
+                Map.entry("PROJECT_DELIM", "json.path-delimiter"),
+
+                Map.entry("PROJECT_ENABLED_HTTP", "plugin.enabled-http"),
+                Map.entry("PROJECT_ENABLED_NBT", "plugin.enabled-nbt"),
+
+                Map.entry("WATCHER_INTERVAL", "json.watcher.interval"),
+                Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate")
+        ));
     }
 }

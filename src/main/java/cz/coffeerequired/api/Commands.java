@@ -1,6 +1,5 @@
 package cz.coffeerequired.api;
 
-import cz.coffeerequired.SkJson;
 import lombok.Setter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,12 +8,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+
+import static cz.coffeerequired.SkJson.logger;
 
 public class Commands {
     private static final Map<String, CommandHandler> commandMap = new HashMap<>();
@@ -27,15 +25,30 @@ public class Commands {
                            BiConsumer<CommandSender, String[]> executor,
                            BiFunction<CommandSender, String[], List<String>> completer
     ) {
-        commandMap.put(cmd, new CommandHandler(executor, completer));
+        if (cmd.contains("|")) {
+             Arrays.stream(cmd.split("\\|"))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(c -> commandMap.put(c, new CommandHandler(executor, completer)));
+        } else {
+            commandMap.put(cmd, new CommandHandler(executor, completer));
+        }
     }
 
 
     public static void registerCommand(final JavaPlugin plugin) {
         var cmd = plugin.getCommand(mainCommand);
         var e = new NullPointerException("Command is null");
-        if (cmd == null) SkJson.logger().exception(e.getMessage(), e);
+        if (cmd == null) logger().exception(e.getMessage(), e);
         else cmd.setExecutor(new CommandManager());
+    }
+    public static BiFunction<CommandSender, String[], List<String>> emptyCompleter() {
+        return (_, _) -> List.of();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static BiConsumer<CommandSender, String[]> emptyCommand() {
+        return (_, _) -> List.of();
     }
 
     private record CommandHandler(BiConsumer<CommandSender, String[]> commandExecutor,
@@ -54,8 +67,21 @@ public class Commands {
 
         @Override
         public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+
+            if (!sender.hasPermission(Api.Records.PROJECT_PERMISSION)) {
+                sender.sendMessage(logger().colorize("&cYou don't have permission to use this command!"));
+                return true;
+            }
+
             if (args.length == 0) {
-                sender.sendMessage("No arguments");
+                sender.sendMessage(logger().colorize(
+                        CustomLogger.getGRADIENT_PREFIX() +
+                        "\nUsage: /" + label + " <command>" +
+                        "\n &e - about|?" +
+                        "\n &e - reload" +
+                        "\n &e - status" +
+                        "\n &e - debug"
+                ));
                 return true;
             }
 

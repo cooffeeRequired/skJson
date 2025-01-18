@@ -1,3 +1,12 @@
 plugin:
-  version: 1.0
+  config-version: 4
   debug: false
+  permission: "skjson.use"
+  enabled-http: true
+  enabled-nbt: false
+
+json:
+  path-delimiter: "."
+  watcher:
+    interval: 100
+    refresh-rate: 50

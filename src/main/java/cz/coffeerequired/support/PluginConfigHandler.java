@@ -1,5 +1,6 @@
 package cz.coffeerequired.support;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static cz.coffeerequired.SkJson.logger;
+import static cz.coffeerequired.api.Api.Records.*;
 
 /**
  * A handler class for managing plugin configuration files.
@@ -35,6 +39,7 @@ public class PluginConfigHandler {
 
     public PluginConfigHandler(JavaPlugin plugin) {
         this(plugin, "config.yml");
+        loadRecords();
     }
 
     public PluginConfigHandler(JavaPlugin plugin, String fileName) {
@@ -130,14 +135,35 @@ public class PluginConfigHandler {
         }
     }
 
+    private void loadRecords() {
+        PROJECT_DEBUG = get("plugin.debug", Boolean.class);
+        PROJECT_PERMISSION = getString("plugin.permission", "");
+
+        PROJECT_ENABLED_NBT = get("plugin.enabled-nbt", Boolean.class);
+        PROJECT_ENABLED_HTTP = get("plugin.enabled-http", Boolean.class);
+
+        PROJECT_DELIM = getString("json.path-delimiter", ".");
+        WATCHER_INTERVAL = get("json.watcher.interval", Integer.class);
+        WATCHER_REFRESH_RATE = get("json.watcher.refresh-rate", Integer.class);
+
+
+        if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
+            logger().info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+            logger().error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+            Bukkit.getPluginManager().disablePlugin(plugin);
+            return;
+        }
+    }
+
 
     public void reloadConfig() {
         if (configFile.exists()) {
             try {
                 this.config = YamlConfiguration.loadConfiguration(configFile);
-                logger.info("Config reloaded from file.");
+                logger().info("Config reloaded from file.");
+                loadRecords();
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
+                logger().log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
                 regenerateConfig();
             }
         } else {

@@ -101,6 +101,19 @@ tasks.register("runRemote") {
         } else {
             println "Command failed with exit code ${process.exitValue()}."
         }
+
+        def command2 = "curl http://localhost:8080/command?cmd=skjson"
+        println "Executing: $command2"
+        def process2 = command2.execute()
+        def output2 = new StringBuffer()
+        //process.consumeProcessOutput(output, System.in)
+        process2.waitFor()
+
+        if (process2.exitValue() == 0) {
+            println "Command executed successfully:\n$output"
+        } else {
+            println "Command failed with exit code ${process2.exitValue()}."
+        }
     }
 }
 

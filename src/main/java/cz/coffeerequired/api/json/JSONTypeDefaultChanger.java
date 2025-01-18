@@ -17,9 +17,6 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
     @Override
     @SuppressWarnings("all")
     public @Nullable Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
-
-        logger().debug("Main changer: " + mode);
-
         return switch (mode) {
 //            case RESET, REMOVE, REMOVE_ALL -> CollectionUtils.array(Object[].class);
             case REMOVE -> CollectionUtils.array(JsonPath.class);
