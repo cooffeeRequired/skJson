@@ -1,4 +1,4 @@
-# SkJson 4.1 (WIP)
+# SkJson 4.5 (WIP)
 
 ![GitHub release](https://img.shields.io/github/release/SkJsonTeam/skJson?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues-raw/SkJsonTeam/skJson?style=for-the-badge)
