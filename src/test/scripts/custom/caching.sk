@@ -1,0 +1,16 @@
+test "json storage cache":
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+
+    create json file "jsons/test.json" and write to it {_json} with configuration[replace=true, encoding=UTF-8]
+
+    create json virtual storage named "virtual"
+
+    set (json storage of id "virtual").new to "Test"
+
+    bind json file "jsons/test.json" as "test"
+
+    send json storage of id "virtual"
+    send json storage of id "test"
+
+    assert json storage of id "virtuals" is set with "cannot create virtual storage"
+    assert json storage of id "test" is set with "cannot create an cache from file"
