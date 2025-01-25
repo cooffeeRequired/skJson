@@ -36,5 +36,5 @@ jobs:
       - name: Run tests
         uses: SkriptLang/skript-test-action@feature/performance
         with:
-          test_script_directory: src/test/scripts/
+          test_script_directory: src/scripts/
           extra_plugins_directory: extra-plugins/
