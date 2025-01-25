@@ -1,116 +1,105 @@
-import java.math.BigInteger
 import java.security.MessageDigest
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    java
-    id("com.github.johnrengelman.shadow") version "8.3.5"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.5'
+    id 'xyz.jpenilla.run-paper' version '2.3.1'
 }
 
-group = "cz.coffee"
-version = "4.1.0"
+group = 'cz.coffee'
+version = '4.5'
 
-// Generátor SHA1 hash
-fun generateSHA1(): String {
-    val time = System.currentTimeMillis().toString()
-    val md = MessageDigest.getInstance("SHA-1")
-    val digest = md.digest(time.toByteArray())
-    return BigInteger(1, digest).toString(16).padStart(40, '0')
+ext {
+    environment = project.hasProperty('env') ? project.property('env') : 'DEV'
 }
 
-// Generátor zkráceného SHA1 hash
-fun generateShortSHA1(sha1: String): String = sha1.substring(0, 8)
+println "Using environment: $environment"
 
-// Repozitáře
+jar { manifest { attributes( 'Implementation-Title': 'SkJson', 'Implementation-Version': version) } }
+
+static def generateSHA1() {
+    def time = System.currentTimeMillis().toString()
+    def md = MessageDigest.getInstance("SHA-1")
+    def digest = md.digest(time.bytes)
+    return new BigInteger(1, digest).toString(16).padLeft(40, '0')
+}
+
+static def generateShortSHA1(sha1) {
+    return sha1.substring(0, 8)
+}
+
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
-    maven("https://repo.skriptlang.org/releases")
-    maven("https://oss.sonatype.org/content/groups/public/")
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.purpurmc.org/snapshots")
-    maven("https://repo.codemc.io/repository/maven-public/")
+    maven { url "https://jitpack.io" }
+    maven { url "https://repo.skriptlang.org/releases" }
+    maven { url "https://oss.sonatype.org/content/groups/public/" }
+    maven { url "https://repo.papermc.io/repository/maven-public/" }
+    maven { url "https://repo.purpurmc.org/snapshots" }
+    maven { url "https://repo.codemc.io/repository/maven-public/" }
 }
 
-// Importy externích konfigurací
-apply(from = "dependencies.gradle.kts")
-apply(from = "resources.gradle.kts")
+apply from: 'dependencies.gradle'
+apply from: 'resources.gradle'
 
-// Nastavení kompilace Javy
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
-    options.compilerArgs.add("--enable-preview")
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
-// Generování hashů
-val fullRev = generateSHA1()
-val shortRev = generateShortSHA1(fullRev)
+def fullRev = generateSHA1()
+def shortRev = generateShortSHA1(fullRev)
 
-// Zpracování zdrojových souborů
 tasks.processResources {
-    filesMatching(listOf("plugin.yml", "lang/default.lang")) {
-        expand(mapOf("version" to project.version, "rev" to shortRev))
+    filesMatching(["plugin.yml", "lang/default.lang"]) {
+        expand("version": project.version, "rev": shortRev)
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// Konfigurace jar souboru
-tasks.jar {
-    manifest {
-        attributes(
-                "Implementation-Title" to "SkJson",
-                "Implementation-Version" to project.version
-        )
+// ShadowJar nastavení
+tasks.withType(ShadowJar).configureEach {
+    archiveClassifier.set('shaded')
+    archiveFileName.set('skjson.jar')
+
+    // Relokace pro bStats a NBT API
+    relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
+    relocate 'de.tr7zw.changeme.nbtapi', 'cz.coffee.shadowed.nbtapi'
+
+    // Vyloučení META-INF souborů
+    exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+    if (environment.equals("DEV")) {
+        doLast {
+            printf("Coppy to plugins")
+            copy {
+                from archiveFile.get().asFile
+                into '/home/coffee/mc/plugins'
+            }
+        }
     }
 }
 
-// ShadowJar nastavení
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>().configureEach {
-    archiveClassifier.set("shaded")
-
-    // Relokace pro bStats a NBT API
-    relocate("org.bstats", "cz.coffee.shadowed.bstats")
-    relocate("de.tr7zw.changeme.nbtapi", "cz.coffee.shadowed.nbtapi")
-
-    // Vyloučení META-INF souborů
-    exclude("META-INF/*.MF", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+tasks.register('withRemote') {
+    dependsOn 'clean'
+    dependsOn 'shadowJar'
+    finalizedBy 'runRemote'
 }
 
-// Task pro build a vzdálené spuštění
-tasks.register("withRemote") {
-    dependsOn("clean", "shadowJar")
-    finalizedBy("runRemote")
-}
-
-// Volání API funkce
-fun callAPI(cmd: String) {
-    val command = "curl -s http://localhost:8080/command?cmd=$cmd"
-    println("Executing: $command")
-    val process = Runtime.getRuntime().exec(command)
-    val output = process.inputStream.bufferedReader().readText()
-    val errorOutput = process.errorStream.bufferedReader().readText()
-
+static def callAPI(String cmd) {
+    def command = "curl -s http://localhost:8080/command?cmd=" + cmd
+    println "Executing: $command"
+    def process = command.execute()
+    def output = new StringBuffer()
+    process.consumeProcessOutput(output, new StringBuffer())
     process.waitFor()
 
     if (process.exitValue() == 0) {
-        println("Command executed successfully:\n$output")
+        println "Command executed successfully:\n$output"
     } else {
-        println("Command failed with exit code ${process.exitValue()}:\n$errorOutput")
+        println "Command failed with exit code ${process.exitValue()}:\n$output"
     }
 }
 
-// Task pro vzdálené spuštění
 tasks.register("runRemote") {
-    doLast {
-        callAPI("reload+confirm")
-    }
-}
-
-// Konfigurace běhu serveru
-tasks.withType<xyz.jpenilla.runpaper.task.RunServer>().configureEach {
-    minecraftVersion("1.21.3")
-
-    downloadPlugins {
-        url("https://github.com/SkriptLang/Skript/releases/download/2.9.4/Skript-2.9.4.jar")
-    }
+    doLast { callAPI("reload+confirm") }
 }
