@@ -7,7 +7,6 @@
 [![Discord](https://img.shields.io/discord/425192525091831808.svg?style=for-the-badge)](https://discord.gg/dsZq5Cs9fd)
 ![License](https://img.shields.io/github/license/SkJsonTeam/skJson?style=for-the-badge)
 [![CodeFactor](https://www.codefactor.io/repository/github/cooffeerequired/skjson/badge)](https://www.codefactor.io/repository/github/cooffeerequired/skjson)
-[![Java CI with Maven](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/SkJsonTeam/skJson/actions/workflows/maven.yml)
 
 <br />
 
@@ -42,7 +41,11 @@
 
 The new version of SkJson is currently a **Work in Progress (WIP)**. Our goal is to make JSON handling in Skript easier and more efficient than ever before. This release will feature major improvements in terms of performance, usability, and compatibility, providing you with a seamless experience for all your scripting needs.
 
+<<<<<<< HEAD
 ### Key Improvements:
+=======
+for the first time and recommend working with [SkJson Documentation](https://skjson.xyz/)
+>>>>>>> main
 
 - **Java 21+ Compatibility**: SkJson now requires Java 21 or higher, ensuring that the addon takes full advantage of the latest performance improvements and language features.
 - **Skript 2.9.2+ Compatibility**: Updated compatibility to require Skript 2.9.2+, providing better support and additional features that enhance your scripting workflow.
