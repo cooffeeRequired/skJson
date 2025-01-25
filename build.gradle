@@ -43,10 +43,7 @@ def shortRev = generateShortSHA1(fullRev)
 
 tasks.processResources {
     filesMatching(Set.of("plugin.yml", "lang/default.lang")) {
-        expand(
-                "version": project.version,
-                "rev": shortRev
-        )
+        expand("version": project.version, "rev": shortRev)
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
