@@ -15,7 +15,7 @@ public class CachedStorage<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashM
         CompletableFuture.runAsync(() -> {
             lock.writeLock().lock();
             try {
-                computeIfAbsent(id, _ -> new ConcurrentHashMap<>()).put(jsonElement, file);
+                computeIfAbsent(id, s-> new ConcurrentHashMap<>()).put(jsonElement, file);
             } finally {
                 lock.writeLock().unlock();
             }

@@ -33,12 +33,12 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
         if (line == 0) {
             if (cache.containsKey(storedKey)) {
                 JsonElement[] json = new JsonElement[1];
-                cache.get(storedKey).forEach((json_, _) -> json[0] = json_);
+                cache.get(storedKey).forEach((json_, f) -> json[0] = json_);
                 return json;
             }
         } else {
             ArrayList<JsonElement> elements = new ArrayList<>();
-            cache.forEach((_, m) -> m.forEach((json, _) -> elements.add(json)));
+            cache.forEach((s, m) -> m.forEach((json, f) -> elements.add(json)));
             return elements.toArray(new JsonElement[0]);
         }
         return new JsonElement[0];

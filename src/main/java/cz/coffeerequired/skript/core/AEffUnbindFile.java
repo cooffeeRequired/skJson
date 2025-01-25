@@ -34,7 +34,7 @@ public class AEffUnbindFile extends AsyncEffect {
         var file = new File[1];
 
         if (cache.containsKey(id)) {
-            cache.get(id).forEach((_, v) -> file[0] = v);
+            cache.get(id).forEach((j, v) -> file[0] = v);
 
             SkJson.logger().debug("is storage bound: " + CacheStorageWatcher.Extern.hasRegistered(file[0]));
 

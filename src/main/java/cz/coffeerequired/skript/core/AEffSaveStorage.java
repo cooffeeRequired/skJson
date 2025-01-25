@@ -57,7 +57,7 @@ public class AEffSaveStorage extends AsyncEffect {
                     return;
                 }
 
-                FileHandler.write(f.toString(), j, new String[]{"replace=true"}).whenComplete((_, error) -> {
+                FileHandler.write(f.toString(), j, new String[]{"replace=true"}).whenComplete((b, error) -> {
                     if (error != null) {
                         SkJson.logger().exception("Cannot save storage id " + id, error);
                     } else {

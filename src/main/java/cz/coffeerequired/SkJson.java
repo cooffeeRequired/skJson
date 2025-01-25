@@ -62,7 +62,7 @@ public final class SkJson extends JavaPlugin {
 
     @SuppressWarnings("UnstableApiUsage")
     private BiConsumer<CommandSender, String[]> aboutAddon() {
-        return (sender, _) -> {
+        return (sender, s) -> {
             var plMeta = this.getPluginMeta();
 
             @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) pluginConfig.get("soft-depend");
@@ -95,7 +95,7 @@ public final class SkJson extends JavaPlugin {
             Commands.add("about|?", aboutAddon(), Commands.emptyCompleter());
             Commands.add(
                     "reload",
-                    (sender, _) -> {
+                    (sender, s) -> {
                         sender.sendMessage(logger().colorize(CustomLogger.getGRADIENT_PREFIX() + " 🟠 &econfig reloading..."));
                         try {
                             final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(

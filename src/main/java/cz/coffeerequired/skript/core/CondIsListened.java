@@ -33,7 +33,7 @@ public class CondIsListened extends Condition {
         var cache = Api.getCache();
         if (cache.containsKey(id)) {
             File[] tempFile = new File[1];
-            cache.get(id).forEach((_, file) -> tempFile[0] = file);
+            cache.get(id).forEach((j, file) -> tempFile[0] = file);
             return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(tempFile[0]);
         }
         return false;
