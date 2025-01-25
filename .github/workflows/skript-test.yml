@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: 21
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x gradlew --enable-preview
       - name: Build with Gradle
         run: ./gradlew build
       - name: Upload artifacts
