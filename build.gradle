@@ -69,13 +69,13 @@ tasks.withType(ShadowJar).configureEach {
     // Exclude META-INF files
     exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 
-    doLast {
-        copy {
-            from archiveFile.get().asFile
-            into '/home/coffee/mc/plugins'
-            rename { "SkJson.jar" }
-        }
-    }
+//    doLast {
+//        copy {
+//            from archiveFile.get().asFile
+//            into '/home/coffee/mc/plugins'
+//            rename { "SkJson.jar" }
+//        }
+//    }
 }
 
 tasks.register('withRemote') {
