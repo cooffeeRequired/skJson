@@ -5,8 +5,8 @@ test "new json":
     set {_json} to json from "[]"
     assert "%{_json}%" is "[]" with "wont create an array"
 
-     set {_json} to json from file "./whitelist.json"
-     assert "%{_json}%" is "[]" with "load json from .json file"
+    set {_json} to json from file "./whitelist.json"
+    assert "%{_json}%" is "[]" with "load json from .json file"
 
     set {_json} to json from website "https://dummyjson.com/products"
     assert {_json} is set with "load json from website json"
