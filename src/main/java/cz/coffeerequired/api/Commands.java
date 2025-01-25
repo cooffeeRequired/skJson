@@ -43,12 +43,12 @@ public class Commands {
         else cmd.setExecutor(new CommandManager());
     }
     public static BiFunction<CommandSender, String[], List<String>> emptyCompleter() {
-        return (_, _) -> List.of();
+        return (a, b) -> List.of();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static BiConsumer<CommandSender, String[]> emptyCommand() {
-        return (_, _) -> List.of();
+        return (c, s) -> List.of();
     }
 
     private record CommandHandler(BiConsumer<CommandSender, String[]> commandExecutor,

@@ -198,7 +198,7 @@ public class CacheStorageWatcher {
         public static void unregisterAll() {
             try {
                 SkJson.logger().info("Unregistering all watchers...");
-                Api.getWatchers().forEach((f, _) -> unregister(f));
+                Api.getWatchers().forEach((f, c) -> unregister(f));
                 SkJson.logger().info("Unregistering all watchers &asuccessfully!");
             } catch (Exception e) {
                 SkJson.logger().warning("Unregistering all watchers &cfailed!");
