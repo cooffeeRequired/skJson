@@ -25,6 +25,7 @@ public final class SkJson extends JavaPlugin {
         return Bukkit.getServer();
     }
 
+    //
 
     @Override
     @SuppressWarnings("all")
