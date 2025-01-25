@@ -1,0 +1,7 @@
+on load:
+    set {_json} to json from "{test: [true, false, {A: [1,8,3]}]}"
+
+    loop values "test::2" of {_json}:
+        send "&eLOOP: %json-key%: %json-value%"
+        loop values of json-value:
+            send "&bLOOP 2: %json-key-2%: %json-value-2%"

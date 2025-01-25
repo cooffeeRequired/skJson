@@ -1,0 +1,5 @@
+on load:
+    set {_rsp} to json from website "https://dummyjson.com/products/1"
+
+    send {_rsp} as pretty printed
+    send {_rsp} as uncolored pretty printed

@@ -1,0 +1,17 @@
+on load:
+    set {_json} to json from "[1, 2, 3, 8, 'TEST']"
+
+    if type of {_json} is not json-object:
+        send "&cNEGATED"
+
+    if type of {_json} is json-array:
+        send "&aSUSCESS"
+
+    if {_json} has key "TEST":
+        send true
+
+    set {_json} to json from "[1, 2, 3, 8, 'TEST']"
+    set {_json} to json from "{A: 1, B: 2, C: 3}"
+
+    if {_json} has values 1 and 3:
+        send true

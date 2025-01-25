@@ -1,0 +1,124 @@
+import java.security.MessageDigest
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar // Import ShadowJar
+
+plugins {
+    id('java')
+    id 'com.gradleup.shadow' version '8.3.5'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
+}
+
+group = 'cz.coffee'
+version = '4.1.0'
+
+static def generateSHA1() {
+    def time = System.currentTimeMillis().toString()
+    def md = MessageDigest.getInstance("SHA-1")
+    def digest = md.digest(time.bytes)
+    return new BigInteger(1, digest).toString(16).padLeft(40, '0')
+}
+
+static def generateShortSHA1(sha1) {
+    return sha1.substring(0, 8)
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://repo.skriptlang.org/releases" }
+    maven { url "https://oss.sonatype.org/content/groups/public/" }
+    maven { url "https://repo.papermc.io/repository/maven-public/" }
+    maven { url "https://repo.purpurmc.org/snapshots" }
+    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+}
+
+apply from: 'dependencies.gradle'
+apply from: 'resources.gradle'
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+def fullRev = generateSHA1()
+def shortRev = generateShortSHA1(fullRev)
+
+tasks.processResources {
+    filesMatching(Set.of("plugin.yml", "lang/default.lang")) {
+        expand("version": project.version, "rev": shortRev)
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'SkJson',
+                'Implementation-Version': version
+        )
+    }
+}
+
+tasks.withType(ShadowJar).configureEach {
+    archiveClassifier.set('shaded')
+
+    // Relocate bStats to avoid classpath conflicts
+    relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
+    relocate 'de.tr7zw.changeme.nbtapi', 'cz.coffee.shadowed.nbtapi'
+
+
+    // Exclude META-INF files
+    exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+    doLast {
+        copy {
+            from archiveFile.get().asFile
+            into '/home/coffee/mc/plugins'
+            rename { "SkJson.jar" }
+        }
+    }
+}
+
+tasks.register('withRemote') {
+    dependsOn 'clean'
+    dependsOn 'shadowJar'
+
+    finalizedBy 'runRemote'
+}
+
+tasks.register("runRemote") {
+    doLast {
+        def command = "curl http://localhost:8080/command?cmd=reload+confirm"
+        println "Executing: $command"
+        def process = command.execute()
+        def output = new StringBuffer()
+        //process.consumeProcessOutput(output, System.in)
+        process.waitFor()
+
+        if (process.exitValue() == 0) {
+            println "Command executed successfully:\n$output"
+        } else {
+            println "Command failed with exit code ${process.exitValue()}."
+        }
+
+        def command2 = "curl http://localhost:8080/command?cmd=skjson"
+        println "Executing: $command2"
+        def process2 = command2.execute()
+        def output2 = new StringBuffer()
+        //process.consumeProcessOutput(output, System.in)
+        process2.waitFor()
+
+        if (process2.exitValue() == 0) {
+            println "Command executed successfully:\n$output"
+        } else {
+            println "Command failed with exit code ${process2.exitValue()}."
+        }
+    }
+}
+
+
+runServer {
+    minecraftVersion("1.21.3")
+
+    downloadPlugins {
+        url('https://github.com/SkriptLang/Skript/releases/download/2.9.4/Skript-2.9.4.jar')
+    }
+}
