@@ -36,6 +36,7 @@ apply from: 'resources.gradle'
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs += '--enable-preview'
 }
 
 def fullRev = generateSHA1()
