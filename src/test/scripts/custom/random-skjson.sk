@@ -1,2 +1,3 @@
-on load:
-    send "hello"
+test "custom json":
+    set {_json} to json from "{}"
+    assert "%{_json}%" is "{}"
