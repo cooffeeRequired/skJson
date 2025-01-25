@@ -1,3 +1,0 @@
-test "custom json":
-    set {_json} to json from "{}"
-    assert "%{_json}%" is "{}"

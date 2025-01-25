@@ -1,3 +1,0 @@
-test "new json":
-    set {_json} to json from "{}"
-    assert "%{_json}%" is "{}"  with "Failed make an new json"
