@@ -60,16 +60,16 @@ jar {
 
 tasks.withType(ShadowJar).configureEach {
     archiveClassifier.set('shaded')
+    archiveFileName.set('skjson.jar') // Nastavení výstupního názvu souboru
 
     // Relocate bStats to avoid classpath conflicts
     relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
     relocate 'de.tr7zw.changeme.nbtapi', 'cz.coffee.shadowed.nbtapi'
 
-
     // Exclude META-INF files
     exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 
-//    doLast {
+    //    doLast {
 //        copy {
 //            from archiveFile.get().asFile
 //            into '/home/coffee/mc/plugins'
