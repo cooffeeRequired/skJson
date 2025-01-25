@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -71,19 +70,34 @@ public class EffSendRequest extends Effect {
     @Override
     protected void execute(@NotNull Event event) {
         var request = exprRequest.getSingle(event);
-        assert request != null;
-        if (sync) {
-            var response = sendRequest(request);
-            assert response != null;
-            var rsp = new Response(response.getStatusCode(), response.getBodyContent(true), response.getResponseHeader().toJson());
-            request.setResponse(rsp);
+        if (request == null) {
+            logger().error("Request is null");
             return;
         }
+
+        if (sync) {
+            handleSyncRequest(request);
+        } else {
+            handleAsyncRequest(event, request);
+        }
+    }
+
+    private void handleSyncRequest(Request request) {
+        var response = sendRequest(request);
+        if (response != null) {
+            var rsp = new Response(response.getStatusCode(), response.getBodyContent(true), response.getResponseHeader().toJson());
+            request.setResponse(rsp);
+        } else {
+            request.setResponse(Response.empty());
+        }
+    }
+
+    private void handleAsyncRequest(Event event, Request request) {
         var vars = Variables.copyLocalVariables(event);
         CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
                 .whenComplete((resp, err) -> {
                     if (err != null) {
-                        logger().error(Objects.requireNonNull(getParser().getNode()).toString());
+                        logger().exception("Error sending request asynchronously", err);
                         request.setResponse(Response.empty());
                         return;
                     }
@@ -110,9 +124,21 @@ public class EffSendRequest extends Effect {
     }
 
     private RequestResponse sendRequest(Request request) {
-        URI URL = null;
+        URI url = buildUri(request);
+        if (url == null) return null;
+
+        try (RequestClient client = new RequestClient()) {
+            setupClient(client, request, url);
+            return executeRequest(client, request);
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            logger().exception("Error sending request", e);
+            return null;
+        }
+    }
+
+    private URI buildUri(Request request) {
         try {
-            StringBuilder uriBuilder = new StringBuilder(request.getUri().toString());
+            StringBuilder uriBuilder = new StringBuilder(request.getUri());
             if (!request.getQueryParams().isEmpty()) {
                 uriBuilder.append("?");
                 request.getQueryParams().forEach((key, value) -> {
@@ -127,60 +153,50 @@ public class EffSendRequest extends Effect {
                 });
                 uriBuilder.setLength(uriBuilder.length() - 1);
             }
-
-            URL = URI.create(uriBuilder.toString()).normalize();
+            return URI.create(uriBuilder.toString()).normalize();
         } catch (Exception ex) {
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), ex);
-        }
-
-        try (RequestClient client = new RequestClient()) {
-            client.setUri((URL != null ? URL : request.getUri()).toString().replaceAll("§", "&"));
-            RequestResponse rsp;
-            final boolean hasAttachments = !request.getAttachments().isEmpty();
-            if (hasAttachments) {
-                client.setAttachments(request.getAttachments());
-
-                var mpd = MimeMultipartData.newBuilder().addContent(request.getContent());
-                request.getAttachments().forEach(attachment ->
-                        mpd.addFile(attachment.path(), attachment.file().toPath(), MimeMultipartData.FileType.AUTOMATIC)
-                );
-
-                if (!request.getMethod().equals(RequestMethod.GET)) {
-                     client.setBodyPublisher(mpd.build().getBodyPublisher());
-                } else {
-                    logger().warning("Sending request to " + URL + " with method GET, method GET doesn't support body!");
-                }
-
-                rsp = RequestResponse.of(client
-                        .method(request.getMethod())
-                        .addHeader(request.getHeader())
-                        .sendAsync()
-                        .get());
-            } else {
-                if (!request.getMethod().equals(RequestMethod.GET)) {
-                   client.setJsonBody(request.getContent());
-                } else {
-                    logger().warning("Sending request to " + URL + " with method GET, method GET doesn't support body!");
-                }
-
-                rsp = RequestResponse.of(client.method(request.getMethod())
-                        .addHeader(request.getHeader())
-                        .sendAsync()
-                        .get());
-            }
-
-            request.setStatus(rsp.isSuccessful() ? RequestStatus.OK : RequestStatus.FAILED);
-            return rsp;
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            var ex = new RuntimeException(e);
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), ex);
+            logger().exception("Error building URI", ex);
             return null;
         }
     }
 
+    private void setupClient(RequestClient client, Request request, URI url) throws IOException {
+        client.setUri(url.toString().replaceAll("§", "&"));
+        if (!request.getAttachments().isEmpty()) {
+            handleAttachments(client, request);
+        } else {
+            if (!request.getMethod().equals(RequestMethod.GET)) {
+                client.setJsonBody(request.getContent());
+            } else {
+                logger().warning("Sending request to " + url + " with method GET, method GET doesn't support body!");
+            }
+        }
+    }
+
+    private void handleAttachments(RequestClient client, Request request) throws IOException {
+        client.setAttachments(request.getAttachments());
+        var mpd = MimeMultipartData.newBuilder().addContent(request.getContent());
+        request.getAttachments().forEach(attachment ->
+                mpd.addFile(attachment.path(), attachment.file().toPath(), MimeMultipartData.FileType.AUTOMATIC)
+        );
+        if (!request.getMethod().equals(RequestMethod.GET)) {
+            client.setBodyPublisher(mpd.build().getBodyPublisher());
+        } else {
+            logger().warning("Sending request with method GET, method GET doesn't support body!");
+        }
+    }
+
+    private RequestResponse executeRequest(RequestClient client, Request request) throws ExecutionException, InterruptedException {
+        var rsp = RequestResponse.of(client.method(request.getMethod())
+                .addHeader(request.getHeader())
+                .sendAsync()
+                .get());
+        request.setStatus(rsp.isSuccessful() ? RequestStatus.OK : RequestStatus.FAILED);
+        return rsp;
+    }
+
     @Override
     public @NotNull String toString(@Nullable Event event, boolean debug) {
-        assert event != null;
         return "execute prepared " + this.exprRequest.toString(event, debug);
     }
 
@@ -190,7 +206,7 @@ public class EffSendRequest extends Effect {
             try {
                 ((Set<Event>) DELAYED.get(null)).add(e);
             } catch (IllegalAccessException illegalAccessException) {
-                logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), illegalAccessException);
+                logger().exception("Error accessing delayed events", illegalAccessException);
             }
         }
     }

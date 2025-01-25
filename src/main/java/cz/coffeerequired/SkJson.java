@@ -5,6 +5,7 @@ import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.Commands;
 import cz.coffeerequired.api.CustomLogger;
 import cz.coffeerequired.api.Register;
+
 import cz.coffeerequired.support.Configuration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 
@@ -81,7 +84,10 @@ public final class SkJson extends JavaPlugin {
     @Override
     public void onEnable() {
         logger.info("Enabling...");
-        configuration.copySkriptTests();
+        // configuration.copySkriptTests();
+
+
+
         if (Api.canInstantiateSafety()) {
             register.registerNewHook(Skript.class);
 
@@ -138,6 +144,7 @@ public final class SkJson extends JavaPlugin {
             Commands.registerCommand(this);
         }
     }
+
 
     @Override
     public void onDisable() {
