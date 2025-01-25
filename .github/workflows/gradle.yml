@@ -1,8 +1,15 @@
 name: Build and test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+      - 4.5---Long-term-changes
+  pull_request:
+      branches:
+        - main
+        - 4.5---Long-term-changes
+        
 
 jobs:
   build:
