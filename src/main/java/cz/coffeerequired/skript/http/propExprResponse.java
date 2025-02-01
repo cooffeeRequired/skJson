@@ -50,7 +50,8 @@ public class propExprResponse extends PropertyExpression<Request, Object> {
             }).toArray();
             case "headers", "header" -> rsp.map(Response::headers).toArray();
             case "status code" -> rsp.map(Response::statusCode).toArray();
-            case "status" -> Arrays.stream(source).filter(Objects::nonNull).map(r -> r.getStatus().toString()).toArray();
+            case "status" ->
+                    Arrays.stream(source).filter(Objects::nonNull).map(r -> r.getStatus().toString()).toArray();
             default -> throw new IllegalStateException("Unexpected value: " + tag);
         };
     }

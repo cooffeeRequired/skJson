@@ -65,7 +65,7 @@ public class CacheStorageWatcher {
             this.watchService = FileSystems.getDefault().newWatchService();
             file.toPath().getParent().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
         } catch (IOException e) {
-            SkJson.logger().exception(e.getMessage(), e);
+            SkJson.exception(e, e.getMessage(), e);
         }
 
         this.future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.MILLISECONDS);
@@ -79,12 +79,12 @@ public class CacheStorageWatcher {
         try {
             jsonContent = new String(Files.readAllBytes(file.toPath()));
             if (!isValidJson(jsonContent)) {
-                SkJson.logger().warning("Invalid JSON content in " + file.getName());
+                SkJson.warning("Invalid JSON content in " + file.getName());
                 return;
             }
             jsonifyFile = JsonParser.parseString(jsonContent);
         } catch (IOException e) {
-            SkJson.logger().exception(e.getMessage(), e);
+            SkJson.exception(e, e.getMessage(), e);
         }
 
         String[] splitParentID = parentID.split(";");
@@ -120,7 +120,7 @@ public class CacheStorageWatcher {
                 key.reset();
             }
         } catch (InterruptedException e) {
-            SkJson.logger().exception(String.format("An error occurred while watching file: %s, exception: %s", file, e.getCause().getLocalizedMessage()), e);
+            SkJson.exception(e, String.format("An error occurred while watching file: %s, exception: %s", file, e.getCause().getLocalizedMessage()), e);
         }
     }
 
@@ -167,7 +167,7 @@ public class CacheStorageWatcher {
 
             watchers.forEachKey(1, f -> {
                 if (f.equals(file)) {
-                    SkJson.logger().info(String.format("Watcher for file %s is already registered", file));
+                    SkJson.info(String.format("Watcher for file %s is already registered", file));
                     found[0] = true;
                 }
             });
@@ -180,7 +180,7 @@ public class CacheStorageWatcher {
                 watchers.put(file, watcher);
 
                 if (watcher.isActive())
-                    SkJson.logger().info(String.format("Registered with uuid: %s &f for file &7(&e%s&7)", watcher.uuid, watcher.file));
+                    SkJson.info(String.format("Registered with uuid: %s &f for file &7(&e%s&7)", watcher.uuid, watcher.file));
             }
         }
 
@@ -189,7 +189,7 @@ public class CacheStorageWatcher {
                 if (w.isActive()) {
                     w.cancel();
                     if (w.isCancelled() && w.isDone())
-                        SkJson.logger().info(String.format("File &7(&e%s&7) was &asuccessfully &7unlinked frm watcher{%s}", f, w.getUuid()));
+                        SkJson.info(String.format("File &7(&e%s&7) was &asuccessfully &7unlinked frm watcher{%s}", f, w.getUuid()));
                 }
                 return null;
             });
@@ -197,11 +197,11 @@ public class CacheStorageWatcher {
 
         public static void unregisterAll() {
             try {
-                SkJson.logger().info("Unregistering all watchers...");
+                SkJson.info("Unregistering all watchers...");
                 Api.getWatchers().forEach((f, c) -> unregister(f));
-                SkJson.logger().info("Unregistering all watchers &asuccessfully!");
+                SkJson.info("Unregistering all watchers &asuccessfully!");
             } catch (Exception e) {
-                SkJson.logger().warning("Unregistering all watchers &cfailed!");
+                SkJson.warning("Unregistering all watchers &cfailed!");
             }
         }
 

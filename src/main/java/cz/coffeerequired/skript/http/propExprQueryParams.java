@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
@@ -22,25 +23,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static cz.coffeerequired.SkJson.logger;
-
 
 @Name("Request query params")
 @Examples("""
-         # getting the Request query params;
-         send {_request}'s query params
-         send query params of {_request}
-        \s
-         # setting the Request query params;
-         set {_request}'s query params to "key:value", "key1:value1"
-         set query params of {_request} to "key:value", "key1:value1"
-        \s
-         # adding the query param to the URL
-        \s
-         # reset the query params of the Request
-         reset {_request}'s query params
-         reset query params of {_request}
-    \s""")
+             # getting the Request query params;
+             send {_request}'s query params
+             send query params of {_request}
+            \s
+             # setting the Request query params;
+             set {_request}'s query params to "key:value", "key1:value1"
+             set query params of {_request} to "key:value", "key1:value1"
+            \s
+             # adding the query param to the URL
+            \s
+             # reset the query params of the Request
+             reset {_request}'s query params
+             reset query params of {_request}
+        \s""")
 @Description("set/add/reset or get the current request query params")
 @Since("3.0.2")
 @ApiStatus.Experimental
@@ -49,10 +48,10 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
     @Override
     protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] requests) {
         return Arrays.stream(requests)
-            .filter(Objects::nonNull)
-            .map(Request::getQueryParams)
-            .map(GsonParser::toJson)
-            .toArray(JsonElement[]::new);
+                .filter(Objects::nonNull)
+                .map(Request::getQueryParams)
+                .map(GsonParser::toJson)
+                .toArray(JsonElement[]::new);
     }
 
     @Override
@@ -113,7 +112,7 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
                 request.setQueryParams(new HashMap<>());
             }
         } catch (Exception ex) {
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), ex);
+            SkJson.exception(ex, Objects.requireNonNull(getParser().getNode()).toString());
         }
 
     }

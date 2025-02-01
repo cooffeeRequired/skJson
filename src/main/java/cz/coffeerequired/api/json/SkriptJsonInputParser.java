@@ -2,7 +2,7 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import cz.coffeerequired.support.SkriptUtils;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 public class SkriptJsonInputParser {
@@ -37,9 +36,9 @@ public class SkriptJsonInputParser {
 
                 tokensList.add(Map.entry(currentToken, type));
             } else if (rsp.size() > 2) {
-                for (int x = 0; x < rsp.size(); x = x+2) {
+                for (int x = 0; x < rsp.size(); x = x + 2) {
                     type = (Type) rsp.get(x);
-                    currentToken = (String) rsp.get(x+1);
+                    currentToken = (String) rsp.get(x + 1);
 
                     currentToken = currentToken
                             .replaceFirst("\\*", "")
@@ -68,7 +67,7 @@ public class SkriptJsonInputParser {
         String last = tokens[tokens.length - 1];
         Type type;
 
-        logger().debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
+        SkJson.debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
 
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;
@@ -156,6 +155,7 @@ public class SkriptJsonInputParser {
         Index(0), List(new JsonArray()), Object(new JsonObject()), ListInit("[]$"), ListAll("*$");
 
         private final Object value;
+
         Type(Object value) {
             this.value = value;
         }

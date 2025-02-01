@@ -23,12 +23,12 @@ import java.util.Map;
 @Description("You can check if the inserted keys or values already in your specified json")
 @Since("2.8.0, removed-directly 4.1")
 @Examples("""
-set {_json} to json from "[1, 2, 3, 8, 'TEST']"
-set {_json} to json from "{A: 1, B: 2, C: 3}"
-
-if {_json} has values 1 and 3:
-    send true
-""")
+        set {_json} to json from "[1, 2, 3, 8, 'TEST']"
+        set {_json} to json from "{A: 1, B: 2, C: 3}"
+        
+        if {_json} has values 1 and 3:
+            send true
+        """)
 public class CondJsonHas extends Condition {
 
     private Expression<JsonElement> jsonExpression;
@@ -45,7 +45,7 @@ public class CondJsonHas extends Condition {
         boolean found = true;
 
 
-        for(Object object : objects) {
+        for (Object object : objects) {
             if (isValues) {
                 if (json instanceof JsonArray array) {
                     boolean contains = array.contains(GsonParser.toJson(object));
@@ -61,14 +61,14 @@ public class CondJsonHas extends Condition {
                     boolean contains = jsonElement.keySet().contains(key);
                     if (!contains) found = false;
                 } else if (json instanceof JsonArray) {
-                    SkJson.logger().warning("Keys are not supported for arrays");
+                    SkJson.warning("Keys are not supported for arrays");
                     return false;
                 }
             }
             if (!found) break;
         }
 
-        SkJson.logger().warning("&7values: &a" + isValues + " &7found: &b" + found + "&7 negatted: &c" + negated);
+        SkJson.warning("&7values: &a" + isValues + " &7found: &b" + found + "&7 negatted: &c" + negated);
         return found == !negated;
     }
 

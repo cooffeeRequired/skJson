@@ -89,7 +89,7 @@ public class GsonParser {
 
         if (json == null) {
             var ex = new SerializedJsonException("Cannot handle json, cause json input is null");
-            SkJson.logger().exception("Depth error", ex);
+            SkJson.exception(ex, "Depth error");
             return null;
         }
 

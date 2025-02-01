@@ -1,7 +1,9 @@
 package cz.coffeerequired.skript.core.bukkit;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
 

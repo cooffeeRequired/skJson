@@ -3,14 +3,13 @@ package cz.coffeerequired.api.json;
 import ch.njol.skript.classes.Changer;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.SkriptUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-
-import static cz.coffeerequired.SkJson.logger;
 
 @Slf4j
 public class JSONTypeDefaultChanger implements Changer<JsonElement> {
@@ -28,19 +27,19 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
     public void change(JsonElement[] what, @Nullable Object[] delta, ChangeMode mode) {
         if (mode == Changer.ChangeMode.REMOVE) {
 
-            logger().debug("@[WHAT]1: " + Arrays.toString(what));
-            logger().debug("@[DELTA]2: " + Arrays.toString(delta));
+            SkJson.debug("@[WHAT]1: " + Arrays.toString(what));
+            SkJson.debug("@[DELTA]2: " + Arrays.toString(delta));
 
-            logger().debug("Removing " + getClass().getSimpleName());
+            SkJson.debug("Removing " + getClass().getSimpleName());
 
             if (delta == null || delta.length < 1) {
-                logger().exception("delta need to be defined", new Exception("delta is null"));
+                SkJson.exception(new Exception("delta is null"), "delta need to be defined");
                 return;
             }
 
-            logger().debug("delta: " + Arrays.toString(delta));
+            SkJson.debug("delta: " + Arrays.toString(delta));
             var jsonPath = (JsonPath) delta[0];
-            logger().debug("json-path: " + jsonPath);
+            SkJson.debug("json-path: " + jsonPath);
 
 
             if (SkriptUtils.isSingleton(delta)) {
@@ -48,7 +47,7 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
                 SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
                 serializedJson.remover.byKey(jsonPath.getKeys());
             } else {
-                for(Object op : delta) {
+                for (Object op : delta) {
                     if (op instanceof JsonPath p) {
                         SerializedJson serializedJson = new SerializedJson(p.getInput());
                         serializedJson.remover.byKey(p.getKeys());

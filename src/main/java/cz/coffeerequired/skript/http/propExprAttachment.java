@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.requests.Attachment;
 import cz.coffeerequired.api.requests.Request;
 import cz.coffeerequired.api.requests.RequestMethod;
@@ -22,26 +23,25 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static cz.coffeerequired.SkJson.logger;
 
 @Name("Request attachment/s")
 @Examples("""
-             # getting the Request attachment;
-             send {_request}'s attachments
-             send attachments of {_request}
-            \s
-             # setting the Request attachment;
-             set {_request}'s attachments to attachment("*/test.sk") and attachment("*/raw.json")
-             set attachments of {_request} to attachment("*/test.sk") and attachment("*/raw.json")
-            \s
-             # add the attachment to the Request attachments
-             add attachment("*/SkJson.json") to {_request}'s attachments
-             add attachment("*/SkJson.json") to attachments of {_request}
-            \s
-             # reset the attachments of the Request
-             reset {_request}'s attachments
-             reset attachments of {_request}
-    \s""")
+                 # getting the Request attachment;
+                 send {_request}'s attachments
+                 send attachments of {_request}
+                \s
+                 # setting the Request attachment;
+                 set {_request}'s attachments to attachment("*/test.sk") and attachment("*/raw.json")
+                 set attachments of {_request} to attachment("*/test.sk") and attachment("*/raw.json")
+                \s
+                 # add the attachment to the Request attachments
+                 add attachment("*/SkJson.json") to {_request}'s attachments
+                 add attachment("*/SkJson.json") to attachments of {_request}
+                \s
+                 # reset the attachments of the Request
+                 reset {_request}'s attachments
+                 reset attachments of {_request}
+        \s""")
 @Description("set/add/reset or get the current request attachment")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
@@ -87,8 +87,8 @@ public class propExprAttachment extends PropertyExpression<Request, Object> {
         assert request != null;
 
         if (!request.getMethod().equals(RequestMethod.POST)) {
-            var e = new IllegalStateException("Cannot set attachments to " + request.getMethod() +" method.. Allowed methods are [POST]");
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), e);
+            var e = new IllegalStateException("Cannot set attachments to " + request.getMethod() + " method.. Allowed methods are [POST]");
+            SkJson.exception(e, Objects.requireNonNull(getParser().getNode()).toString());
             return;
         }
         if (mode == Changer.ChangeMode.SET) {

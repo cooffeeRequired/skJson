@@ -8,9 +8,19 @@ import java.text.DecimalFormat;
 
 public class Attachment {
 
+    private File file;
+    private String fileName;
+    private String fileSize;
+    private String sizeFormat;
+    private String extension;
+    private String path;
+    public Attachment(final String file) {
+        regenerate(new File(file));
+    }
+
     private JsonObject getFileLength(long size) {
         DecimalFormat df = new DecimalFormat("0.00");
-        final JsonObject object =  new JsonObject();
+        final JsonObject object = new JsonObject();
 
         float sizeKb = 1024.0f;
         float sizeMb = sizeKb * sizeKb;
@@ -18,27 +28,14 @@ public class Attachment {
         float sizeTerra = sizeGb * sizeKb;
 
         object.addProperty("size", df.format(size / sizeKb));
-        if(size < sizeMb) {
+        if (size < sizeMb) {
             object.addProperty("_", "Kb");
-        }
-        else if(size < sizeGb) {
+        } else if (size < sizeGb) {
             object.addProperty("_", "Mb");
-        }
-        else if(size < sizeTerra) {
+        } else if (size < sizeTerra) {
             object.addProperty("_", "Gb");
         }
         return object;
-    }
-
-    private File file;
-    private String fileName;
-    private String fileSize;
-    private String sizeFormat;
-    private String extension;
-    private String path;
-
-    public Attachment(final String file) {
-        regenerate(new File(file));
     }
 
     public File file() {

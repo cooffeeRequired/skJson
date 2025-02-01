@@ -10,7 +10,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.SkJsonLogger;
 import cz.coffeerequired.api.json.GsonParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -24,11 +24,6 @@ import org.jetbrains.annotations.Nullable;
         "send {_json} as uncolored pretty print"
 })
 public class ExprPrettyPrint extends SimpleExpression<String> {
-
-    private enum Format {
-        PRETTY,
-        UNCOLORED
-    }
 
     private Format format;
     private Expression<JsonElement> element;
@@ -49,11 +44,13 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
                     .replaceAll("[{}]", "&7$0&f")
                     .replaceAll("[\\[\\]]", "&6$0&f");
         }
-        return new String[]{SkJson.logger().legacy(defaultStringifyJson)};
+        return new String[]{SkJsonLogger.translate(defaultStringifyJson)};
     }
 
     @Override
-    public boolean isSingle() { return this.element.isSingle(); }
+    public boolean isSingle() {
+        return this.element.isSingle();
+    }
 
     @Override
     public Class<? extends String> getReturnType() {
@@ -71,5 +68,10 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
         else if (i == 1) format = Format.UNCOLORED;
         element = LiteralUtils.defendExpression(expressions[0]);
         return LiteralUtils.canInitSafely(element);
+    }
+
+    private enum Format {
+        PRETTY,
+        UNCOLORED
     }
 }

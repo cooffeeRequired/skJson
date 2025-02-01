@@ -22,9 +22,9 @@ import java.io.IOException;
 @Name("Bind JSON file as simply string id")
 @Description("Allows you create an simply string if for bound json file")
 @Examples("""
-bind json file "jsons/mow.json" as "my-template-json-storage"
-bind json file "json/mow.json" as "my-template-json-storage" and let bind storage watcher
-""")
+        bind json file "jsons/mow.json" as "my-template-json-storage"
+        bind json file "json/mow.json" as "my-template-json-storage" and let bind storage watcher
+        """)
 @Since("2.8.0 - performance & clean")
 public class AEffBindFile extends AsyncEffect {
 
@@ -43,14 +43,14 @@ public class AEffBindFile extends AsyncEffect {
 
         if (!file.exists()) {
             var error = new IOException("File " + path + " does not exist");
-            SkJson.logger().exception("Cannot bind json-file", error);
+            SkJson.exception(error, "Cannot bind json-file");
             return;
         }
 
         if (cache.containsKey(id)) return;
         FileHandler.get(file).whenComplete((json, error) -> {
             if (error != null) {
-                SkJson.logger().exception("Cannot bind json-file", error);
+                SkJson.exception(error, "Cannot bind json-file");
                 return;
             }
             try {
@@ -59,14 +59,15 @@ public class AEffBindFile extends AsyncEffect {
                     CacheStorageWatcher.Extern.register(id, file);
                 }
             } catch (Exception ex) {
-                SkJson.logger().exception("Cannot bind json-file", ex);
+                SkJson.exception(ex, "Cannot bind json-file");
             }
         });
     }
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        if (withBinding) return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug) + " and let bind storage watcher";
+        if (withBinding)
+            return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug) + " and let bind storage watcher";
         return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug);
     }
 

@@ -35,22 +35,20 @@ import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
 public abstract class SupportSkriptJson {
 
 
-
     @Name("Json loop")
     @Description("""
-    That will allow loop through json, and get key/index or value
-    **json-value**, **json-key**
-    """)
+            That will allow loop through json, and get key/index or value
+            **json-value**, **json-key**
+            """)
     @Since("4.1 - API UPDATE")
     @Examples("""
-    set {_json} to json from "{test: [true, false, {A: [1,8,3]}]}"
-    loop values "test::2" of {_json}:
-        send "&eLOOP: %json-key%: %json-value%"
-        loop values of json-value:
-            send "&bLOOP 2: %json-key-2%: %json-value-2%"
-    """)
+            set {_json} to json from "{test: [true, false, {A: [1,8,3]}]}"
+            loop values "test::2" of {_json}:
+                send "&eLOOP: %json-key%: %json-value%"
+                loop values of json-value:
+                    send "&bLOOP 2: %json-key-2%: %json-value-2%"
+            """)
     public static class JsonLoopExpression extends SimpleExpression<Object> {
-
 
 
         private boolean isKey;
@@ -67,7 +65,7 @@ public abstract class SupportSkriptJson {
             try {
                 outputMap = (HashMap<String, Object>) loop.getCurrent(event);
             } catch (ClassCastException exception) {
-                if (PROJECT_DEBUG) SkJson.logger().exception(exception.getLocalizedMessage(), exception);
+                if (PROJECT_DEBUG) SkJson.exception(exception, exception.getLocalizedMessage());
                 return new Object[0];
             }
 
@@ -142,7 +140,7 @@ public abstract class SupportSkriptJson {
             }
 
             if (loop == null) {
-                Skript.error("There's no loop that matches 'json-" + s + " "+group+"'", ErrorQuality.SEMANTIC_ERROR);
+                Skript.error("There's no loop that matches 'json-" + s + " " + group + "'", ErrorQuality.SEMANTIC_ERROR);
                 return false;
             }
             if (isCanceled) {
@@ -163,14 +161,14 @@ public abstract class SupportSkriptJson {
     @Description("Represent sort of literals for skJson as like 1st/2nd, first, last, random etc.")
     @Since("4.1 - API UPDATE")
     @Examples("""
-    set {_json} to json from "[1, 2, 3, 8, 'TEST']"
-
-    send 1st value of {_json}
-    send 2nd value of {_json}
-    send last value of {_json}
-    send random value of {_json}
-    send 4. value of {_json}
-    """)
+            set {_json} to json from "[1, 2, 3, 8, 'TEST']"
+            
+            send 1st value of {_json}
+            send 2nd value of {_json}
+            send last value of {_json}
+            send random value of {_json}
+            send 4. value of {_json}
+            """)
     public static class JsonSupportElement extends SimpleExpression<Object> {
 
         private SearchType searchType;
@@ -183,7 +181,7 @@ public abstract class SupportSkriptJson {
         protected @Nullable Object[] get(Event event) {
             final JsonElement json = jsonVariable.getSingle(event);
             if (json == null) return new Object[0];
-            return new Object[] {switch (type) {
+            return new Object[]{switch (type) {
                 case FIRST -> SerializedJsonUtils.getFirst(json, searchType);
                 case LAST -> SerializedJsonUtils.getLast(json, searchType);
                 case SECOND -> SerializedJsonUtils.get(json, 1, searchType);
@@ -241,7 +239,8 @@ public abstract class SupportSkriptJson {
             return canInitSafely(jsonVariable);
         }
 
-        public enum SearchType { VALUE, KEY }
-        public enum Type { FIRST, SECOND, THIRD, LAST, RANDOM, CUSTOM }
+        public enum SearchType {VALUE, KEY}
+
+        public enum Type {FIRST, SECOND, THIRD, LAST, RANDOM, CUSTOM}
     }
 }

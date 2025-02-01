@@ -19,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
 @Name("Cached storage watcher - un/bind from file")
 @Description("")
 @Examples("""
-    bind storage watcher to "player-storage"
-    unbind storage watcher from "player-storage"
-""")
+            bind storage watcher to "player-storage"
+            unbind storage watcher from "player-storage"
+        """)
 @Since("4.1 - API UPDATE")
 public class AEffHandleWatcher extends AsyncEffect {
 
@@ -35,19 +35,19 @@ public class AEffHandleWatcher extends AsyncEffect {
         var cache = Api.getCache();
 
         CompletableFuture.runAsync(() -> {
-           if (cache.containsKey(id)) {
-               File[] file = new File[1];
-               cache.get(id).forEach((j, f) -> file[0] = f);
-               if (isBindingMode) {
-                   if (!CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                       CacheStorageWatcher.Extern.register(id, file[0]);
-                   }
-               } else {
-                   if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                       CacheStorageWatcher.Extern.unregister(file[0]);
-                   }
-               }
-           }
+            if (cache.containsKey(id)) {
+                File[] file = new File[1];
+                cache.get(id).forEach((j, f) -> file[0] = f);
+                if (isBindingMode) {
+                    if (!CacheStorageWatcher.Extern.hasRegistered(file[0])) {
+                        CacheStorageWatcher.Extern.register(id, file[0]);
+                    }
+                } else {
+                    if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
+                        CacheStorageWatcher.Extern.unregister(file[0]);
+                    }
+                }
+            }
         });
     }
 

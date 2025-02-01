@@ -11,9 +11,8 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CompletableFuture;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
@@ -24,12 +23,12 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Description("Its allow convert Json to skript list variable")
 @Since("1.9, 2.9 - Support mapping json from functions, 4.1 performance increase")
 @Examples("""
-    map {_json} to {_mapped::*}
-    send {_mapped::b} to console
-""")
+            map {_json} to {_mapped::*}
+            send {_mapped::b} to console
+        """)
 public class EffMapJson extends Effect {
 
-    private Expression<?> variable;
+    private Expression<JsonElement> variable;
     private VariableString variableNaming;
     private boolean isLocal;
     private boolean async;
@@ -45,7 +44,12 @@ public class EffMapJson extends Effect {
         variableName = variableName.substring(0, variableName.length() - 3);
         if (async) {
             String finalVariableName = variableName;
-            CompletableFuture.runAsync(() -> SkriptUtils.convertJsonToSkriptVariable(finalVariableName + SEPARATOR, json, event, isLocal));
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    SkriptUtils.convertJsonToSkriptVariable(finalVariableName + SEPARATOR, json, event, isLocal);
+                }
+            };
         } else {
             SkriptUtils.convertJsonToSkriptVariable(variableName + SEPARATOR, json, event, isLocal);
         }
@@ -56,6 +60,7 @@ public class EffMapJson extends Effect {
         return Classes.getDebugMessage(variable);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         Expression<?> unparsedObject = defendExpression(expressions[1]);
@@ -63,7 +68,8 @@ public class EffMapJson extends Effect {
         if (!unparsedObject.getReturnType().isAssignableFrom(JsonElement.class)) {
             throw new IllegalArgumentException("You can map only Json or stringify json (String)");
         }
-        variable = expressions[0];
+        variable = (Expression<JsonElement>) expressions[0];
+
         if (unparsedObject instanceof Variable<?> var) {
             if (var.isList()) {
                 isLocal = var.isLocal();

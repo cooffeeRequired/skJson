@@ -1,5 +1,6 @@
 package cz.coffeerequired.support;
 
+import cz.coffeerequired.SkJson;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,7 +13,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.api.Api.Records.*;
 
 /**
@@ -148,8 +148,8 @@ public class PluginConfigHandler {
 
 
         if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
-            logger().info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-            logger().error("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+            SkJson.info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+            SkJson.severe("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
             Bukkit.getPluginManager().disablePlugin(plugin);
             return;
         }
@@ -160,10 +160,10 @@ public class PluginConfigHandler {
         if (configFile.exists()) {
             try {
                 this.config = YamlConfiguration.loadConfiguration(configFile);
-                logger().info("Config reloaded from file.");
+                SkJson.info("Config reloaded from file.");
                 loadRecords();
             } catch (Exception e) {
-                logger().log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
+                SkJson.severe("Config file is invalid. Regenerating config file!", e);
                 regenerateConfig();
             }
         } else {

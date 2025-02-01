@@ -17,7 +17,7 @@ import java.io.File;
 
 @Name("JSON file is listened by storage watcher")
 @Examples("""
-""")
+        """)
 @Since("4.1 - API UPDATE")
 
 public class CondIsListened extends Condition {

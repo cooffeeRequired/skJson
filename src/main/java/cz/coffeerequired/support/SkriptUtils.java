@@ -8,12 +8,12 @@ import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
 import javax.validation.constraints.NotNull;
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
 public abstract class SkriptUtils {
+    @SuppressWarnings("unchecked")
     public static TreeMap<String, Object> getListVariable(String name, Event event, boolean isLocal) {
         return (TreeMap<String, Object>) Variables.getVariable(name, event, isLocal);
     }
@@ -23,6 +23,7 @@ public abstract class SkriptUtils {
         Map<String, Object> cleanMap = cleanupMap(inputMap);
         return new Gson().toJsonTree(cleanMap);
     }
+
     private static Map<String, Object> cleanupMap(Map<?, ?> map) {
         Map<String, Object> cleanMap = new LinkedHashMap<>();
 
@@ -68,7 +69,8 @@ public abstract class SkriptUtils {
                 try {
                     int index = Integer.parseInt(key.toString());
                     maxIndex = Math.max(maxIndex, index);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
 
@@ -88,7 +90,8 @@ public abstract class SkriptUtils {
                     } else {
                         list.set(index, value);
                     }
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
 
@@ -98,25 +101,41 @@ public abstract class SkriptUtils {
     }
 
     public static void convertJsonToSkriptVariable(@NotNull String variableName, @NotNull JsonElement json, @NotNull Event event, boolean isLocal) {
+
         if (json instanceof JsonPrimitive primitive) {
             savePrimitiveToVariable(variableName, primitive, event, isLocal);
         } else if (json instanceof JsonObject object) {
+
+            SkJson.debug("--> DEBUG[&6OBJECT&r]: &e%s -> &b%s", variableName, object);
+
             var parsed = GsonParser.fromJson(object);
 
-            for (String key : object.keySet()) {
-                JsonElement value = object.get(key);
-                String pathKey = variableName + key + SEPARATOR;
-                if (cannotBeParsed(value)) {
-                    convertJsonToSkriptVariable(pathKey, value, event, isLocal);
-                } else {
-                    saveParsedToVariable(pathKey, parsed, event, isLocal);
+
+            SkJson.debug("--> DEBUG[&bPARSINGD&r]: &e%s -> &b%s", variableName.endsWith(SEPARATOR) ? variableName.substring(0, variableName.length() - 2) : variableName, object);
+
+            if (!cannotBeParsed(parsed)) {
+                saveParsedToVariable(variableName, parsed, event, isLocal);
+            } else {
+                SkJson.debug("--> DEBUG[&cUNPARSED&r]: &e%s -> &b%s", variableName, object);
+                for (String key : object.keySet()) {
+                    JsonElement value = object.get(key);
+                    String pathKey = variableName + key + SEPARATOR;
+                    if (!cannotBeParsed(value)) {
+                        saveParsedToVariable(pathKey, parsed, event, isLocal);
+                    } else {
+                        convertJsonToSkriptVariable(pathKey, value, event, isLocal);
+                    }
                 }
             }
         } else if (json instanceof JsonArray array) {
+
+            SkJson.debug("--> DEBUG[&3ARRAY&r]: &e%s -> &b%s", variableName, array);
+
             for (int i = 0; i < array.size(); i++) {
                 JsonElement element = array.get(i);
                 String newName = variableName + (i + 1) + SEPARATOR;
                 Object parsed = GsonParser.fromJson(element);
+
                 if (cannotBeParsed(element)) {
                     convertJsonToSkriptVariable(newName, element, event, isLocal);
                 } else {
@@ -128,24 +147,30 @@ public abstract class SkriptUtils {
 
     private static void savePrimitiveToVariable(String variableName, Object value, Event event, boolean isLocal) {
         if (variableName != null && value != null && event != null) {
-            SkJson.logger().info(String.format("PRIMITIVE -> (%s) %s => &a%s", value.getClass().getName(), variableName, value));
+            if (variableName.endsWith(SEPARATOR)) {
+                variableName = variableName.substring(0, variableName.length() - 2);
+            }
+            SkJson.debug("--> DEBUG[&cPRIMITIVE&r]: &e%s -> &b%s", variableName, value);
+
             Variables.setVariable(variableName, value, event, isLocal);
         }
     }
 
-    private static boolean cannotBeParsed(JsonElement element) {
-        return GsonParser.fromJson(element) instanceof JsonElement;
+    private static boolean cannotBeParsed(Object element) {
+        return element instanceof JsonElement;
     }
 
 
     private static void saveParsedToVariable(String variableName, Object o, Event event, boolean isLocal) {
         if (variableName != null && o != null && event != null) {
-            variableName = variableName.substring(0, variableName.length() - 2);
+            if (variableName.endsWith(SEPARATOR)) {
+                variableName = variableName.substring(0, variableName.length() - 2);
+            }
 
             if (SerializedJsonUtils.isJavaType(o)) {
                 savePrimitiveToVariable(variableName, o, event, isLocal);
             } else {
-                SkJson.logger().info(String.format("PARSED -> (%s) %s => &a%s", o.getClass().getName(), variableName, o));
+                SkJson.debug("--> DEBUG[&aPARSED&r]: &e%s -> &b%s", variableName, o);
                 Variables.setVariable(variableName, o, event, isLocal);
             }
         }

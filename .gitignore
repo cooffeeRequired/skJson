@@ -5,4 +5,5 @@ gen_server/
 server
 .idea/
 *.xml
-settings.json
+settings.json/build/
+/.gradle/

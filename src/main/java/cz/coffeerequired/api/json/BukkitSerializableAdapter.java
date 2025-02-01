@@ -21,7 +21,8 @@ public class BukkitSerializableAdapter implements JsonSerializer<ConfigurationSe
     @Override
     public ConfigurationSerializable deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         // Deserialize to a map structure
-        Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
+        Type mapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
         Map<String, Object> map = context.deserialize(json, mapType);
 
         // Extract the class name

@@ -25,18 +25,18 @@ import java.util.Objects;
 
 @Name("Request content")
 @Examples("""
-             # getting the Request content;
-             send {_request}'s content
-             send content of {_request}
-            \s
-             # setting the Request content;
-             set {_request}'s content to (json from "{'Allow': false}")
-             set content of {_request} to (json from "{'Allow': false}")
-            \s
-             # reset the content of the Request
-             reset {_request}'s content
-             reset content of {_request}
-    \s""")
+                 # getting the Request content;
+                 send {_request}'s content
+                 send content of {_request}
+                \s
+                 # setting the Request content;
+                 set {_request}'s content to (json from "{'Allow': false}")
+                 set content of {_request} to (json from "{'Allow': false}")
+                \s
+                 # reset the content of the Request
+                 reset {_request}'s content
+                 reset content of {_request}
+        \s""")
 @Description("set/reset or get the current request content")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental

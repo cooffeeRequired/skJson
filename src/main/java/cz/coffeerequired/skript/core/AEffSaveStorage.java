@@ -1,5 +1,8 @@
 package cz.coffeerequired.skript.core;
 
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
@@ -13,28 +16,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Since;
 
 
 @Name("Save cached json to file")
 @Examples("""
-    save json storage id "my-json-storage"
-""")
+            save json storage id "my-json-storage"
+        """)
 @Since("4.1 - API UPDATE")
 public class AEffSaveStorage extends AsyncEffect {
-
-    private enum Mode {
-        SINGLE, ALL
-    }
 
     private Mode mode;
     private Expression<String> expressionId;
 
     @Override
     protected void execute(Event event) {
-        SkJson.logger().debug("Saving storages");
+        SkJson.debug("Saving storages");
 
         var cache = Api.getCache();
 
@@ -53,19 +49,19 @@ public class AEffSaveStorage extends AsyncEffect {
         map.forEach((j, f) -> {
             try {
                 if ("Undefined".equals(f.getName())) {
-                    SkJson.logger().debug("&6VIRTUAL&r storage id " + id + " - skipping save");
+                    SkJson.debug("&6VIRTUAL&r storage id " + id + " - skipping save");
                     return;
                 }
 
                 FileHandler.write(f.toString(), j, new String[]{"replace=true"}).whenComplete((b, error) -> {
                     if (error != null) {
-                        SkJson.logger().exception("Cannot save storage id " + id, error);
+                        SkJson.exception(error, "Cannot save storage id " + id);
                     } else {
-                        SkJson.logger().debug("Saved storage id " + id);
+                        SkJson.debug("Saved storage id " + id);
                     }
                 });
             } catch (Exception ex) {
-                SkJson.logger().exception("Cannot save storage id " + id, ex);
+                SkJson.exception(ex, "Cannot save storage id " + id);
             }
         });
     }
@@ -83,5 +79,9 @@ public class AEffSaveStorage extends AsyncEffect {
             expressionId = (Expression<String>) expressions[0];
         }
         return true;
+    }
+
+    private enum Mode {
+        SINGLE, ALL
     }
 }

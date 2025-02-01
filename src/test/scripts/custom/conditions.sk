@@ -1,0 +1,49 @@
+test "conditions":
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+
+    set {_has} to false
+
+    if {_json} has all keys "array":
+        set {_has} to true
+
+    assert {_has} is true with "failing: check keys"
+
+    set {_has} to false
+
+    if {_json}.array[0] has all values 1 and 2:
+        set {_has} to true
+
+    assert {_has} is true with "failing: check values"
+
+    set {_has} to false
+
+    if {_json}.array[0] does not have all values 1 and 5:
+        set {_has} to true
+
+    assert {_has} is true with "failing: check values !negation"
+
+    set {_has} to false
+
+    if {_json}.array[0] does not have all keys "array" and "key":
+        set {_has} to true
+
+    assert {_has} is true with "failing: check keys !negation"
+
+    set {_has} to false
+
+    if type of {_json} is json-object:
+        set {_has} to true
+
+    assert {_has} is true with "failing: o is json object"
+
+
+    set {_has} to false
+
+    if type of {_json}.array is json-array:
+        set {_has} to true
+
+    assert {_has} is true with "failing: o is json array"
+
+
+    set {_has} to false
+

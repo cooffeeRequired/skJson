@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 @Data
 @Setter
@@ -55,7 +56,7 @@ public class Request {
 
     @Override
     public String toString() {
-        return "prepared request for uri: " + uri + ", method: " + method + " and status: "+ status;
+        return "prepared request for uri: " + uri + ", method: " + method + " and status: " + status;
     }
 }
 
