@@ -24,25 +24,24 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 
-
 @Name("Request attachment/s")
 @Examples("""
-             # getting the Request attachment;
-             send {_request}'s attachments
-             send attachments of {_request}
-            \s
-             # setting the Request attachment;
-             set {_request}'s attachments to attachment("*/test.sk") and attachment("*/raw.json")
-             set attachments of {_request} to attachment("*/test.sk") and attachment("*/raw.json")
-            \s
-             # add the attachment to the Request attachments
-             add attachment("*/SkJson.json") to {_request}'s attachments
-             add attachment("*/SkJson.json") to attachments of {_request}
-            \s
-             # reset the attachments of the Request
-             reset {_request}'s attachments
-             reset attachments of {_request}
-    \s""")
+                 # getting the Request attachment;
+                 send {_request}'s attachments
+                 send attachments of {_request}
+                \s
+                 # setting the Request attachment;
+                 set {_request}'s attachments to attachment("*/test.sk") and attachment("*/raw.json")
+                 set attachments of {_request} to attachment("*/test.sk") and attachment("*/raw.json")
+                \s
+                 # add the attachment to the Request attachments
+                 add attachment("*/SkJson.json") to {_request}'s attachments
+                 add attachment("*/SkJson.json") to attachments of {_request}
+                \s
+                 # reset the attachments of the Request
+                 reset {_request}'s attachments
+                 reset attachments of {_request}
+        \s""")
 @Description("set/add/reset or get the current request attachment")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
@@ -88,7 +87,7 @@ public class propExprAttachment extends PropertyExpression<Request, Object> {
         assert request != null;
 
         if (!request.getMethod().equals(RequestMethod.POST)) {
-            var e = new IllegalStateException("Cannot set attachments to " + request.getMethod() +" method.. Allowed methods are [POST]");
+            var e = new IllegalStateException("Cannot set attachments to " + request.getMethod() + " method.. Allowed methods are [POST]");
             SkJson.exception(e, Objects.requireNonNull(getParser().getNode()).toString());
             return;
         }

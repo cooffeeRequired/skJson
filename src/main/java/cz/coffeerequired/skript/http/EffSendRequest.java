@@ -71,7 +71,7 @@ public class EffSendRequest extends Effect {
     protected void execute(@NotNull Event event) {
         var request = exprRequest.getSingle(event);
         if (request == null) {
-            SkJson.severe("Request is null");;
+            SkJson.severe("Request is null");
             return;
         }
 
@@ -168,7 +168,7 @@ public class EffSendRequest extends Effect {
             if (!request.getMethod().equals(RequestMethod.GET)) {
                 client.setJsonBody(request.getContent());
             } else {
-                SkJson.warning("Sending request to " + url + " with method GET, method GET doesn't support body!");;
+                SkJson.warning("Sending request to " + url + " with method GET, method GET doesn't support body!");
             }
         }
     }
@@ -182,7 +182,7 @@ public class EffSendRequest extends Effect {
         if (!request.getMethod().equals(RequestMethod.GET)) {
             client.setBodyPublisher(mpd.build().getBodyPublisher());
         } else {
-            SkJson.warning("Sending request with method GET, method GET doesn't support body!");;
+            SkJson.warning("Sending request with method GET, method GET doesn't support body!");
         }
     }
 

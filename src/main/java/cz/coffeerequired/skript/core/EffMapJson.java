@@ -24,9 +24,9 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Description("Its allow convert Json to skript list variable")
 @Since("1.9, 2.9 - Support mapping json from functions, 4.1 performance increase")
 @Examples("""
-    map {_json} to {_mapped::*}
-    send {_mapped::b} to console
-""")
+            map {_json} to {_mapped::*}
+            send {_mapped::b} to console
+        """)
 public class EffMapJson extends Effect {
 
     private Expression<?> variable;

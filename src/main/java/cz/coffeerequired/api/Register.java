@@ -43,7 +43,7 @@ public class Register {
 
                 SkJson.info(
                         "Registering module: %s%s&r%s version: %s%s&r" + AnsiColorConverter.RESET,
-                        AnsiColorConverter.hexToAnsi("#47a5ff"),moduleName,
+                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName,
                         AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
                 );
                 modules.add(module);
@@ -52,6 +52,15 @@ public class Register {
             }
         } catch (Exception e) {
             SkJson.exception(e, e.getMessage());
+        }
+    }
+
+    public static boolean isClassAvailable(Class<?> className) {
+        try {
+            Class.forName(className.getName());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 
@@ -95,15 +104,6 @@ public class Register {
         return isClassAvailable(Skript.class);
     }
 
-    public static boolean isClassAvailable(Class<?> className) {
-        try {
-            Class.forName(className.getName());
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     public <T extends Extensible> void registerModule(Class<T> module) {
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
@@ -112,7 +112,7 @@ public class Register {
                 String moduleVersion = annotation.version();
                 SkJson.info(
                         "Registering module: %s%s&r version: %s%s",
-                        AnsiColorConverter.hexToAnsi("#47a5ff"),moduleName,
+                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName,
                         AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
                 );
                 try {

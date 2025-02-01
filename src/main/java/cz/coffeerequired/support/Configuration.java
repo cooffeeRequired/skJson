@@ -60,6 +60,13 @@ public class Configuration {
         }
     }
 
+    public static String getMapping(final String key) {
+        if (mapping.containsKey(key)) {
+            return mapping.get(key);
+        }
+        return null;
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     public void checkForUpdate() {
         try {
@@ -145,12 +152,5 @@ public class Configuration {
             writer.write("new_file_hash: " + newFileHash);
         }
         SkJson.info("Update scheduled, it will be applied after server restart.");
-    }
-
-    public static String getMapping(final String key) {
-        if (mapping.containsKey(key)) {
-            return mapping.get(key);
-        }
-        return null;
     }
 }

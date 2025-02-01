@@ -32,13 +32,13 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Description("You can get element/s from the given Json")
 @Since("4.1 - API UPDATE")
 @Examples("""
-    set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"
-    
-    send elements "test::2" of {_json}
-    send elements "test" of {_json}
-    send element "test::0" of {_json}
-    send element "test::2::A::1" of {_json}
-""")
+            set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"
+        
+            send elements "test::2" of {_json}
+            send elements "test" of {_json}
+            send element "test::0" of {_json}
+            send element "test::2::A::1" of {_json}
+        """)
 public class ExprJsonElements extends SimpleExpression<Object> {
 
     private Type type;
@@ -74,7 +74,7 @@ public class ExprJsonElements extends SimpleExpression<Object> {
                     if (searcherResult instanceof JsonArray)
                         SkJson.warning("You didn't want to use \"element/value\" instead of \"elements/values\", the plural expression will ensure that you get the array");
                     if (searcherResult == null) return new Object[0];
-                    return new Object[]{ searcherResult };
+                    return new Object[]{searcherResult};
                 } else {
                     SkJson.warning("You cannot use \"element/value\" in root without specified path");
                     return new Object[0];
@@ -175,5 +175,5 @@ public class ExprJsonElements extends SimpleExpression<Object> {
         };
     }
 
-    enum Type { SINGLE, MULTIPLES }
+    enum Type {SINGLE, MULTIPLES}
 }

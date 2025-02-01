@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Check if JSON is empty")
 @Examples("""
-set {_json} to json from "{}"
-if json {_json} is empty:
-    send true
-""")
+        set {_json} to json from "{}"
+        if json {_json} is empty:
+            send true
+        """)
 public class CondJsonIsEmpty extends Condition {
 
     private Expression<JsonElement> jsonElementExpression;

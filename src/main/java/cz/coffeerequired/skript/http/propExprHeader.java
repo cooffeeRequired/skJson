@@ -24,22 +24,22 @@ import java.util.LinkedList;
 
 @Name("Request headers")
 @Examples("""
-             # getting the Request headers;
-             send {_request}'s headers
-             send headers of {_request}
-            \s
-             # setting the Request content;
-             set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
-             set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
-            \s
-             #or
-             set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
-             set headers of {_request} to "Content-Type: application/json", "Restrict: false"
-            \s
-             # reset the headers of the Request
-             reset {_request}'s headers
-             reset headers of {_request}
-    \s""")
+                 # getting the Request headers;
+                 send {_request}'s headers
+                 send headers of {_request}
+                \s
+                 # setting the Request content;
+                 set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
+                 set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
+                \s
+                 #or
+                 set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
+                 set headers of {_request} to "Content-Type: application/json", "Restrict: false"
+                \s
+                 # reset the headers of the Request
+                 reset {_request}'s headers
+                 reset headers of {_request}
+        \s""")
 @Description("set or get the current request headers")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental

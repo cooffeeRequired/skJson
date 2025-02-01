@@ -5,7 +5,6 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -16,21 +15,6 @@ import java.util.Map;
 
 @Data
 public class JsonPath {
-
-    private JsonElement input;
-    private String path;
-    private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> keys;
-
-    public JsonPath(JsonElement input, String path, ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> keys) {
-        this.input = input;
-        this.path = path;
-        this.keys = keys;
-    }
-
-    @Override
-    public String toString() {
-        return "json path of '" + path + "' in " + input;
-    }
 
     public static Parser<JsonPath> parser = new Parser<>() {
 
@@ -50,7 +34,6 @@ public class JsonPath {
             return false;
         }
     };
-
     public static Serializer<JsonPath> serializer = new Serializer<>() {
 
         @Override
@@ -83,4 +66,18 @@ public class JsonPath {
             return false;
         }
     };
+    private JsonElement input;
+    private String path;
+    private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> keys;
+
+    public JsonPath(JsonElement input, String path, ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> keys) {
+        this.input = input;
+        this.path = path;
+        this.keys = keys;
+    }
+
+    @Override
+    public String toString() {
+        return "json path of '" + path + "' in " + input;
+    }
 }

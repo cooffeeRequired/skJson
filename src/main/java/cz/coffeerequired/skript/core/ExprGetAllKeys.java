@@ -23,10 +23,10 @@ import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 @Name("Get all keys from Json object")
 @Description("You can get all potentials keys from the Json Object.")
 @Examples("""
-set {_json} to json from "{array: [{A: 1, B: 2, C: 3}]}"
-send all keys "array::0" of {_json}
-send all keys of {_json} # that will return all root-keys
-""")
+        set {_json} to json from "{array: [{A: 1, B: 2, C: 3}]}"
+        send all keys "array::0" of {_json}
+        send all keys of {_json} # that will return all root-keys
+        """)
 @Since("4.0.1")
 public class ExprGetAllKeys extends SimpleExpression<String> {
 

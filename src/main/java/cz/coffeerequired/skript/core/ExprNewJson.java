@@ -23,19 +23,18 @@ import java.net.http.HttpResponse;
 import java.util.Arrays;
 
 
-
 @Name("New json element")
 @Description("Creates an new json from given input as like strings, objects, websites or either files")
 @Since("4.1 - API UPDATE")
 @Examples({
-    "on script load:",
-    "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
-    "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
-    "\tset {_json} to json from diamond tools",
-    "\tset {_json} to json from player's location",
-    "\tset {_json} to json from player's inventory",
-    "\tset {_json} to json from yaml file <path>",
-    "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+        "on script load:",
+        "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
+        "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
+        "\tset {_json} to json from diamond tools",
+        "\tset {_json} to json from player's location",
+        "\tset {_json} to json from player's inventory",
+        "\tset {_json} to json from yaml file <path>",
+        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
 })
 public class ExprNewJson extends SimpleExpression<JsonElement> {
 

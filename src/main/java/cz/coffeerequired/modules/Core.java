@@ -36,11 +36,6 @@ import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement
 @Module(module = "core", version = "1.0.0")
 public class Core extends Extensible {
 
-     public Core() {
-        this.sign = this.getClass().getSimpleName();
-        this.skriptElementPath = "cz.coffeerequired.skript.core";
-    }
-
     static final Collection<Class<?>> allowedTypes = List.of(
             ItemStack.class,
             Location.class,
@@ -49,6 +44,11 @@ public class Core extends Extensible {
             Inventory.class,
             ConfigurationSerializable.class
     );
+
+    public Core() {
+        this.sign = this.getClass().getSimpleName();
+        this.skriptElementPath = "cz.coffeerequired.skript.core";
+    }
 
     public void tryRegisterDefaultConverters() {
         try {
@@ -76,62 +76,62 @@ public class Core extends Extensible {
         );
 
         register.registerType(new ClassInfo<>(JsonPath.class, "jsonpath")
-                .user("jsonpath")
-                .name("json path")
-                .description("Json path representation")
-                .since("4.1 - API UPDATE")
-                .parser(JsonPath.parser)
-                .serializer(JsonPath.serializer)
-                .changer(new Changer<>() {
-                    @Override
-                    public @Nullable Class<?>[] acceptChange(ChangeMode changeMode) {
-                        return switch (changeMode) {
-                            case ADD -> CollectionUtils.array(Object.class, Object[].class);
-                            default -> null;
-                        };
-                    }
-
-                    @Override
-                    public void change(JsonPath[] what, @Nullable Object[] delta, ChangeMode changeMode) {
-                        if (changeMode == ChangeMode.ADD) {
-                            if (delta == null || delta.length < 1) {
-                                SkJson.warning("Module [Core]: delta need to be defined");
-                                return;
+                        .user("jsonpath")
+                        .name("json path")
+                        .description("Json path representation")
+                        .since("4.1 - API UPDATE")
+                        .parser(JsonPath.parser)
+                        .serializer(JsonPath.serializer)
+                        .changer(new Changer<>() {
+                            @Override
+                            public @Nullable Class<?>[] acceptChange(ChangeMode changeMode) {
+                                return switch (changeMode) {
+                                    case ADD -> CollectionUtils.array(Object.class, Object[].class);
+                                    default -> null;
+                                };
                             }
 
-                            JsonPath path = what[0];
-                            if (path == null) {
-                                SkJson.warning("Module [Core]: json path is null");
-                                return;
+                            @Override
+                            public void change(JsonPath[] what, @Nullable Object[] delta, ChangeMode changeMode) {
+                                if (changeMode == ChangeMode.ADD) {
+                                    if (delta == null || delta.length < 1) {
+                                        SkJson.warning("Module [Core]: delta need to be defined");
+                                        return;
+                                    }
+
+                                    JsonPath path = what[0];
+                                    if (path == null) {
+                                        SkJson.warning("Module [Core]: json path is null");
+                                        return;
+                                    }
+
+                                    SkJson.debug("path %s", path.getInput());
+
+                                    SerializedJson serializedJson = new SerializedJson(path.getInput());
+                                    var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
+
+                                    IntStream.range(0, converted.length).forEach(idx -> {
+                                        var json = converted[idx];
+                                        var result = serializedJson.searcher.keyOrIndex(path.getKeys());
+                                        if (result == null) {
+                                            SkJson.severe("Module [Core]: result need to be defined");
+                                            return;
+                                        }
+                                        if (!(result instanceof JsonArray)) {
+                                            SkJson.severe("Module [Core]: additional can be used only for JSON arrays. | JSON array given " + result.getClass().getSimpleName());
+                                            return;
+                                        }
+                                        var keys = path.getKeys();
+                                        var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
+                                        keys.add(key);
+
+                                        SkJson.debug("KEY &c : " + key);
+
+                                        serializedJson.changer.value(keys, json);
+                                    });
+                                }
                             }
-
-                            SkJson.debug("path %s", path.getInput());
-
-                            SerializedJson serializedJson = new SerializedJson(path.getInput());
-                            var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
-
-                            IntStream.range(0, converted.length).forEach(idx -> {
-                                var json = converted[idx];
-                                var result = serializedJson.searcher.keyOrIndex(path.getKeys());
-                                if (result == null) {
-                                    SkJson.severe("Module [Core]: result need to be defined");
-                                    return;
-                                }
-                                if (!(result instanceof JsonArray)) {
-                                    SkJson.severe("Module [Core]: additional can be used only for JSON arrays. | JSON array given " + result.getClass().getSimpleName());
-                                    return;
-                                }
-                                var keys = path.getKeys();
-                                var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
-                                keys.add(key);
-
-                                SkJson.debug("KEY &c : " + key);
-
-                                serializedJson.changer.value(keys, json);
-                            });
-                        }
-                    }
-                }),
+                        }),
                 "type.jsonpath"
         );
 
@@ -152,11 +152,11 @@ public class Core extends Extensible {
                 "%json% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
         );
         register.registerCondition(CondJsonType.class,
-            "type of %json% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
+                "type of %json% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
                 "type of %json% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
         );
         register.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.COMBINED,
-            "(1st|first) (:value|:key) of %json%",
+                "(1st|first) (:value|:key) of %json%",
                 "(2nd|second) (:value|:key) of %json%",
                 "(3rd|third) (:value|:key) of %json%",
                 "last (:value|:key) of %json%",

@@ -20,14 +20,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 
-
 public class ExprChanger extends SimpleExpression<Object> {
 
     private Expression<JsonPath> exprJsonPath;
     private ChangerType changeType;
-    private enum ChangerType {
-        KEY, VALUE
-    }
 
     @Override
     protected @Nullable Object[] get(Event event) {
@@ -35,10 +31,14 @@ public class ExprChanger extends SimpleExpression<Object> {
     }
 
     @Override
-    public boolean isSingle() { return false; }
+    public boolean isSingle() {
+        return false;
+    }
 
     @Override
-    public Class<?> getReturnType() { return Object.class; }
+    public Class<?> getReturnType() {
+        return Object.class;
+    }
 
     @Override
     public String toString(@Nullable Event event, boolean b) {
@@ -48,7 +48,7 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
 
-        SkJson.debug("mode? : " + mode);;
+        SkJson.debug("mode? : " + mode);
 
         return switch (mode) {
             case SET -> CollectionUtils.array(Object.class, Object[].class);
@@ -60,7 +60,7 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 
-        SkJson.debug("mode? : " + mode);;
+        SkJson.debug("mode? : " + mode);
 
         JsonPath jsonPath = null;
         if (mode.equals(Changer.ChangeMode.SET)) {
@@ -78,12 +78,12 @@ public class ExprChanger extends SimpleExpression<Object> {
                 return;
             }
 
-            SkJson.debug("Changing " + getClass().getSimpleName());;
-            SkJson.debug("delta: " + Arrays.toString(delta));;
-            SkJson.debug("json-path: " + exprJsonPath.getSingle(event));;
-            SkJson.debug("changeType: " + changeType);;
+            SkJson.debug("Changing " + getClass().getSimpleName());
+            SkJson.debug("delta: " + Arrays.toString(delta));
+            SkJson.debug("json-path: " + exprJsonPath.getSingle(event));
+            SkJson.debug("changeType: " + changeType);
 
-            if(changeType.equals(ChangerType.KEY)) {
+            if (changeType.equals(ChangerType.KEY)) {
                 if (!SkriptUtils.isSingleton(delta)) {
                     SkJson.severe("incorrect format of delta");
                     return;
@@ -112,5 +112,9 @@ public class ExprChanger extends SimpleExpression<Object> {
         changeType = ChangerType.values()[parseResult.mark];
         exprJsonPath = LiteralUtils.defendExpression(expressions[0]);
         return LiteralUtils.canInitSafely(exprJsonPath) && exprJsonPath.isSingle();
+    }
+
+    private enum ChangerType {
+        KEY, VALUE
     }
 }

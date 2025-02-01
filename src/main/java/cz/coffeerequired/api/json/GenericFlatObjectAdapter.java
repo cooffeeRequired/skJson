@@ -40,7 +40,7 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
             JsonElement element = jsonObject.get("data");
 
             @SuppressWarnings("unchecked")
-            T instance = (T) context.deserialize(element, type);
+            T instance = context.deserialize(element, type);
 
             return instance;
 

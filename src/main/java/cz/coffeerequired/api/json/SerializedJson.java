@@ -17,7 +17,8 @@ import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
 
 @SuppressWarnings("unused")
 public class SerializedJson {
-    @Getter private final JsonElement json;
+    @Getter
+    private final JsonElement json;
 
     public changer changer;
     public counter counter;
@@ -33,12 +34,17 @@ public class SerializedJson {
         this.searcher = new searcher(json);
     }
 
+    @Override
+    public String toString() {
+        return "SerializedJson{" + "json=" + json + '}';
+    }
+
     public record changer(JsonElement json) {
         public void key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, String newKey) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
-            Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
+            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, true);
@@ -63,7 +69,7 @@ public class SerializedJson {
             SkJson.debug("keys: " + tokens);
 
             JsonElement current = json;
-            Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
+            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, true);
@@ -73,7 +79,8 @@ public class SerializedJson {
 
             if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
                 if (current == null) current = new JsonArray();
-                if (!current.isJsonArray()) throw new SerializedJsonException("Index could be changed only in Json Arrays");
+                if (!current.isJsonArray())
+                    throw new SerializedJsonException("Index could be changed only in Json Arrays");
 
                 if (((JsonArray) current).isEmpty()) {
                     ((JsonArray) current).add(value);
@@ -95,6 +102,7 @@ public class SerializedJson {
             }
         }
     }
+
     public record counter(JsonElement json) {
         public int keys(String key) {
             int count = 0;
@@ -103,14 +111,14 @@ public class SerializedJson {
             JsonElement current;
 
             while ((current = deque.pollFirst()) != null) {
-               if (current instanceof JsonObject jsonObject) {
-                   for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                       if (entry.getKey().equals(key)) count++;
-                       if (!entry.getValue().isJsonPrimitive()) deque.offerLast(entry.getValue());
-                   }
-               } else if (current instanceof JsonArray jsonArray) {
-                   for (JsonElement element : jsonArray) if (!element.isJsonPrimitive()) deque.offerLast(element);
-               }
+                if (current instanceof JsonObject jsonObject) {
+                    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                        if (entry.getKey().equals(key)) count++;
+                        if (!entry.getValue().isJsonPrimitive()) deque.offerLast(entry.getValue());
+                    }
+                } else if (current instanceof JsonArray jsonArray) {
+                    for (JsonElement element : jsonArray) if (!element.isJsonPrimitive()) deque.offerLast(element);
+                }
             }
             return count;
         }
@@ -124,27 +132,28 @@ public class SerializedJson {
             JsonElement value = GsonParser.toJson(object);
 
             while ((current = deque.pollFirst()) != null) {
-               if (current instanceof JsonObject jsonObject) {
-                   for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                       if (entry.getValue().equals(value)) count++;
-                       if (!entry.getValue().isJsonPrimitive()) deque.offerLast(entry.getValue());
-                   }
-               } else if (current instanceof JsonArray jsonArray) {
+                if (current instanceof JsonObject jsonObject) {
+                    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                        if (entry.getValue().equals(value)) count++;
+                        if (!entry.getValue().isJsonPrimitive()) deque.offerLast(entry.getValue());
+                    }
+                } else if (current instanceof JsonArray jsonArray) {
                     for (JsonElement element : jsonArray)
                         if (!element.isJsonPrimitive()) deque.offerLast(element);
                         else if (element.equals(value)) count++;
-               }
+                }
             }
 
             return count;
         }
     }
+
     public record remover(JsonElement json) {
         public void byKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
-            Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
+            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, false);
@@ -156,11 +165,12 @@ public class SerializedJson {
                 ((JsonObject) current).remove(key);
             }
         }
+
         public void byIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
-            Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
+            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, false);
@@ -169,15 +179,17 @@ public class SerializedJson {
             Number index;
 
             if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
-                if (!current.isJsonArray()) throw new SerializedJsonException("Index could be removed only in Json Arrays");
+                if (!current.isJsonArray())
+                    throw new SerializedJsonException("Index could be removed only in Json Arrays");
                 ((JsonArray) current).remove(index.intValue());
             }
         }
+
         public void byValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             var key = deque.removeLast().getKey();
             JsonElement current = json;
-            Map.Entry<String,SkriptJsonInputParser. Type> currentKey;
+            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, false);
@@ -201,6 +213,7 @@ public class SerializedJson {
             }
         }
     }
+
     public record searcher(JsonElement json) {
         public Object keyOrIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
@@ -225,10 +238,5 @@ public class SerializedJson {
             }
             return null;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "SerializedJson{" + "json=" + json + '}';
     }
 }

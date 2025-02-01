@@ -22,6 +22,7 @@ public abstract class SkriptUtils {
         Map<String, Object> cleanMap = cleanupMap(inputMap);
         return new Gson().toJsonTree(cleanMap);
     }
+
     private static Map<String, Object> cleanupMap(Map<?, ?> map) {
         Map<String, Object> cleanMap = new LinkedHashMap<>();
 
@@ -67,7 +68,8 @@ public abstract class SkriptUtils {
                 try {
                     int index = Integer.parseInt(key.toString());
                     maxIndex = Math.max(maxIndex, index);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
 
@@ -87,7 +89,8 @@ public abstract class SkriptUtils {
                     } else {
                         list.set(index, value);
                     }
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
 

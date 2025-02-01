@@ -20,16 +20,16 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Prepare Web request")
 @Examples("""
-         set {_request} to prepare GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.json"
-         set {_request}'s request content to "{A: true}"
-         set {_request}'s headers to "{Content-Type: application/json+vhd}"
-         execute {_request}
-        \s
-         if response status of {_request} is "OK":
-             send response content of {_request}
-             send response status code of {_request}
-             send response headers of {_request}
-    \s""")
+             set {_request} to prepare GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.json"
+             set {_request}'s request content to "{A: true}"
+             set {_request}'s headers to "{Content-Type: application/json+vhd}"
+             execute {_request}
+            \s
+             if response status of {_request} is "OK":
+                 send response content of {_request}
+                 send response status code of {_request}
+                 send response headers of {_request}
+        \s""")
 @Description({
         "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
         "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",

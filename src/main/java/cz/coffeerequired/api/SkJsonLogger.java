@@ -24,7 +24,9 @@ public abstract class SkJsonLogger {
                     .build();
 
     @SuppressWarnings("deprecation")
-    private static String legacy(String text) { return ChatColor.translateAlternateColorCodes('§', text); }
+    private static String legacy(String text) {
+        return ChatColor.translateAlternateColorCodes('§', text);
+    }
 
     public static void log(Level level, Object message, Object... args) {
         var formatted = AnsiColorConverter.convertToAnsi("[" + PREFIX + "] " + message.toString());
@@ -41,13 +43,13 @@ public abstract class SkJsonLogger {
         var formatted = String.format(message.toString(), args);
         TextComponent text;
         if (level == Level.SEVERE) {
-            text = converter.deserialize("[" +PREFIX+ "]&c " + formatted);
+            text = converter.deserialize("[" + PREFIX + "]&c " + formatted);
         } else if (level == Level.WARNING) {
-            text = converter.deserialize("[" +PREFIX+ "]&e " + formatted);
+            text = converter.deserialize("[" + PREFIX + "]&e " + formatted);
         } else if (level == Level.INFO) {
-            text = converter.deserialize("[" +PREFIX+ "]&7 " + formatted);
+            text = converter.deserialize("[" + PREFIX + "]&7 " + formatted);
         } else {
-            text = converter.deserialize("[" +PREFIX+ "]&r " + formatted);
+            text = converter.deserialize("[" + PREFIX + "]&r " + formatted);
         }
         sender.sendMessage(text);
     }
@@ -56,11 +58,11 @@ public abstract class SkJsonLogger {
         entityMessage(Level.INFO, sender, message, args);
     }
 
-    public static void warning(CommandSender sender, Object message, Object ... args) {
+    public static void warning(CommandSender sender, Object message, Object... args) {
         entityMessage(Level.WARNING, sender, message, args);
     }
 
-    public static void error(CommandSender sender, Object message, Object ... args) {
+    public static void error(CommandSender sender, Object message, Object... args) {
         entityMessage(Level.SEVERE, sender, message, args);
     }
 

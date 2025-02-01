@@ -12,7 +12,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -36,38 +35,38 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         "If it is a JSON object, all the values are extracted and converted into Java objects, making them directly usable within the skript."
 })
 @Examples("""
-set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
-
-send {_json}.array[0]* # will print 1,2,3,{}
-
-#send {_json}.array[0] # will print {A: 1, B: 2, C: 3, location: {}}
-
-set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key 
-
-# OUTPUT
-{
-  "array": [
-    {
-      "A": 1,
-      "B": 2,
-      "C": 3,
-      "location": {
-        "loc": {
-          "class": "org.bukkit.Location",
-          "world": "world",
-          "x": 1.0,
-          "y": 2.0,
-          "z": 3.0,
-          "pitch": 0.0,
-          "yaw": 0.0
+        set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+        
+        send {_json}.array[0]* # will print 1,2,3,{}
+        
+        #send {_json}.array[0] # will print {A: 1, B: 2, C: 3, location: {}}
+        
+        set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key 
+        
+        # OUTPUT
+        {
+          "array": [
+            {
+              "A": 1,
+              "B": 2,
+              "C": 3,
+              "location": {
+                "loc": {
+                  "class": "org.bukkit.Location",
+                  "world": "world",
+                  "x": 1.0,
+                  "y": 2.0,
+                  "z": 3.0,
+                  "pitch": 0.0,
+                  "yaw": 0.0
+                }
+              }
+            }
+          ]
         }
-      }
-    }
-  ]
-}
-
-send {_json} as uncolored pretty printed
-""")
+        
+        send {_json} as uncolored pretty printed
+        """)
 @Since("4.1 - API UPDATE")
 public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
@@ -87,7 +86,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         if (tokens.getLast().getValue().equals(SkriptJsonInputParser.Type.ListAll)) {
             return SerializedJsonUtils.getAsParsedArray(searcherResult);
         } else {
-            return new Object[]{ searcherResult };
+            return new Object[]{searcherResult};
         }
     }
 
@@ -108,7 +107,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        var r =  parseResult.regexes.getFirst();
+        var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
@@ -126,14 +125,14 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         if (mode.equals(Changer.ChangeMode.SET)) {
-          if (delta == null) return;
+            if (delta == null) return;
 
-          JsonElement jsonElement = jsonElementExpression.getSingle(event);
-          for (Object o : delta) {
-              JsonElement parsed = GsonParser.toJson(o);
-              SerializedJson serializedJson = new SerializedJson(jsonElement);
-              serializedJson.changer.value(tokens, parsed);
-          }
+            JsonElement jsonElement = jsonElementExpression.getSingle(event);
+            for (Object o : delta) {
+                JsonElement parsed = GsonParser.toJson(o);
+                SerializedJson serializedJson = new SerializedJson(jsonElement);
+                serializedJson.changer.value(tokens, parsed);
+            }
         }
     }
 }

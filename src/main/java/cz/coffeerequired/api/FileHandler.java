@@ -130,8 +130,6 @@ public abstract class FileHandler {
     }
 
 
-
-
     public static CompletableFuture<File> search(final String filename, File rootDirectory) {
         return CompletableFuture.supplyAsync(() -> {
             Deque<File> fileQue = new ArrayDeque<>();

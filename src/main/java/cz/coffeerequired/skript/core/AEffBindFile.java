@@ -22,9 +22,9 @@ import java.io.IOException;
 @Name("Bind JSON file as simply string id")
 @Description("Allows you create an simply string if for bound json file")
 @Examples("""
-bind json file "jsons/mow.json" as "my-template-json-storage"
-bind json file "json/mow.json" as "my-template-json-storage" and let bind storage watcher
-""")
+        bind json file "jsons/mow.json" as "my-template-json-storage"
+        bind json file "json/mow.json" as "my-template-json-storage" and let bind storage watcher
+        """)
 @Since("2.8.0 - performance & clean")
 public class AEffBindFile extends AsyncEffect {
 
@@ -66,7 +66,8 @@ public class AEffBindFile extends AsyncEffect {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        if (withBinding) return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug) + " and let bind storage watcher";
+        if (withBinding)
+            return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug) + " and let bind storage watcher";
         return "bind json file " + expressionFilePath.toString(event, debug) + " to " + expressionJsonId.toString(event, debug);
     }
 

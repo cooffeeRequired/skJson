@@ -57,18 +57,6 @@ public abstract class Api {
 
     @SuppressWarnings("unused")
     public static class Records {
-        public static @NotNull String PROJECT_PERMISSION = "skjson.use";
-        public static boolean PROJECT_DEBUG = true;
-
-        public static boolean PROJECT_ENABLED_HTTP;
-        public static boolean PROJECT_ENABLED_NBT;
-
-        public static String PROJECT_DELIM = "."; // will be loaded
-
-        public static int WATCHER_INTERVAL;
-        public static int WATCHER_REFRESH_RATE;
-
-
         @Getter
         public static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
                 Map.entry("PROJECT_PERMISSION", "plugin.permission"),
@@ -82,5 +70,12 @@ public abstract class Api {
                 Map.entry("WATCHER_INTERVAL", "json.watcher.interval"),
                 Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate")
         ));
+        public static @NotNull String PROJECT_PERMISSION = "skjson.use";
+        public static boolean PROJECT_DEBUG = true;
+        public static boolean PROJECT_ENABLED_HTTP;
+        public static boolean PROJECT_ENABLED_NBT;
+        public static String PROJECT_DELIM = "."; // will be loaded
+        public static int WATCHER_INTERVAL;
+        public static int WATCHER_REFRESH_RATE;
     }
 }

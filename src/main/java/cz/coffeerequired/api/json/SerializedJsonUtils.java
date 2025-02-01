@@ -35,7 +35,7 @@ public abstract class SerializedJsonUtils {
 
     public static boolean isExpression(JsonElement json) {
         if (json.isJsonObject()) {
-           return !json.getAsJsonObject().entrySet().isEmpty();
+            return !json.getAsJsonObject().entrySet().isEmpty();
         }
         return false;
     }
@@ -52,7 +52,7 @@ public abstract class SerializedJsonUtils {
         }
     }
 
-    public static JsonElement handle(JsonElement json, Map.Entry<String,SkriptJsonInputParser. Type> key_, boolean inSetMode) throws SerializedJsonException {
+    public static JsonElement handle(JsonElement json, Map.Entry<String, SkriptJsonInputParser.Type> key_, boolean inSetMode) throws SerializedJsonException {
         if (json == null || json.isJsonNull()) {
             throw new SerializedJsonException("Cannot handle a null JSON element");
         }
@@ -142,7 +142,7 @@ public abstract class SerializedJsonUtils {
         JsonElement current = (JsonElement) input;
         ArrayList<Object> results = new ArrayList<>();
         if (current == null || current.isJsonPrimitive() || current.isJsonNull()) return results.toArray();
-        if(current instanceof JsonArray array) {
+        if (current instanceof JsonArray array) {
             for (JsonElement element : array) {
                 if (element != null) {
                     results.add(GsonParser.fromJson(element));
@@ -175,8 +175,7 @@ public abstract class SerializedJsonUtils {
             if (o instanceof String str) {
                 JsonParser.parseString(str);
                 return true;
-            }
-            else if (o instanceof JsonElement element) {
+            } else if (o instanceof JsonElement element) {
                 return true;
             } else {
                 GsonParser.toJson(o);
@@ -229,15 +228,15 @@ public abstract class SerializedJsonUtils {
             JsonArray array = json.getAsJsonArray();
             if (array.size() > index) {
                 return type.equals(SearchType.VALUE)
-                    ? GsonParser.fromJson(array.get(index))
-                    : index;
+                        ? GsonParser.fromJson(array.get(index))
+                        : index;
             }
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (object.size() > index) {
                 return type.equals(SearchType.VALUE)
-                    ? GsonParser.fromJson((JsonElement) object.entrySet().toArray()[index])
-                    : object.keySet().toArray()[index];
+                        ? GsonParser.fromJson((JsonElement) object.entrySet().toArray()[index])
+                        : object.keySet().toArray()[index];
             }
         }
         return json;

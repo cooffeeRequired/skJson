@@ -15,19 +15,19 @@ import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name( "Formatting skript variable to json")
+@Name("Formatting skript variable to json")
 @Description("You can easily map skript variables to json")
 @Since("4.1 - API UPDATE")
 @Examples("""
-    set {_test::A} to false
-    set {_test::B} to "Raw"
-    set {_test::B::C} to 100 // that will be ignored, because it violates the json standard
-    set {_test::B::C::*} to 1, 2, 4, false, true, "A" and location(0, 1, 2) and world("world")
-
-    set {_json} to {_test::*}'s form
-
-    send {_json} as uncolored pretty printed
-""")
+            set {_test::A} to false
+            set {_test::B} to "Raw"
+            set {_test::B::C} to 100 // that will be ignored, because it violates the json standard
+            set {_test::B::C::*} to 1, 2, 4, false, true, "A" and location(0, 1, 2) and world("world")
+        
+            set {_json} to {_test::*}'s form
+        
+            send {_json} as uncolored pretty printed
+        """)
 public class ExprFormattingJsonToVariable extends SimpleExpression<JsonElement> {
 
     private VariableString variableNaming;

@@ -19,11 +19,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.6.2, 4.1 - API UPDATE")
 @Description("Allows us to create a JSON file that can either be initialized with some content or remain empty.")
 @Examples("""
-    create json file "content.json"
-    create json file "content.json" with configuration[replace=true, encoding=UTF-8]
-    create json file "content.json" and write to it <any>
-    create json file "content.json" and write to it <any> with configuration[replace=true, encoding=UTF-8]
-""")
+            create json file "content.json"
+            create json file "content.json" with configuration[replace=true, encoding=UTF-8]
+            create json file "content.json" and write to it <any>
+            create json file "content.json" and write to it <any> with configuration[replace=true, encoding=UTF-8]
+        """)
 public class EffNewFile extends AsyncEffect {
 
     private boolean hasContent;
@@ -51,7 +51,7 @@ public class EffNewFile extends AsyncEffect {
 
     @Override
     public String toString(@Nullable Event event, boolean b) {
-        return String.format("create json file %s %s", fileExpression.toString(event, b), hasContent ? "and write to it"  + contentExpression.toString(event, b) : "");
+        return String.format("create json file %s %s", fileExpression.toString(event, b), hasContent ? "and write to it" + contentExpression.toString(event, b) : "");
     }
 
     @SuppressWarnings("unchecked")

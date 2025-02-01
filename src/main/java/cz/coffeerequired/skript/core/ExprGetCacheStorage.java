@@ -14,11 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+
 @Name("Get cached json storage")
 @Examples("""
-    send json storage of id "test"
-    send all json storages
-""")
+            send json storage of id "test"
+            send all json storages
+        """)
 @Since("2.8.0 - performance & clean")
 public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
 

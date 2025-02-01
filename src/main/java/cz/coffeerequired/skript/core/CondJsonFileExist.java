@@ -13,9 +13,9 @@ import java.io.File;
 
 @Name("Check if JSON file exists")
 @Examples("""
-if json file "..." exists:
-    send true
-""")
+        if json file "..." exists:
+            send true
+        """)
 public class CondJsonFileExist extends Condition {
 
     private Expression<String> filePathExpression;

@@ -17,8 +17,8 @@ import java.io.File;
 
 @Name("Unbind the storage for the given id")
 @Examples("""
-    unbind json storage id "my-json-storage"
-""")
+            unbind json storage id "my-json-storage"
+        """)
 @Since("4.1 - API UPDATE")
 public class AEffUnbindFile extends AsyncEffect {
 

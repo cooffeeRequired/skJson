@@ -33,7 +33,7 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
             SkJson.debug("Removing " + getClass().getSimpleName());
 
             if (delta == null || delta.length < 1) {
-                SkJson.exception( new Exception("delta is null"), "delta need to be defined");
+                SkJson.exception(new Exception("delta is null"), "delta need to be defined");
                 return;
             }
 
@@ -47,7 +47,7 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
                 SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
                 serializedJson.remover.byKey(jsonPath.getKeys());
             } else {
-                for(Object op : delta) {
+                for (Object op : delta) {
                     if (op instanceof JsonPath p) {
                         SerializedJson serializedJson = new SerializedJson(p.getInput());
                         serializedJson.remover.byKey(p.getKeys());

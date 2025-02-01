@@ -11,11 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-
 @Name("Size of json object/array")
 @Examples({
-    "set {_json} to json from \"{'sample': {}, 'second': []}\"",
-    "send {_json} is bigger than 1."
+        "set {_json} to json from \"{'sample': {}, 'second': []}\"",
+        "send {_json} is bigger than 1."
 })
 @Since("4.1 - API UPDATE")
 public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {

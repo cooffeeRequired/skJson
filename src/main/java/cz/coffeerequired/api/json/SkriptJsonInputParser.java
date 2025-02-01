@@ -36,9 +36,9 @@ public class SkriptJsonInputParser {
 
                 tokensList.add(Map.entry(currentToken, type));
             } else if (rsp.size() > 2) {
-                for (int x = 0; x < rsp.size(); x = x+2) {
+                for (int x = 0; x < rsp.size(); x = x + 2) {
                     type = (Type) rsp.get(x);
-                    currentToken = (String) rsp.get(x+1);
+                    currentToken = (String) rsp.get(x + 1);
 
                     currentToken = currentToken
                             .replaceFirst("\\*", "")
@@ -155,6 +155,7 @@ public class SkriptJsonInputParser {
         Index(0), List(new JsonArray()), Object(new JsonObject()), ListInit("[]$"), ListAll("*$");
 
         private final Object value;
+
         Type(Object value) {
             this.value = value;
         }

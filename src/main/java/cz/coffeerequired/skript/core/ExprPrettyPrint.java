@@ -25,11 +25,6 @@ import org.jetbrains.annotations.Nullable;
 })
 public class ExprPrettyPrint extends SimpleExpression<String> {
 
-    private enum Format {
-        PRETTY,
-        UNCOLORED
-    }
-
     private Format format;
     private Expression<JsonElement> element;
 
@@ -53,7 +48,9 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
     }
 
     @Override
-    public boolean isSingle() { return this.element.isSingle(); }
+    public boolean isSingle() {
+        return this.element.isSingle();
+    }
 
     @Override
     public Class<? extends String> getReturnType() {
@@ -71,5 +68,10 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
         else if (i == 1) format = Format.UNCOLORED;
         element = LiteralUtils.defendExpression(expressions[0]);
         return LiteralUtils.canInitSafely(element);
+    }
+
+    private enum Format {
+        PRETTY,
+        UNCOLORED
     }
 }

@@ -25,7 +25,7 @@ public class Commands {
                            BiFunction<CommandSender, String[], List<String>> completer
     ) {
         if (cmd.contains("|")) {
-             Arrays.stream(cmd.split("\\|"))
+            Arrays.stream(cmd.split("\\|"))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
                     .forEach(c -> commandMap.put(c, new CommandHandler(executor, completer)));
@@ -41,6 +41,7 @@ public class Commands {
         if (cmd == null) SkJson.exception(e, e.getMessage());
         else cmd.setExecutor(new CommandManager());
     }
+
     public static BiFunction<CommandSender, String[], List<String>> emptyCompleter() {
         return (a, b) -> List.of();
     }
@@ -74,11 +75,11 @@ public class Commands {
 
             if (args.length == 0) {
                 SkJson.info(sender,
-            "\nUsage: /" + label + " <command>" +
-                    "\n &e - about|?" +
-                    "\n &e - reload" +
-                    "\n &e - status" +
-                    "\n &e - debug"
+                        "\nUsage: /" + label + " <command>" +
+                                "\n &e - about|?" +
+                                "\n &e - reload" +
+                                "\n &e - status" +
+                                "\n &e - debug"
                 );
                 return true;
             }

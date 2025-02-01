@@ -10,7 +10,8 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
-import cz.coffeerequired.api.requests.*;
+import cz.coffeerequired.api.requests.Request;
+import cz.coffeerequired.api.requests.RequestMethod;
 import cz.coffeerequired.skript.http.*;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,6 @@ public class HttpModule extends Extensible {
         register.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
         register.registerProperty(propExprQueryParams.class, JsonElement.class, "[request] query params(s|meters)", "requests");
         register.registerProperty(propExprResponse.class, Object.class, "response [:content|:headers|:status code|:status]", "requests");
-
 
 
         Classes.registerClass(new EnumClassInfo<>(RequestMethod.class, "requestmethod", "request method")

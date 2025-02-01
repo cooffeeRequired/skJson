@@ -20,8 +20,8 @@ import java.io.File;
 @Name("Virtual json storage")
 @Description("Allows create an virtual instance of json file-storage, without physical file.")
 @Examples("""
-    create json virtual storage named "my-virtual-memory-storage"
-""")
+            create json virtual storage named "my-virtual-memory-storage"
+        """)
 @Since("2.9")
 public class EffVirtualStorage extends Effect {
 
