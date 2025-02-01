@@ -14,7 +14,7 @@ public class GenericFlatObjectAdapter<T> implements JsonSerializer<T>, JsonDeser
             try {
                 return JsonParser.parseString(src.toString());
             } catch (JsonSyntaxException e) {
-                SkJson.logger().exception("Unable to serialize string: " + src, e);
+                SkJson.exception(e, "Unable to serialize string: " + src);
                 return null;
             }
         }

@@ -25,7 +25,7 @@ public abstract class FileHandler {
     public static CompletableFuture<JsonElement> get(File file) {
         return CompletableFuture.supplyAsync(() -> {
             if (!file.exists()) {
-                SkJson.logger().info("&cFile " + file + " doesn't exist");
+                SkJson.info("&cFile " + file + " doesn't exist");
                 return JsonNull.INSTANCE;
             }
 
@@ -48,7 +48,7 @@ public abstract class FileHandler {
                     default -> JsonNull.INSTANCE;
                 };
             } catch (IOException e) {
-                SkJson.logger().exception(e.getMessage(), e);
+                SkJson.exception(e, e.getMessage());
                 return JsonNull.INSTANCE;
             }
         });
@@ -83,10 +83,10 @@ public abstract class FileHandler {
                             }
                             break;
                         default:
-                            SkJson.logger().warning("Unknown configuration option: " + key);
+                            SkJson.warning("Unknown configuration option: " + key);
                     }
                 } catch (NumberFormatException e) {
-                    SkJson.logger().warning("Invalid value for " + key + ": " + value);
+                    SkJson.warning("Invalid value for " + key + ": " + value);
                 }
             }
         }
@@ -106,11 +106,11 @@ public abstract class FileHandler {
             var parent = file.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdir()) {
                 var e = new IOException("Failed to create parent directory of " + file);
-                SkJson.logger().exception(e.getMessage(), e);
+                SkJson.exception(e, e.getMessage());
             }
 
             if (file.exists() && !finalReplace) {
-                SkJson.logger().warning(String.format("Cannot create a file %s, file already exists", finalFilePath));
+                SkJson.warning(String.format("Cannot create a file %s, file already exists", finalFilePath));
                 return false;
             }
 
@@ -123,7 +123,7 @@ public abstract class FileHandler {
 
                 return true;
             } catch (IOException e) {
-                SkJson.logger().exception(e.getMessage(), e);
+                SkJson.exception(e, e.getMessage());
                 return false;
             }
         });

@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static cz.coffeerequired.SkJson.logger;
+
 
 
 @Name("Request query params")
@@ -113,7 +114,7 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
                 request.setQueryParams(new HashMap<>());
             }
         } catch (Exception ex) {
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), ex);
+            SkJson.exception(ex, Objects.requireNonNull(getParser().getNode()).toString());;
         }
 
     }

@@ -4,7 +4,6 @@ import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffeerequired.SkJson;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
@@ -17,7 +16,7 @@ public abstract class SerializedJsonUtils {
             JsonParser.parseString(json);
             return true;
         } catch (Exception exception) {
-            SkJson.logger().exception("isJson, wont parse that " + json.toString(), exception);
+            SkJson.exception(exception, "isJson, wont parse that " + json.toString());
             return false;
         }
     }
@@ -185,7 +184,7 @@ public abstract class SerializedJsonUtils {
             }
         } catch (Exception e) {
             if (PROJECT_DEBUG) {
-                SkJson.logger().exception("isValidJson, wont parse that " + o.toString(), e);
+                SkJson.exception(e, "isValidJson, wont parse that " + o.toString());
             }
             return false;
         }

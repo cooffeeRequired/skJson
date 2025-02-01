@@ -61,14 +61,14 @@ public class CondJsonHas extends Condition {
                     boolean contains = jsonElement.keySet().contains(key);
                     if (!contains) found = false;
                 } else if (json instanceof JsonArray) {
-                    SkJson.logger().warning("Keys are not supported for arrays");
+                    SkJson.warning("Keys are not supported for arrays");
                     return false;
                 }
             }
             if (!found) break;
         }
 
-        SkJson.logger().warning("&7values: &a" + isValues + " &7found: &b" + found + "&7 negatted: &c" + negated);
+        SkJson.warning("&7values: &a" + isValues + " &7found: &b" + found + "&7 negatted: &c" + negated);
         return found == !negated;
     }
 

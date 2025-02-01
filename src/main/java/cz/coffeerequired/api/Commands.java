@@ -1,5 +1,6 @@
 package cz.coffeerequired.api;
 
+import cz.coffeerequired.SkJson;
 import lombok.Setter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-
-import static cz.coffeerequired.SkJson.logger;
 
 public class Commands {
     private static final Map<String, CommandHandler> commandMap = new HashMap<>();
@@ -39,7 +38,7 @@ public class Commands {
     public static void registerCommand(final JavaPlugin plugin) {
         var cmd = plugin.getCommand(mainCommand);
         var e = new NullPointerException("Command is null");
-        if (cmd == null) logger().exception(e.getMessage(), e);
+        if (cmd == null) SkJson.exception(e, e.getMessage());
         else cmd.setExecutor(new CommandManager());
     }
     public static BiFunction<CommandSender, String[], List<String>> emptyCompleter() {
@@ -69,19 +68,18 @@ public class Commands {
         public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
             if (!sender.hasPermission(Api.Records.PROJECT_PERMISSION)) {
-                sender.sendMessage(logger().colorize("&cYou don't have permission to use this command!"));
+                SkJson.error(sender, "&cYou don't have permission to use this command!");
                 return true;
             }
 
             if (args.length == 0) {
-                sender.sendMessage(logger().colorize(
-                        CustomLogger.getGRADIENT_PREFIX() +
-                        "\nUsage: /" + label + " <command>" +
-                        "\n &e - about|?" +
-                        "\n &e - reload" +
-                        "\n &e - status" +
-                        "\n &e - debug"
-                ));
+                SkJson.info(sender,
+            "\nUsage: /" + label + " <command>" +
+                    "\n &e - about|?" +
+                    "\n &e - reload" +
+                    "\n &e - status" +
+                    "\n &e - debug"
+                );
                 return true;
             }
 

@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
-import static cz.coffeerequired.SkJson.logger;
+
 
 @Name("Send created/prepared request")
 @Examples("send prepared {_request}")
@@ -71,7 +71,7 @@ public class EffSendRequest extends Effect {
     protected void execute(@NotNull Event event) {
         var request = exprRequest.getSingle(event);
         if (request == null) {
-            logger().error("Request is null");
+            SkJson.severe("Request is null");;
             return;
         }
 
@@ -97,7 +97,7 @@ public class EffSendRequest extends Effect {
         CompletableFuture.supplyAsync(() -> sendRequest(request), threadPool)
                 .whenComplete((resp, err) -> {
                     if (err != null) {
-                        logger().exception("Error sending request asynchronously", err);
+                        SkJson.exception(err, "Error sending request asynchronously");
                         request.setResponse(Response.empty());
                         return;
                     }
@@ -131,7 +131,7 @@ public class EffSendRequest extends Effect {
             setupClient(client, request, url);
             return executeRequest(client, request);
         } catch (IOException | ExecutionException | InterruptedException e) {
-            logger().exception("Error sending request", e);
+            SkJson.exception(e, "Error sending request");
             return null;
         }
     }
@@ -155,7 +155,7 @@ public class EffSendRequest extends Effect {
             }
             return URI.create(uriBuilder.toString()).normalize();
         } catch (Exception ex) {
-            logger().exception("Error building URI", ex);
+            SkJson.exception(ex, "Error building URI", ex);
             return null;
         }
     }
@@ -168,7 +168,7 @@ public class EffSendRequest extends Effect {
             if (!request.getMethod().equals(RequestMethod.GET)) {
                 client.setJsonBody(request.getContent());
             } else {
-                logger().warning("Sending request to " + url + " with method GET, method GET doesn't support body!");
+                SkJson.warning("Sending request to " + url + " with method GET, method GET doesn't support body!");;
             }
         }
     }
@@ -182,7 +182,7 @@ public class EffSendRequest extends Effect {
         if (!request.getMethod().equals(RequestMethod.GET)) {
             client.setBodyPublisher(mpd.build().getBodyPublisher());
         } else {
-            logger().warning("Sending request with method GET, method GET doesn't support body!");
+            SkJson.warning("Sending request with method GET, method GET doesn't support body!");;
         }
     }
 
@@ -206,7 +206,7 @@ public class EffSendRequest extends Effect {
             try {
                 ((Set<Event>) DELAYED.get(null)).add(e);
             } catch (IllegalAccessException illegalAccessException) {
-                logger().exception("Error accessing delayed events", illegalAccessException);
+                SkJson.exception(illegalAccessException, "Error accessing delayed events");
             }
         }
     }

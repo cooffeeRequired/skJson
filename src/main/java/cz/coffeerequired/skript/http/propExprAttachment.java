@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.requests.Attachment;
 import cz.coffeerequired.api.requests.Request;
 import cz.coffeerequired.api.requests.RequestMethod;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static cz.coffeerequired.SkJson.logger;
+
 
 @Name("Request attachment/s")
 @Examples("""
@@ -88,7 +89,7 @@ public class propExprAttachment extends PropertyExpression<Request, Object> {
 
         if (!request.getMethod().equals(RequestMethod.POST)) {
             var e = new IllegalStateException("Cannot set attachments to " + request.getMethod() +" method.. Allowed methods are [POST]");
-            logger().exception(Objects.requireNonNull(getParser().getNode()).toString(), e);
+            SkJson.exception(e, Objects.requireNonNull(getParser().getNode()).toString());
             return;
         }
         if (mode == Changer.ChangeMode.SET) {

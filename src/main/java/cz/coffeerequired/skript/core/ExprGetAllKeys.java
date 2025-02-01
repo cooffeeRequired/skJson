@@ -38,7 +38,7 @@ public class ExprGetAllKeys extends SimpleExpression<String> {
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
         if (jsonElement == null) return new String[0];
         if (!jsonElement.isJsonObject()) {
-            SkJson.logger().warning("Only json objects are supported");
+            SkJson.warning("Only json objects are supported");
             return new String[0];
         }
         if (pathExpression != null) {
@@ -48,7 +48,7 @@ public class ExprGetAllKeys extends SimpleExpression<String> {
             var searched = json.searcher.keyOrIndex(tokens);
             if (searched instanceof JsonObject j) jsonElement = j;
             else {
-                SkJson.logger().warning("Only json objects are supported");
+                SkJson.warning("Only json objects are supported");
                 return new String[0];
             }
         }

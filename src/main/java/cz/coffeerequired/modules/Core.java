@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
 
@@ -55,7 +54,7 @@ public class Core extends Extensible {
         try {
             allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
         } catch (Exception e) {
-            SkJson.logger().exception("Error while registering default converters", e);
+            SkJson.exception(e, "Error while registering default converters: %s", e.getMessage());
         }
     }
 
@@ -96,17 +95,17 @@ public class Core extends Extensible {
                     public void change(JsonPath[] what, @Nullable Object[] delta, ChangeMode changeMode) {
                         if (changeMode == ChangeMode.ADD) {
                             if (delta == null || delta.length < 1) {
-                                logger().exception("delta need to be defined", new Exception("delta is null"));
+                                SkJson.warning("Module [Core]: delta need to be defined");
                                 return;
                             }
 
                             JsonPath path = what[0];
                             if (path == null) {
-                                logger().exception("json path is null", new Exception("Cannot invoke add to null!"));
+                                SkJson.warning("Module [Core]: json path is null");
                                 return;
                             }
 
-                            logger().debug("path: " + path.getInput());
+                            SkJson.debug("path %s", path.getInput());
 
                             SerializedJson serializedJson = new SerializedJson(path.getInput());
                             var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
@@ -115,19 +114,18 @@ public class Core extends Extensible {
                                 var json = converted[idx];
                                 var result = serializedJson.searcher.keyOrIndex(path.getKeys());
                                 if (result == null) {
-                                    logger().exception("result need to be defined", new Exception("result of search is null"));
+                                    SkJson.severe("Module [Core]: result need to be defined");
                                     return;
                                 }
                                 if (!(result instanceof JsonArray)) {
-                                    logger().exception("additional can be used only for JSON arrays.", new Exception("Property misstype, expected JSON array given " + result.getClass().getSimpleName()));
+                                    SkJson.severe("Module [Core]: additional can be used only for JSON arrays. | JSON array given " + result.getClass().getSimpleName());
                                     return;
                                 }
                                 var keys = path.getKeys();
                                 var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
                                 keys.add(key);
 
-                                logger().debug("KEY &c : " + key);
-
+                                SkJson.debug("KEY &c : " + key);
 
                                 serializedJson.changer.value(keys, json);
                             });
@@ -203,7 +201,6 @@ public class Core extends Extensible {
         );
 
         if (Skript.getVersion().isSmallerThan(new Version(2, 10, 0))) {
-            //noinspection removal
             EventValues.registerEventValue(JSONFileWatcherSave.class, JsonElement.class,
                     new Getter<>() {
                         @Override
@@ -211,7 +208,6 @@ public class Core extends Extensible {
                             return event.getJson();
                         }
                     }, 0);
-            //noinspection removal
             EventValues.registerEventValue(JSONFileWatcherSave.class, UUID.class,
                     new Getter<>() {
                         @Override
@@ -219,7 +215,6 @@ public class Core extends Extensible {
                             return event.getUuid();
                         }
                     }, 0);
-            //noinspection removal
             EventValues.registerEventValue(JSONFileWatcherSave.class, File.class,
                     new Getter<>() {
                         @Override
@@ -227,10 +222,6 @@ public class Core extends Extensible {
                             return event.getLinkedFile();
                         }
                     }, 0);
-        } else {
-            EventValues.registerEventValue(JSONFileWatcherSave.class, JsonElement.class, JSONFileWatcherSave::getJson, 0);
-            EventValues.registerEventValue(JSONFileWatcherSave.class, UUID.class, JSONFileWatcherSave::getUuid, 0);
-            EventValues.registerEventValue(JSONFileWatcherSave.class, File.class, JSONFileWatcherSave::getLinkedFile, 0);
         }
     }
 }

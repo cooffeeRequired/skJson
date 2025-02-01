@@ -48,7 +48,7 @@ public class SerializedJson {
                 Skript.error("Key could be changed only in Json Object but found (" + current.getClass().getSimpleName() + ")", ErrorQuality.SEMANTIC_ERROR);
             } else {
 
-                SkJson.logger().debug("current:? " + current);
+                SkJson.debug("current:? " + current);
 
                 ((JsonObject) current).add(newKey, current.getAsJsonObject().get(key));
                 ((JsonObject) current).remove(key);
@@ -60,7 +60,7 @@ public class SerializedJson {
             var temp = deque.removeLast();
             var key = temp.getKey();
 
-            SkJson.logger().debug("keys: " + tokens);
+            SkJson.debug("keys: " + tokens);
 
             JsonElement current = json;
             Map.Entry<String,SkriptJsonInputParser. Type> currentKey;

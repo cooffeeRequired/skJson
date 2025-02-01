@@ -32,19 +32,19 @@ public class EffVirtualStorage extends Effect {
         var perf = new Performance();
         String name = expressionName.getSingle(event);
         if (name == null) {
-            SkJson.logger().error("You must specify a name for the virtual storage.");
+            SkJson.severe("You must specify a name for the virtual storage.");
             return;
         }
 
         if (Api.getCache().containsKey(name)) {
             perf.stop();
-            SkJson.logger().info("Creating virtual memory cache: " + perf.toHumanTime());
+            SkJson.info("Creating virtual memory cache: " + perf.toHumanTime());
             return;
         }
 
         Api.getCache().addValue(name, new JsonObject(), new File("Undefined"));
         perf.stop();
-        SkJson.logger().info("Creating virtual  memory cache: " + perf.toHumanTime());
+        SkJson.info("Creating virtual  memory cache: " + perf.toHumanTime());
     }
 
     @Override

@@ -36,17 +36,17 @@ public class AEffUnbindFile extends AsyncEffect {
         if (cache.containsKey(id)) {
             cache.get(id).forEach((j, v) -> file[0] = v);
 
-            SkJson.logger().debug("is storage bound: " + CacheStorageWatcher.Extern.hasRegistered(file[0]));
+            SkJson.debug("is storage bound: " + CacheStorageWatcher.Extern.hasRegistered(file[0]));
 
             if (file[0].getName().equals("Undefined")) {
                 cache.removeIfPresent(id);
-                SkJson.logger().debug("Unbinding json storage id " + id);
+                SkJson.debug("Unbinding json storage id " + id);
             } else {
                 if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
                     CacheStorageWatcher.Extern.unregister(file[0]);
-                    SkJson.logger().debug("Unregistering storage: " + file[0]);
+                    SkJson.debug("Unregistering storage: " + file[0]);
 
-                    SkJson.logger().debug("Unbinding json storage id " + id);
+                    SkJson.debug("Unbinding json storage id " + id);
 
                     cache.removeIfPresent(id);
                 }

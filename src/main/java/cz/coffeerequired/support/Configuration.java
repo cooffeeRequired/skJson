@@ -12,14 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
-import java.util.Enumeration;
 import java.util.Formatter;
-import java.util.Objects;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import static cz.coffeerequired.api.Api.Records.mapping;
 
@@ -55,12 +50,12 @@ public class Configuration {
                 targetFile = targetFile.replaceFirst(".paper-remapped\\\\", "");
                 // Move the temp file to the target location
                 Files.move(Path.of(tempFile), Path.of(targetFile), StandardCopyOption.REPLACE_EXISTING);
-                SkJson.logger().info("Update applied successfully.");
+                SkJson.info("Update applied successfully.");
 
                 // Delete the update file
                 Files.delete(updateFile.toPath());
             } catch (IOException e) {
-                SkJson.logger().exception("Failed to apply the scheduled update.", e);
+                SkJson.exception(e, "Failed to apply the scheduled update.");
             }
         }
     }
@@ -69,7 +64,7 @@ public class Configuration {
     public void checkForUpdate() {
         try {
             URI url = new URI(String.format("https://api.github.com/repos/%s/%s/releases/latest", USERNAME, REPOSITORY));
-            SkJson.logger().info("Checking for updates...");
+            SkJson.info("Checking for updates" + AnsiColorConverter.GREEN + " ✔");
 
             HttpURLConnection conn = (HttpURLConnection) url.toURL().openConnection();
             conn.setRequestMethod("GET");
@@ -91,10 +86,10 @@ public class Configuration {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
                 scheduleUpdate(downloadUrl);
             } else if (currentVersion.compareTo(latestVersion) > 0) {
-                SkJson.logger().info("Running a Development version, no update required.");
+                SkJson.info("Running a Development version, no update required.");
             }
         } catch (Exception e) {
-            SkJson.logger().severe("Update check URL not found: " + e.getMessage());
+            SkJson.severe("Update check URL not found: " + e.getMessage());
         }
     }
 
@@ -116,7 +111,7 @@ public class Configuration {
             // Create the update information file to apply after server restarts
             createUpdateYml(pluginFile.toPath(), tempPath, oldFileHash, newFileHash);
         } catch (Exception e) {
-            SkJson.logger().exception(e.getMessage(), e);
+            SkJson.exception(e, e.getMessage());
         }
     }
 
@@ -149,34 +144,7 @@ public class Configuration {
             writer.newLine();
             writer.write("new_file_hash: " + newFileHash);
         }
-        SkJson.logger().info("Update scheduled, it will be applied after server restart.");
-    }
-
-    public void copySkriptTests() {
-        try {
-            Path targetDirectory = Paths.get("plugins/Skript/scripts");
-            Files.createDirectories(targetDirectory);
-
-            String jarPath = Configuration.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            if (jarPath.endsWith(".jar")) {
-                try (JarFile jarFile = new JarFile(jarPath)) {
-                    Enumeration<JarEntry> entries = jarFile.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        String entryName = entry.getName();
-                        if (entryName.startsWith("tests/") && !entry.isDirectory()) {
-                            try (InputStream inputStream = jarFile.getInputStream(entry)) {
-                                Path targetFile = targetDirectory.resolve(entryName.substring("tests/".length()));
-                                Files.createDirectories(targetFile.getParent());
-                                Files.copy(Objects.requireNonNull(inputStream), targetFile, StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            SkJson.logger().exception("Error occured while copying test scripts from jar file!", e);
-        }
+        SkJson.info("Update scheduled, it will be applied after server restart.");
     }
 
     public static String getMapping(final String key) {

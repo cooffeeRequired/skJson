@@ -67,7 +67,7 @@ public abstract class SupportSkriptJson {
             try {
                 outputMap = (HashMap<String, Object>) loop.getCurrent(event);
             } catch (ClassCastException exception) {
-                if (PROJECT_DEBUG) SkJson.logger().exception(exception.getLocalizedMessage(), exception);
+                if (PROJECT_DEBUG) SkJson.exception(exception, exception.getLocalizedMessage());
                 return new Object[0];
             }
 

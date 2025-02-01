@@ -6,7 +6,7 @@ dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT'
 
     // Skript
-    compileOnly 'com.github.SkriptLang:Skript:2.10.0'
+    compileOnly 'com.github.SkriptLang:Skript:2.9.4'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -29,7 +29,7 @@ configurations { provided }
 
 dependencies {
     provided 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
-    provided 'com.github.SkriptLang:Skript:2.10.0'
+    provided 'com.github.SkriptLang:Skript:2.9.2'
     provided 'com.google.code.gson:gson:2.10.1'
     provided 'org.glassfish.jersey.core:jersey-server:2.34'
     provided 'org.bstats:bstats-bukkit:3.1.0'

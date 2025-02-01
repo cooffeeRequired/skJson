@@ -13,20 +13,16 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.exceptions.ModulableException;
-import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.modules.Core;
-import cz.coffeerequired.modules.NbtModule;
+import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
-
-import static cz.coffeerequired.SkJson.logger;
 
 public class Register {
 
@@ -35,7 +31,7 @@ public class Register {
     @Getter
     private static SkriptAddon addon;
     @Getter
-    private SkriptRegister skriptRegister = new SkriptRegister();
+    private final SkriptRegister skriptRegister = new SkriptRegister();
 
     @ExternalAPI
     public static <T extends Extensible> void registerModules(JavaPlugin plugin, Class<T> module) {
@@ -44,13 +40,18 @@ public class Register {
                 Module annotation = module.getAnnotation(Module.class);
                 String moduleName = annotation.module();
                 String moduleVersion = annotation.version();
-                logger().info("[" + plugin.getName() + "]Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
+
+                SkJson.info(
+                        "Registering module: %s%s&r%s version: %s%s&r" + AnsiColorConverter.RESET,
+                        AnsiColorConverter.hexToAnsi("#47a5ff"),moduleName,
+                        AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
+                );
                 modules.add(module);
             } else {
                 throw new IllegalCallerException("Class what extends Extensible always need to be annotated by @Module");
             }
         } catch (Exception e) {
-            logger().exception(e.getMessage(), e);
+            SkJson.exception(e, e.getMessage());
         }
     }
 
@@ -59,9 +60,9 @@ public class Register {
         if (isSkriptAvailable()) {
             addon = Skript.registerAddon(SkJson.getInstance());
             addon.setLanguageFileDirectory("lang");
-            logger().info("Hooking into Skript plugin... Hooks initialized.");
-            logger().info("Trying register Skript addon...");
-            logger().info("Trying register Skript elements...");
+            SkJson.info("Hooking into Skript plugin... Hooks initialized.");
+            SkJson.info("Trying register Skript addon...");
+            SkJson.info("Trying register Skript elements...");
 
             registerModule(Core.class);
 
@@ -69,12 +70,8 @@ public class Register {
                 registerModule(HttpModule.class);
             }
 
-            if (Api.Records.PROJECT_ENABLED_NBT) {
-                registerModule(NbtModule.class);
-            }
-
         } else {
-            logger().error("Skript plugin not detected.");
+            SkJson.severe("Skript plugin not detected.");
         }
     }
 
@@ -87,23 +84,18 @@ public class Register {
 
     public <T> void registerNewHook(Class<T> tClass) {
         if (isClassAvailable(tClass) && tClass.getName().equals("ch.njol.skript.Skript")) {
-            logger().info("Attempting to hook into Skript plugin...");
+            SkJson.info("Attempting to hook into Skript plugin...");
             tryRegisterSkript();
         } else {
-            logger().error("Unsupported hook class: " + tClass.getName());
+            SkJson.severe("Unsupported hook class: %s", tClass.getName());
         }
     }
 
     private boolean isSkriptAvailable() {
-        try {
-            Class.forName("ch.njol.skript.Skript");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+        return isClassAvailable(Skript.class);
     }
 
-    private boolean isClassAvailable(Class<?> className) {
+    public static boolean isClassAvailable(Class<?> className) {
         try {
             Class.forName(className.getName());
             return true;
@@ -118,8 +110,11 @@ public class Register {
                 Module annotation = module.getAnnotation(Module.class);
                 String moduleName = annotation.module();
                 String moduleVersion = annotation.version();
-                logger().info("Registering module: " + AnsiColorConverter.hexToAnsi("#47a5ff") + moduleName + AnsiColorConverter.RESET + " version: " + AnsiColorConverter.hexToAnsi("#8dff3f") + moduleVersion);
-
+                SkJson.info(
+                        "Registering module: %s%s&r version: %s%s",
+                        AnsiColorConverter.hexToAnsi("#47a5ff"),moduleName,
+                        AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
+                );
                 try {
                     Extensible m = module.getDeclaredConstructor().newInstance();
                     m.load();
@@ -128,13 +123,13 @@ public class Register {
                 } catch (ModulableException | InstantiationException | IllegalAccessException |
                          InvocationTargetException |
                          NoSuchMethodException e) {
-                    SkJson.logger().exception(e.getMessage(), e);
+                    SkJson.exception(e, e.getMessage());
                 }
             } else {
-                throw new IllegalCallerException("Class what extends Modulable always need to be annotated by @Module");
+                throw new IllegalCallerException("Class what extends Extensible always need to be annotated by @Module");
             }
         } catch (Exception e) {
-            logger().exception(e.getMessage(), e);
+            SkJson.exception(e, e.getMessage());
         }
     }
 
@@ -153,59 +148,53 @@ public class Register {
     }
 
     public void logElement(String id, int count) {
-        Bukkit.getConsoleSender()
-                .sendMessage(CustomLogger
-                        .getConverter()
-                        .deserialize(String.format(
-                                "[%s]: &8&l" + AnsiColorConverter.hexToAnsi("#47a5ff") + "+ %s &f%d",
-                                CustomLogger.getGRADIENT_PREFIX(), coloredElement(id), count) + AnsiColorConverter.RESET
-                        )
-                );
+        SkJson.info(String.format("&8" + AnsiColorConverter.hexToAnsi("#47a5ff") + " + %s &f%d",
+                coloredElement(id), count) + AnsiColorConverter.RESET);
     }
 
     @SuppressWarnings("unused")
     public static class SkriptRegister {
 
-        Extensible modulable;
+        Extensible extensible;
 
-        public void apply(final Extensible modulable) {
-            this.modulable = modulable;
+        public void apply(final Extensible extensible) {
+            this.extensible = extensible;
         }
 
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
-            modulable.addNewElement("Effects", effect);
+            extensible.addNewElement("Effects", effect);
             Skript.registerEffect(effect, patterns);
         }
 
         public <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
-            modulable.addNewElement("Expressions", expressionClass);
+            extensible.addNewElement("Expressions", expressionClass);
             Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
         }
 
         public <T> void registerType(ClassInfo<T> classInfo, String name) {
-            modulable.addNewElement("Types", classInfo.getClass());
+            extensible.addNewElement("Types", classInfo.getClass());
             Classes.registerClass(classInfo);
         }
 
         public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {
-            modulable.addNewElement("Expressions", c);
+            extensible.addNewElement("Expressions", c);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             Skript.registerExpression(c, returnType, type, patterns);
         }
 
         public <T> void registerPropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
-            modulable.addNewElement("Expressions", c);
+            extensible.addNewElement("Expressions", c);
             PropertyExpression.register(c, returnType, property, fromType);
         }
 
         public <T> void registerSimplePropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
-            modulable.addNewElement("Expressions", c);
+            extensible.addNewElement("Expressions", c);
             PropertyExpression.register(c, returnType, property, fromType);
         }
 
         public void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
-            modulable.addNewElement("Events", c);
+            extensible.addNewElement("Events", c);
             Skript.registerEvent(name, c, event, patterns)
                     .since(version)
                     .examples(examples)
@@ -213,19 +202,19 @@ public class Register {
         }
 
         public <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
-            modulable.addNewElement("Conditions", c);
+            extensible.addNewElement("Conditions", c);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             Skript.registerCondition(c, patterns);
         }
 
         public <E extends Section> void registerSection(Class<E> requestClass, String... patterns) {
-            modulable.addNewElement("Sections", requestClass);
+            extensible.addNewElement("Sections", requestClass);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             Skript.registerSection(requestClass, patterns);
         }
 
         public JavaFunction<?> registerFunction(JavaFunction<?> fn) {
-            modulable.addNewElement("Functions", fn.getClass());
+            extensible.addNewElement("Functions", fn.getClass());
             return Functions.registerFunction(fn);
         }
     }

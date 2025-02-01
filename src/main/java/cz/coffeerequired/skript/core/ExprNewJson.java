@@ -79,7 +79,7 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
                     yield new JsonElement[]{GsonParser.toJson(rsp.body())};
                 } catch (Exception e) {
-                    SkJson.logger().exception(e.getMessage(), e);
+                    SkJson.exception(e, e.getMessage());
                     yield new JsonElement[0];
                 }
             }

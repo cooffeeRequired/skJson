@@ -8,7 +8,6 @@ import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
 import javax.validation.constraints.NotNull;
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
@@ -128,7 +127,7 @@ public abstract class SkriptUtils {
 
     private static void savePrimitiveToVariable(String variableName, Object value, Event event, boolean isLocal) {
         if (variableName != null && value != null && event != null) {
-            SkJson.logger().info(String.format("PRIMITIVE -> (%s) %s => &a%s", value.getClass().getName(), variableName, value));
+            SkJson.info(String.format("PRIMITIVE -> (%s) %s => &a%s", value.getClass().getName(), variableName, value));
             Variables.setVariable(variableName, value, event, isLocal);
         }
     }
@@ -145,7 +144,7 @@ public abstract class SkriptUtils {
             if (SerializedJsonUtils.isJavaType(o)) {
                 savePrimitiveToVariable(variableName, o, event, isLocal);
             } else {
-                SkJson.logger().info(String.format("PARSED -> (%s) %s => &a%s", o.getClass().getName(), variableName, o));
+                SkJson.info(String.format("PARSED -> (%s) %s => &a%s", o.getClass().getName(), variableName, o));
                 Variables.setVariable(variableName, o, event, isLocal);
             }
         }

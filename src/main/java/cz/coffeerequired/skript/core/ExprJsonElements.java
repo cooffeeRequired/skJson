@@ -72,16 +72,16 @@ public class ExprJsonElements extends SimpleExpression<Object> {
                 if (!isPathEmpty) {
                     Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
                     if (searcherResult instanceof JsonArray)
-                        SkJson.logger().warning("You didn't want to use \"element/value\" instead of \"elements/values\", the plural expression will ensure that you get the array");
+                        SkJson.warning("You didn't want to use \"element/value\" instead of \"elements/values\", the plural expression will ensure that you get the array");
                     if (searcherResult == null) return new Object[0];
                     return new Object[]{ searcherResult };
                 } else {
-                    SkJson.logger().warning("You cannot use \"element/value\" in root without specified path");
+                    SkJson.warning("You cannot use \"element/value\" in root without specified path");
                     return new Object[0];
                 }
             }
         } catch (Exception e) {
-            SkJson.logger().exception("get", e);
+            SkJson.exception(e, "get");
         }
         return new Object[0];
     }
@@ -114,7 +114,7 @@ public class ExprJsonElements extends SimpleExpression<Object> {
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         var node = getParser().getNode();
         if (node == null) {
-            SkJson.logger().warning("Any loop key or object doesn't exists, please check your syntax");
+            SkJson.warning("Any loop key or object doesn't exists, please check your syntax");
         } else {
             final String nodeKey = node.getKey();
             if (nodeKey == null) return false;

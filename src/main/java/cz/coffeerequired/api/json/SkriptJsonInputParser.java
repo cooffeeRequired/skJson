@@ -2,7 +2,7 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import cz.coffeerequired.support.SkriptUtils;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.coffeerequired.SkJson.logger;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 public class SkriptJsonInputParser {
@@ -68,7 +67,7 @@ public class SkriptJsonInputParser {
         String last = tokens[tokens.length - 1];
         Type type;
 
-        logger().debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
+        SkJson.debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
 
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;

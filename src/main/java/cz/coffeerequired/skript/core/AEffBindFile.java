@@ -43,14 +43,14 @@ public class AEffBindFile extends AsyncEffect {
 
         if (!file.exists()) {
             var error = new IOException("File " + path + " does not exist");
-            SkJson.logger().exception("Cannot bind json-file", error);
+            SkJson.exception(error, "Cannot bind json-file");
             return;
         }
 
         if (cache.containsKey(id)) return;
         FileHandler.get(file).whenComplete((json, error) -> {
             if (error != null) {
-                SkJson.logger().exception("Cannot bind json-file", error);
+                SkJson.exception(error, "Cannot bind json-file");
                 return;
             }
             try {
@@ -59,7 +59,7 @@ public class AEffBindFile extends AsyncEffect {
                     CacheStorageWatcher.Extern.register(id, file);
                 }
             } catch (Exception ex) {
-                SkJson.logger().exception("Cannot bind json-file", ex);
+                SkJson.exception(ex, "Cannot bind json-file");
             }
         });
     }

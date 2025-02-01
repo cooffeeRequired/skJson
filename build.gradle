@@ -56,21 +56,18 @@ tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// ShadowJar nastavení
 tasks.withType(ShadowJar).configureEach {
     archiveClassifier.set('shaded')
     archiveFileName.set('skjson.jar')
 
-    // Relokace pro bStats a NBT API
     relocate 'org.bstats', 'cz.coffee.shadowed.bstats'
     relocate 'de.tr7zw.changeme.nbtapi', 'cz.coffee.shadowed.nbtapi'
 
-    // Vyloučení META-INF souborů
     exclude 'META-INF/*.MF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 
-    if (environment.equals("DEV")) {
+    if (environment == "DEV") {
         doLast {
-            printf("Coppy to plugins")
+            printf("> Task :copy to path")
             copy {
                 from archiveFile.get().asFile
                 into '/home/coffee/mc/plugins'

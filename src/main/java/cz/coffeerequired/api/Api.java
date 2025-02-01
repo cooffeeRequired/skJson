@@ -43,11 +43,10 @@ public abstract class Api {
         } else if (version.contains("paper") || serverName.contains("paper")) {
             type = ServerType.PAPER_CORE;
         }
-
-        SkJson.logger().info("Hooking into server " + serverName + " " + version + " Found 1. ...");
-        SkJson.logger().info("Server type: " + type);
-        SkJson.logger().info("Server version: " + version);
-        SkJson.logger().info("Server name: " + serverName);
+        SkJson.info("Hooking into server %s %s", serverName, version);
+        SkJson.info("Server type: %s", type);
+        SkJson.info("Server version: %s", version);
+        SkJson.info("Server name: %s", serverName);
 
         return canInstantiateServer(type);
     }

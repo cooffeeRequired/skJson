@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-import static cz.coffeerequired.SkJson.logger;
+
 
 public class ExprChanger extends SimpleExpression<Object> {
 
@@ -48,7 +48,7 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
 
-        logger().debug("mode? : " + mode);
+        SkJson.debug("mode? : " + mode);;
 
         return switch (mode) {
             case SET -> CollectionUtils.array(Object.class, Object[].class);
@@ -60,37 +60,37 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 
-        logger().debug("mode? : " + mode);
+        SkJson.debug("mode? : " + mode);;
 
         JsonPath jsonPath = null;
         if (mode.equals(Changer.ChangeMode.SET)) {
             jsonPath = exprJsonPath.getSingle(event);
 
             if (jsonPath == null) {
-                logger().exception("path cannot be null", new Exception("Path is null"));
+                SkJson.severe("path cannot be null");
                 return;
             }
         }
 
         if (mode == Changer.ChangeMode.SET) {
             if (delta == null || delta.length < 1) {
-                logger().exception("delta need to be defined", new Exception("delta is null"));
+                SkJson.severe("delta needs to be defined");
                 return;
             }
 
-            logger().debug("Changing " + getClass().getSimpleName());
-            logger().debug("delta: " + Arrays.toString(delta));
-            logger().debug("json-path: " + exprJsonPath.getSingle(event));
-            logger().debug("changeType: " + changeType);
+            SkJson.debug("Changing " + getClass().getSimpleName());;
+            SkJson.debug("delta: " + Arrays.toString(delta));;
+            SkJson.debug("json-path: " + exprJsonPath.getSingle(event));;
+            SkJson.debug("changeType: " + changeType);;
 
             if(changeType.equals(ChangerType.KEY)) {
                 if (!SkriptUtils.isSingleton(delta)) {
-                    logger().exception("incorrect format of delta", new Exception("delta cannot be an list, when changing JSON key!"));
+                    SkJson.severe("incorrect format of delta");
                     return;
                 }
 
                 if (!(delta[0] instanceof String)) {
-                    logger().exception("incorrect format of delta", new Exception("delta need to be list, cause JSON expecting key as string"));
+                    SkJson.severe("incorrect format of delta");
                     return;
                 }
 
