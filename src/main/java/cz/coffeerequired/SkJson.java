@@ -20,6 +20,8 @@ import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
+import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
+
 
 @Slf4j
 public final class SkJson extends JavaPlugin {
@@ -56,7 +58,7 @@ public final class SkJson extends JavaPlugin {
     }
 
     public static void debug(Object message, Object... args) {
-        SkJsonLogger.log(Level.FINE, message, args);
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, message, args);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -119,7 +121,7 @@ public final class SkJson extends JavaPlugin {
                         info(sender, " 🟠 &econfig reloading...");
                         try {
                             final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
-                                    Map.entry("PROJECT_DEBUG", Api.Records.PROJECT_DEBUG),
+                                    Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
                                     Map.entry("PROJECT_DELIM", Api.Records.PROJECT_DELIM),
                                     Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION),
                                     Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
@@ -151,10 +153,10 @@ public final class SkJson extends JavaPlugin {
             Commands.add("debug", (sender, args) -> {
                 if (args.length == 2) {
                     if (args[1].equals("off") || args[1].equals("false")) {
-                        Api.Records.PROJECT_DEBUG = false;
+                        PROJECT_DEBUG = false;
                         info(sender, "&7Debug mode was &cdisabled!");
                     } else if (args[1].equals("on") || args[1].equals("true")) {
-                        Api.Records.PROJECT_DEBUG = true;
+                        PROJECT_DEBUG = true;
                         info(sender, "&7Debug mode was &aenabled!");
                     } else {
                         info(sender, "&7Incorrect usage: /skjson debug (on|off)");
