@@ -20,7 +20,7 @@ test "core":
 
     assert count of keys "A" in {_json}.array[0] is 1 with "failing: cannot retrieve count of keys"
 
-    assert elements "array" of {_json} is "{""A"":2,""B"":2,""C"":3,""location"":{}}" with "failing: cannot retrieve all elements"
+    assert "%element "array" of {_json}%" is "{""A"":2,""B"":2,""C"":3,""location"":{}}" with "failing: cannot retrieve all elements"
 
     map {_json} to {_jsons::*}
     assert {_jsons::array::1::A} is 1 with "failing: cannot map nested values"
