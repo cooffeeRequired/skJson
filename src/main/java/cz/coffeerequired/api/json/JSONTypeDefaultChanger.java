@@ -2,6 +2,7 @@ package cz.coffeerequired.api.json;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.SkriptUtils;
@@ -19,12 +20,16 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
         return switch (mode) {
 //            case RESET, REMOVE, REMOVE_ALL -> CollectionUtils.array(Object[].class);
             case REMOVE -> CollectionUtils.array(JsonPath.class);
+            case ADD -> CollectionUtils.array(Object.class, Object[].class);
             default -> null;
         };
     }
 
     @Override
     public void change(JsonElement[] what, @Nullable Object[] delta, ChangeMode mode) {
+
+        SkJson.debug("JSONTypeDefaultChanger changed %s, %s", Arrays.toString(what), Arrays.toString(delta));
+
         if (mode == Changer.ChangeMode.REMOVE) {
 
             SkJson.debug("@[WHAT]1: " + Arrays.toString(what));
@@ -54,6 +59,18 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
                     }
                 }
             }
+        } else if (mode == Changer.ChangeMode.ADD) {
+            JsonElement jsonElement = what[0];
+            if (jsonElement == null) {
+               return;
+            }
+            if (jsonElement instanceof JsonArray array) {
+                for (Object o : delta) {
+                    array.add(GsonParser.toJson(o));
+                }
+            }
+
+
         }
     }
 }

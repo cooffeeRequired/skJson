@@ -110,6 +110,10 @@ public class Core extends Extensible {
                                     SerializedJson serializedJson = new SerializedJson(path.getInput());
                                     var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
 
+                                    SkJson.debug("converted %s", converted);
+
+                                    SkJson.debug("Keys: %s", path.getKeys());
+
                                     IntStream.range(0, converted.length).forEach(idx -> {
                                         var json = converted[idx];
                                         var result = serializedJson.searcher.keyOrIndex(path.getKeys());
