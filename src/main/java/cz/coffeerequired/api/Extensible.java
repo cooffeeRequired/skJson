@@ -1,6 +1,6 @@
 package cz.coffeerequired.api;
 
-import cz.coffeerequired.api.exceptions.ModulableException;
+import cz.coffeerequired.api.exceptions.ExtensibleThrowable;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -30,9 +30,9 @@ public abstract class Extensible {
         this.skriptElementPath = "";
     }
 
-    public void load() throws ModulableException {
+    public void load() throws ExtensibleThrowable {
         if (this.sign.isEmpty() || this.skriptElementPath.isEmpty()) {
-            throw new ModulableException("Cannot invoke Skript registration for empty sign or elements packages");
+            throw new ExtensibleThrowable("Cannot invoke Skript registration for empty sign or elements packages");
         }
     }
 

@@ -12,7 +12,7 @@ import ch.njol.skript.registrations.Classes;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.api.annotators.Module;
-import cz.coffeerequired.api.exceptions.ModulableException;
+import cz.coffeerequired.api.exceptions.ExtensibleThrowable;
 import cz.coffeerequired.modules.Core;
 import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
@@ -120,7 +120,7 @@ public class Register {
                     m.load();
                     m.registerElements(this.getSkriptRegister());
                     printAllRegistered(m);
-                } catch (ModulableException | InstantiationException | IllegalAccessException |
+                } catch (ExtensibleThrowable | InstantiationException | IllegalAccessException |
                          InvocationTargetException |
                          NoSuchMethodException e) {
                     SkJson.exception(e, e.getMessage());
