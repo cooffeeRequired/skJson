@@ -10,21 +10,21 @@ test "conditions":
 
     set {_has} to false
 
-    if {_json}.array[0] has all values 1,2:
+    if {_json}.array[0] has all values 1 and 2:
         set {_has} to true
 
     assert {_has} is true with "failing: check values"
 
     set {_has} to false
 
-    if {_json}.array[0] does not have all values 1,5:
+    if {_json}.array[0] does not have all values 1 and 5:
         set {_has} to true
 
     assert {_has} is true with "failing: check values !negation"
 
     set {_has} to false
 
-    if {_json}.array[0] does not have all keys "array", "key":
+    if {_json}.array[0] does not have all keys "array" and "key":
         set {_has} to true
 
     assert {_has} is true with "failing: check keys !negation"

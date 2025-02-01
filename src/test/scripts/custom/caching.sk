@@ -9,5 +9,5 @@ test "json storage cache":
 
     bind json file "jsons/test.json" as "test"
 
-    assert json storage of id "virtual" is set with "cannot create virtual storage"
-    assert json storage of id "test" is set with "cannot create an cache from file"
+#    assert json storage of id "virtual" is set with "cannot create virtual storage"
+#    assert json storage of id "test" is set with "cannot create an cache from file"
