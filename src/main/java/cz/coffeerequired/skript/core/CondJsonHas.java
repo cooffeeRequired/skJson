@@ -21,7 +21,7 @@ import java.util.Map;
 
 @Name("Json has value/keys")
 @Description("You can check if the inserted keys or values already in your specified json")
-@Since("2.8.0, removed-directly 4.1")
+@Since("4.2")
 @Examples("""
         set {_json} to json from "[1, 2, 3, 8, 'TEST']"
         set {_json} to json from "{A: 1, B: 2, C: 3}"

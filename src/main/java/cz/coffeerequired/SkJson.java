@@ -101,9 +101,6 @@ public final class SkJson extends JavaPlugin {
             info("Unable to find Json watchers.");
             exception(e, e.getMessage());
         }
-
-        SkJson.severe("A %s error has occurred.", this.getClass().getSimpleName());
-
     }
 
     @Override

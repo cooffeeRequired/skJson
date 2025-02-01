@@ -98,5 +98,9 @@ static def callAPI(String cmd) {
 }
 
 tasks.register("runRemote") {
-    doLast { callAPI("reload+confirm") }
+    doLast {
+        callAPI("reload+confirm")
+        sleep(10000)
+        callAPI("gendocs")
+    }
 }
