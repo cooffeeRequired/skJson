@@ -2,6 +2,7 @@ package cz.coffeerequired.support;
 
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
+import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -103,7 +104,7 @@ public abstract class SkriptUtils {
     public static void convertJsonToSkriptVariable(@NotNull String variableName, @NotNull JsonElement json, @NotNull Event event, boolean isLocal) {
 
         if (json instanceof JsonPrimitive primitive) {
-            savePrimitiveToVariable(variableName, primitive, event, isLocal);
+            savePrimitiveToVariable(variableName, SerializedJsonUtils.lazyObjectConverter(primitive), event, isLocal);
         } else if (json instanceof JsonObject object) {
 
             SkJson.debug("--> DEBUG[&6OBJECT&r]: &e%s -> &b%s", variableName, object);
@@ -151,6 +152,12 @@ public abstract class SkriptUtils {
                 variableName = variableName.substring(0, variableName.length() - 2);
             }
             SkJson.debug("--> DEBUG[&cPRIMITIVE&r]: &e%s -> &b%s", variableName, value);
+
+             value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
+
+
+            assert value != null;
+            SkJson.debug("Primitive value insert: %s %s", value, value.getClass());
 
             Variables.setVariable(variableName, value, event, isLocal);
         }
