@@ -14,6 +14,7 @@ public class Attachment {
     private String sizeFormat;
     private String extension;
     private String path;
+
     public Attachment(final String file) {
         regenerate(new File(file));
     }

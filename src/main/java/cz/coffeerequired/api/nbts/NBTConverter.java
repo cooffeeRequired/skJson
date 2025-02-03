@@ -42,14 +42,14 @@ public class NBTConverter {
      * Merges JSON data into an existing ItemStack's NBT. The JSON should be
      * in the typed format, e.g.:
      * {
-     *   "type": "NBTTagCompound",
-     *   "value": {
-     *     "CustomName": {
-     *       "type": "NBTTagString",
-     *       "value": "MyCoolItem"
-     *     },
-     *     ...
-     *   }
+     * "type": "NBTTagCompound",
+     * "value": {
+     * "CustomName": {
+     * "type": "NBTTagString",
+     * "value": "MyCoolItem"
+     * },
+     * ...
+     * }
      * }
      */
     public static ItemStack parseFromJson(ItemStack item, JsonObject tags) {

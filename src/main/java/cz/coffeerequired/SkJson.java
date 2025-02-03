@@ -33,6 +33,34 @@ public final class SkJson extends JavaPlugin {
     private static YamlConfiguration pluginConfig;
     private final Register register = new Register();
 
+    public static void info(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, message, args);
+    }
+
+    public static void info(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.info(sender, message, args);
+    }
+
+    public static void warning(Object message, Object... args) {
+        SkJsonLogger.log(Level.WARNING, message, args);
+    }
+
+    public static void severe(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, "&c" + message, args);
+    }
+
+    public static void error(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.error(sender, message, args);
+    }
+
+    public static void exception(Throwable e, Object message, Object... args) {
+        SkJsonLogger.ex(e, message, args);
+    }
+
+    public static void debug(Object message, Object... args) {
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG ->&r" + message, args);
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     private BiConsumer<CommandSender, String[]> aboutAddon() {
         return (sender, s) -> {
@@ -151,32 +179,5 @@ public final class SkJson extends JavaPlugin {
     @SuppressWarnings("unused")
     public void warning(CommandSender sender, String message, Object... args) {
         SkJsonLogger.warning(sender, message, args);
-    }
-    public static void info(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, message, args);
-    }
-
-    public static void info(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.info(sender, message, args);
-    }
-
-    public static void warning(Object message, Object... args) {
-        SkJsonLogger.log(Level.WARNING, message, args);
-    }
-
-    public static void severe(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, "&c" + message, args);
-    }
-
-    public static void error(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.error(sender, message, args);
-    }
-
-    public static void exception(Throwable e, Object message, Object... args) {
-        SkJsonLogger.ex(e, message, args);
-    }
-
-    public static void debug(Object message, Object... args) {
-        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG ->&r" + message, args);
     }
 }

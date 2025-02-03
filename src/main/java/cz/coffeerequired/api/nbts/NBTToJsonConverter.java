@@ -11,16 +11,16 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
  * WITHOUT storing any "type" metadata
  * Example output:
  * {
- *   "Air": 300,
- *   "Rotation": [ 56.827896, -40.0 ],
- *   "CustomName": "MojeSuperZombie",
- *   "IsBaby": false,
- *   "ArmorDropChances": [0.085, 0.085, 0.085, 0.085],
- *   "HandItems": [
- *       {},
- *       {}
- *   ],
- *   ...
+ * "Air": 300,
+ * "Rotation": [ 56.827896, -40.0 ],
+ * "CustomName": "MojeSuperZombie",
+ * "IsBaby": false,
+ * "ArmorDropChances": [0.085, 0.085, 0.085, 0.085],
+ * "HandItems": [
+ * {},
+ * {}
+ * ],
+ * ...
  * }
  */
 public class NBTToJsonConverter {
@@ -107,7 +107,8 @@ public class NBTToJsonConverter {
                     }
                 }
             }
-            default -> {}
+            default -> {
+            }
         }
         return array;
     }

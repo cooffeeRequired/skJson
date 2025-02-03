@@ -155,7 +155,7 @@ public abstract class SkriptUtils {
             }
             SkJson.debug("--> DEBUG[&cPRIMITIVE&r]: &e%s -> &b%s", variableName, value);
 
-             value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
+            value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
 
 
             assert value != null;

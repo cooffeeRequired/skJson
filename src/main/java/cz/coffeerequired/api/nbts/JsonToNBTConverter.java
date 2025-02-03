@@ -40,12 +40,10 @@ public class JsonToNBTConverter {
                 // It's a nested object -> treat as an NBTCompound
                 target.addCompound(key);
                 fromObject(child.getAsJsonObject(), target.getCompound(key));
-            }
-            else if (child.isJsonArray()) {
+            } else if (child.isJsonArray()) {
                 // We treat it as an NBTList, but we must guess the type
                 processJsonArray(key, child.getAsJsonArray(), target);
-            }
-            else if (child.isJsonPrimitive()) {
+            } else if (child.isJsonPrimitive()) {
                 // Could be boolean, int, float, etc.
                 processPrimitive(key, child.getAsJsonPrimitive(), target);
             }
@@ -74,8 +72,7 @@ public class JsonToNBTConverter {
                 NBTContainer sub = fromJson(e.getAsJsonObject());
                 compoundList.addCompound(sub);
             }
-        }
-        else if (first.isJsonPrimitive()) {
+        } else if (first.isJsonPrimitive()) {
             // Could be numeric or string
             JsonPrimitive prim = first.getAsJsonPrimitive();
             if (prim.isNumber()) {
@@ -105,15 +102,13 @@ public class JsonToNBTConverter {
                         doubleList.add(e.getAsDouble());
                     }
                 }
-            }
-            else if (prim.isString()) {
+            } else if (prim.isString()) {
                 // It's a list of strings
                 NBTList<String> stringList = parent.getStringList(key);
                 for (JsonElement e : arr) {
                     stringList.add(e.getAsString());
                 }
-            }
-            else if (prim.isBoolean()) {
+            } else if (prim.isBoolean()) {
                 // It's a list of booleans, store as a byte array for example
                 byte[] booleans = new byte[arr.size()];
                 for (int i = 0; i < arr.size(); i++) {
@@ -135,8 +130,7 @@ public class JsonToNBTConverter {
     private static void processPrimitive(String key, JsonPrimitive prim, NBTCompound parent) {
         if (prim.isBoolean()) {
             parent.setBoolean(key, prim.getAsBoolean());
-        }
-        else if (prim.isNumber()) {
+        } else if (prim.isNumber()) {
             Number num = prim.getAsNumber();
             // We'll see if it has a decimal point
             String asStr = prim.getAsString();
@@ -152,8 +146,7 @@ public class JsonToNBTConverter {
                     parent.setLong(key, l);
                 }
             }
-        }
-        else if (prim.isString()) {
+        } else if (prim.isString()) {
             parent.setString(key, prim.getAsString());
         }
     }

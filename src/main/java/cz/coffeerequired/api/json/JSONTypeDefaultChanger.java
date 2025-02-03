@@ -62,7 +62,7 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
         } else if (mode == Changer.ChangeMode.ADD) {
             JsonElement jsonElement = what[0];
             if (jsonElement == null) {
-               return;
+                return;
             }
             if (jsonElement instanceof JsonArray array) {
                 for (Object o : delta) {

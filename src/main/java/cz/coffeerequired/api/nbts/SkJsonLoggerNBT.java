@@ -9,7 +9,9 @@ public class SkJsonLoggerNBT extends Logger {
         super(name, resourceBundleName);
     }
 
-    /** Get an instance of SkJsonLoggerNBT
+    /**
+     * Get an instance of SkJsonLoggerNBT
+     *
      * @return new instance of SkJsonLoggerNBT
      */
     public static SkJsonLoggerNBT getLogger() {

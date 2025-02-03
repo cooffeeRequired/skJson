@@ -54,7 +54,7 @@ public abstract class Api {
         SkJson.info("Server name: %s", serverName);
 
         if (Records.PROJECT_ENABLED_NBT) {
-            if(!NBT.preloadApi()) {
+            if (!NBT.preloadApi()) {
                 SkJson.warning("NBT API not available");
             } else {
                 new NBTContainer("{A: 1.0f}");
