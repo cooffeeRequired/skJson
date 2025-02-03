@@ -6,7 +6,6 @@ import cz.coffeerequired.api.json.CacheStorageWatcher;
 import cz.coffeerequired.api.json.CachedStorage;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
