@@ -59,13 +59,14 @@
 ## 🌀 Get started
 * Paste `Skjson.jar` into the `<server>/plugins` folder
 * * set what we need in `plugins/SkJson/config.yml`
-* [**Wikipedia**](./get_started.md)
 
 ## 📖 Wiki
 * Let's learn about what SkJson is for and how to use it properly. 
 * In general, we could say that SkJson is very multifunctional. It contains some web request functionalities, and also handles strings that work with files. 
 * Additionally, it allows us to use a so-called cache. 
 * We will delve further into all these aspects as we learn more
+
+* [**Wikipedia**](./get_started.md)
 
 <center>
 
