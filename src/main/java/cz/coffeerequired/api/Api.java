@@ -4,6 +4,10 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.CacheStorageWatcher;
 import cz.coffeerequired.api.json.CachedStorage;
+import cz.coffeerequired.api.nbts.SkJsonLoggerNBT;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +51,16 @@ public abstract class Api {
         SkJson.info("Server type: %s", type);
         SkJson.info("Server version: %s", version);
         SkJson.info("Server name: %s", serverName);
+
+        if (Records.PROJECT_ENABLED_NBT) {
+            if(!NBT.preloadApi()) {
+                SkJson.warning("NBT API not available");
+            } else {
+                new NBTContainer("{A: 1.0f}");
+                MinecraftVersion.replaceLogger(new SkJsonLoggerNBT("", null));
+                SkJson.info("&bNBT API&r enabled");
+            }
+        }
 
         return canInstantiateServer(type);
     }
