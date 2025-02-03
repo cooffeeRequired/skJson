@@ -71,7 +71,7 @@ public class Configuration {
     public void checkForUpdate() {
         try {
             URI url = new URI(String.format("https://api.github.com/repos/%s/%s/releases/latest", USERNAME, REPOSITORY));
-            SkJson.info("Checking for updates" + AnsiColorConverter.GREEN + " ✔");
+            SkJson.info("Checking for updates");
 
             HttpURLConnection conn = (HttpURLConnection) url.toURL().openConnection();
             conn.setRequestMethod("GET");
@@ -93,10 +93,10 @@ public class Configuration {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
                 scheduleUpdate(downloadUrl);
             } else if (currentVersion.compareTo(latestVersion) > 0) {
-                SkJson.info("Running a Development version, no update required.");
+                SkJson.info("Running a Development version, no update required." + AnsiColorConverter.GREEN + " ✔");
             }
         } catch (Exception e) {
-            SkJson.severe("Update check URL not found: " + e.getMessage());
+            SkJson.severe("Update failed " + e.getMessage());
         }
     }
 
