@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,8 +18,9 @@ public class GsonParser {
             .enableComplexMapKeySerialization()
             .registerTypeAdapter(Location.class, new LocationAdapter())
             .registerTypeAdapter(ItemStack.class, new NBTFallBackItemStackAdapter())
+            .registerTypeHierarchyAdapter(Entity.class, new EntitySerializer())
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
-            .registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
+            //.registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
             .setLenient()
             .setPrettyPrinting()
             .create();
@@ -28,6 +30,9 @@ public class GsonParser {
     }
 
     public static <T> JsonElement toJson(T object) {
+
+        SkJson.debug("input: %s : %s", object, object.getClass());
+
         switch (object) {
             case World w -> {
                 return JsonParser.parseString(String.format("{\"class\": \"%s\", \"worldName\": \"%s\"}", w.getClass().getName(), w.getName()));
@@ -80,7 +85,11 @@ public class GsonParser {
             default -> {
                 JsonElement serialized = SerializedJsonUtils.lazyObjectConverter(object);
                 if (serialized != null && !serialized.isJsonNull()) return serialized;
-                return gson.toJsonTree(object);
+                var t = gson.toJsonTree(object);
+
+                SkJson.debug("Serialized object: %s, class: %s, isEntity: %s", t, object.getClass(), object instanceof Entity);
+
+                return t;
             }
         }
     }

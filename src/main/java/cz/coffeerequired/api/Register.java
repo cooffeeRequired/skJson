@@ -39,12 +39,10 @@ public class Register {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
                 String moduleName = annotation.module();
-                String moduleVersion = annotation.version();
 
                 SkJson.info(
-                        "Registering module: %s%s&r%s version: %s%s&r" + AnsiColorConverter.RESET,
-                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName,
-                        AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
+                        "Registering module: %s%s&r%s&rr" + AnsiColorConverter.RESET,
+                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName
                 );
                 modules.add(module);
             } else {
@@ -109,11 +107,9 @@ public class Register {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
                 String moduleName = annotation.module();
-                String moduleVersion = annotation.version();
                 SkJson.info(
-                        "Registering module: %s%s&r version: %s%s",
-                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName,
-                        AnsiColorConverter.hexToAnsi("#8dff3f"), moduleVersion
+                        "Registering module: %s%s&r",
+                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName
                 );
                 try {
                     Extensible m = module.getDeclaredConstructor().newInstance();

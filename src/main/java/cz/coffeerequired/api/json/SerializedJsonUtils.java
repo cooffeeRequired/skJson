@@ -171,6 +171,9 @@ public abstract class SerializedJsonUtils {
     }
 
     public static boolean isValidJson(Object o) {
+
+        SkJson.debug("Validating JSON: %s : %s", o, o.getClass().getSimpleName());
+
         try {
             if (o instanceof String str) {
                 JsonParser.parseString(str);
@@ -178,12 +181,12 @@ public abstract class SerializedJsonUtils {
             } else if (o instanceof JsonElement element) {
                 return true;
             } else {
-                GsonParser.toJson(o);
+                SkJson.debug("Validating &c(OBJECT)&r JSON object: " + o.toString());
                 return true;
             }
         } catch (Exception e) {
             if (PROJECT_DEBUG) {
-                SkJson.exception(e, "isValidJson, wont parse that " + o.toString());
+                SkJson.exception(e, "&cisValidJson, wont parse that " + o.toString());
             }
             return false;
         }

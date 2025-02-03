@@ -15,8 +15,11 @@ import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.json.*;
-import cz.coffeerequired.skript.core.*;
 import cz.coffeerequired.skript.core.bukkit.JSONFileWatcherSave;
+import cz.coffeerequired.skript.core.conditions.*;
+import cz.coffeerequired.skript.core.effects.*;
+import cz.coffeerequired.skript.core.events.WatcherEvent;
+import cz.coffeerequired.skript.core.expressions.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,7 +36,7 @@ import java.util.stream.IntStream;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
 
-@Module(module = "core", version = "1.0.0")
+@Module(module = "core")
 public class Core extends Extensible {
 
     static final Collection<Class<?>> allowedTypes = List.of(
@@ -110,7 +113,7 @@ public class Core extends Extensible {
                                     SerializedJson serializedJson = new SerializedJson(path.getInput());
                                     var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
 
-                                    SkJson.debug("converted %s", converted);
+                                    SkJson.debug("converted %s", (Object) converted);
 
                                     SkJson.debug("Keys: %s", path.getKeys());
 
@@ -173,7 +176,7 @@ public class Core extends Extensible {
         register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.COMBINED, "(element|value) [%-string%] of %json%", "(elements|values) [%-string%] of %json%");
         register.registerEffect(EffMapJson.class, "[:async] (map|copy) %json% to %objects%");
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsons");
-        register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
+        register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.SIMPLE, "json from file %strings%", "json from website %strings%", "json from %~object%");
         register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% as pretty[ printed]", "%json% as uncolo[u]red pretty[ printed]");
         register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsons");
         register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
