@@ -36,11 +36,7 @@ public class JsonToNBTConverter {
     private static void fromObject(JsonObject obj, NBTCompound target) {
         for (String key : obj.keySet()) {
             JsonElement child = obj.get(key);
-            if (child.isJsonNull()) {
-                // No action or remove the key if needed
-                continue;
-            }
-            else if (child.isJsonObject()) {
+            if (child.isJsonObject()) {
                 // It's a nested object -> treat as an NBTCompound
                 target.addCompound(key);
                 fromObject(child.getAsJsonObject(), target.getCompound(key));
@@ -126,9 +122,6 @@ public class JsonToNBTConverter {
                 }
                 parent.setByteArray(key, booleans);
             }
-        }
-        else if (first.isJsonNull()) {
-            // Possibly do nothing or skip
         }
     }
 

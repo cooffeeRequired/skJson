@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
  * A facade class that ties together NBT -> JSON and JSON -> NBT operations.
  * It also includes an example method for merging JSON data into an ItemStack's NBT.
  */
+@SuppressWarnings({"deprecation", "unused"})
 public class NBTConverter {
 
     /**
@@ -40,7 +41,6 @@ public class NBTConverter {
     /**
      * Merges JSON data into an existing ItemStack's NBT. The JSON should be
      * in the typed format, e.g.:
-     *
      * {
      *   "type": "NBTTagCompound",
      *   "value": {

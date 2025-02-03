@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 // json path %string% in %jsonelement%
 
+@SuppressWarnings("unchecked")
 public class ExprJsonPath extends SimpleExpression<JsonPath> {
 
     private Expression<JsonElement> exprJson;

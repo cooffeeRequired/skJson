@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("deprecation")
 public abstract class Api {
 
     @Getter
@@ -57,7 +58,7 @@ public abstract class Api {
                 SkJson.warning("NBT API not available");
             } else {
                 new NBTContainer("{A: 1.0f}");
-                MinecraftVersion.replaceLogger(new SkJsonLoggerNBT("", null));
+                MinecraftVersion.replaceLogger(SkJsonLoggerNBT.getLogger());
                 SkJson.info("&bNBT API&r enabled");
             }
         }
