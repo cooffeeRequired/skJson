@@ -1,7 +1,0 @@
-    #send {_json}.array[0]*
-
-    #send {_json}.array[0]
-
-    #set {_json}.array[0].location.loc to location(1, 2, 3)
-
-    #send {_json} as uncolored pretty printed
