@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+@SuppressWarnings("unchecked")
 public class GsonParser {
     @Getter
     final static Gson gson = new GsonBuilder()
@@ -20,7 +21,6 @@ public class GsonParser {
             .registerTypeAdapter(ItemStack.class, new NBTFallBackItemStackAdapter())
             .registerTypeHierarchyAdapter(Entity.class, new EntitySerializer())
             .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
-            //.registerTypeHierarchyAdapter(Object.class, new GenericFlatObjectAdapter<>())
             .setLenient()
             .setPrettyPrinting()
             .create();
@@ -30,9 +30,7 @@ public class GsonParser {
     }
 
     public static <T> JsonElement toJson(T object) {
-
         SkJson.debug("input: %s : %s", object, object.getClass());
-
         switch (object) {
             case World w -> {
                 return JsonParser.parseString(String.format("{\"class\": \"%s\", \"worldName\": \"%s\"}", w.getClass().getName(), w.getName()));
@@ -78,9 +76,6 @@ public class GsonParser {
                     o.getAsJsonObject().getAsJsonArray("slots").add(gson.toJsonTree(itemStack));
                 }
                 return o;
-            }
-            case null -> {
-                return JsonNull.INSTANCE;
             }
             default -> {
                 JsonElement serialized = SerializedJsonUtils.lazyObjectConverter(object);
