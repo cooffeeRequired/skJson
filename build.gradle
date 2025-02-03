@@ -70,7 +70,7 @@ tasks.withType(ShadowJar).configureEach {
             printf("> Task :copy to path")
             copy {
                 from archiveFile.get().asFile
-                into 'C:\\Users\\Coffee\\Desktop\\mc-developing\\plugins'
+                into '/home/coffee/mc/plugins'
             }
         }
     }
@@ -79,7 +79,7 @@ tasks.withType(ShadowJar).configureEach {
 tasks.register('withRemote') {
     dependsOn 'clean'
     dependsOn 'shadowJar'
-    // finalizedBy 'runRemote'
+    finalizedBy 'runRemote'
 }
 
 static def callAPI(String cmd) {
