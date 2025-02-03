@@ -33,34 +33,6 @@ public final class SkJson extends JavaPlugin {
     private static YamlConfiguration pluginConfig;
     private final Register register = new Register();
 
-    public static void info(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, message, args);
-    }
-
-    public static void info(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.info(sender, message, args);
-    }
-
-    public static void warning(Object message, Object... args) {
-        SkJsonLogger.log(Level.WARNING, message, args);
-    }
-
-    public static void severe(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, "&c" + message, args);
-    }
-
-    public static void error(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.error(sender, message, args);
-    }
-
-    public static void exception(Throwable e, Object message, Object... args) {
-        SkJsonLogger.ex(e, message, args);
-    }
-
-    public static void debug(Object message, Object... args) {
-        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, message, args);
-    }
-
     @SuppressWarnings("UnstableApiUsage")
     private BiConsumer<CommandSender, String[]> aboutAddon() {
         return (sender, s) -> {
@@ -115,7 +87,7 @@ public final class SkJson extends JavaPlugin {
             Commands.add(
                     "reload",
                     (sender, s) -> {
-                        info(sender, " 🟠 &econfig reloading...");
+                        info(sender, "🟠 &econfig reloading...");
                         try {
                             final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
                                     Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
@@ -136,7 +108,7 @@ public final class SkJson extends JavaPlugin {
 
                                     if (!value.equals(fieldValue)) {
                                         if (!changed[0]) changed[0] = true;
-                                        info("&7The field %s has been changed from &e %s &7 to &f %s", Configuration.getMapping(key), value, fieldValue);
+                                        info(sender, "&7The field %s has been changed from &e%s &7 to &f%s", Configuration.getMapping(key), value, fieldValue);
                                     }
                                 } catch (NoSuchFieldException | IllegalAccessException e) {
                                     exception(e, "Cannot handle that field %s", key);
@@ -176,8 +148,36 @@ public final class SkJson extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("skjson_version", () -> this.getPluginMeta().getVersion()));
     }
 
+    @SuppressWarnings("unused")
     public void warning(CommandSender sender, String message, Object... args) {
         SkJsonLogger.warning(sender, message, args);
     }
 
+    public static void info(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, message, args);
+    }
+
+    public static void info(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.info(sender, message, args);
+    }
+
+    public static void warning(Object message, Object... args) {
+        SkJsonLogger.log(Level.WARNING, message, args);
+    }
+
+    public static void severe(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, "&c" + message, args);
+    }
+
+    public static void error(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.error(sender, message, args);
+    }
+
+    public static void exception(Throwable e, Object message, Object... args) {
+        SkJsonLogger.ex(e, message, args);
+    }
+
+    public static void debug(Object message, Object... args) {
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG ->&r" + message, args);
+    }
 }

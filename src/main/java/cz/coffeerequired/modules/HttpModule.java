@@ -12,11 +12,12 @@ import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.requests.Request;
 import cz.coffeerequired.api.requests.RequestMethod;
-import cz.coffeerequired.skript.http.*;
+import cz.coffeerequired.skript.http.effects.EffSendRequest;
+import cz.coffeerequired.skript.http.expressions.*;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
-@Module(module = "http", version = "1.0.0")
+@Module(module = "http")
 public class HttpModule extends Extensible {
     public HttpModule() {
         this.sign = this.getClass().getSimpleName();

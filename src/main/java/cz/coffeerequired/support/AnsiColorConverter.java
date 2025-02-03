@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public class AnsiColorConverter {
     // ANSI color codes
     public static final String RESET = "\u001B[0m";
@@ -62,8 +63,6 @@ public class AnsiColorConverter {
             matcher.appendReplacement(result, ansiCode);
         }
         matcher.appendTail(result);
-
-        // Přidání reset kódu na konec
         return result + "\u001B[0m";
     }
 }

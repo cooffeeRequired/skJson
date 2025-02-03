@@ -15,8 +15,11 @@ import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.json.*;
-import cz.coffeerequired.skript.core.*;
 import cz.coffeerequired.skript.core.bukkit.JSONFileWatcherSave;
+import cz.coffeerequired.skript.core.conditions.*;
+import cz.coffeerequired.skript.core.effects.*;
+import cz.coffeerequired.skript.core.events.WatcherEvent;
+import cz.coffeerequired.skript.core.expressions.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,7 +36,7 @@ import java.util.stream.IntStream;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
 
-@Module(module = "core", version = "1.0.0")
+@Module(module = "core")
 public class Core extends Extensible {
 
     static final Collection<Class<?>> allowedTypes = List.of(
@@ -64,11 +67,11 @@ public class Core extends Extensible {
 
         this.tryRegisterDefaultConverters();
 
-        register.registerType(new ClassInfo<>(JsonElement.class, "json")
-                        .user("json")
-                        .name("json")
+        register.registerType(new ClassInfo<>(JsonElement.class, "jsonelement")
+                        .user("jsonelement")
+                        .name("jsonelement")
                         .description("Json representation of any object in skript")
-                        .since("2.9")
+                        .since("2.9, 4.1 - change")
                         .parser(new JSONTypeParser())
                         .serializer(new JSONTypeSerializer())
                         .changer(new JSONTypeDefaultChanger()),
@@ -85,10 +88,10 @@ public class Core extends Extensible {
                         .changer(new Changer<>() {
                             @Override
                             public @Nullable Class<?>[] acceptChange(ChangeMode changeMode) {
-                                return switch (changeMode) {
-                                    case ADD -> CollectionUtils.array(Object.class, Object[].class);
-                                    default -> null;
-                                };
+                                if (changeMode == ChangeMode.ADD) {
+                                    return CollectionUtils.array(Object.class, Object[].class);
+                                }
+                                return null;
                             }
 
                             @Override
@@ -110,7 +113,7 @@ public class Core extends Extensible {
                                     SerializedJson serializedJson = new SerializedJson(path.getInput());
                                     var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
 
-                                    SkJson.debug("converted %s", converted);
+                                    SkJson.debug("converted %s", (Object) converted);
 
                                     SkJson.debug("Keys: %s", path.getKeys());
 
@@ -139,50 +142,58 @@ public class Core extends Extensible {
                 "type.jsonpath"
         );
 
+        register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.SIMPLE,
+                "json from file %strings%",
+                "json from website %strings%",
+                "json (from|of) %~objects%"
+        );
+        register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE,
+                "%jsonelement% as pretty[ printed]",
+                "%jsonelement% as uncolo[u]red pretty[ printed]"
+        );
+
         register.registerEffect(EffNewFile.class, "new json file %~string%", "new json file %~string% with [content] %-objects%");
         register.registerExpression(ExprJsonPath.class, JsonPath.class, ExpressionType.SIMPLE,
-                "json path %string% in %json%"
+                "json path %string% in %jsonelement%"
         );
         register.registerExpression(ExprChanger.class, Object.class, ExpressionType.SIMPLE,
                 "(1:value|0:key) of %jsonpath%"
         );
 
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-                "%json%.<(\\w+|[\\{\\}}])(\\[\\]|\\[\\d+\\])?(\\*)?(\\.)?>"
+                "%jsonelement%.<(\\w+|[\\{\\}}])(\\[\\]|\\[\\d+\\])?(\\*)?(\\.)?>"
         );
 
         register.registerCondition(CondJsonHas.class,
-                "%json% has [:all] (:value[s]|:key[s]) %objects%",
-                "%json% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
+                "%jsonelement% has [:all] (:value[s]|:key[s]) %objects%",
+                "%jsonelement% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
         );
         register.registerCondition(CondJsonType.class,
-                "type of %json% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
-                "type of %json% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
+                "type of %jsonelement% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
+                "type of %jsonelement% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
         );
         register.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.COMBINED,
-                "(1st|first) (:value|:key) of %json%",
-                "(2nd|second) (:value|:key) of %json%",
-                "(3rd|third) (:value|:key) of %json%",
-                "last (:value|:key) of %json%",
-                "random (:value|:key) of %json%",
-                "%integer%. (:value|:key) of %json%"
+                "(1st|first) (:value|:key) of %jsonelement%",
+                "(2nd|second) (:value|:key) of %jsonelement%",
+                "(3rd|third) (:value|:key) of %jsonelement%",
+                "last (:value|:key) of %jsonelement%",
+                "random (:value|:key) of %jsonelement%",
+                "%integer%. (:value|:key) of %jsonelement%"
         );
-        register.registerExpression(ExprGetAllKeys.class, String.class, ExpressionType.SIMPLE, "[all] keys [%-string%] of %json%");
+        register.registerExpression(ExprGetAllKeys.class, String.class, ExpressionType.SIMPLE, "[all] keys [%-string%] of %jsonelement%");
         register.registerExpression(JsonLoopExpression.class, Object.class, ExpressionType.SIMPLE, "[the] json-(:key|:value)[-<(\\d+)>]");
-        register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) %object% in %json%");
-        register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.COMBINED, "(element|value) [%-string%] of %json%", "(elements|values) [%-string%] of %json%");
-        register.registerEffect(EffMapJson.class, "[:async] (map|copy) %json% to %objects%");
-        register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsons");
-        register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.COMBINED, "json from file %strings%", "json from website %strings%", "json from %objects%");
-        register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE, "%json% as pretty[ printed]", "%json% as uncolo[u]red pretty[ printed]");
-        register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsons");
+        register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) %object% in %jsonelement%");
+        register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.COMBINED, "(element|value) [%-string%] of %jsonelement%", "(elements|values) [%-string%] of %jsonelement%");
+        register.registerEffect(EffMapJson.class, "[:async] (map|copy) %jsonelement% to %objects%");
+        register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
+        register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
         register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
         register.registerEffect(EffNewFile.class,
                 "create json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
                 "create json file %string% and write to it %object% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]"
         );
         register.registerCondition(CondJsonFileExist.class, "json file %string% exists", "json file %string% does(n't| not) exist");
-        register.registerCondition(CondJsonIsEmpty.class, "json %json% is empty", "json %json% is(n't| not) empty");
+        register.registerCondition(CondJsonIsEmpty.class, "json %jsonelement% is empty", "json %jsonelement% is(n't| not) empty");
 
         /*
             ################ CACHE ############################

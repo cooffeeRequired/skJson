@@ -2,14 +2,16 @@ package cz.coffeerequired.support;
 
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
-import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
@@ -153,7 +155,7 @@ public abstract class SkriptUtils {
             }
             SkJson.debug("--> DEBUG[&cPRIMITIVE&r]: &e%s -> &b%s", variableName, value);
 
-             value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
+            value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
 
 
             assert value != null;
@@ -181,10 +183,6 @@ public abstract class SkriptUtils {
                 Variables.setVariable(variableName, o, event, isLocal);
             }
         }
-    }
-
-    public static boolean isSingleton(Collection<?> collection) {
-        return collection != null && collection.size() == 1;
     }
 
     public static <T> boolean isSingleton(T[] collection) {
