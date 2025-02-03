@@ -46,9 +46,6 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement[] get(Event event) {
-
-        SkJson.debug("Getting json from " + Arrays.toString(anyObjectExpression.getAll(event)));
-
         return switch (currentTag) {
             case ANY -> Arrays.stream(anyObjectExpression.getAll(event))
                     .filter(SerializedJsonUtils::isValidJson)
