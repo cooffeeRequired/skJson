@@ -12,7 +12,7 @@ import cz.coffeerequired.api.json.SkriptJsonInputParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-// json path %string% in %json%
+// json path %string% in %jsonelement%
 
 public class ExprJsonPath extends SimpleExpression<JsonPath> {
 
