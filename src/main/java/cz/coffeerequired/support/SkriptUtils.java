@@ -8,7 +8,10 @@ import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
