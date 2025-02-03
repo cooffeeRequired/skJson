@@ -177,6 +177,6 @@ public final class SkJson extends JavaPlugin {
     }
 
     public static void debug(Object message, Object... args) {
-        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, message, args);
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG ->&r" + message, args);
     }
 }
