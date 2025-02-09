@@ -84,9 +84,7 @@ public final class SkJson extends JavaPlugin {
 
             Commands.setMainCommand("skjson");
             Commands.add("about|?", aboutAddon(), Commands.emptyCompleter());
-            Commands.add(
-                    "reload",
-                    (sender, s) -> {
+            Commands.add("reload", (sender, s) -> {
                         info(sender, "🟠 &econfig reloading...");
                         try {
                             final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
