@@ -22,6 +22,8 @@ public class SkriptJsonInputParser {
         String[] tokens = path.split(Pattern.quote(delim));
         ArrayList<Map.Entry<String, Type>> tokensList = new ArrayList<>();
 
+        SkJson.debug("path: " + path);
+
         for (int i = 0; i < tokens.length; i++) {
             String currentToken = tokens[i];
             Type type;
@@ -108,8 +110,13 @@ public class SkriptJsonInputParser {
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {
+        if (isQuoted(path)) path = path.substring(1, path.length() - 1);
         String convertedPath = convertPath(path);
         return getTokens(convertedPath, PROJECT_DELIM);
+    }
+
+    private static boolean isQuoted(String s) {
+        return s.startsWith("\"") && s.endsWith("\"");
     }
 
     private static String convertPath(String cleanedInput) {

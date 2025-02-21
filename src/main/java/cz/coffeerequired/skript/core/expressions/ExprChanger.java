@@ -27,6 +27,7 @@ public class ExprChanger extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object[] get(Event event) {
+        SkJson.debug("Getting json path");
         return new Object[0];
     }
 
@@ -47,9 +48,6 @@ public class ExprChanger extends SimpleExpression<Object> {
 
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
-
-        SkJson.debug("mode? : " + mode);
-
         return switch (mode) {
             case SET -> CollectionUtils.array(Object.class, Object[].class);
             case REMOVE -> CollectionUtils.array(JsonPath.class);
@@ -59,9 +57,6 @@ public class ExprChanger extends SimpleExpression<Object> {
 
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-
-        SkJson.debug("mode? : " + mode);
-
         JsonPath jsonPath = null;
         if (mode.equals(Changer.ChangeMode.SET)) {
             jsonPath = exprJsonPath.getSingle(event);
@@ -98,6 +93,7 @@ public class ExprChanger extends SimpleExpression<Object> {
                 serializedJson.changer.key(jsonPath.getKeys(), (String) delta[0]);
 
             } else if (changeType.equals(ChangerType.VALUE)) {
+                assert delta[0] != null;
                 JsonElement parsed = GsonParser.toJson(delta[0]);
                 SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
 

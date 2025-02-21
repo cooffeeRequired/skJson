@@ -1,5 +1,6 @@
 package cz.coffeerequired.api;
 
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.AnsiColorConverter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -29,9 +30,24 @@ public abstract class SkJsonLogger {
         return ChatColor.translateAlternateColorCodes('§', text);
     }
 
+    private static boolean incorectFormatting(String s) {
+        return s.contains("{") || s.contains("}");
+    }
+
     public static void log(Level level, Object message, Object... args) {
-        var formatted = AnsiColorConverter.convertToAnsi("[" + PREFIX + "] " + message.toString());
-        var text = String.format(formatted, args);
+        if (incorectFormatting(message.toString())) {
+            message = message.toString()
+                    .replaceAll("\\%\\{", "")
+                    .replaceAll("\\}\\%", "");
+        }
+
+        var prefix = PREFIX;
+        if (level == Level.INFO) {
+            prefix = "&bSkJson&r";
+        } else if (level == Level.WARNING) {
+            prefix = "&bSkJson&e";
+        }
+        var text = AnsiColorConverter.convertToAnsi(String.format("["+prefix+"] " + message.toString(), args));
         LOGGER.log(level, text);
     }
 

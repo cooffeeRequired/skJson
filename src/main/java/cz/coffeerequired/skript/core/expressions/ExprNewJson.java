@@ -15,12 +15,14 @@ import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 @Name("New json element")
@@ -28,12 +30,11 @@ import java.util.Arrays;
 @Since("4.1 - API UPDATE")
 @Examples({
         "on script load:",
-        "\tset {_json} to json from json file \"plugins/Skript/json-storage/database.json\"",
+        "\tset {_json} to json from file \"plugins/Skript/json-storage/database.json\"",
         "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
         "\tset {_json} to json from diamond tools",
         "\tset {_json} to json from player's location",
         "\tset {_json} to json from player's inventory",
-        "\tset {_json} to json from yaml file <path>",
         "\tset {_json} to json from website file \"https://json.org/sample.json\"",
 })
 public class ExprNewJson extends SimpleExpression<JsonElement> {
@@ -55,6 +56,10 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
                 case JSON -> {
                     String filePath = fileExpression.getSingle(event);
                     if (filePath == null) yield new JsonElement[0];
+
+                    if (filePath.startsWith("~")) {
+                        filePath = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("Skript")).getDataFolder().getPath() + "/scripts/" + filePath.substring(1);
+                    }
 
                     JsonElement jsonContent = FileHandler.get(new File(filePath)).join();
                     if (jsonContent == null) yield new JsonElement[0];

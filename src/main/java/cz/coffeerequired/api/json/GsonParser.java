@@ -30,7 +30,6 @@ public class GsonParser {
     }
 
     public static <T> JsonElement toJson(T object) {
-        SkJson.debug("input: %s : %s", object, object.getClass());
         switch (object) {
             case World w -> {
                 return JsonParser.parseString(String.format("{\"class\": \"%s\", \"worldName\": \"%s\"}", w.getClass().getName(), w.getName()));
@@ -92,8 +91,7 @@ public class GsonParser {
     public static <T> T fromJson(JsonElement json) {
 
         if (json == null) {
-            var ex = new SerializedJsonException("Cannot handle json, cause json input is null");
-            SkJson.exception(ex, "Depth error");
+            SkJson.warning("Depth error, json cannot be null, check variable path or input source");
             return null;
         }
 

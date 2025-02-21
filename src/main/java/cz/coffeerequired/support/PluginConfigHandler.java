@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static cz.coffeerequired.api.Api.Records.*;
 
@@ -33,7 +32,6 @@ import static cz.coffeerequired.api.Api.Records.*;
 @SuppressWarnings("all")
 public class PluginConfigHandler {
     private final File configFile;
-    private final Logger logger;
     private final JavaPlugin plugin;
     private FileConfiguration config;
 
@@ -44,8 +42,6 @@ public class PluginConfigHandler {
 
     public PluginConfigHandler(JavaPlugin plugin, String fileName) {
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
-
         this.configFile = new File(plugin.getDataFolder(), fileName);
         loadOrRegenerateConfig();
     }
@@ -56,16 +52,16 @@ public class PluginConfigHandler {
             if (!configFile.exists()) {
                 if (plugin.getResource(configFile.getName()) != null) {
                     plugin.saveResource(configFile.getName(), false);
-                    logger.info("Config file created at: " + configFile.getAbsolutePath());
+                    SkJson.info("Config file created at: " + configFile.getAbsolutePath());
                 } else {
                     configFile.createNewFile();
-                    logger.info("Empty config file created at: " + configFile.getAbsolutePath());
+                    SkJson.info("Empty config file created at: " + configFile.getAbsolutePath());
                 }
             }
-
             this.config = YamlConfiguration.loadConfiguration(configFile);
+            SkJson.info("Loaded config file: " + configFile.getAbsolutePath());
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Config file is invalid. Regenerating config file!", e);
+            SkJson.exception(e, "Config file is invalid. Regenerating config file!");
             regenerateConfig();
         }
     }
@@ -78,22 +74,22 @@ public class PluginConfigHandler {
                 String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
                 File brokenFile = new File(configFile.getParent(), configFile.getName().replace(".yml", ".broken-" + timestamp + ".yml"));
                 if (configFile.renameTo(brokenFile)) {
-                    logger.info("Renamed broken config file to: " + brokenFile.getAbsolutePath());
+                    SkJson.info("Renamed broken config file to: " + brokenFile.getAbsolutePath());
                 } else {
-                    logger.warning("Could not rename broken config file.");
+                    SkJson.warning("Could not rename broken config file.");
                 }
             }
 
             if (plugin.getResource(configFile.getName()) != null) {
                 plugin.saveResource(configFile.getName(), false);
-                logger.info("Config file regenerated at: " + configFile.getAbsolutePath());
+                SkJson.info("Config file regenerated at: " + configFile.getAbsolutePath());
             } else {
                 configFile.createNewFile();
-                logger.info("Empty config file regenerated at: " + configFile.getAbsolutePath());
+                SkJson.info("Empty config file regenerated at: " + configFile.getAbsolutePath());
             }
             this.config = YamlConfiguration.loadConfiguration(configFile);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not regenerate config file!", e);
+            SkJson.exception(e, "Could not regenerate config file!");
         }
     }
 
@@ -131,7 +127,7 @@ public class PluginConfigHandler {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Could not save config to file!", e);
+            SkJson.exception(e, "Could not save config to file!");
         }
     }
 
@@ -167,7 +163,7 @@ public class PluginConfigHandler {
                 regenerateConfig();
             }
         } else {
-            logger.log(Level.WARNING, "Config file does not exist! It cannot be reloaded.");
+            SkJson.warning("Config file does not exist! It cannot be reloaded.");
         }
     }
 }

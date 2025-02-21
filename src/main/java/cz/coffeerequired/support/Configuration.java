@@ -93,7 +93,7 @@ public class Configuration {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
                 scheduleUpdate(downloadUrl);
             } else if (currentVersion.compareTo(latestVersion) > 0) {
-                SkJson.info("Running a Development version, no update required." + AnsiColorConverter.GREEN + " ✔");
+                SkJson.info("Running a Development version, no update required &a ✔");
             }
         } catch (Exception e) {
             SkJson.severe("Update failed " + e.getMessage());

@@ -1,12 +1,33 @@
+# Author: coffeerequired
+# me: https://github.com/cooffeeRequired
+# Description: Addon for handle JSON easily in SkriptLang.
+# - Supports Spigot, Paper, and Purpur (Java 21+, Minecraft 1.16.5+, Skript 2.9.2+).
+# - Features include creating JSON from various sources (strings, Bukkit objects), working with .json files (future .jsonc support),
+# - handling HTTP requests/responses, FileWatchers for dynamic file updates (e.g., ops.json),
+# - fast MemoryCache (100-1000 us read/write), VirtualCachedJson for dynamic storage, NBT support via NBT-API,
+# - and serialization/deserialization of almost everything in Minecraft.
+# - Get started by placing Skjson.jar in your plugins folder and configuring config.yml.
+# - See the wiki (https://github.com/cooffeeRequired/skJson/wiki) for documentation and examples.
+# web: www.coffeerquired.info/projects/skjson
+
 plugin:
+  # Plugin configuration version
   config-version: 4
+  # Enable/disable debugging (for developers)
   debug: false
+  # The name of the permission that users need to use the plugin
   permission: "skjson.use"
+  # Enable HTTP functions of the plugin (e.g. sending requests)
   enabled-http: true
+  # Enable working with NBT data (Notch Binary Tag, a complex format for storing data)
   enabled-nbt: false
 
 json:
+  # Separator for paths to JSON objects (e.g. "object.nestedObject.value")
   path-delimiter: "."
+  # Settings for monitoring changes in JSON files
   watcher:
+    # Interval for checking for changes in milliseconds (how often the file is checked)
     interval: 100
+    # Frequency of data refresh from the JSON file in milliseconds (how often data is loaded after a change is detected)
     refresh-rate: 50

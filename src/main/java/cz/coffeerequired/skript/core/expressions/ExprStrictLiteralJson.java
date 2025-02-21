@@ -12,6 +12,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -110,6 +111,9 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
+
+        SkJson.debug("tokens= %s", tokens);
+
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
 

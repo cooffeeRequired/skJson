@@ -111,7 +111,7 @@ public class Core extends Extensible {
                                     SkJson.debug("path %s", path.getInput());
 
                                     SerializedJson serializedJson = new SerializedJson(path.getInput());
-                                    var converted = Arrays.stream(delta).map(GsonParser::toJson).toArray(JsonElement[]::new);
+                                    var converted = Arrays.stream(delta).filter(Objects::nonNull).map(GsonParser::toJson).toArray(JsonElement[]::new);
 
                                     SkJson.debug("converted %s", (Object) converted);
 
@@ -161,7 +161,7 @@ public class Core extends Extensible {
         );
 
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-                "%jsonelement%.<(\\w+|[\\{\\}}])(\\[\\]|\\[\\d+\\])?(\\*)?(\\.)?>"
+                "%jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>"
         );
 
         register.registerCondition(CondJsonHas.class,
