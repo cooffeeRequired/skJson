@@ -17,8 +17,6 @@ import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
 
 public class ExprChanger extends SimpleExpression<Object> {
 

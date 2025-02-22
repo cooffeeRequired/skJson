@@ -1,6 +1,5 @@
 package cz.coffeerequired.api;
 
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.AnsiColorConverter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -9,7 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.Date;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings("ALL")
 public abstract class SkJsonLogger {

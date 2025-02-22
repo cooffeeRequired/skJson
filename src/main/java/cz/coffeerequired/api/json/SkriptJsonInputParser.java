@@ -2,7 +2,6 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 

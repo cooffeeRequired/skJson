@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
 @Slf4j
 public class JSONTypeDefaultChanger implements Changer<JsonElement> {
     @Override

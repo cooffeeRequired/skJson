@@ -2,7 +2,6 @@ package cz.coffeerequired.support;
 
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;

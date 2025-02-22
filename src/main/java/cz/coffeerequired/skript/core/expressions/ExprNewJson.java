@@ -14,7 +14,6 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
-import cz.coffeerequired.api.SkJsonLogger;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 

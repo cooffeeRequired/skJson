@@ -3,9 +3,7 @@ package cz.coffeerequired.api;
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.GsonParser;
 import org.bukkit.Bukkit;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -14,7 +12,6 @@ import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.concurrent.CompletableFuture;
 
 

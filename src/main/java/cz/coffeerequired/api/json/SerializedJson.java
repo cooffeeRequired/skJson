@@ -5,7 +5,6 @@ import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffeerequired.SkJson;
 import lombok.Getter;
 
 import java.util.ArrayDeque;
