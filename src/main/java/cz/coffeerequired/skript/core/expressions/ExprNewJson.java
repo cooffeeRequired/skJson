@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -11,7 +12,9 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
+import cz.coffeerequired.api.SkJsonLogger;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -21,7 +24,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -47,11 +52,28 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement[] get(Event event) {
+        List<JsonElement> elements = new ArrayList<>();
+        Object[] values = anyObjectExpression !=null ? anyObjectExpression.getArray(event) : null;
+
         return switch (currentTag) {
-            case ANY -> Arrays.stream(anyObjectExpression.getAll(event))
-                    .filter(SerializedJsonUtils::isValidJson)
-                    .map(GsonParser::toJson)
-                    .toArray(JsonElement[]::new);
+            case ANY -> {
+                assert values != null;
+                for (var value : values) {
+                    try {
+                        if (SerializedJsonUtils.isValidJson(value)) {
+                            if ((value instanceof ItemType type) && !type.getTypes().isEmpty()) {
+                                type.getTypes().forEach(d -> elements.add(GsonParser.toJson(d)));
+                            } else {
+                                elements.add(GsonParser.toJson(value));
+                            }
+                        }
+                    } catch (Exception ex) {
+                        if (Api.Records.PROJECT_DEBUG) SkJson.exception(ex, getParser().getNode());
+                    }
+                }
+                SkJson.debug("! elements: " + elements);
+                yield elements.toArray(new JsonElement[0]);
+            }
             case FILE -> switch (fileType) {
                 case JSON -> {
                     String filePath = fileExpression.getSingle(event);
