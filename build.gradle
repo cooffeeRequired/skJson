@@ -34,7 +34,6 @@ static def generateShortSHA1(sha1) {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
     maven { url "https://jitpack.io" }
     maven { url "https://repo.skriptlang.org/releases" }
