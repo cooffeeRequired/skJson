@@ -34,6 +34,7 @@ public class CondIsCached extends Condition {
         return "json storage of id " + expressionId.toString(event, debug) + " " + (line == 0 ? "is" : "isn't") + " cached";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         line = matchedPattern;

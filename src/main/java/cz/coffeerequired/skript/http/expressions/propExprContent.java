@@ -69,13 +69,12 @@ public class propExprContent extends PropertyExpression<Request, JsonElement> {
     @SuppressWarnings("all")
     public Class<?>[] acceptChange(Changer.@NotNull ChangeMode mode) {
         return switch (mode) {
-            case SET -> CollectionUtils.array(JsonElement.class, String.class);
+            case SET -> CollectionUtils.array(JsonElement.class, String[].class);
             case RESET -> CollectionUtils.array();
             default -> null;
         };
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
         var request = getExpr().getSingle(event);

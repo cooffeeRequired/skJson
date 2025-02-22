@@ -12,6 +12,7 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.json.CacheStorageWatcher;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +33,7 @@ public class AEffBindFile extends AsyncEffect {
     private boolean withBinding;
 
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     protected void execute(Event event) {
         String id = expressionJsonId.getSingle(event);
@@ -39,6 +41,10 @@ public class AEffBindFile extends AsyncEffect {
         if (id == null || path == null) return;
 
         var cache = Api.getCache();
+        if (path.startsWith("~")) {
+            path = Bukkit.getPluginManager().getPlugin("Skript").getDataFolder().getPath() + "/scripts/" + path.substring(1);
+        }
+
         File file = new File(path);
 
         if (!file.exists()) {

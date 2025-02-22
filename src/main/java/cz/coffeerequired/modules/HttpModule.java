@@ -27,10 +27,13 @@ public class HttpModule extends Extensible {
     @Override
     public void registerElements(Register.SkriptRegister register) {
         register.apply(this);
+
+
+        register.registerExpression(ExprGetPlayerIP.class, String.class, ExpressionType.SIMPLE, "json-get %player% ip");
         register.registerExpression(ExprSimpleRequest.class, Request.class, ExpressionType.SIMPLE, "prepare %requestmethod% request on %string%");
         register.registerEffect(EffSendRequest.class, "[:sync] (send|execute) %request%");
         register.registerProperty(propExprAttachment.class, Object.class, "[request] attachments", "requests");
-        register.registerProperty(propExprContent.class, JsonElement.class, "[request] content", "requests");
+        register.registerProperty(propExprContent.class, JsonElement.class, "[request] (content|body)", "requests");
         register.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
         register.registerProperty(propExprQueryParams.class, JsonElement.class, "[request] query params(s|meters)", "requests");
         register.registerProperty(propExprResponse.class, Object.class, "response [:content|:headers|:status code|:status]", "requests");

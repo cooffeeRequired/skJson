@@ -1,11 +1,15 @@
 import java.security.MessageDigest
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.hidetake.groovy.ssh.core.Service
+import org.hidetake.groovy.ssh.core.RunHandler
 
 plugins {
     id 'java'
     id 'com.gradleup.shadow' version '8.3.5'
     id 'xyz.jpenilla.run-paper' version '2.3.1'
+    id 'org.hidetake.ssh' version '2.11.2'
 }
+
 
 group = 'cz.coffee'
 version = '4.5'
@@ -30,6 +34,7 @@ static def generateShortSHA1(sha1) {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
     maven { url "https://jitpack.io" }
     maven { url "https://repo.skriptlang.org/releases" }
@@ -38,6 +43,13 @@ repositories {
     maven { url "https://repo.purpurmc.org/snapshots" }
     maven { url "https://repo.codemc.io/repository/maven-public/" }
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 
 apply from: 'dependencies.gradle'
 apply from: 'resources.gradle'
@@ -76,10 +88,38 @@ tasks.withType(ShadowJar).configureEach {
     }
 }
 
+remotes {
+    coffee {
+        role 'masterNode'
+        host = '85.118.134.157'
+        user = 'coffee'
+        password = 'coffee'
+    }
+}
+
+tasks.register("deployToServer") {
+    doLast {
+        println("> Uploading skjson.jar to remote server via SSH")
+
+        ssh.run {
+            session(remotes.coffee) {
+                put from: file("${buildDir}/libs/skjson.jar"), into: "/home/coffee/mc/plugins/skjson.jar"
+            }
+        }
+        println("> Plugin uploaded & server restarted!")
+    }
+}
+
 tasks.register('withRemote') {
     dependsOn 'clean'
     dependsOn 'shadowJar'
     finalizedBy 'runRemote'
+}
+
+tasks.register('wDeploy') {
+    dependsOn 'clean'
+    dependsOn 'shadowJar'
+    finalizedBy 'deployToServer'
 }
 
 static def callAPI(String cmd) {

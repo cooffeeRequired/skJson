@@ -32,26 +32,28 @@ public abstract class FileHandler {
             try (var reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 var split = file.getName().split("\\.");
                 var extension = split[split.length - 1];
-                return switch (extension) {
-                    case "json" -> {
-                        try {
-                            yield JsonParser.parseReader(reader);
-                        } catch (JsonParseException ignored) {
-                            yield JsonNull.INSTANCE;
-                        }
+                if (extension.equalsIgnoreCase("json")) {
+                    try {
+                        return JsonParser.parseReader(reader);
+                    } catch (JsonParseException ignored) {
+                        return JsonNull.INSTANCE;
                     }
-                    case "yml", "yaml" -> {
-                        var yaml = new Yaml();
-                        @SuppressWarnings("unchecked") var map = (LinkedHashMap<String, ?>) yaml.load(reader);
-                        yield GsonParser.getGson().toJsonTree(map);
-                    }
-                    default -> JsonNull.INSTANCE;
-                };
+                }
+                return JsonNull.INSTANCE;
             } catch (IOException e) {
                 SkJson.exception(e, e.getMessage());
                 return JsonNull.INSTANCE;
             }
         });
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    public static boolean exists(String filePath) {
+        if (filePath.startsWith("~")) {
+            filePath = Bukkit.getPluginManager().getPlugin("Skript").getDataFolder().getPath() + "/scripts/" + filePath.substring(1);
+        }
+        File file = new File(filePath);
+        return file.exists();
     }
 
     @SuppressWarnings("DataFlowIssue")
