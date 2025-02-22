@@ -27,25 +27,12 @@ public class JSONTypeDefaultChanger implements Changer<JsonElement> {
 
     @Override
     public void change(JsonElement[] what, @Nullable Object[] delta, ChangeMode mode) {
-
-        SkJson.debug("JSONTypeDefaultChanger changed %s, %s", Arrays.toString(what), Arrays.toString(delta));
-
         if (mode == Changer.ChangeMode.REMOVE) {
-
-            SkJson.debug("@[WHAT]1: " + Arrays.toString(what));
-            SkJson.debug("@[DELTA]2: " + Arrays.toString(delta));
-
-            SkJson.debug("Removing " + getClass().getSimpleName());
-
             if (delta == null || delta.length < 1) {
                 SkJson.exception(new Exception("delta is null"), "delta need to be defined");
                 return;
             }
-
-            SkJson.debug("delta: " + Arrays.toString(delta));
             var jsonPath = (JsonPath) delta[0];
-            SkJson.debug("json-path: " + jsonPath);
-
 
             if (SkriptUtils.isSingleton(delta)) {
                 assert jsonPath != null;

@@ -27,7 +27,6 @@ public class ExprChanger extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object[] get(Event event) {
-        SkJson.debug("Getting json path");
         return new Object[0];
     }
 
@@ -73,10 +72,6 @@ public class ExprChanger extends SimpleExpression<Object> {
                 return;
             }
 
-            SkJson.debug("Changing " + getClass().getSimpleName());
-            SkJson.debug("delta: " + Arrays.toString(delta));
-            SkJson.debug("json-path: " + exprJsonPath.getSingle(event));
-            SkJson.debug("changeType: " + changeType);
 
             if (changeType.equals(ChangerType.KEY)) {
                 if (!SkriptUtils.isSingleton(delta)) {

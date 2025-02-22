@@ -108,18 +108,10 @@ public abstract class SkriptUtils {
         if (json instanceof JsonPrimitive primitive) {
             savePrimitiveToVariable(variableName, SerializedJsonUtils.lazyObjectConverter(primitive), event, isLocal);
         } else if (json instanceof JsonObject object) {
-
-            SkJson.debug("--> DEBUG[&6OBJECT&r]: &e%s -> &b%s", variableName, object);
-
             var parsed = GsonParser.fromJson(object);
-
-
-            SkJson.debug("--> DEBUG[&bPARSINGD&r]: &e%s -> &b%s", variableName.endsWith(SEPARATOR) ? variableName.substring(0, variableName.length() - 2) : variableName, object);
-
             if (!cannotBeParsed(parsed)) {
                 saveParsedToVariable(variableName, parsed, event, isLocal);
             } else {
-                SkJson.debug("--> DEBUG[&cUNPARSED&r]: &e%s -> &b%s", variableName, object);
                 for (String key : object.keySet()) {
                     JsonElement value = object.get(key);
                     String pathKey = variableName + key + SEPARATOR;
@@ -131,9 +123,6 @@ public abstract class SkriptUtils {
                 }
             }
         } else if (json instanceof JsonArray array) {
-
-            SkJson.debug("--> DEBUG[&3ARRAY&r]: &e%s -> &b%s", variableName, array);
-
             for (int i = 0; i < array.size(); i++) {
                 JsonElement element = array.get(i);
                 String newName = variableName + (i + 1) + SEPARATOR;
@@ -153,14 +142,8 @@ public abstract class SkriptUtils {
             if (variableName.endsWith(SEPARATOR)) {
                 variableName = variableName.substring(0, variableName.length() - 2);
             }
-            SkJson.debug("--> DEBUG[&cPRIMITIVE&r]: &e%s -> &b%s", variableName, value);
-
             value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
-
-
             assert value != null;
-            SkJson.debug("Primitive value insert: %s %s", value, value.getClass());
-
             Variables.setVariable(variableName, value, event, isLocal);
         }
     }
@@ -179,7 +162,6 @@ public abstract class SkriptUtils {
             if (SerializedJsonUtils.isJavaType(o)) {
                 savePrimitiveToVariable(variableName, o, event, isLocal);
             } else {
-                SkJson.debug("--> DEBUG[&aPARSED&r]: &e%s -> &b%s", variableName, o);
                 Variables.setVariable(variableName, o, event, isLocal);
             }
         }

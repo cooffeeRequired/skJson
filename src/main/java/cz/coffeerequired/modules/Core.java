@@ -108,14 +108,8 @@ public class Core extends Extensible {
                                         return;
                                     }
 
-                                    SkJson.debug("path %s", path.getInput());
-
                                     SerializedJson serializedJson = new SerializedJson(path.getInput());
                                     var converted = Arrays.stream(delta).filter(Objects::nonNull).map(GsonParser::toJson).toArray(JsonElement[]::new);
-
-                                    SkJson.debug("converted %s", (Object) converted);
-
-                                    SkJson.debug("Keys: %s", path.getKeys());
 
                                     IntStream.range(0, converted.length).forEach(idx -> {
                                         var json = converted[idx];
@@ -131,9 +125,6 @@ public class Core extends Extensible {
                                         var keys = path.getKeys();
                                         var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
                                         keys.add(key);
-
-                                        SkJson.debug("KEY &c : " + key);
-
                                         serializedJson.changer.value(keys, json);
                                     });
                                 }
@@ -145,7 +136,7 @@ public class Core extends Extensible {
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.SIMPLE,
                 "json from file %strings%",
                 "json from website %strings%",
-                "json (from|of) %~objects%"
+                "json (from|of) %objects%"
         );
         register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE,
                 "%jsonelement% as pretty[ printed]",

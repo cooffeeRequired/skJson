@@ -111,9 +111,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
-
-        SkJson.debug("tokens= %s", tokens);
-
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
 

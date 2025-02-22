@@ -22,8 +22,6 @@ public class SkriptJsonInputParser {
         String[] tokens = path.split(Pattern.quote(delim));
         ArrayList<Map.Entry<String, Type>> tokensList = new ArrayList<>();
 
-        SkJson.debug("path: " + path);
-
         for (int i = 0; i < tokens.length; i++) {
             String currentToken = tokens[i];
             Type type;
@@ -68,9 +66,6 @@ public class SkriptJsonInputParser {
         String nextToken = i + 1 < tokens.length ? tokens[i + 1] : null;
         String last = tokens[tokens.length - 1];
         Type type;
-
-        SkJson.debug("&c[json-input-token] &8&o currentToken: &f" + currentToken);
-
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;
         } else if (currentToken.matches(".+\\[\\d+]")) {

@@ -30,8 +30,6 @@ public class AEffSaveStorage extends AsyncEffect {
 
     @Override
     protected void execute(Event event) {
-        SkJson.debug("Saving storages");
-
         var cache = Api.getCache();
 
         if (mode.equals(Mode.SINGLE)) {
@@ -49,7 +47,6 @@ public class AEffSaveStorage extends AsyncEffect {
         map.forEach((j, f) -> {
             try {
                 if ("Undefined".equals(f.getName())) {
-                    SkJson.debug("&6VIRTUAL&r storage id " + id + " - skipping save");
                     return;
                 }
 
