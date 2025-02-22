@@ -1,5 +1,8 @@
 package cz.coffeerequired.api.json;
 
+import ch.njol.skript.aliases.ItemData;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.util.slot.Slot;
 import com.google.gson.*;
 import cz.coffeerequired.SkJson;
 import lombok.Getter;
@@ -30,6 +33,26 @@ public class GsonParser {
     }
 
     public static <T> JsonElement toJson(T object) {
+
+        final boolean isItem = object instanceof ItemStack || object instanceof Slot || object instanceof ItemType || object instanceof ItemData;
+
+        if (isItem) {
+            Class<?> cls = object.getClass();
+            if (cls.equals(ItemType.class) || ItemType.class.isAssignableFrom(cls)) {
+                assert object instanceof ItemType;
+                return gson.toJsonTree(((ItemType) object).getAll());
+            } else if (cls.equals(ItemStack.class) || ItemStack.class.isAssignableFrom(cls)) {
+                assert object instanceof ItemStack;
+                return gson.toJsonTree(object);
+            } else if (Slot.class.isAssignableFrom(cls)) {
+                assert object instanceof Slot;
+                return gson.toJsonTree(((Slot) object).getItem());
+            } else if (cls.equals(ItemData.class) || ItemData.class.isAssignableFrom(cls)) {
+                assert object instanceof ItemData;
+                return gson.toJsonTree((((ItemData) object).getStack()));
+            }
+        }
+
         switch (object) {
             case World w -> {
                 return JsonParser.parseString(String.format("{\"class\": \"%s\", \"worldName\": \"%s\"}", w.getClass().getName(), w.getName()));
@@ -79,11 +102,7 @@ public class GsonParser {
             default -> {
                 JsonElement serialized = SerializedJsonUtils.lazyObjectConverter(object);
                 if (serialized != null && !serialized.isJsonNull()) return serialized;
-                var t = gson.toJsonTree(object);
-
-                SkJson.debug("Serialized object: %s, class: %s, isEntity: %s", t, object.getClass(), object instanceof Entity);
-
-                return t;
+                return gson.toJsonTree(object);
             }
         }
     }
