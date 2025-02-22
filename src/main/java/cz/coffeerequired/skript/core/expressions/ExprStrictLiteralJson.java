@@ -41,8 +41,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         
         #send {_json}.array[0] # will print {A: 1, B: 2, C: 3, location: {}}
         
-        set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key 
-        
+        set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key
         # OUTPUT
         {
           "array": [
