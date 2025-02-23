@@ -90,7 +90,7 @@ tasks.withType(ShadowJar).configureEach {
 remotes {
     coffee {
         role 'masterNode'
-        host = '85.118.134.157'
+        host = 'coffeerequired.info'
         user = 'coffee'
         password = 'coffee'
     }

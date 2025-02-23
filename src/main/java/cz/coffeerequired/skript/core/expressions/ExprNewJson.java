@@ -66,10 +66,9 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
                             }
                         }
                     } catch (Exception ex) {
-                        if (Api.Records.PROJECT_DEBUG) SkJson.exception(ex, getParser().getNode());
+                        if (Api.Records.PROJECT_DEBUG) SkJson.exception(ex, getParser().getNode() == null ? "" : getParser().getNode().toString());
                     }
                 }
-                SkJson.debug("! elements: " + elements);
                 yield elements.toArray(new JsonElement[0]);
             }
             case FILE -> switch (fileType) {

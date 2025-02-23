@@ -2,6 +2,7 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,6 +66,7 @@ public class SkriptJsonInputParser {
         String nextToken = i + 1 < tokens.length ? tokens[i + 1] : null;
         String last = tokens[tokens.length - 1];
         Type type;
+
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;
         } else if (currentToken.matches(".+\\[\\d+]")) {

@@ -7,11 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -20,6 +23,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
@@ -27,9 +31,9 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Simple json literal")
 @Description({
-        "This syntax is strictly limited to its intended use; it does not allow other expressions or variables to be used.",
+        "This syntax is strictly limited to its intended use; it does allow other expressions or variables to be used.",
         "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep.",
-        "Can handle strict (get/set)",
+        "Can handle strict (get/set/remove)",
         "* at the end means you want to return a skript list.",
         "If the data is a JSON array, it is straightforward.",
         "If it is a JSON object, all the values are extracted and converted into Java objects, making them directly usable within the skript."
@@ -66,7 +70,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         
         send {_json} as uncolored pretty printed
         """)
-@Since("4.1 - API UPDATE")
+@Since("4.5")
 public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens;
@@ -75,6 +79,10 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object[] get(Event event) {
+        if (v != null) {
+            String parsed = v.getSingle(event) + "";
+            tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
+        }
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
         if (jsonElement == null) return new Object[0];
 
@@ -104,12 +112,39 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         return Classes.getDebugMessage(jsonElementExpression) + " " + tokens.toString();
     }
 
+    private Expression<?> v;
+
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
+        if (r.group().contains("%")) {
+            v = parseExpression(r.group());
+        }
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
+    }
+
+    private boolean isQuoted(String original) {
+        return original.startsWith("\"") && original.endsWith("\"");
+    }
+
+    private boolean isExpression(String original) {
+        if (isQuoted(original)) {
+            original = original.substring(1, original.length() - 1);
+        }
+        return original.startsWith("%") && original.endsWith("%");
+    }
+
+    public @Nullable Expression<?> parseExpression(String expr) {
+        Expression<?> result;
+        if (isExpression(expr) && !isQuoted(expr)) {
+            SkJson.warning("Expression '%s' is quoted but not quoted", expr);
+            return null;
+        }
+        result = VariableString.newInstance(expr, StringMode.VARIABLE_NAME);
+        SkJson.debug(" expression: %s -> parsed result: %s", expr, result);
+        return result;
     }
 
     @SuppressWarnings("SwitchStatementWithTooFewBranches")
