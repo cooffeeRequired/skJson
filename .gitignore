@@ -7,5 +7,4 @@ server
 *.xml
 settings.json/build/
 /.gradle/*
-/gradle/*
 /build/*
