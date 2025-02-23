@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
