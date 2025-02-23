@@ -6,4 +6,6 @@ server
 .idea/
 *.xml
 settings.json/build/
-/.gradle/
+/.gradle/*
+/gradle/*
+/build/*
