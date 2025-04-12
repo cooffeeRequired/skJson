@@ -38,13 +38,13 @@ public class EffVirtualStorage extends Effect {
 
         if (Api.getCache().containsKey(name)) {
             perf.stop();
-            SkJson.info("Creating virtual memory cache: " + perf.toHumanTime());
+            SkJson.info("Creating virtual memory %s cache: %s", name, perf.toHumanTime());
             return;
         }
 
         Api.getCache().addValue(name, new JsonObject(), new File("Undefined"));
         perf.stop();
-        SkJson.info("Creating virtual  memory cache: " + perf.toHumanTime());
+        SkJson.info("Creating virtual memory %s cache: %s", name, perf.toHumanTime());
     }
 
     @Override

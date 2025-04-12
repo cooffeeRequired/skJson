@@ -83,13 +83,13 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
         };
     }
 
-    private HashMap<String, String[]> parseString(Object[] input) {
-        HashMap<String, String[]> map = new HashMap<>();
+    private HashMap<String, String> parseString(Object[] input) {
+        HashMap<String, String> map = new HashMap<>();
         for (var e : input) {
             if (e instanceof String str) {
                 if (str.contains(":")) {
                     var parts = str.split(":");
-                    map.put(parts[0], new String[]{parts[1]});
+                    map.put(parts[0], parts[1]);
                 }
             }
         }

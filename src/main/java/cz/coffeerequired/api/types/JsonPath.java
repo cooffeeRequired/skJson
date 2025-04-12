@@ -1,4 +1,4 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.types;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Parser;
@@ -9,6 +9,9 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.SerializedJson;
+import cz.coffeerequired.api.json.SkriptJsonInputParser;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 

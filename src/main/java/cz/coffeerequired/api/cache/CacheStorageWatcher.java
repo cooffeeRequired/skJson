@@ -1,11 +1,10 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.cache;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
+import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import lombok.Getter;
@@ -17,188 +16,204 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
-
-/**
- * This class handles all changes in the JSON files located in a given folder.
- *
- * <p>Usage example:</p>
- * <pre>
- * {@code
- * String folderPath = "/path/to/json/folder";
- * JsonFileWatcher watcher = new JsonFileWatcher(folderPath);
- * watcher.startWatching();
- * }
- * </pre>
- *
- * <p>This will start watching the specified folder for any JSON file changes
- * (creation or modification) and process them according to your implementation
- * in the processJsonFile method.</p>
- */
-
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 public class CacheStorageWatcher {
-    private static final ScheduledExecutorService service;
-    private static final long DEFAULT_INTERVAL = 1000;
+    private static final long DEFAULT_INTERVAL = 1000L;
+    private static final int DEFAULT_THREAD_POOL_SIZE = 2;
 
-    static {
-        service = Executors.newSingleThreadScheduledExecutor();
-    }
-
-    @Getter
-    private final UUID uuid;
+    @Getter private final UUID uuid = UUID.randomUUID();
     private final ScheduledFuture<?> future;
     private final String parentID;
-    @Getter
-    private final String id;
-    @Getter
-    private final File file;
+    @Getter private final String id;
+    @Getter private final File file;
     private JsonFileChanged event;
-    private WatchService watchService;
+    private final WatchService watchService;
+    private final AtomicReference<JsonElement> lastContent = new AtomicReference<>();
+    private final CachedStorage<String, JsonElement, File> cache;
+    private final Supplier<JsonElement> fileSupplier;
 
-    public CacheStorageWatcher(File file, String id, String parentID, long interval) {
-        this.uuid = UUID.randomUUID();
-        this.parentID = parentID;
+    public CacheStorageWatcher(File file, String id, String parentID, long interval,
+                               WatchService watchService,
+                               ScheduledExecutorService executor,
+                               CachedStorage<String, JsonElement, File> cache,
+                               Supplier<JsonElement> fileSupplier) throws IOException {
         this.id = id;
         this.file = file;
+        this.parentID = parentID;
+        this.watchService = watchService;
+        this.cache = cache;
+        this.fileSupplier = fileSupplier;
 
+        file.toPath().getParent().register(watchService,
+                StandardWatchEventKinds.ENTRY_CREATE,
+                StandardWatchEventKinds.ENTRY_MODIFY,
+                StandardWatchEventKinds.ENTRY_DELETE);
+
+        this.future = executor.scheduleWithFixedDelay(this::watch, 0, interval, TimeUnit.MILLISECONDS);
+    }
+
+    public CacheStorageWatcher(File file, String id, String parentID, long interval) throws IOException {
+        this(file, id, parentID, interval,
+                createWatchService(file),
+                createExecutorService(),
+                Api.getCache(),
+                () -> FileHandler.get(file).join());
+    }
+
+    private static WatchService createWatchService(File ignoredFile) {
         try {
-            this.watchService = FileSystems.getDefault().newWatchService();
-            file.toPath().getParent().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+            return FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
-            SkJson.exception(e, e.getMessage(), e);
+            SkJson.exception(e, "Failed to create WatchService", e);
+            throw new RuntimeException(e);
         }
+    }
 
-        this.future = service.scheduleAtFixedRate(this::watch, 0, interval, TimeUnit.MILLISECONDS);
+    private static ScheduledExecutorService createExecutorService() {
+        return Executors.newScheduledThreadPool(CacheStorageWatcher.DEFAULT_THREAD_POOL_SIZE, r -> {
+            Thread thread = new Thread(r);
+            thread.setName("CacheStorageWatcher-" + thread.threadId());
+            thread.setDaemon(true);
+            return thread;
+        });
     }
 
     private void watch() {
-        CachedStorage<String, JsonElement, File> cache = Api.getCache();
-        JsonElement jsonifyFile = null;
-        String jsonContent;
         try {
-            jsonContent = new String(Files.readAllBytes(file.toPath()));
-            if (!isValidJson(jsonContent)) {
-                SkJson.warning("Invalid JSON content in " + file.getName());
-                return;
-            }
-            jsonifyFile = JsonParser.parseString(jsonContent);
-        } catch (IOException e) {
-            SkJson.exception(e, e.getMessage(), e);
-        }
+            WatchKey key = Api.Records.WATCHER_WATCH_TYPE.equals(JsonWatchType.DEFAULT)
+                    ? watchService.poll()
+                    : watchService.poll(10, TimeUnit.MILLISECONDS);
 
-        String[] splitParentID = parentID.split(";");
-        ConcurrentHashMap<JsonElement, File> fromCache;
-        JsonElement potentialJsonContent;
-
-        if (parentID.contains(";")) {
-            fromCache = cache.getValuesById(splitParentID[0]).join();
-            potentialJsonContent = ((JsonElement) fromCache.keySet().toArray()[0]).getAsJsonObject().get(splitParentID[1]);
-        } else {
-            fromCache = cache.getValuesById(id).join();
-            potentialJsonContent = ((JsonElement) fromCache.keySet().toArray()[0]).getAsJsonObject();
-        }
-
-        if (!Objects.equals(potentialJsonContent, jsonifyFile)) {
-            assert jsonifyFile != null;
-            var map = new ConcurrentHashMap<>(Map.of(jsonifyFile, file));
-            this.event.setJson(jsonifyFile);
-            cache.replace(id, map);
-            //SkJson.debug("File %s was modified", file.getName());
-        }
-
-        WatchKey key;
-        try {
-            key = watchService.poll(10, TimeUnit.MILLISECONDS);
             if (key != null) {
-                for (WatchEvent<?> event : key.pollEvents()) {
-                    if (event.context().equals(file.toPath().getFileName())) {
-                        SkJson.debug("WatchService detected change in %s", file.getName());
-                    }
-                    break;
+                JsonElement jsonifyFile;
+                try {
+                    jsonifyFile = fileSupplier.get();
+                } catch (Exception e) {
+                    SkJson.exception(e, "Failed to read file content: %s".formatted(file.getName()));
+                    key.reset();
+                    return;
                 }
-                SkJson.debug("before call");
-                this.event.callEvent();
+
+                if (jsonifyFile == null) {
+                    SkJson.warning("File content is null: %s".formatted(file.getName()));
+                    key.reset();
+                    return;
+                }
+
+                var potentialJsonContent = resolveParentJson();
+
+                if (!Objects.equals(jsonifyFile, lastContent.get())) {
+                    handleChange(jsonifyFile, potentialJsonContent, key);
+                    lastContent.set(jsonifyFile);
+                }
+
                 key.reset();
             }
         } catch (InterruptedException e) {
-            SkJson.exception(e, String.format("An error occurred while watching file: %s, exception: %s", file, e.getCause().getLocalizedMessage()), e);
+            SkJson.exception(e, "Error while watching file: %s".formatted(file), e);
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            SkJson.exception(e, "Unexpected error while watching file: %s".formatted(file), e);
         }
     }
 
-    private boolean isActive() {
+    private JsonElement resolveParentJson() {
+        try {
+            if (parentID.contains(";")) {
+                String[] split = parentID.split(";");
+                var fromCache = cache.getValuesById(split[0])
+                        .get(5, TimeUnit.SECONDS); // timeout 5 sekund
+                return fromCache.keySet().stream().findFirst()
+                        .map(JsonElement::getAsJsonObject)
+                        .map(json -> json.get(split[1]))
+                        .orElse(new JsonObject());
+            } else {
+                var fromCache = cache.getValuesById(id)
+                        .get(5, TimeUnit.SECONDS); // timeout 5 sekund
+                return fromCache.keySet().stream().findFirst().orElse(new JsonObject());
+            }
+        } catch (TimeoutException e) {
+            SkJson.warning("Timeout while resolving parent JSON for file: %s".formatted(file.getName()));
+            return new JsonObject();
+        } catch (Exception e) {
+            SkJson.exception(e, "Error while resolving parent JSON for file: %s".formatted(file.getName()));
+            return new JsonObject();
+        }
+    }
+
+    private void handleChange(JsonElement jsonifyFile, JsonElement potentialJsonContent, WatchKey key) {
+        for (WatchEvent<?> event : key.pollEvents()) {
+            if (!Objects.equals(event.context(), file.toPath().getFileName()) || jsonifyFile == null) continue;
+
+            if (potentialJsonContent.equals(jsonifyFile)) {
+                continue;
+            }
+
+            var map = new ConcurrentHashMap<>(Map.of(jsonifyFile, file));
+            this.event.setJson(jsonifyFile);
+            cache.replace(id, map);
+            SkJson.debug("File %s was modified", file.getName());
+            this.event.callEvent();
+            break;
+        }
+    }
+
+    public boolean isActive() {
         return future != null && !future.isCancelled();
     }
 
-    private void invokeEvent(JsonFileChanged event) {
-        assert event != null;
-        this.event = event;
+    public void cancel() {
+        if (future != null) future.cancel(true);
     }
 
     public boolean isCancelled() {
         return future != null && future.isCancelled();
     }
 
-    public void cancel() {
-        future.cancel(true);
-    }
-
     public boolean isDone() {
         return future != null && future.isDone();
     }
 
-    private boolean isValidJson(String json) {
-        try {
-            JsonParser.parseString(json);
-            return true;
-        } catch (JsonSyntaxException e) {
-            return false;
-        }
+    private void invokeEvent(JsonFileChanged event) {
+        this.event = event;
     }
-
-
-    // STATIC SECTION
 
     @ExternalAPI
     public static class Extern {
-        public static void register(String id, File file, String... parentCaches) {
-            String parent = parentCaches != null && parentCaches.length > 0 && parentCaches[0] != null ? parentCaches[0] : null;
-            Boolean[] found = new Boolean[]{false};
+        public static void register(String id, File file, String... parentCaches) throws IOException {
+            String parent = (parentCaches != null && parentCaches.length > 0) ? parentCaches[0] : null;
 
             var watchers = Api.getWatchers();
-
-            watchers.forEachKey(1, f -> {
-                if (f.equals(file)) {
-                    SkJson.warning(String.format("Watcher for file %s is already registered", file));
-                    found[0] = true;
-                }
-            });
-
-            SkJson.debug("Was found: %s", found[0]);
+            if (watchers.containsKey(file)) {
+                SkJson.warning("Watcher for file %s is already registered".formatted(file));
+                return;
+            }
 
             synchronized (watchers) {
-                if (! found[0]) {
-                    SkJson.debug("Registering watcher for file " + file.getName());
+                if (!watchers.containsKey(file)) {
+                    SkJson.debug("Registering watcher for file %s".formatted(file.getName()));
+                    String parentFile = (parent != null) ? parent : file.toString();
 
-                    String parentFile = parent != null ? parent : file.toString();
-                    CacheStorageWatcher watcher = new CacheStorageWatcher(file, id, parentFile, DEFAULT_INTERVAL);
+                    var watcher = new CacheStorageWatcher(file, id, parentFile, DEFAULT_INTERVAL);
                     watcher.invokeEvent(new JsonFileChanged(watcher.file, watcher.id, watcher.uuid, new JsonObject()));
-
                     watchers.put(file, watcher);
 
-                    SkJson.debug("Watcher: %s ", watcher);
-
-                    if (watcher.isActive())
-                        SkJson.info(String.format("Registered with uuid: %s &f for file &7(&e%s&7)", watcher.uuid, watcher.file));
+                    if (watcher.isActive()) {
+                        SkJson.info("Registered with uuid: %s for file (%s)".formatted(watcher.uuid, watcher.file));
+                    }
                 }
             }
         }
 
-        public static void unregister(final File file) {
+        public static void unregister(File file) {
             Api.getWatchers().computeIfPresent(file, (f, w) -> {
                 if (w.isActive()) {
                     w.cancel();
-                    if (w.isCancelled() && w.isDone())
-                        SkJson.info(String.format("File &7(&e%s&7) was &asuccessfully &7unlinked frm watcher{%s}", f, w.getUuid()));
+                    if (w.isCancelled() && w.isDone()) {
+                        SkJson.info("File (%s) was successfully unlinked from watcher{%s}".formatted(f, w.getUuid()));
+                    }
                 }
                 return null;
             });
@@ -207,15 +222,16 @@ public class CacheStorageWatcher {
         public static void unregisterAll() {
             try {
                 SkJson.info("Unregistering all watchers...");
-                Api.getWatchers().forEach((f, c) -> unregister(f));
-                SkJson.info("Unregistering all watchers &asuccessfully!");
+                Api.getWatchers().keySet().forEach(Extern::unregister);
+                SkJson.info("All watchers successfully unregistered!");
             } catch (Exception e) {
-                SkJson.warning("Unregistering all watchers &cfailed!");
+                SkJson.warning("Unregistering all watchers failed!");
             }
         }
 
-        public static boolean hasRegistered(final File file) {
-            return Api.getWatchers().values().stream().anyMatch(w -> w.getFile().equals(file) && w.isActive());
+        public static boolean hasRegistered(File file) {
+            return Api.getWatchers().values().stream()
+                    .anyMatch(w -> w.getFile().equals(file) && w.isActive());
         }
     }
 }

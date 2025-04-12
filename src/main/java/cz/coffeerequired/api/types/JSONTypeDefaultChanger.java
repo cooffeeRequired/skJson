@@ -1,10 +1,12 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.types;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.support.SkriptUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

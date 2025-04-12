@@ -11,6 +11,7 @@ import java.util.LinkedList;
 @Data
 @Setter
 @Getter
+@SuppressWarnings("all")
 public class Request {
     private final String uri;
     private final RequestMethod method;
@@ -18,7 +19,7 @@ public class Request {
     private Pairs[] header;
     private LinkedList<Attachment> attachments = new LinkedList<>();
     private RequestStatus status = RequestStatus.UNKNOWN;
-    private HashMap<String, String[]> queryParams = new HashMap<>();
+    private HashMap<String, String> queryParams = new HashMap<>();
     private Response response = Response.empty();
 
     public Request(String uri, RequestMethod method, JsonElement content, Pairs[] headers) {
@@ -50,7 +51,7 @@ public class Request {
         return this;
     }
 
-    public void addQueryParam(HashMap<String, String[]> queryParams) {
+    public void addQueryParam(HashMap<String, String> queryParams) {
         this.queryParams.putAll(queryParams);
     }
 

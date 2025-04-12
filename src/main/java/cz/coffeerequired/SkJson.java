@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -67,7 +68,7 @@ public final class SkJson extends JavaPlugin {
         info("bStats metrics enabled.");
 
         try {
-            Class.forName("cz.coffeerequired.api.json.CacheStorageWatcher");
+            Class.forName("cz.coffeerequired.api.cache.CacheStorageWatcher");
             info("Json watchers found & enabled.");
         } catch (ClassNotFoundException e) {
             info("Unable to find Json watchers.");
@@ -80,7 +81,11 @@ public final class SkJson extends JavaPlugin {
         info("Enabling SkJson.");
 
         if (Api.canInstantiateSafety()) {
-            register.registerNewHook(Skript.class);
+            try {
+                register.registerNewHook(Skript.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             Commands.setMainCommand("skjson");
             Commands.add("about|?", aboutAddon(), Commands.emptyCompleter());
@@ -94,10 +99,12 @@ public final class SkJson extends JavaPlugin {
                                     Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
                                     Map.entry("PROJECT_ENABLED_NBT", Api.Records.PROJECT_ENABLED_NBT),
                                     Map.entry("WATCHER_INTERVAL", Api.Records.WATCHER_INTERVAL),
-                                    Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE)
+                                    Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE),
+                                    Map.entry("WATCHER_WATCH_TYPE", Api.Records.WATCHER_WATCH_TYPE)
                             ));
                             configuration.getHandler().reloadConfig();
                             Boolean[] changed = new Boolean[]{false};
+
                             before.forEach((key, value) -> {
                                 try {
                                     var field = Api.Records.class.getDeclaredField(key);
@@ -176,6 +183,6 @@ public final class SkJson extends JavaPlugin {
     }
 
     public static void debug(Object message, Object... args) {
-        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG ->&r" + message, args);
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG -> &r" + message, args);
     }
 }

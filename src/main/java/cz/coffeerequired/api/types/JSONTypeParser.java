@@ -1,4 +1,4 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.types;
 
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;

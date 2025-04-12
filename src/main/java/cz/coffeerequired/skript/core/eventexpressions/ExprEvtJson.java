@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.core.expressions;
+package cz.coffeerequired.skript.core.eventexpressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
@@ -11,7 +11,7 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 
 @Name("Watcher event value-expression json content")
-@Description("value-expression for getting json content from current watcher event")
+@Description({"value-expression for getting json content from current watcher event", "Returns json element (content) of the watched|changed file"})
 @Since("5.0")
 public class ExprEvtJson extends EventValueExpression<JsonElement> {
 

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class CondJsonIsEmpty extends Condition {
 
     private Expression<JsonElement> jsonElementExpression;
-    private boolean negated;
+    private int line;
 
     @Override
     public boolean check(Event event) {
@@ -32,20 +32,20 @@ public class CondJsonIsEmpty extends Condition {
         if (JSON instanceof JsonNull) result = true;
         if (JSON instanceof JsonObject) result = JSON.getAsJsonObject().isEmpty();
         if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
-        return (negated) == result;
+        return (line == 0) == result;
     }
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "json" + jsonElementExpression.toString(event, debug) + " " + (negated ? "is" : "does not") + " empty";
+        return "json" + jsonElementExpression.toString(event, debug) + " " + (line == 1 ? "is" : "does not") + " empty";
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         jsonElementExpression = (Expression<JsonElement>) expressions[0];
-        negated = matchedPattern == 1;
-        setNegated(negated);
+        line = matchedPattern;
+        setNegated(line == 1);
         return true;
     }
 }

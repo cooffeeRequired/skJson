@@ -8,3 +8,5 @@ server
 settings.json/build/
 /.gradle/*
 /build/*
+.DS_Store
+tools

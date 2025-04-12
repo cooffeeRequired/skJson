@@ -10,8 +10,9 @@ request method:
 	patch: PATCH
 
 types:
-	jsonelement: JsonElement
-	jsonpath: JsonPath
-	jsonwebhook: Webhook
-	requestmethod: Metody
-	request: Requestsk
+    jsonelement: JsonElement
+    jsonpath: JsonPath
+    requestmethod: Methods
+    request: Requests
+    file: File
+    json: JsonElement

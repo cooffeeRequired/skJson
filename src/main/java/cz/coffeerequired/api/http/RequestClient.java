@@ -2,6 +2,7 @@ package cz.coffeerequired.api.http;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.requests.Attachment;
 import cz.coffeerequired.api.requests.Pairs;
 import cz.coffeerequired.api.requests.RequestMethod;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -28,14 +30,25 @@ public class RequestClient implements AutoCloseable {
 
     public RequestClient() {
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(15))
+                .connectTimeout(Duration.ofSeconds(5))
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
         this.gson = new Gson();
+        
+        SkJson.debug("HTTP Client initialized with HTTP/1.1");
     }
 
     public RequestClient setUri(String uri) {
         this.requestBuilder = HttpRequest.newBuilder(URI.create(uri));
+
+        SkJson.debug("URI set to %s", uri);
+
         return this;
+    }
+
+    public Object getUri() {
+        return this.requestBuilder;
     }
 
     public RequestClient method(String method) {
@@ -116,7 +129,20 @@ public class RequestClient implements AutoCloseable {
             throw new IllegalStateException("Request builder is not initialized.");
         }
         HttpRequest request = this.requestBuilder.build();
-        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+        try {
+            CompletableFuture<HttpResponse<String>> future = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            
+            future.exceptionally(throwable -> {
+                SkJson.exception(throwable, "Failed to process response from %s", request.uri());
+                return null;
+            });
+            
+            return future;
+        } catch (Exception e) {
+            SkJson.exception(e, "Failed to send request to %s", request.uri());
+            throw e;
+        }
     }
 
 

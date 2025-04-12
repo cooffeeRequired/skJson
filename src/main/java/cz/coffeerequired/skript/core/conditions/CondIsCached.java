@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is JSON file cached")
 @Examples("""
-            json storage of id "my-json-storage" is cached:
-                send true
+        json storage with id "my-json-storage" is cached:
+            send true
         """)
 @Since("4.1 - API UPDATE")
 public class CondIsCached extends Condition {
@@ -31,7 +31,8 @@ public class CondIsCached extends Condition {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "json storage of id " + expressionId.toString(event, debug) + " " + (line == 0 ? "is" : "isn't") + " cached";
+        return "[skjson] the json storage with id " + expressionId.toString(event, debug) + " " + 
+               (line == 0 ? "is" : "isn't") + " cached";
     }
 
     @SuppressWarnings("unchecked")

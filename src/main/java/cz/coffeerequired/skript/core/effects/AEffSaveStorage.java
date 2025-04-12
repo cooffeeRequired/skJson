@@ -47,6 +47,7 @@ public class AEffSaveStorage extends AsyncEffect {
         map.forEach((j, f) -> {
             try {
                 if ("Undefined".equals(f.getName())) {
+                    SkJson.severe("Can't save storage id &r'" + id + "'&c because it is virtual storage");
                     return;
                 }
 

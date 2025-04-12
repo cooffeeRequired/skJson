@@ -80,7 +80,6 @@ public class propExprAttachment extends PropertyExpression<Request, Object> {
         };
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
         var request = getExpr().getSingle(event);

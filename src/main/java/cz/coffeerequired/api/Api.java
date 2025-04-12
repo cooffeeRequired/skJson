@@ -2,8 +2,9 @@ package cz.coffeerequired.api;
 
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.CacheStorageWatcher;
-import cz.coffeerequired.api.json.CachedStorage;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
+import cz.coffeerequired.api.cache.CachedStorage;
+import cz.coffeerequired.api.cache.JsonWatchType;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import lombok.Getter;
@@ -80,7 +81,8 @@ public abstract class Api {
                 Map.entry("PROJECT_ENABLED_NBT", "plugin.enabled-nbt"),
 
                 Map.entry("WATCHER_INTERVAL", "json.watcher.interval"),
-                Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate")
+                Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate"),
+                Map.entry("WATCHER_WATCH_TYPE", "json.watcher.watch-type")
         ));
 
         public static @NotNull String PROJECT_PERMISSION = "skjson.use";
@@ -90,5 +92,6 @@ public abstract class Api {
         public static String PROJECT_DELIM = "."; // will be loaded
         public static int WATCHER_INTERVAL;
         public static int WATCHER_REFRESH_RATE;
+        public static JsonWatchType WATCHER_WATCH_TYPE;
     }
 }

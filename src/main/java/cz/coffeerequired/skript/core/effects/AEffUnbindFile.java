@@ -8,7 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.CacheStorageWatcher;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

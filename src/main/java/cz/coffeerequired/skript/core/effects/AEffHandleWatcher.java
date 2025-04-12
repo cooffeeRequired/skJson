@@ -9,11 +9,12 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.CacheStorageWatcher;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @Name("Cached storage watcher - un/bind from file")
@@ -40,7 +41,11 @@ public class AEffHandleWatcher extends AsyncEffect {
                 cache.get(id).forEach((j, f) -> file[0] = f);
                 if (isBindingMode) {
                     if (!CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                        CacheStorageWatcher.Extern.register(id, file[0]);
+                        try {
+                            CacheStorageWatcher.Extern.register(id, file[0]);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 } else {
                     if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {

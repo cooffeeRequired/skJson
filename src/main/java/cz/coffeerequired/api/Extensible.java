@@ -3,6 +3,7 @@ package cz.coffeerequired.api;
 import cz.coffeerequired.api.exceptions.ExtensibleThrowable;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,8 @@ public abstract class Extensible {
             "Sections", new ArrayList<>(),
             "Structures", new ArrayList<>(),
             "Functions", new ArrayList<>(),
-            "Conditions", new ArrayList<>()
+            "Conditions", new ArrayList<>(),
+            "Event Expressions", new ArrayList<>()
     ));
 
     protected String sign;
@@ -30,10 +32,11 @@ public abstract class Extensible {
         this.skriptElementPath = "";
     }
 
-    public void load() throws ExtensibleThrowable {
+    public void load() throws ExtensibleThrowable, IOException {
         if (this.sign.isEmpty() || this.skriptElementPath.isEmpty()) {
             throw new ExtensibleThrowable("Cannot invoke Skript registration for empty sign or elements packages");
         }
+        Register.getAddon().loadClasses(this.skriptElementPath);
     }
 
     public abstract void registerElements(Register.SkriptRegister register);
@@ -54,6 +57,12 @@ public abstract class Extensible {
                 break;
             case "events":
                 loadedElements.get("Events").add(element);
+                break;
+            case "functions":
+                loadedElements.get("Functions").add(element);
+                break;
+            case "event expressions":
+                loadedElements.get("Event Expressions").add(element);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported type: " + type);

@@ -8,7 +8,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.CacheStorageWatcher;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +17,8 @@ import java.io.File;
 
 @Name("JSON file is listened by storage watcher")
 @Examples("""
+        json storage with id "my-json-storage" is listened:
+            send true
         """)
 @Since("4.1 - API UPDATE")
 
@@ -41,7 +43,9 @@ public class CondIsListened extends Condition {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return String.format("json storage of id %s %s listened", JSONIdExpression.toString(event, debug), (line == 0 ? "is" : "isn't"));
+        return String.format("[skjson] the json storage with id %s %s listened", 
+                JSONIdExpression.toString(event, debug), 
+                (line == 0 ? "is" : "isn't"));
     }
 
     @SuppressWarnings("unchecked")
@@ -50,6 +54,6 @@ public class CondIsListened extends Condition {
         JSONIdExpression = (Expression<String>) expressions[0];
         line = matchedPattern;
         setNegated(matchedPattern == 1);
-        return JSONIdExpression == null;
+        return JSONIdExpression != null;
     }
 }

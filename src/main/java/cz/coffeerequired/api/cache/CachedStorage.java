@@ -1,4 +1,4 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.cache;
 
 import cz.coffeerequired.api.annotators.ExternalAPI;
 

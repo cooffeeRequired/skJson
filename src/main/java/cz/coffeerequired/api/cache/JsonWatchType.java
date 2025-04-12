@@ -1,4 +1,8 @@
 package cz.coffeerequired.api.cache;
 
-public class JsonWatchType {
+
+public enum JsonWatchType {
+    BOTH,
+    WSL,
+    DEFAULT
 }

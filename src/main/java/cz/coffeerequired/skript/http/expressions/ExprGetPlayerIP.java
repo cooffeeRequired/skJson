@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.http.expressions;
 
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 
+@NoDoc
 public class ExprGetPlayerIP extends SimpleExpression<String> {
 
     Expression<Player> playerExpression;

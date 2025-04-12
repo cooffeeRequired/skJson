@@ -13,10 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-
 @SuppressWarnings("all")
 public class MimeMultipartData {
-
     private String boundary;
     @Getter
     private HttpRequest.BodyPublisher bodyPublisher;
@@ -60,7 +58,6 @@ public class MimeMultipartData {
     }
 
     public static class Builder {
-
         private final List<MimedFile> files = new ArrayList<>();
         private final Map<String, String> texts = new LinkedHashMap<>();
         private String boundary;
@@ -102,7 +99,7 @@ public class MimeMultipartData {
         }
 
         public Builder addContent(JsonElement jsonBody) {
-            this.jsonContent = jsonBody.toString();
+            if (jsonBody != null) this.jsonContent = jsonBody.toString();
             return this;
         }
 

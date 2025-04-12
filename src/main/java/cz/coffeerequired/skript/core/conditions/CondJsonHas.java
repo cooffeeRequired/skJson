@@ -17,6 +17,8 @@ import cz.coffeerequired.api.json.GsonParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Map;
 
 @Name("Json has value/keys")
@@ -67,8 +69,7 @@ public class CondJsonHas extends Condition {
             }
             if (!found) break;
         }
-
-        SkJson.warning("&7values: &a" + isValues + " &7found: &b" + found + "&7 negatted: &c" + negated);
+        SkJson.debug("Found keys %s in %s", Arrays.toString(objects), json);
         return found == !negated;
     }
 

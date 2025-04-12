@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.core.expressions;
+package cz.coffeerequired.skript.core.eventexpressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
@@ -7,13 +7,12 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 
 import java.util.UUID;
 
 @Name("Watcher event value-expression UUID")
-@Description("value-expression for getting uuid from current watcher event")
+@Description({"value-expression for getting uuid from current watcher event", "Returns the uuid of the watcher"})
 @Since("2.9")
 public class ExprEvtUUID extends EventValueExpression<UUID> {
 

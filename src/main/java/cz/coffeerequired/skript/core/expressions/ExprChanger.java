@@ -1,6 +1,7 @@
 package cz.coffeerequired.skript.core.expressions;
 
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -11,13 +12,14 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
-import cz.coffeerequired.api.json.JsonPath;
+import cz.coffeerequired.api.types.JsonPath;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 
+@NoDoc
 public class ExprChanger extends SimpleExpression<Object> {
 
     private Expression<JsonPath> exprJsonPath;

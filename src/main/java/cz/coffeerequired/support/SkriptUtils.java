@@ -20,7 +20,6 @@ public abstract class SkriptUtils {
         return (TreeMap<String, Object>) Variables.getVariable(name, event, isLocal);
     }
 
-
     public static JsonElement convertSkriptVariableToJson(Map<?, ?> inputMap) {
         Map<String, Object> cleanMap = cleanupMap(inputMap);
         return new Gson().toJsonTree(cleanMap);
@@ -150,7 +149,6 @@ public abstract class SkriptUtils {
     private static boolean cannotBeParsed(Object element) {
         return element instanceof JsonElement;
     }
-
 
     private static void saveParsedToVariable(String variableName, Object o, Event event, boolean isLocal) {
         if (variableName != null && o != null && event != null) {

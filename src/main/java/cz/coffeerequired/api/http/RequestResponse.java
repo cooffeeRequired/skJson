@@ -43,7 +43,12 @@ public interface RequestResponse {
             @Override
             public boolean isSuccessful() {
                 int statusCode = response.statusCode();
-                return statusCode >= 200 && statusCode < 300;
+                return statusCode >= 200 && statusCode < 500;
+            }
+
+            @Override
+            public String toString() {
+                return "RequestResponse{statusCode=" + response.statusCode() + ", body=" + response.body() + "}";
             }
         };
     }

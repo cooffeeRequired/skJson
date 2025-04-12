@@ -11,13 +11,14 @@ import ch.njol.util.Kleenean;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
-import cz.coffeerequired.api.json.CacheStorageWatcher;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletionException;
 
 
 @Name("Bind JSON file as simply string id")
@@ -38,7 +39,10 @@ public class AEffBindFile extends AsyncEffect {
     protected void execute(Event event) {
         String id = expressionJsonId.getSingle(event);
         String path = expressionFilePath.getSingle(event);
-        if (id == null || path == null) return;
+        if (id == null || path == null) {
+            SkJson.warning("Cannot bind JSON file: ID or path is null");
+            return;
+        }
 
         var cache = Api.getCache();
         if (path.startsWith("~")) {
@@ -48,24 +52,47 @@ public class AEffBindFile extends AsyncEffect {
         File file = new File(path);
 
         if (!file.exists()) {
-            var error = new IOException("File " + path + " does not exist");
-            SkJson.exception(error, "Cannot bind json-file");
+            SkJson.exception(new IOException("File " + path + " does not exist"), 
+                    "Cannot bind JSON file: File does not exist at path: " + path);
             return;
         }
 
-        if (cache.containsKey(id)) return;
+        if (cache.containsKey(id)) {
+            SkJson.info("Cache already contains key: &e'" + id + "'&r, skipping binding");
+            return;
+        }
+        
         FileHandler.get(file).whenComplete((json, error) -> {
             if (error != null) {
-                SkJson.exception(error, "Cannot bind json-file");
+                String errorMessage = "Cannot bind JSON file: " + file.getPath();
+                if (error instanceof CompletionException) {
+                    Throwable cause = error.getCause();
+                    if (cause != null) {
+                        errorMessage += " - " + cause.getMessage();
+                    }
+                } else {
+                    errorMessage += " - " + error.getMessage();
+                }
+                SkJson.exception(error, errorMessage);
                 return;
             }
+            
             try {
                 cache.addValue(id, json, file);
                 if (withBinding && !CacheStorageWatcher.Extern.hasRegistered(file)) {
-                    CacheStorageWatcher.Extern.register(id, file);
+                    try {
+                        CacheStorageWatcher.Extern.register(id, file);
+                        SkJson.debug("Successfully bound JSON file: " + file.getPath() + " with ID: " + id + " and registered watcher");
+                    } catch (Exception ex) {
+                        SkJson.exception(ex, "Failed to register file watcher for: " + file.getPath() + " with ID: " + id);
+                    }
+                } else {
+                    SkJson.debug("Successfully bound JSON file: " + file.getPath() + " with ID: " + id);
                 }
+            } catch (IllegalArgumentException ex) {
+                SkJson.exception(ex, "Invalid JSON format in file: " + file.getPath());
             } catch (Exception ex) {
-                SkJson.exception(ex, "Cannot bind json-file");
+                SkJson.exception(ex, "Unexpected error while binding JSON file: " + file.getPath() + " - " + ex.getMessage());
             }
         });
     }

@@ -1,4 +1,4 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.adapters;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

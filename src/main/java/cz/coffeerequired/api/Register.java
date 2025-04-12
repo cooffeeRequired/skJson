@@ -4,6 +4,7 @@ package cz.coffeerequired.api;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
@@ -62,11 +64,12 @@ public class Register {
         }
     }
 
-    public void tryRegisterSkript() {
+    public void tryRegisterSkript() throws IOException {
 
         if (isSkriptAvailable()) {
             addon = Skript.registerAddon(SkJson.getInstance());
             addon.setLanguageFileDirectory("lang");
+
             SkJson.info("Hooking into Skript plugin... Hooks initialized.");
             SkJson.info("Trying register Skript addon...");
             SkJson.info("Trying register Skript elements...");
@@ -83,13 +86,16 @@ public class Register {
     }
 
     private void printAllRegistered(Extensible m) {
+
+        SkJson.debug("Extensible modules %s", m.getLoadedElements());
+
         m.getLoadedElements().forEach((key, value) -> {
             if (value.isEmpty()) return;
             logElement(key, value.size());
         });
     }
 
-    public <T> void registerNewHook(Class<T> tClass) {
+    public <T> void registerNewHook(Class<T> tClass) throws IOException {
         if (isClassAvailable(tClass) && tClass.getName().equals("ch.njol.skript.Skript")) {
             SkJson.info("Attempting to hook into Skript plugin...");
             tryRegisterSkript();
@@ -139,6 +145,7 @@ public class Register {
             case "Functions" -> "&7Functions";
             case "Structures" -> "&9Structures";
             case "Types" -> "&6Types";
+            case "Event Expressions" -> "&3Event Expressions";
             default -> input;
         };
     }
@@ -177,6 +184,11 @@ public class Register {
             extensible.addNewElement("Expressions", c);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             Skript.registerExpression(c, returnType, type, patterns);
+        }
+
+        public <E extends EventValueExpression<T>, T> void registerEventValueExpression(Class<E> c, Class<T> returnType, String pattern) {
+            extensible.addNewElement("Event Expressions", c);
+            Skript.registerExpression(c, returnType, ExpressionType.EVENT, "[the] " + pattern);
         }
 
         public <T> void registerPropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {

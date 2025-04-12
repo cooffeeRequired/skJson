@@ -1,9 +1,10 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.types;
 
 import ch.njol.skript.classes.Serializer;
 import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import cz.coffeerequired.api.json.GsonParser;
 
 import javax.validation.constraints.NotNull;
 import java.io.NotSerializableException;

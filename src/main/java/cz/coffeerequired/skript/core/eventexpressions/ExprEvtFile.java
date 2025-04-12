@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.core.expressions;
+package cz.coffeerequired.skript.core.eventexpressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
@@ -12,7 +12,7 @@ import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import java.io.File;
 
 @Name("Watcher event value-expression File")
-@Description("value-expression for getting file/link from current watcher event")
+@Description({"value-expression for getting file/link from current watcher event", "Returns path of changed|watched file"})
 @Since("2.9")
 public class ExprEvtFile extends EventValueExpression<File> {
 

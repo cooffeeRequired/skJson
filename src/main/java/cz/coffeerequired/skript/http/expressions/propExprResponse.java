@@ -20,11 +20,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
-@Name("Response content, headers, status code, status")
+@Name("Response content, headers, status code, status, body")
 @Examples("""
                 send response status of {_request}
                 send response status code of {_request}
                 send response content of {_request}
+                send response body of {_request}
                 send response headers of {_request}
         """)
 @Description({"get all response properties", "The status codes could be \"OK\", \"UNKNOWN\", \"FAILED\""})
@@ -39,19 +40,15 @@ public class propExprResponse extends PropertyExpression<Request, Object> {
                 .filter(Objects::nonNull)
                 .map(Request::getResponse);
         return switch (tag) {
-            case "content" -> rsp.map((it) -> {
+            case "content", "body" -> rsp.map((it) -> {
                 var content = it.content();
                 if (content == null) return null;
-                if (content instanceof JsonElement element) {
-                    return GsonParser.toJson(element);
-                } else {
-                    return content;
-                }
+                if (content instanceof JsonElement element) return GsonParser.toJson(element);
+                else return content;
             }).toArray();
             case "headers", "header" -> rsp.map(Response::headers).toArray();
             case "status code" -> rsp.map(Response::statusCode).toArray();
-            case "status" ->
-                    Arrays.stream(source).filter(Objects::nonNull).map(r -> r.getStatus().toString()).toArray();
+            case "status" -> Arrays.stream(source).filter(Objects::nonNull).map(r -> r.getStatus().toString()).toArray();
             default -> throw new IllegalStateException("Unexpected value: " + tag);
         };
     }

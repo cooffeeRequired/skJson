@@ -1,6 +1,7 @@
 package cz.coffeerequired.support;
 
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.cache.JsonWatchType;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static cz.coffeerequired.api.Api.Records.*;
 
@@ -109,7 +111,7 @@ public class PluginConfigHandler {
         if (isEnumClass) {
             String value = (String) config.get(key);
             if (value == null) return null;
-            return (T) Enum.valueOf((Class<Enum>) type, value);
+            return (T) Enum.valueOf((Class<Enum>) type, value.toUpperCase(Locale.ROOT));
         } else {
             return config.getObject(key, type);
         }
@@ -141,6 +143,21 @@ public class PluginConfigHandler {
         WATCHER_INTERVAL = get("json.watcher.interval", Integer.class);
         WATCHER_REFRESH_RATE = get("json.watcher.refresh-rate", Integer.class);
 
+        WATCHER_WATCH_TYPE = get("json.watcher.watch-type", JsonWatchType.class);
+
+        // Informative messages about watch type
+        switch (WATCHER_WATCH_TYPE) {
+            case WSL:
+                SkJson.info("Watch type set to WSL - optimized for Windows Subsystem for Linux");
+                break;
+            case BOTH:
+                SkJson.warning("Watch type set to BOTH - using both watch methods");
+                SkJson.warning("This mode may impact system performance");
+                break;
+            case DEFAULT:
+                SkJson.info("Watch type set to DEFAULT - standard file watching");
+                break;
+        }
 
         if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
             SkJson.info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");

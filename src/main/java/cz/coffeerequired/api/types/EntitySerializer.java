@@ -1,7 +1,8 @@
-package cz.coffeerequired.api.json;
+package cz.coffeerequired.api.types;
 
 import com.google.gson.*;
 import cz.coffeerequired.api.Api;
+import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.nbts.NBTConverter;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTContainer;

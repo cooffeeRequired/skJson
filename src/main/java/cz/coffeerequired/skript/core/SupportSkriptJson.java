@@ -10,20 +10,24 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
+import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +37,6 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
 
 public abstract class SupportSkriptJson {
-
 
     @Name("Json loop")
     @Description("""

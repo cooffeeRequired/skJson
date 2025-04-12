@@ -8,7 +8,7 @@
 # - and serialization/deserialization of almost everything in Minecraft.
 # - Get started by placing Skjson.jar in your plugins folder and configuring config.yml.
 # - See the wiki (https://github.com/cooffeeRequired/skJson/wiki) for documentation and examples.
-# web: www.coffeerquired.info/projects/skjson
+# web: www.coffeerequired.info/projects/skjson
 
 plugin:
   # Plugin configuration version
@@ -31,3 +31,9 @@ json:
     interval: 100
     # Frequency of data refresh from the JSON file in milliseconds (how often data is loaded after a change is detected)
     refresh-rate: 50
+
+    # Defines the file watching mode:
+    # - wsl: Optimized for watching files in WSL environments.
+    # - default: Safe file watching without WSL-specific handling.
+    # - both: Supports both WSL and non-WSL environments, but may affect performance.
+    watch-type: default

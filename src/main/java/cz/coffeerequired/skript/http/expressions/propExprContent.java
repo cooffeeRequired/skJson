@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
@@ -27,17 +28,17 @@ import java.util.Objects;
 @Examples("""
                  # getting the Request content;
                  send {_request}'s content
-                 send content of {_request}
+                 send body of {_request}
                 \s
                  # setting the Request content;
-                 set {_request}'s content to (json from "{'Allow': false}")
-                 set content of {_request} to (json from "{'Allow': false}")
+                 set {_request}'s body to (json from "{'Allow': false}")
+                 set body of {_request} to (json from "{'Allow': false}")
                 \s
-                 # reset the content of the Request
-                 reset {_request}'s content
-                 reset content of {_request}
+                 # reset the body of the Request
+                 reset {_request}'s body
+                 reset body of {_request}
         \s""")
-@Description("set/reset or get the current request content")
+@Description("set/reset or get the current request body")
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
 public class propExprContent extends PropertyExpression<Request, JsonElement> {

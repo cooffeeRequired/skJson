@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.Date;
+import java.util.IllegalFormatException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,9 +48,20 @@ public abstract class SkJsonLogger {
         } else if (level == Level.WARNING) {
             prefix = "&bSkJson&e";
         }
-        var text = AnsiColorConverter.convertToAnsi(String.format("["+prefix+"] " + message.toString(), args));
+
+        String msgText = message.toString();
+
+        try {
+            msgText = String.format(msgText, args);
+        } catch (IllegalFormatException e) {
+            msgText = msgText + " [FORMAT ERROR: " + e.getMessage() + "]";
+        }
+
+        var text = AnsiColorConverter.convertToAnsi("[" + prefix + "] " + msgText);
         LOGGER.log(level, text);
     }
+
+
 
 
     public static void ex(Throwable throwable, Object message, Object... args) {
