@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.UUID;
 
 @Getter
-public class JSONFileWatcherSave extends Event {
+public class JsonFileChanged extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
@@ -21,7 +21,7 @@ public class JSONFileWatcherSave extends Event {
     @Setter
     private JsonElement json;
 
-    public JSONFileWatcherSave(File linkedFile, String id, UUID uuid, JsonElement content) {
+    public JsonFileChanged(File linkedFile, String id, UUID uuid, JsonElement content) {
         super(true);
         this.linkedFile = linkedFile;
         this.id = id;

@@ -1,7 +1,0 @@
-# file: ~/.gitignore_global
-.DS_Store
-.idea
-server
-/server
-/tools
-tools
