@@ -12,13 +12,10 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 

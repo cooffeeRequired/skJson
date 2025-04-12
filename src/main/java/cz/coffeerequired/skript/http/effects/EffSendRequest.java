@@ -9,7 +9,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import cz.coffeerequired.api.http.RequestClient;
-import cz.coffeerequired.api.requests.*;
+import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

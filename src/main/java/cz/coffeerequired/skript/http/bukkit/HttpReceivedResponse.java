@@ -1,6 +1,5 @@
 package cz.coffeerequired.skript.http.bukkit;
 
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.requests.Response;
 import lombok.Getter;
 import lombok.Setter;

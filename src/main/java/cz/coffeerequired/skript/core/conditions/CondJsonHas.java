@@ -17,7 +17,6 @@ import cz.coffeerequired.api.json.GsonParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Map;
 

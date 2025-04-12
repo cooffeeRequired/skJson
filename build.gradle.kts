@@ -1,6 +1,5 @@
-import java.math.BigInteger
-import java.security.MessageDigest
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.security.MessageDigest
 
 plugins {
     java
@@ -35,6 +34,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.github.SkriptLang:Skript:2.11.0-pre1")
     implementation("com.google.code.gson:gson:2.13.0")
+    implementation("com.google.guava:guava:32.1.3-jre")
 
 
     implementation("org.bstats:bstats-bukkit:3.1.0")
@@ -66,7 +66,7 @@ sourceSets {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    options.compilerArgs.add("-Xlint:deprecation")
+    // options.compilerArgs.add("-Xlint:deprecation")
 }
 
 fun generateSHA1(): String {
@@ -94,6 +94,7 @@ tasks.withType<ShadowJar>().configureEach {
 
     relocate("org.bstats", "cz.coffee.shadowed.bstats")
     relocate("de.tr7zw.changeme.nbtapi", "cz.coffee.shadowed.nbtapi")
+    relocate("com.google.gson", "cz.coffee.shadowed.gson")
 
     exclude("META-INF/*.MF", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 
@@ -113,22 +114,14 @@ tasks.register("withRemote") {
     finalizedBy("shadowJar")
 }
 
-fun callAPI(cmd: String) {
-    val command = "curl -s http://localhost:8080/command?cmd=$cmd"
-    println("Executing: $command")
-    val process = ProcessBuilder("bash", "-c", command).start()
-    val output = process.inputStream.bufferedReader().readText()
-    process.waitFor()
-
-    if (process.exitValue() == 0) {
-        println("Command executed successfully:\n$output")
-    } else {
-        println("Command failed with exit code ${process.exitValue()}:\n$output")
-    }
-}
-
-tasks.register("runRemote") {
+tasks.register("withTesting") {
+    dependsOn("clean")
+    dependsOn("shadowJar")
     doLast {
-        callAPI("reload+confirm")
+        println("> Task :running tests")
+        exec {
+            workingDir = projectDir
+            commandLine("python", "test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
+        }
     }
 }

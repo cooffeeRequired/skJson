@@ -118,6 +118,10 @@ public class ExprJsonElements extends SimpleExpression<Object> {
         } else {
             final String nodeKey = node.getKey();
             if (nodeKey == null) return false;
+
+
+            SkJson.debug("loop section: %s", getParser().getCurrentSections());
+
             InLoopUsage = !getParser().getCurrentSections(SecLoop.class).isEmpty() || nodeKey.startsWith("loop");
         }
 

@@ -10,3 +10,4 @@ settings.json/build/
 /build/*
 .DS_Store
 tools
+/skript/

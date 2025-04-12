@@ -5,7 +5,6 @@ import com.google.gson.*;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

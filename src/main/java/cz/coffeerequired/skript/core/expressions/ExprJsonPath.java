@@ -7,8 +7,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.types.JsonPath;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
+import cz.coffeerequired.api.types.JsonPath;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,0 +1,28 @@
+{
+  "system": "auto",
+  "configurations": [
+    {
+      "name": "Skript 2.9.2",
+      "workspace_directory": ".",
+      "test_script_directory": "./src/test/scripts/custom",
+      "skript_repo_ref": "2.9.2",
+      "run_vanilla_tests": false,
+      "extra_plugins_directory": "./build/libs",
+      "skript_repo_git_url": "https://github.com/SkriptLang/Skript.git",
+      "skript_repo_path": "./skript",
+      "jdk_path": "C:\\Users\\Coffee\\.jdks\\amazon-corretto-17"
+    },
+    {
+      "name": "master",
+      "workspace_directory": ".",
+      "test_script_directory": "./src/test/scripts/custom",
+      "skript_repo_ref": "master",
+      "run_vanilla_tests": false,
+      "extra_plugins_directory": "./build/libs",
+      "skript_repo_git_url": "https://github.com/SkriptLang/Skript.git",
+      "skript_repo_path": "./skript-master",
+      "jdk_path": "C:\\Users\\Coffee\\.jdks\\amazon-corretto-17"
+    }
+  ],
+  "default_configuration": 1
+}

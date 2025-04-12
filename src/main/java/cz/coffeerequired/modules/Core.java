@@ -8,21 +8,17 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
-import cz.coffeerequired.api.json.*;
-import cz.coffeerequired.api.types.JSONTypeDefaultChanger;
-import cz.coffeerequired.api.types.JSONTypeParser;
-import cz.coffeerequired.api.types.JSONTypeSerializer;
+import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Json;
 import cz.coffeerequired.api.types.JsonPath;
-import cz.coffeerequired.skript.core.eventexpressions.ExprEvtFile;
-import cz.coffeerequired.skript.core.eventexpressions.ExprEvtJson;
-import cz.coffeerequired.skript.core.eventexpressions.ExprEvtUUID;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import cz.coffeerequired.skript.core.conditions.*;
 import cz.coffeerequired.skript.core.effects.*;
+import cz.coffeerequired.skript.core.eventexpressions.ExprEvtFile;
+import cz.coffeerequired.skript.core.eventexpressions.ExprEvtJson;
+import cz.coffeerequired.skript.core.eventexpressions.ExprEvtUUID;
 import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
-import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
-import cz.coffeerequired.skript.http.events.ResponseReceive;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -32,8 +28,9 @@ import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.File;
-import java.util.*;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
 import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
@@ -75,14 +72,14 @@ public class Core extends Extensible {
                         .name("jsonelement")
                         .description("Json representation of any object in skript")
                         .since("2.9, 4.1 - change")
-                        .parser(new JSONTypeParser())
-                        .serializer(new JSONTypeSerializer())
-                        .changer(new JSONTypeDefaultChanger()),
+                        .parser(Json.parser)
+                        .serializer(Json.serializer)
+                        .changer(Json.changer),
                 "type.json"
         );
 
         register.registerType(new ClassInfo<>(JsonPath.class, "jsonpath")
-                        .user("jsonpath")
+                        .user("json? path?")
                         .name("json path")
                         .description("Json path representation")
                         .since("4.1 - API UPDATE")
