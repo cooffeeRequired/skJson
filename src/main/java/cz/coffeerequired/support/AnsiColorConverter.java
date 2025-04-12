@@ -54,7 +54,7 @@ public class AnsiColorConverter {
             matcher.appendReplacement(result, replacement);
         }
         matcher.appendTail(result);
-        return result.toString() + RESET; // Ensure reset at the end
+        return result + RESET; // Ensure reset at the end
     }
 
 

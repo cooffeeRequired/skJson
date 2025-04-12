@@ -5,8 +5,8 @@ import ch.njol.yggdrasil.Fields;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import cz.coffeerequired.api.json.GsonParser;
+import org.jetbrains.annotations.NotNull;
 
-import javax.validation.constraints.NotNull;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 

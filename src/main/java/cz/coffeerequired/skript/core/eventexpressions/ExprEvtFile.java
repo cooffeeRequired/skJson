@@ -23,7 +23,7 @@ public class ExprEvtFile extends EventValueExpression<File> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
 
-        if (! getParser().isCurrentEvent(JsonFileChanged.class)) {
+        if (!getParser().isCurrentEvent(JsonFileChanged.class)) {
             return false;
         }
         return super.init(expressions, matchedPattern, isDelayed, parser);

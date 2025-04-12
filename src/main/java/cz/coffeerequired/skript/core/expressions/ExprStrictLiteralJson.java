@@ -75,6 +75,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens;
 
     private Expression<JsonElement> jsonElementExpression;
+    private Expression<?> v;
 
     @Override
     protected @Nullable Object[] get(Event event) {
@@ -110,8 +111,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     public String toString(@Nullable Event event, boolean debug) {
         return Classes.getDebugMessage(jsonElementExpression) + " " + tokens.toString();
     }
-
-    private Expression<?> v;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {

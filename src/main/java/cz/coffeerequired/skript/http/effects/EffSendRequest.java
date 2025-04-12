@@ -1,56 +1,39 @@
 package cz.coffeerequired.skript.http.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.util.AsyncEffect;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.http.MimeMultipartData;
 import cz.coffeerequired.api.http.RequestClient;
-import cz.coffeerequired.api.http.RequestResponse;
 import cz.coffeerequired.api.requests.*;
-import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.concurrent.*;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("Send created/prepared request")
-@Examples("send prepared {_request}")
-@Description("Send prepared/created request to the given method and uri")
-@Since("2.9.9-pre Api Changes")
-@ApiStatus.Experimental
-public class EffSendRequest1 extends AsyncEffect {
-
-
+@Examples("""
+                set {_request} to prepare GET request on "https://dummyjson.com/products/1"
+                set {_request}'s headers to "{'Content-Type':'application/json'}"
+                execute {_request} as non blocking
+                execute {_request}
+        """)
+@Description({
+        "Sends a previously created HTTP request to the specified URL",
+        "The request must be created using request creation commands (e.g. 'create request').",
+        "Supports both synchronous and asynchronous sending using the 'non' or 'not' tag."
+})
+@Since({"2.9.9-pre Api Changes", "5.0"})
+public class EffSendRequest extends AsyncEffect {
 
     private Expression<Request> requests;
     private boolean isAsync;
-
-
 
     @Override
     protected void execute(Event event) {

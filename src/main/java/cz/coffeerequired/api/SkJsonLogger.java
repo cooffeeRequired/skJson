@@ -62,8 +62,6 @@ public abstract class SkJsonLogger {
     }
 
 
-
-
     public static void ex(Throwable throwable, Object message, Object... args) {
         StringBuilder sb = new StringBuilder();
 
@@ -93,7 +91,7 @@ public abstract class SkJsonLogger {
         var formatted = String.format(message.toString(), args);
         TextComponent text;
         if (level == Level.SEVERE) {
-            text = converter.deserialize("&l"+PREFIX+"&r&c " + formatted);
+            text = converter.deserialize("&l" + PREFIX + "&r&c " + formatted);
         } else if (level == Level.WARNING) {
             text = converter.deserialize("&l" + PREFIX + "&r&e " + formatted);
         } else if (level == Level.INFO) {
@@ -117,6 +115,6 @@ public abstract class SkJsonLogger {
     }
 
     public static String translate(String defaultStringifyJson) {
-        return ChatColor.translateAlternateColorCodes('&', defaultStringifyJson);
+        return LegacyComponentSerializer.legacy('&').deserialize(defaultStringifyJson).content();
     }
 }

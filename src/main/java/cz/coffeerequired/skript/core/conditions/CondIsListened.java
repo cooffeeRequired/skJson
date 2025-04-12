@@ -43,8 +43,8 @@ public class CondIsListened extends Condition {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return String.format("[skjson] the json storage with id %s %s listened", 
-                JSONIdExpression.toString(event, debug), 
+        return String.format("[skjson] the json storage with id %s %s listened",
+                JSONIdExpression.toString(event, debug),
                 (line == 0 ? "is" : "isn't"));
     }
 

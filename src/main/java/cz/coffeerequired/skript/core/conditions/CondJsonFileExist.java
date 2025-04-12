@@ -25,7 +25,7 @@ public class CondJsonFileExist extends Condition {
     public boolean check(Event event) {
         final String filePath = filePathExpression.getSingle(event);
         if (filePath == null || !filePath.endsWith(".json")) return false;
-        return (line == 0) ==  FileHandler.exists(filePath);
+        return (line == 0) == FileHandler.exists(filePath);
     }
 
     @Override

@@ -6,7 +6,8 @@ import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 
-import javax.validation.constraints.NotNull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;

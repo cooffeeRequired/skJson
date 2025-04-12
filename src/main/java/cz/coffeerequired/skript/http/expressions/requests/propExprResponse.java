@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.http.expressions;
+package cz.coffeerequired.skript.http.expressions.requests;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;

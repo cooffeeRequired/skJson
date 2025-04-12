@@ -21,6 +21,8 @@ plugin:
   enabled-http: true
   # Enable working with NBT data (Notch Binary Tag, a complex format for storing data)
   enabled-nbt: false
+  # Maximum number of threads for HTTP requests (default: 4)
+  max-threads: 4
 
 json:
   # Separator for paths to JSON objects (e.g. "object.nestedObject.value")

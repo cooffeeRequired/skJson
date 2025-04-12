@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.propertyexpressions;
+package cz.coffeerequired.skript.http.expressions.requests;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;

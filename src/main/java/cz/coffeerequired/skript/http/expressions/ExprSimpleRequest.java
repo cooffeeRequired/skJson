@@ -24,11 +24,12 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
              set {_request}'s request content to "{A: true}"
              set {_request}'s headers to "{Content-Type: application/json+vhd}"
              execute {_request}
+             set {_response} to last {_request}'s response
             \s
-             if response status of {_request} is "OK":
-                 send response content of {_request}
-                 send response status code of {_request}
-                 send response headers of {_request}
+             if status of {_response} is "OK":
+                 send content of {_response}
+                 send status code of {_response}
+                 send headers of {_response}
         \s""")
 @Description({
         "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
@@ -38,7 +39,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         "You can execute the request by 'send prepared {_request}', otherwise the request will be not sent, but the request will be still stored",
         "And you can get response status/content/headers like in the examples"
 })
-@Since("2.9.9-pre API changes")
+@Since({"2.9.9-pre API changes", "5.0 - change Response.API"})
 @ApiStatus.Experimental
 public class ExprSimpleRequest extends SimpleExpression<Request> {
 

@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.requests;
 
 import com.google.gson.JsonElement;
+import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class Request {
     private RequestStatus status = RequestStatus.UNKNOWN;
     private HashMap<String, String> queryParams = new HashMap<>();
     private Response response = Response.empty();
+    private HttpReceivedResponse event = null;
 
     public Request(String uri, RequestMethod method, JsonElement content, Pairs[] headers) {
         this.uri = uri;
@@ -36,6 +38,7 @@ public class Request {
 
     public Request setResponse(Response response) {
         this.response = response;
+        this.event.setResponse(response);
         return this;
     }
 
@@ -53,6 +56,10 @@ public class Request {
 
     public void addQueryParam(HashMap<String, String> queryParams) {
         this.queryParams.putAll(queryParams);
+    }
+
+    public void setEvent(HttpReceivedResponse event) {
+        this.event = event;
     }
 
     @Override

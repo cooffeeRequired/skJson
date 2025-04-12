@@ -1,4 +1,4 @@
-package cz.coffeerequired.skript.propertyexpressions;
+package cz.coffeerequired.skript.http.expressions.responses;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -8,7 +8,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import cz.coffeerequired.api.requests.RequestStatus;
 import cz.coffeerequired.api.requests.Response;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;

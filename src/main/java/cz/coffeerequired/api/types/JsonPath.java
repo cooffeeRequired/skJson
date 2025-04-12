@@ -13,9 +13,9 @@ import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.validation.constraints.NotNull;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;

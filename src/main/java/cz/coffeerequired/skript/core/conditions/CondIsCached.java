@@ -31,8 +31,8 @@ public class CondIsCached extends Condition {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "[skjson] the json storage with id " + expressionId.toString(event, debug) + " " + 
-               (line == 0 ? "is" : "isn't") + " cached";
+        return "[skjson] the json storage with id " + expressionId.toString(event, debug) + " " +
+                (line == 0 ? "is" : "isn't") + " cached";
     }
 
     @SuppressWarnings("unchecked")

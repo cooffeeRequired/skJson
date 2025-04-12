@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     java
-    id("com.gradleup.shadow") version "8.3.5"
+    id("com.gradleup.shadow") version "9.0.0-beta12"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -22,27 +22,37 @@ java {
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
     maven("https://repo.skriptlang.org/releases")
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.purpurmc.org/snapshots")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    implementation("org.eclipse.jetty:jetty-client:12.1.0.alpha0")
-    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
+
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.github.SkriptLang:Skript:2.11.0-pre1")
-    implementation("com.google.code.gson:gson:2.10.1")
-    compileOnly("org.glassfish.jersey.core:jersey-server:2.34")
+    implementation("com.google.code.gson:gson:2.13.0")
+
+
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("de.tr7zw:item-nbt-api:2.14.1")
-    implementation("org.yaml:snakeyaml:2.3")
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
-    testCompileOnly("org.projectlombok:lombok:1.18.34")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
+
+
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    testCompileOnly("org.projectlombok:lombok:1.18.38")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
+
+    components {
+        withModule("com.github.SkriptLang:Skript") {
+            allVariants {
+                withDependencies {}
+            }
+        }
+    }
 }
 
 sourceSets {
@@ -56,6 +66,7 @@ sourceSets {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 fun generateSHA1(): String {
@@ -91,7 +102,7 @@ tasks.withType<ShadowJar>().configureEach {
             println("> Task :copy to path")
             copy {
                 from(archiveFile.get().asFile)
-                into("/home/coffee/mc-developing/plugins")
+                into("\\\\wsl.localhost\\Ubuntu\\home\\coffee\\mc-developing\\plugins")
             }
         }
     }

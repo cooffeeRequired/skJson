@@ -3,8 +3,8 @@ package cz.coffeerequired.api.types;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.NotNull;
 
-import javax.validation.constraints.NotNull;
 
 public class JSONTypeParser extends Parser<JsonElement> {
     @Override

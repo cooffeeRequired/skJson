@@ -52,7 +52,7 @@ public class AEffBindFile extends AsyncEffect {
         File file = new File(path);
 
         if (!file.exists()) {
-            SkJson.exception(new IOException("File " + path + " does not exist"), 
+            SkJson.exception(new IOException("File " + path + " does not exist"),
                     "Cannot bind JSON file: File does not exist at path: " + path);
             return;
         }
@@ -61,7 +61,7 @@ public class AEffBindFile extends AsyncEffect {
             SkJson.info("Cache already contains key: &e'" + id + "'&r, skipping binding");
             return;
         }
-        
+
         FileHandler.get(file).whenComplete((json, error) -> {
             if (error != null) {
                 String errorMessage = "Cannot bind JSON file: " + file.getPath();
@@ -76,7 +76,7 @@ public class AEffBindFile extends AsyncEffect {
                 SkJson.exception(error, errorMessage);
                 return;
             }
-            
+
             try {
                 cache.addValue(id, json, file);
                 if (withBinding && !CacheStorageWatcher.Extern.hasRegistered(file)) {

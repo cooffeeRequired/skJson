@@ -21,6 +21,8 @@ import cz.coffeerequired.skript.core.conditions.*;
 import cz.coffeerequired.skript.core.effects.*;
 import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
+import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
+import cz.coffeerequired.skript.http.events.ResponseReceive;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;

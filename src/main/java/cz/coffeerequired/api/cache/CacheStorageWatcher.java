@@ -23,16 +23,19 @@ public class CacheStorageWatcher {
     private static final long DEFAULT_INTERVAL = 1000L;
     private static final int DEFAULT_THREAD_POOL_SIZE = 2;
 
-    @Getter private final UUID uuid = UUID.randomUUID();
+    @Getter
+    private final UUID uuid = UUID.randomUUID();
     private final ScheduledFuture<?> future;
     private final String parentID;
-    @Getter private final String id;
-    @Getter private final File file;
-    private JsonFileChanged event;
+    @Getter
+    private final String id;
+    @Getter
+    private final File file;
     private final WatchService watchService;
     private final AtomicReference<JsonElement> lastContent = new AtomicReference<>();
     private final CachedStorage<String, JsonElement, File> cache;
     private final Supplier<JsonElement> fileSupplier;
+    private JsonFileChanged event;
 
     public CacheStorageWatcher(File file, String id, String parentID, long interval,
                                WatchService watchService,

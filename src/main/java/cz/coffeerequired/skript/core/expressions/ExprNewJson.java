@@ -51,7 +51,7 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
     @Override
     protected @Nullable JsonElement[] get(Event event) {
         List<JsonElement> elements = new ArrayList<>();
-        Object[] values = anyObjectExpression !=null ? anyObjectExpression.getArray(event) : null;
+        Object[] values = anyObjectExpression != null ? anyObjectExpression.getArray(event) : null;
 
         return switch (currentTag) {
             case ANY -> {
@@ -66,7 +66,8 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
                             }
                         }
                     } catch (Exception ex) {
-                        if (Api.Records.PROJECT_DEBUG) SkJson.exception(ex, getParser().getNode() == null ? "" : getParser().getNode().toString());
+                        if (Api.Records.PROJECT_DEBUG)
+                            SkJson.exception(ex, getParser().getNode() == null ? "" : getParser().getNode().toString());
                     }
                 }
                 yield elements.toArray(new JsonElement[0]);

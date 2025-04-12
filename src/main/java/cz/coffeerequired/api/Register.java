@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 
 public class Register {
 
@@ -64,7 +65,7 @@ public class Register {
         }
     }
 
-    public void tryRegisterSkript() throws IOException {
+    public void tryRegisterSkript() {
 
         if (isSkriptAvailable()) {
             addon = Skript.registerAddon(SkJson.getInstance());
@@ -87,7 +88,7 @@ public class Register {
 
     private void printAllRegistered(Extensible m) {
 
-        SkJson.debug("Extensible modules %s", m.getLoadedElements());
+        SkJson.debug("&8Extensible modules %s", m.getLoadedElements());
 
         m.getLoadedElements().forEach((key, value) -> {
             if (value.isEmpty()) return;
@@ -145,7 +146,7 @@ public class Register {
             case "Functions" -> "&7Functions";
             case "Structures" -> "&9Structures";
             case "Types" -> "&6Types";
-            case "Event Expressions" -> "&3Event Expressions";
+            case "Event Expressions" -> "&aEvent Expressions";
             default -> input;
         };
     }
@@ -167,42 +168,53 @@ public class Register {
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             extensible.addNewElement("Effects", effect);
+            SkJson.debug("&8Registering effect: " + Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1) + " " + effect.getSimpleName());
             Skript.registerEffect(effect, patterns);
         }
 
         public <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
             extensible.addNewElement("Expressions", expressionClass);
+            SkJson.debug("&8Registering property: " + property + " of " + fromType + " " + expressionClass.getSimpleName());
             Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
         }
 
         public <T> void registerType(ClassInfo<T> classInfo, String name) {
             extensible.addNewElement("Types", classInfo.getClass());
+            SkJson.debug("&8Registering type: " + name + " " + classInfo.getClass().getSimpleName());
             Classes.registerClass(classInfo);
         }
 
         public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {
             extensible.addNewElement("Expressions", c);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
+            SkJson.debug("&8Registering expression: " + Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1) + " " + c.getSimpleName());
             Skript.registerExpression(c, returnType, type, patterns);
         }
 
         public <E extends EventValueExpression<T>, T> void registerEventValueExpression(Class<E> c, Class<T> returnType, String pattern) {
             extensible.addNewElement("Event Expressions", c);
+            SkJson.debug("&8Registering event value expression: " + pattern + " " + c.getSimpleName());
             Skript.registerExpression(c, returnType, ExpressionType.EVENT, "[the] " + pattern);
         }
 
         public <T> void registerPropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
             extensible.addNewElement("Expressions", c);
+            SkJson.debug("&8Registering property expression: " + property + " of " + fromType + " " + c.getSimpleName());
             PropertyExpression.register(c, returnType, property, fromType);
         }
 
         public <T> void registerSimplePropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
             extensible.addNewElement("Expressions", c);
+            SkJson.debug("&8Registering simple property expression: " + property + " of " + fromType + " " + c.getSimpleName());
             PropertyExpression.register(c, returnType, property, fromType);
         }
 
         public void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
             extensible.addNewElement("Events", c);
+            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + " " + patterns[i];
+
+            SkJson.debug("&8Registering event: " + Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1) + " " + version + " " + name);
+
             Skript.registerEvent(name, c, event, patterns)
                     .since(version)
                     .examples(examples)
@@ -212,17 +224,20 @@ public class Register {
         public <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
             extensible.addNewElement("Conditions", c);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
+            SkJson.debug("&8Registering condition: " + Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1) + " " + c.getSimpleName());
             Skript.registerCondition(c, patterns);
         }
 
         public <E extends Section> void registerSection(Class<E> requestClass, String... patterns) {
             extensible.addNewElement("Sections", requestClass);
             for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
+            SkJson.debug("&8Registering section: " + Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1) + " " + requestClass.getSimpleName());
             Skript.registerSection(requestClass, patterns);
         }
 
         public JavaFunction<?> registerFunction(JavaFunction<?> fn) {
             extensible.addNewElement("Functions", fn.getClass());
+            SkJson.debug("&8Registering function: " + fn.getName() + " " + fn.getClass().getSimpleName());
             return Functions.registerFunction(fn);
         }
     }

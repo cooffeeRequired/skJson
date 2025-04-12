@@ -34,6 +34,34 @@ public final class SkJson extends JavaPlugin {
     private static YamlConfiguration pluginConfig;
     private final Register register = new Register();
 
+    public static void info(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, message, args);
+    }
+
+    public static void info(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.info(sender, message, args);
+    }
+
+    public static void warning(Object message, Object... args) {
+        SkJsonLogger.log(Level.WARNING, message, args);
+    }
+
+    public static void severe(Object message, Object... args) {
+        SkJsonLogger.log(Level.INFO, "&c" + message, args);
+    }
+
+    public static void error(CommandSender sender, String message, Object... args) {
+        SkJsonLogger.error(sender, message, args);
+    }
+
+    public static void exception(Throwable e, Object message, Object... args) {
+        SkJsonLogger.ex(e, message, args);
+    }
+
+    public static void debug(Object message, Object... args) {
+        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG -> &r" + message, args);
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     private BiConsumer<CommandSender, String[]> aboutAddon() {
         return (sender, s) -> {
@@ -90,39 +118,39 @@ public final class SkJson extends JavaPlugin {
             Commands.setMainCommand("skjson");
             Commands.add("about|?", aboutAddon(), Commands.emptyCompleter());
             Commands.add("reload", (sender, s) -> {
-                        info(sender, "🟠 &econfig reloading...");
+                info(sender, "🟠 &econfig reloading...");
+                try {
+                    final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
+                            Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
+                            Map.entry("PROJECT_DELIM", Api.Records.PROJECT_DELIM),
+                            Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION),
+                            Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
+                            Map.entry("PROJECT_ENABLED_NBT", Api.Records.PROJECT_ENABLED_NBT),
+                            Map.entry("WATCHER_INTERVAL", Api.Records.WATCHER_INTERVAL),
+                            Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE),
+                            Map.entry("WATCHER_WATCH_TYPE", Api.Records.WATCHER_WATCH_TYPE)
+                    ));
+                    configuration.getHandler().reloadConfig();
+                    Boolean[] changed = new Boolean[]{false};
+
+                    before.forEach((key, value) -> {
                         try {
-                            final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
-                                    Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
-                                    Map.entry("PROJECT_DELIM", Api.Records.PROJECT_DELIM),
-                                    Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION),
-                                    Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
-                                    Map.entry("PROJECT_ENABLED_NBT", Api.Records.PROJECT_ENABLED_NBT),
-                                    Map.entry("WATCHER_INTERVAL", Api.Records.WATCHER_INTERVAL),
-                                    Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE),
-                                    Map.entry("WATCHER_WATCH_TYPE", Api.Records.WATCHER_WATCH_TYPE)
-                            ));
-                            configuration.getHandler().reloadConfig();
-                            Boolean[] changed = new Boolean[]{false};
+                            var field = Api.Records.class.getDeclaredField(key);
+                            field.setAccessible(true);
+                            var fieldValue = field.get(null);
 
-                            before.forEach((key, value) -> {
-                                try {
-                                    var field = Api.Records.class.getDeclaredField(key);
-                                    field.setAccessible(true);
-                                    var fieldValue = field.get(null);
-
-                                    if (!value.equals(fieldValue)) {
-                                        if (!changed[0]) changed[0] = true;
-                                        info(sender, "&7The field %s has been changed from &e%s &7 to &f%s", Configuration.getMapping(key), value, fieldValue);
-                                    }
-                                } catch (NoSuchFieldException | IllegalAccessException e) {
-                                    exception(e, "Cannot handle that field %s", key);
-                                }
-                            });
-                        } catch (Exception ex) {
-                            exception(ex, "An error occurred while reloading configuration");
+                            if (!value.equals(fieldValue)) {
+                                if (!changed[0]) changed[0] = true;
+                                info(sender, "&7The field %s has been changed from &e%s &7 to &f%s", Configuration.getMapping(key), value, fieldValue);
+                            }
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            exception(e, "Cannot handle that field %s", key);
                         }
-                    }, Commands.emptyCompleter());
+                    });
+                } catch (Exception ex) {
+                    exception(ex, "An error occurred while reloading configuration");
+                }
+            }, Commands.emptyCompleter());
             Commands.add("status", Commands.emptyCommand(), Commands.emptyCompleter());
             Commands.add("debug", (sender, args) -> {
                 if (args.length == 2) {
@@ -156,33 +184,5 @@ public final class SkJson extends JavaPlugin {
     @SuppressWarnings("unused")
     public void warning(CommandSender sender, String message, Object... args) {
         SkJsonLogger.warning(sender, message, args);
-    }
-
-    public static void info(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, message, args);
-    }
-
-    public static void info(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.info(sender, message, args);
-    }
-
-    public static void warning(Object message, Object... args) {
-        SkJsonLogger.log(Level.WARNING, message, args);
-    }
-
-    public static void severe(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, "&c" + message, args);
-    }
-
-    public static void error(CommandSender sender, String message, Object... args) {
-        SkJsonLogger.error(sender, message, args);
-    }
-
-    public static void exception(Throwable e, Object message, Object... args) {
-        SkJsonLogger.ex(e, message, args);
-    }
-
-    public static void debug(Object message, Object... args) {
-        if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG -> &r" + message, args);
     }
 }

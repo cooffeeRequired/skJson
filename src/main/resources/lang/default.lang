@@ -16,3 +16,4 @@ types:
     request: Requests
     file: File
     json: JsonElement
+    response: Response
