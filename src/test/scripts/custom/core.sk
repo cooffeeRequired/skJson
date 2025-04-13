@@ -9,7 +9,6 @@ test "core":
 
     assert {_json}.array[0].A is false with "failing: json array changes"
 
-
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
 
     assert first key of {_json}.array is 0 with "failing: get first key of json"

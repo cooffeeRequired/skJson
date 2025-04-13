@@ -19,6 +19,8 @@ import cz.coffeerequired.skript.core.eventexpressions.ExprEvtJson;
 import cz.coffeerequired.skript.core.eventexpressions.ExprEvtUUID;
 import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
+import cz.coffeerequired.skript.core.support.JsonLoopExpression;
+import cz.coffeerequired.skript.core.support.JsonSupportElements;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -32,8 +34,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonLoopExpression;
-import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement;
 
 @Module(module = "core")
 public class Core extends Extensible {
@@ -108,7 +108,7 @@ public class Core extends Extensible {
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
                 "%jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>"
         );
-        register.registerExpression(JsonSupportElement.class, Object.class, ExpressionType.COMBINED,
+        register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
                 "(1st|first) (:value|:key) of %jsonelement%",
                 "(2nd|second) (:value|:key) of %jsonelement%",
                 "(3rd|third) (:value|:key) of %jsonelement%",
@@ -117,9 +117,14 @@ public class Core extends Extensible {
                 "%integer%. (:value|:key) of %jsonelement%"
         );
         register.registerExpression(ExprGetAllKeys.class, String.class, ExpressionType.SIMPLE, "[all] keys [%-string%] of %jsonelement%");
+
         register.registerExpression(JsonLoopExpression.class, Object.class, ExpressionType.SIMPLE, "[the] json-(:key|:value)[-<(\\d+)>]");
+
         register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) %object% in %jsonelement%");
-        register.registerExpression(ExprJsonElements.class, Object.class, ExpressionType.COMBINED, "(element|value) [%-string%] of %jsonelement%", "(elements|values) [%-string%] of %jsonelement%");
+        register.registerExpression(ExprJsonValues.class, Object.class, ExpressionType.COMBINED,
+                "value [%-string%] of %jsonelement%",
+                "values [%-string%] of %jsonelement%"
+        );
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerSimplePropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
         register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
@@ -134,6 +139,7 @@ public class Core extends Extensible {
                 "type of %jsonelement% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
                 "type of %jsonelement% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
         );
+
         register.registerCondition(CondJsonFileExist.class, "json file %string% exists", "json file %string% does(n't| not) exist");
         register.registerCondition(CondJsonIsEmpty.class, "json %jsonelement% is empty", "json %jsonelement% is(n't| not) empty");
         register.registerCondition(CondIsCached.class, "[the] json storage [with [the] id] %string% is cached", "[the] json storage [with [the] id] %string% is(n't| not) cached");

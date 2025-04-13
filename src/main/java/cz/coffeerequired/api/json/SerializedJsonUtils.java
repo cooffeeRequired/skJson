@@ -3,11 +3,11 @@ package cz.coffeerequired.api.json;
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.skript.core.support.JsonSupportElements.SearchType;
 
 import java.util.*;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
-import static cz.coffeerequired.skript.core.SupportSkriptJson.JsonSupportElement.SearchType;
 
 public abstract class SerializedJsonUtils {
 
