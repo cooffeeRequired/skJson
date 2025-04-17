@@ -110,21 +110,17 @@ tasks.withType<ShadowJar>().configureEach {
 }
 
 tasks.register("withRemote") {
-    dependsOn("clean")
+    // dependsOn("clean")
     dependsOn("shadowJar")
     doLast {
-       exec {
-           commandLine(
-               "curl",
-               "-X", "POST",
-               "http://localhost:8291",
-               "-H", "Content-Type: application/json",
-               "-d", """{\"cmd\": [\"reload confirm\"]}"""
-           )
-           standardOutput = System.out
-           errorOutput = System.err
-           isIgnoreExitValue = true
-       }
+        providers.exec {
+            executable("curl")
+            args("-X", "POST",
+                "http://localhost:8291",
+                "-H", "Content-Type: application/json",
+                "-d", """{\"cmd\": [\"reload confirm\"]}"""
+            )
+        }
     }
 }
 
@@ -133,9 +129,9 @@ tasks.register("withTesting") {
     dependsOn("shadowJar")
     doLast {
         println("> Task :running tests")
-        exec {
-            workingDir = projectDir
-            commandLine("python", "test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
+        providers.exec {
+            executable("python")
+            args("test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
         }
     }
 }

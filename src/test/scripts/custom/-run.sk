@@ -1,0 +1,159 @@
+# # on load:
+# #     # Vytvoření a zápis do JSON souboru
+# #     create json file "plugins/MyPlugin/test.json" and write to it "{'players': []}" with configuration[replace=true, encoding=UTF-8]
+
+# #     # Přiřazení JSON elementu z řetězce
+# #     set {_json} to json from "{'players': [{'name': 'Jiří', 'score': 100}]}"
+# #     send {_json} as uncolored pretty printed
+
+# #     # Získání hodnoty z JSON
+# #     send element "players.0.name" of {_json}
+
+# #     # Typ prvku
+# #     if type of {_json} is json-object:
+# #         send "Root is object."
+
+# #     # Měj klíče?
+# #     if {_json} has keys "players":
+# #         send "Has players key"
+
+# #     # Měj hodnoty?
+# #     if {_json}.players[0] has values "Jiří":
+# #         send "Has value Jiří"
+
+# #     # Počet výskytů hodnoty
+# #     send count of value 100 in {_json}
+
+# #     # Mapování JSONu do listové proměnné
+# #     map {_json} to {_mapped::*}
+
+# #     send {_mapped::players::1::score}
+
+# #     # Převod list proměnných na JSON
+# #     set {_data::x} to "hello"
+# #     set {_data::y} to true
+# #     set {_data::list::*} to "a", "b" and "c"
+# #     set {_converted} to {_data::*}'s form
+# #     send {_converted} as pretty printed
+
+# #     # Pretty print
+# #     send {_json} as pretty printed
+
+# #     # Vytvoření virtuálního úložiště
+# #     create json virtual storage named "temp-memory"
+
+# #     # Bind JSON soubor jako storage
+# #     bind json file "plugins/MyPlugin/test.json" as "storage1" and let bind storage watcher
+
+# #     # Práce s cache
+# #     if json storage with id "storage1" is cached:
+# #         send "Storage is cached"
+# #     if json storage with id "storage1" is listened:
+# #         send "Storage is listened"
+
+
+# #     # Uložení cache do souboru
+# #     save json storage id "storage1"
+
+# #     # Odvázání storage
+# #     unbind json storage id "storage1"
+
+# #     # Web request pomocí JSON obsahu
+# #     set {_request} to prepare POST request on "https://dummyjson.com/test"
+# #     set {_request}'s request body to "{'query':'value'}"
+# #     set {_request}'s headers to "{'Content-Type':'application/json'}"
+# #     execute {_request}
+
+# #     # JSON cesta
+# #     send ({_request}'s response content).method
+
+
+# # # command test:
+# # #     trigger:
+# # #         
+
+# # # on watcher save:
+# # #     broadcast "Storage saved!"
+# # #     broadcast event-json
+# # #     broadcast event-id
+# # #     broadcast event-link
+
+
+
+# on load:
+#     # create json file "plugins/MyPlugin/test.json" and write to it "{'players': []}" with configuration[replace=false, encoding=UTF-8]
+#     # if json file "plugins/MyPlugin/test.json" exists:
+#     #     send "File exists"
+#     # else:
+#     #     send "File does not exist"
+
+
+#     # set {_json} to json from file "plugins/MyPlugin/test.json"
+
+#     # send {_json}
+
+#     # if json {_json} is empty:
+#     #     send "File is empty"
+#     # else:
+#     #     send "File is not empty"
+
+#     # if type of {_json} is json-object:
+#     #     send "Root is object."
+#     # else if type of {_json} is json-array:
+#     #     send "Root is array."
+
+
+#     # create json virtual storage named "temp-memory"
+
+#     # set (json storage of id "temp-memory").players to "[]"
+
+#     # save json storage id "temp-memory"
+
+#     # set {_path} to json path "players" in (json storage of id "temp-memory")
+
+#     # send {_path}
+
+#     # set value of {_path} to "[{'name': 'Jiří', 'score': 100}]"
+
+#     # send (json storage of id "temp-memory").players[0] as pretty printed
+
+#     # send all keys "players.0" of (json storage of id "temp-memory")
+
+#     #     # Web request pomocí JSON obsahu
+
+
+# command test:
+#     trigger:
+#         loop 100 times:
+#             # set {_request} to prepare GET request on "localhost:3000/test"
+#             # set {_request}'s headers to "{'Content-Type':'application/json'}"
+#             # set {_request}'s query params to "time:%loop-number%"
+#             # execute {_request}
+        
+#             # JSON cesta
+#             #send ({_request}'s response content).method
+
+#         set {_request} to prepare GET request on "http://localhost:3000/test"
+#         set {_request}'s headers to "{'Content-Type':'application/json'}"
+#         execute {_request}
+        
+#         send ({_request}'s response content)
+#         send "Hello async?"
+
+
+command test:
+    trigger:
+        set {_request} to prepare GET request on "https://dummyjson.com/products/1"
+        set {_request}'s headers to "{'Content-Type':'application/json'}"
+        execute {_request} as non blocking
+
+
+
+on skJson received response:
+    send "&areceived" to console
+    send event-response to console
+
+    # send event-response's status to console
+    # send event-response's status code to console
+    # send event-response's body to console
+    # send event-response's headers to console

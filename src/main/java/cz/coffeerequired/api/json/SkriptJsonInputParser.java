@@ -2,6 +2,7 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,6 +82,7 @@ public class SkriptJsonInputParser {
         } else if (currentToken.endsWith("*")) {
             type = Type.ListAll;
         } else if (currentToken.matches("\\d+")) {
+            // Pokud je token pouze číslo, je to index
             type = Type.Index;
         } else {
             if (currentToken.equals(last)) {
@@ -107,6 +109,9 @@ public class SkriptJsonInputParser {
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {
         if (isQuoted(path)) path = path.substring(1, path.length() - 1);
         String convertedPath = convertPath(path);
+
+        SkJson.debug("converted path: %s", convertedPath);
+
         return getTokens(convertedPath, PROJECT_DELIM);
     }
 
@@ -129,12 +134,22 @@ public class SkriptJsonInputParser {
             // If the segment matches an array with a specific index
             Matcher arrayMatcher = arrayPattern.matcher(segment);
             if (arrayMatcher.find()) {
-                String arrayName = segment.substring(0, segment.indexOf('['));
-                String index = segment.substring(segment.indexOf('[') + 1, segment.indexOf(']'));
-                if (!output.isEmpty()) {
-                    output.append(PROJECT_DELIM);
+                // Pokud je segment pouze [číslo], pak je to přímo index
+                if (segment.matches("\\[\\d+]")) {
+                    String index = segment.substring(1, segment.length() - 1);
+                    if (!output.isEmpty()) {
+                        output.append(PROJECT_DELIM);
+                    }
+                    output.append(index);
+                } else {
+                    // Jinak je to název pole s indexem
+                    String arrayName = segment.substring(0, segment.indexOf('['));
+                    String index = segment.substring(segment.indexOf('[') + 1, segment.indexOf(']'));
+                    if (!output.isEmpty()) {
+                        output.append(PROJECT_DELIM);
+                    }
+                    output.append(arrayName).append(PROJECT_DELIM).append(index);
                 }
-                output.append(arrayName).append(PROJECT_DELIM).append(index);
                 if (segment.endsWith("*")) output.append("*");
             }
             // If the segment matches an array without an index (e.g., [])

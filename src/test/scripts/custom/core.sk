@@ -1,19 +1,22 @@
 test "core":
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    
     set {_json}.array to "{}"
 
     assert "%{_json}.array%" is "{}" with "failing: json simple literal - basic change"
 
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+
     set {_json}.array[0].A to false
 
     assert {_json}.array[0].A is false with "failing: json array changes"
 
-
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
 
     assert first key of {_json}.array is 0 with "failing: get first key of json"
+
     assert first value of {_json}.array[0] is 1 with "failing: get first value of json"
+
     assert 2. key of {_json}.array[0] is "B" with "failing: get `number` key of json"
 
     assert all keys "array[0]" of {_json} is "A", "B" and "C", "location" with "failing: cannot retrieve all keys"
@@ -23,7 +26,15 @@ test "core":
     assert "%value "array" of {_json}%" is "[{""A"":1,""B"":2,""C"":3,""location"":{}}]" with "failing: cannot retrieve all elements"
 
     map {_json} to {_jsons::*}
+
     assert "%{_jsons::array::1::A}%" is "1" with "failing: cannot map nested values"
 
+    set {_j} to json from "{array: [{A: 1, B: 2, C: 3, location: {}, player: 2}]}"
 
+    set {_j}.array[0].A to 2
 
+    assert {_j}.array[0].A is 2 with "failing: cannot set value of json"
+
+    set {_player} to "player"
+
+    assert {_j}.array[0]."%{_player}%" is 2 with "failing: cannot set value of json with variable"

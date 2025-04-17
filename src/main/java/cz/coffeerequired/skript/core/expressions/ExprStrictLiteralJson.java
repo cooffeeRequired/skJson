@@ -116,9 +116,17 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
-        tokens = SkriptJsonInputParser.tokenizeFromPattern(r.group());
-        if (r.group().contains("%")) {
-            v = parseExpression(r.group());
+
+        var group = r.group();
+
+        SkJson.debug("regexes: %s", group);
+
+        tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
+
+        SkJson.debug("tokens: %s", tokens);
+
+        if (group.contains("%")) {
+            v = parseExpression(group);
         }
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
@@ -141,7 +149,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
             return null;
         }
         result = VariableString.newInstance(expr, StringMode.VARIABLE_NAME);
-        SkJson.debug(" expression: %s -> parsed result: %s", expr, result);
+        SkJson.debug("expression: %s -> parsed result: %s", expr, result);
         return result;
     }
 

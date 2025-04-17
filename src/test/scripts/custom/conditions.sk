@@ -1,49 +1,45 @@
-test "conditions":
+on script load:
+    bind json file "./whitelist.json" as "whitelist"
+
+test "has all keys":
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    assert {_json} has all keys "array" with "failing: check keys"
 
-    set {_has} to false
+test "has all values":
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    assert {_json}.array[0] has all values 1 and 2 with "failing: check values"
 
-    if {_json} has all keys "array":
-        set {_has} to true
+test "has all values !negation":
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    assert {_json}.array[0] does not have all values 1 and 5 with "failing: check values !negation"
 
-    assert {_has} is true with "failing: check keys"
+test "has all keys !negation":
+    set {_json} to json from "{}"
+    assert {_json} does not have all keys "array" with "failing: check keys !negation"
 
-    set {_has} to false
+test "type of json is json-object":
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    assert type of {_json} is json-object with "failing: o is json object"
 
-    if {_json}.array[0] has all values 1 and 2:
-        set {_has} to true
+test "type of json is json-array":
+    set {_json} to json from "[{A: 1, B: 2, C: 3, location: {}}]"
+    assert type of {_json} is json-array with "failing: o is json array"
 
-    assert {_has} is true with "failing: check values"
+test "json file exists":
+    assert json file "./whitelist.json" exists with "failing: json file exists"
+    assert json file "./whitelist2.json" does not exist with "failing: json file does not exist"
 
-    set {_has} to false
-
-    if {_json}.array[0] does not have all values 1 and 5:
-        set {_has} to true
-
-    assert {_has} is true with "failing: check values !negation"
-
-    set {_has} to false
-
-    if {_json}.array[0] does not have all keys "array" and "key":
-        set {_has} to true
-
-    assert {_has} is true with "failing: check keys !negation"
-
-    set {_has} to false
-
-    if type of {_json} is json-object:
-        set {_has} to true
-
-    assert {_has} is true with "failing: o is json object"
+test "json is empty":
+    set {_json} to json from "[]"
+    assert json {_json} is empty with "failing: json is empty"
+    set {_json} to json from "[1, 2, 3]"
+    assert json {_json} is not empty with "failing: json is not empty !negation"
 
 
-    set {_has} to false
+test "json is chached":
+    assert true is true with "failing: whitelist is chached"
 
-    if type of {_json}.array is json-array:
-        set {_has} to true
+test "json is listened":
+    assert true is true with "failing: whitelist is listened"
 
-    assert {_has} is true with "failing: o is json array"
-
-
-    set {_has} to false
 

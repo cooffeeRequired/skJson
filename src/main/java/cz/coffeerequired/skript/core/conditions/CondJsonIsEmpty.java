@@ -8,7 +8,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -27,9 +26,8 @@ public class CondJsonIsEmpty extends Condition {
     @Override
     public boolean check(Event event) {
         final JsonElement JSON = jsonElementExpression.getSingle(event);
-        boolean result = false;
+        boolean result = true;
         if (JSON == null) return true;
-        if (JSON instanceof JsonNull) result = true;
         if (JSON instanceof JsonObject) result = JSON.getAsJsonObject().isEmpty();
         if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
         return (line == 0) == result;
