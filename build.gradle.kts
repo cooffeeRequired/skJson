@@ -66,7 +66,7 @@ sourceSets {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    // options.compilerArgs.add("-Xlint:deprecation")
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 fun generateSHA1(): String {
@@ -111,7 +111,21 @@ tasks.withType<ShadowJar>().configureEach {
 
 tasks.register("withRemote") {
     dependsOn("clean")
-    finalizedBy("shadowJar")
+    dependsOn("shadowJar")
+    doLast {
+       exec {
+           commandLine(
+               "curl",
+               "-X", "POST",
+               "http://localhost:8291",
+               "-H", "Content-Type: application/json",
+               "-d", """{\"cmd\": [\"reload confirm\"]}"""
+           )
+           standardOutput = System.out
+           errorOutput = System.err
+           isIgnoreExitValue = true
+       }
+    }
 }
 
 tasks.register("withTesting") {
