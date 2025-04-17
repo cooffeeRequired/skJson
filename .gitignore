@@ -5,3 +5,5 @@ gen_server/
 .idea/inspectionProfiles/Project_Default.xml
 /target/*
 server
+.gradle/
+.idea

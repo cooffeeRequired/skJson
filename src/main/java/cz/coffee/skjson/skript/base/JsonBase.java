@@ -200,7 +200,7 @@ public abstract class JsonBase {
             MatchResult numberOfLoop = !parseResult.regexes.isEmpty() ? parseResult.regexes.get(0) : null;
             Object group = 0;
             if (numberOfLoop != null) group = numberOfLoop.group(0);
-            int i = 0;
+            int loopIndex = 0;
             isKey = parseResult.hasTag("key");
             String firstField = parseResult.expr, s = "";
             Pattern pattern = Pattern.compile("json-(.+)(.)");
@@ -209,25 +209,31 @@ public abstract class JsonBase {
             if (matchingPattern.matches()) {
                 String[] split = firstField.split("-");
                 s = split[1];
-                i = parseNumber(group);
+                loopIndex = parseNumber(group);
             }
             Class<?> inputClass = Classes.getClassFromUserInput(s);
             name = s;
-            int j = 1;
+            int currentIndex = 1;
 
             SecLoop loop = null;
             for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-                if ((inputClass != null && inputClass.isAssignableFrom(l.getLoopedExpression().getReturnType())) || l.getLoopedExpression().isLoopOf("value")) {
-                    if (j < i) {
-                        j++;
-                        continue;
-                    }
-                    if (loop != null) {
-                        isCanceled = true;
-                        break;
-                    }
-                    loop = l;
-                    if (j == i) break;
+                if (!l.getLoopedExpression().isLoopOf("skjson-custom-loop")) continue;
+
+                ((Elements) l.getLoopedExpression()).relevantToLoop = true;
+
+                if (currentIndex < loopIndex) {
+                    currentIndex++;
+                    continue;
+                }
+
+                if (loop != null) {
+                    isCanceled = true;
+                    break;
+                }
+
+                loop = l;
+                if (currentIndex == loopIndex) {
+                    break;
                 }
             }
 
@@ -272,7 +278,7 @@ public abstract class JsonBase {
         private boolean isValues;
         private Expression<JsonElement> jsonInput;
         private Expression<String> pathInput;
-        private boolean needConvert;
+        public boolean relevantToLoop = false;
 
         public static LinkedList<Object> getNestedElements(JsonElement current) {
             LinkedList<Object> results = new LinkedList<>();
@@ -312,11 +318,11 @@ public abstract class JsonBase {
                 if (wrappedKeys.isEmpty() && (!emptyPath || !isValues)) return new Object[0];
                 if (isValues) {
                     if (emptyPath) {
-                        return needConvert ? new Object[]{json} : getNestedElements(json).toArray(new Object[0]);
+                        return relevantToLoop ? new Object[]{json} : getNestedElements(json).toArray(new Object[0]);
                     } else {
                         JsonElement jsonResult = JsonParser.search(json).key(wrappedKeys);
                         if (jsonResult == null) return new Object[0];
-                        return needConvert ? new Object[]{jsonResult} : getNestedElements(jsonResult).toArray(new Object[0]);
+                        return relevantToLoop ? new Object[]{jsonResult} : getNestedElements(jsonResult).toArray(new Object[0]);
                     }
                 } else {
                     JsonElement jsonResult = JsonParser.search(json).key(wrappedKeys);
@@ -349,7 +355,7 @@ public abstract class JsonBase {
 
         @Override
         public boolean isLoopOf(@NotNull String s) {
-            return s.equals("value") || s.equals("key");
+            return s.equals("skjson-custom-loop");
         }
 
         @Override
@@ -366,7 +372,6 @@ public abstract class JsonBase {
                 assert node != null;
                 final String key = node.getKey();
                 assert key != null;
-                needConvert = !getParser().getCurrentSections(SecLoop.class).isEmpty() || key.startsWith("loop");
             } catch (Exception ex) {
                 warn("Any loop key or object key doesn't exist, please check your syntax!");
             }
