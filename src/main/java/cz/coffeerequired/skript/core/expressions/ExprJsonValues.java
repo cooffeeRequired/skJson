@@ -45,9 +45,6 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
     @Override
     protected @Nullable Object[] get(Event event) {
-
-        SkJson.debug("Relevant to loop: " + relevantToLoop);
-
         try {
             boolean isPathEmpty = pathVariable == null;
             JsonElement tempJson = jsonVariable.getSingle(event);
