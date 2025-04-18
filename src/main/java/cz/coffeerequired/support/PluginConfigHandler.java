@@ -38,7 +38,12 @@ public class PluginConfigHandler {
 
     public PluginConfigHandler(JavaPlugin plugin) {
         this(plugin, "config.yml");
-        loadRecords();
+        try {
+            loadRecords();
+        } catch (Exception e) {
+            SkJson.severe("Config file is invalid.Regenerating config file!");
+            regenerateConfig();
+        }
     }
 
     public PluginConfigHandler(JavaPlugin plugin, String fileName) {
@@ -53,10 +58,10 @@ public class PluginConfigHandler {
             if (!configFile.exists()) {
                 if (plugin.getResource(configFile.getName()) != null) {
                     plugin.saveResource(configFile.getName(), false);
-                    SkJson.info("Config file created at: " + configFile.getAbsolutePath());
+                    SkJson.info("Config file created at: " + configFile.getName());
                 } else {
                     configFile.createNewFile();
-                    SkJson.info("Empty config file created at: " + configFile.getAbsolutePath());
+                    SkJson.info("Empty config file created at: " + configFile.getName());
                 }
             }
             this.config = YamlConfiguration.loadConfiguration(configFile);
@@ -105,7 +110,7 @@ public class PluginConfigHandler {
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> T get(String key, Class<T> type) {
+    public <T> T get(String key, Class<T> type) throws Exception{
         boolean isEnumClass = type.isEnum();
 
         if (isEnumClass) {
@@ -132,38 +137,50 @@ public class PluginConfigHandler {
         }
     }
 
-    private void loadRecords() {
-        PROJECT_DEBUG = get("plugin.debug", Boolean.class);
-        PROJECT_PERMISSION = getString("plugin.permission", "");
+    private void loadRecords() throws Exception {
+        try {
+            PROJECT_DEBUG = get("plugin.debug", Boolean.class);
+            PROJECT_PERMISSION = getString("plugin.permission", "skjson.*");
 
-        PROJECT_ENABLED_NBT = get("plugin.enabled-nbt", Boolean.class);
-        PROJECT_ENABLED_HTTP = get("plugin.enabled-http", Boolean.class);
+            PROJECT_ENABLED_NBT = get("plugin.enabled-nbt", Boolean.class);
+            PROJECT_ENABLED_HTTP = get("plugin.enabled-http", Boolean.class);
 
-        PROJECT_DELIM = getString("json.path-delimiter", ".");
-        WATCHER_INTERVAL = get("json.watcher.interval", Integer.class);
-        WATCHER_REFRESH_RATE = get("json.watcher.refresh-rate", Integer.class);
+            PROJECT_DELIM = getString("json.path-delimiter", ".");
+            WATCHER_INTERVAL = get("json.watcher.interval", Integer.class);
+            WATCHER_REFRESH_RATE = get("json.watcher.refresh-rate", Integer.class);
 
-        WATCHER_WATCH_TYPE = get("json.watcher.watch-type", JsonWatchType.class);
+            WATCHER_WATCH_TYPE = get("json.watcher.watch-type", JsonWatchType.class);
 
-        // Informative messages about watch type
-        switch (WATCHER_WATCH_TYPE) {
-            case WSL:
-                SkJson.info("Watch type set to WSL - optimized for Windows Subsystem for Linux");
-                break;
-            case BOTH:
-                SkJson.warning("Watch type set to BOTH - using both watch methods");
-                SkJson.warning("This mode may impact system performance");
-                break;
-            case DEFAULT:
-                SkJson.info("Watch type set to DEFAULT - standard file watching");
-                break;
-        }
+            HTTP_MAX_THREADS = get("plugin.max-threads", Integer.class);
 
-        if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
-            SkJson.info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-            SkJson.severe("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
-            Bukkit.getPluginManager().disablePlugin(plugin);
-            return;
+            var projectVersion = CONFIG_VERSION = get("plugin.config-version", Integer.class);
+
+            if (projectVersion != 5) {
+                throw new IllegalAccessException("Plugin config version is not 5! Config version: " + projectVersion);
+            }
+
+            // Informative messages about watch type
+            switch (WATCHER_WATCH_TYPE) {
+                case WSL:
+                    SkJson.info("&7&lWATCHER* &rWatch type set to WSL - optimized for Windows Subsystem for Linux");
+                    break;
+                case BOTH:
+                    SkJson.warning("&7&lWATCHER* &rWatch type set to BOTH - using both watch methods");
+                    SkJson.warning("&7&lWATCHER* &rThis mode may impact system performance");
+                    break;
+                case DEFAULT:
+                    SkJson.info("&7&lWATCHER* &rWatch type set to DEFAULT - standard file watching");
+                    break;
+            }
+
+            if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
+                SkJson.info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
+                SkJson.severe("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
+                Bukkit.getPluginManager().disablePlugin(plugin);
+                return;
+            }
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -176,6 +193,7 @@ public class PluginConfigHandler {
                 loadRecords();
             } catch (Exception e) {
                 SkJson.severe("Config file is invalid. Regenerating config file!", e);
+                SkJson.severe(e.getLocalizedMessage());
                 regenerateConfig();
             }
         } else {
