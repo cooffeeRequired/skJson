@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 
 plugins {
@@ -113,14 +114,24 @@ tasks.register("withRemote") {
     // dependsOn("clean")
     dependsOn("shadowJar")
     doLast {
-        providers.exec {
-            executable("curl")
-            args("-X", "POST",
+        println("> Task :execute change")
+
+        val outputStream = ByteArrayOutputStream()
+
+        exec {
+            executable = "curl"
+            args = listOf(
+                "-X", "POST",
                 "http://localhost:8291",
                 "-H", "Content-Type: application/json",
                 "-d", """{\"cmd\": [\"reload confirm\"]}"""
             )
+            standardOutput = outputStream
+            errorOutput = System.err
+            isIgnoreExitValue = true
         }
+
+        println("> Response: $outputStream")
     }
 }
 
