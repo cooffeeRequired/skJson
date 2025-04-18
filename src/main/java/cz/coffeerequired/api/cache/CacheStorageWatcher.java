@@ -19,10 +19,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class CacheStorageWatcher {
-    private static final long DEFAULT_INTERVAL = 1000L;
-    private static final int DEFAULT_THREAD_POOL_SIZE = 2;
+import static cz.coffeerequired.api.Api.Records.*;
 
+public class CacheStorageWatcher {
     @Getter
     private final UUID uuid = UUID.randomUUID();
     private final ScheduledFuture<?> future;
@@ -75,7 +74,7 @@ public class CacheStorageWatcher {
     }
 
     private static ScheduledExecutorService createExecutorService() {
-        return Executors.newScheduledThreadPool(CacheStorageWatcher.DEFAULT_THREAD_POOL_SIZE, r -> {
+        return Executors.newScheduledThreadPool(WATCHER_MAX_THREADS, r -> {
             Thread thread = new Thread(r);
             thread.setName("CacheStorageWatcher-" + thread.threadId());
             thread.setDaemon(true);
@@ -87,7 +86,7 @@ public class CacheStorageWatcher {
         try {
             WatchKey key = Api.Records.WATCHER_WATCH_TYPE.equals(JsonWatchType.DEFAULT)
                     ? watchService.poll()
-                    : watchService.poll(10, TimeUnit.MILLISECONDS);
+                    : watchService.poll(WATCHER_REFRESH_RATE, TimeUnit.MILLISECONDS);
 
             if (key != null) {
                 JsonElement jsonifyFile;
@@ -127,14 +126,14 @@ public class CacheStorageWatcher {
             if (parentID.contains(";")) {
                 String[] split = parentID.split(";");
                 var fromCache = cache.getValuesById(split[0])
-                        .get(5, TimeUnit.SECONDS); // timeout 5 sekund
+                        .get(5, TimeUnit.SECONDS);
                 return fromCache.keySet().stream().findFirst()
                         .map(JsonElement::getAsJsonObject)
                         .map(json -> json.get(split[1]))
                         .orElse(new JsonObject());
             } else {
                 var fromCache = cache.getValuesById(id)
-                        .get(5, TimeUnit.SECONDS); // timeout 5 sekund
+                        .get(5, TimeUnit.SECONDS);
                 return fromCache.keySet().stream().findFirst().orElse(new JsonObject());
             }
         } catch (TimeoutException e) {
@@ -199,7 +198,7 @@ public class CacheStorageWatcher {
                     SkJson.debug("Registering watcher for file %s".formatted(file.getName()));
                     String parentFile = (parent != null) ? parent : file.toString();
 
-                    var watcher = new CacheStorageWatcher(file, id, parentFile, DEFAULT_INTERVAL);
+                    var watcher = new CacheStorageWatcher(file, id, parentFile, WATCHER_INTERVAL);
                     watcher.invokeEvent(new JsonFileChanged(watcher.file, watcher.id, watcher.uuid, new JsonObject()));
                     watchers.put(file, watcher);
 
@@ -222,6 +221,7 @@ public class CacheStorageWatcher {
             });
         }
 
+        @SuppressWarnings("unused")
         public static void unregisterAll() {
             try {
                 SkJson.info("Unregistering all watchers...");
