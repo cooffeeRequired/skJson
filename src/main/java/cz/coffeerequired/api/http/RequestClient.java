@@ -3,6 +3,7 @@ package cz.coffeerequired.api.http;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.requests.*;
 import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,22 @@ import java.util.concurrent.*;
 public class RequestClient implements AutoCloseable {
 
     public static final ExecutorService threadPool =
-            Executors.newCachedThreadPool(r -> {
-                Thread thread = new Thread(r);
-                thread.setName("SkJson-HTTP-" + thread.threadId());
-                thread.setDaemon(true);
-                return thread;
-            });
+        new ThreadPoolExecutor(
+                Api.Records.HTTP_MAX_THREADS,                 // corePoolSize
+                Api.Records.HTTP_MAX_THREADS * 4,             // maximumPoolSize
+                60L, TimeUnit.SECONDS,                        // keep-alive time
+                new SynchronousQueue<>(),                     // work queue
+                r -> {                                        // thread factory
+                    Thread thread = new Thread(r);
+                    thread.setName("SkJson-HTTP-" + thread.threadId());
+                    thread.setDaemon(true);
+                    return thread;
+                },
+                (r, executor) -> {
+                    SkJson.severe("HTTP task %s was rejected", r);
+                    SkJson.severe("Executor tasks %s", executor.getTaskCount());
+                }
+        );
 
     private final HttpClient httpClient;
     private final Gson gson;

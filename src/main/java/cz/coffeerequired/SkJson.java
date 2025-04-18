@@ -15,13 +15,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
-import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
+import static cz.coffeerequired.api.Api.Records.*;
+import static cz.coffeerequired.api.SkJsonCommands.*;
 
 
 @Slf4j
@@ -62,25 +59,9 @@ public final class SkJson extends JavaPlugin {
         if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG -> &r" + message, args);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    private BiConsumer<CommandSender, String[]> aboutAddon() {
-        return (sender, s) -> {
-            var plMeta = this.getPluginMeta();
 
-            @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) pluginConfig.get("soft-depend");
 
-            if (!sender.hasPermission("skjson.use")) {
-                error(sender, "&cYou don't have permission to use this command.");
-            } else {
-                info(sender, "&aVersion: &f%s", plMeta.getVersion());
-                info(sender, "&aWebsite: &9%s", plMeta.getWebsite());
-                info(sender, "&aRevision: &6%s", pluginConfig.get("revision-version"));
-                info(sender, "&aDescription: &e%s", plMeta.getDescription());
-                info(sender, "&aDependencies: &3%s", plMeta.getPluginDependencies());
-                info(sender, "&6Soft-dependencies: &7%s", list);
-            }
-        };
-    }
+
 
     @Override
     public void onLoad() {
@@ -114,44 +95,10 @@ public final class SkJson extends JavaPlugin {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
             Commands.setMainCommand("skjson");
-            Commands.add("about|?", aboutAddon(), Commands.emptyCompleter());
-            Commands.add("reload", (sender, s) -> {
-                info(sender, "🟠 &econfig reloading...");
-                try {
-                    final WeakHashMap<String, ?> before = new WeakHashMap<>(Map.ofEntries(
-                            Map.entry("PROJECT_DEBUG", PROJECT_DEBUG),
-                            Map.entry("PROJECT_DELIM", Api.Records.PROJECT_DELIM),
-                            Map.entry("PROJECT_PERMISSION", Api.Records.PROJECT_PERMISSION),
-                            Map.entry("PROJECT_ENABLED_HTTP", Api.Records.PROJECT_ENABLED_HTTP),
-                            Map.entry("PROJECT_ENABLED_NBT", Api.Records.PROJECT_ENABLED_NBT),
-                            Map.entry("WATCHER_INTERVAL", Api.Records.WATCHER_INTERVAL),
-                            Map.entry("WATCHER_REFRESH_RATE", Api.Records.WATCHER_REFRESH_RATE),
-                            Map.entry("WATCHER_WATCH_TYPE", Api.Records.WATCHER_WATCH_TYPE)
-                    ));
-                    configuration.getHandler().reloadConfig();
-                    Boolean[] changed = new Boolean[]{false};
-
-                    before.forEach((key, value) -> {
-                        try {
-                            var field = Api.Records.class.getDeclaredField(key);
-                            field.setAccessible(true);
-                            var fieldValue = field.get(null);
-
-                            if (!value.equals(fieldValue)) {
-                                if (!changed[0]) changed[0] = true;
-                                info(sender, "&7The field %s has been changed from &e%s &7 to &f%s", Configuration.getMapping(key), value, fieldValue);
-                            }
-                        } catch (NoSuchFieldException | IllegalAccessException e) {
-                            exception(e, "Cannot handle that field %s", key);
-                        }
-                    });
-                } catch (Exception ex) {
-                    exception(ex, "An error occurred while reloading configuration");
-                }
-            }, Commands.emptyCompleter());
-            Commands.add("status", Commands.emptyCommand(), Commands.emptyCompleter());
+            Commands.add("about|?", aboutAddon(this.getPluginMeta(), pluginConfig), Commands.emptyCompleter());
+            Commands.add("reload", reloadAddon(configuration), Commands.emptyCompleter());
+            Commands.add("config|configuration", configuration(), Commands.emptyCompleter());
             Commands.add("debug", (sender, args) -> {
                 if (args.length == 2) {
                     if (args[1].equals("off") || args[1].equals("false")) {
