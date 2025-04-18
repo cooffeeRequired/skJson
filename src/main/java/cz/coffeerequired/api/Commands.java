@@ -66,7 +66,7 @@ public class Commands {
     private static class CommandManager implements TabExecutor {
 
         @Override
-        public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
 
             if (!sender.hasPermission(Api.Records.PROJECT_PERMISSION)) {
                 SkJson.error(sender, "&cYou don't have permission to use this command!");
@@ -78,7 +78,7 @@ public class Commands {
                         "\nUsage: /" + label + " <command>" +
                                 "\n &e - about|?" +
                                 "\n &e - reload" +
-                                "\n &e - status" +
+                                "\n &e - config" +
                                 "\n &e - debug"
                 );
                 return true;
@@ -91,7 +91,7 @@ public class Commands {
         }
 
         @Override
-        public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
             if (args.length == 1) return new ArrayList<>(commandMap.keySet());
 
             CommandHandler handler = commandMap.get(args[0].toLowerCase());
