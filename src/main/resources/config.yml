@@ -12,7 +12,7 @@
 
 plugin:
   # Plugin configuration version
-  config-version: 4
+  config-version: 5
   # Enable/disable debugging (for developers)
   debug: false
   # The name of the permission that users need to use the plugin
@@ -21,8 +21,10 @@ plugin:
   enabled-http: true
   # Enable working with NBT data (Notch Binary Tag, a complex format for storing data)
   enabled-nbt: false
-  # Maximum number of threads for HTTP requests (default: 4)
-  max-threads: 4
+  # Maximum number of threads for HTTP requests (default: 2)
+  # Don't change this value, unless you know what you're doing.
+  # This is the number of threads that will be used to send requests.
+  max-threads: 2
 
 json:
   # Separator for paths to JSON objects (e.g. "object.nestedObject.value")
