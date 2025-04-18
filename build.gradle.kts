@@ -118,6 +118,7 @@ tasks.register("withRemote") {
 
         val outputStream = ByteArrayOutputStream()
 
+        @Suppress("DEPRECATION")
         exec {
             executable = "curl"
             args = listOf(
