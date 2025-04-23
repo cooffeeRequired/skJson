@@ -116,7 +116,7 @@ public final class SkJson extends JavaPlugin {
 
 
             setupMetrics(17374);
-            info("bStats metrics enabled.");
+            info("BStats metrics enabled.");
         }
     }
 
