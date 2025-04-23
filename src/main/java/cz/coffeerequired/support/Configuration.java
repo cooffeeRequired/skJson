@@ -94,6 +94,8 @@ public class Configuration {
                 scheduleUpdate(downloadUrl);
             } else if (currentVersion.compareTo(latestVersion) > 0) {
                 SkJson.info("Running a Development version, no update required &a ✔");
+            } else {
+                SkJson.info("SkJson is up-to-date &a ✔");
             }
         } catch (Exception e) {
             SkJson.severe("Update failed " + e.getMessage());

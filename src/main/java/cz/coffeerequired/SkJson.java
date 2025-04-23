@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.AdvancedPie;
-import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import static cz.coffeerequired.api.Api.Records.*;
@@ -78,9 +76,6 @@ public final class SkJson extends JavaPlugin {
         configuration = new Configuration(this);
         configuration.checkForUpdate();
 
-        setupMetrics(17374);
-        info("bStats metrics enabled.");
-
         try {
             Class.forName("cz.coffeerequired.api.cache.CacheStorageWatcher");
             info("Json watchers found & enabled.");
@@ -118,6 +113,10 @@ public final class SkJson extends JavaPlugin {
                 }
             }, Commands.emptyCompleter());
             Commands.registerCommand(this);
+
+
+            setupMetrics(17374);
+            info("bStats metrics enabled.");
         }
     }
 

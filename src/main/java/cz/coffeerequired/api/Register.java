@@ -31,7 +31,7 @@ import java.util.List;
 
 public class Register {
 
-    static final String prefix = "[skjson]";
+    static final String prefix = "[skjson] ";
     static ArrayDeque<Class<? extends Extensible>> modules = new ArrayDeque<>();
     @Getter
     private static SkriptAddon addon;
@@ -43,6 +43,7 @@ public class Register {
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
+                assert annotation != null;
                 String moduleName = annotation.module();
 
                 SkJson.info(
@@ -115,6 +116,7 @@ public class Register {
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
+                assert annotation != null;
                 String moduleName = annotation.module();
                 SkJson.info(
                         "Registering module: %s%s&r",
@@ -225,7 +227,7 @@ public class Register {
 
         public void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
             extensible.addNewElement("Events", c);
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + " " + patterns[i];
+            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
 
             SkJson.debug("&8Registering event: &7patterns: %s&8; name: %s&8; version: %s", 
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),

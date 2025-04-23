@@ -11,3 +11,4 @@ settings.json/build/
 .DS_Store
 tools
 /skript/
+/.vscode/settings.json
