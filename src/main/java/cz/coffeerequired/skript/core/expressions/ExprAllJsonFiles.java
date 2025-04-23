@@ -1,7 +1,9 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -13,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Get all files paths in given directory")
 @Examples("all json files from dir \".\"")
+@Description("Returns all json files from the given directory. The directory must be a valid path.")
+@Since("5.0")
 public class ExprAllJsonFiles extends SimpleExpression<String> {
 
     private Expression<String> directoryPathExpression;

@@ -16,7 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Formatting skript variable to json")
-@Description("You can easily map skript variables to json")
+@Description("Formats the skript variable to json. This is used to format the skript variable to json.")
 @Since("4.1 - API UPDATE")
 @Examples("""
             set {_test::A} to false

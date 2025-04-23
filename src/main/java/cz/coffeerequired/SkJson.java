@@ -5,16 +5,21 @@ import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.Commands;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.SkJsonLogger;
+import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import cz.coffeerequired.support.Configuration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.AdvancedPie;
+import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import static cz.coffeerequired.api.Api.Records.*;
@@ -118,14 +123,44 @@ public final class SkJson extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        info("Disabling SkJson.");
+        CacheStorageWatcher.Extern.unregisterAll();
+        Api.getCache().free();
+        info("Cache storage was freed.");
+
         super.onDisable();
     }
+
 
     @SuppressWarnings("UnstableApiUsage")
     public void setupMetrics(int id) {
         Metrics metrics = new Metrics(this, id);
         metrics.addCustomChart(new SimplePie("skript_version", () -> Skript.getVersion().toString()));
-        metrics.addCustomChart(new SimplePie("skjson_version", () -> this.getPluginMeta().getVersion()));
+
+        var core = Register.registers.getFirst().getLoadedElements();
+        var http = Register.registers.getLast().getLoadedElements();
+
+        metrics.addCustomChart(new AdvancedPie("features_core", () -> Map.of(
+                "Expressions",          core.get("Expressions").size(),
+                "Effects",              core.get("Effects").size(),
+                "Sections",             core.get("Sections").size(),
+                "Conditions",           core.get("Conditions").size(),
+                "Functions",            core.get("Functions").size(),
+                "Structures",           core.get("Structures").size(),
+                "Types",                core.get("Types").size(),
+                "Event Expressions",    core.get("Event Expressions").size()
+        )));
+
+        metrics.addCustomChart(new AdvancedPie("features_http", () -> Map.of(
+                "Expressions",          http.get("Expressions").size(),
+                "Effects",              http.get("Effects").size(),
+                "Sections",             http.get("Sections").size(),
+                "Conditions",           http.get("Conditions").size(),
+                "Functions",            http.get("Functions").size(),
+                "Structures",           http.get("Structures").size(),
+                "Types",                http.get("Types").size(),
+                "Event Expressions",    http.get("Event Expressions").size()
+        )));
     }
 
     @SuppressWarnings("unused")

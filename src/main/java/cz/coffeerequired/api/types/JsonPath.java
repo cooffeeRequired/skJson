@@ -81,7 +81,9 @@ public class JsonPath {
         @Override
         public @Nullable Class<?>[] acceptChange(ChangeMode changeMode) {
             if (changeMode == ChangeMode.ADD) {
-                return CollectionUtils.array(Object.class, Object[].class);
+                return CollectionUtils.array(Object[].class);
+            } else if (changeMode == ChangeMode.REMOVE) {
+                return CollectionUtils.array(Object[].class);
             }
             return null;
         }
@@ -103,22 +105,15 @@ public class JsonPath {
                 SerializedJson serializedJson = new SerializedJson(path.getInput());
                 var converted = Arrays.stream(delta).filter(Objects::nonNull).map(GsonParser::toJson).toArray(JsonElement[]::new);
 
+                SkJson.debug("converted %s", Arrays.toString(converted) );
+
                 IntStream.range(0, converted.length).forEach(idx -> {
                     var json = converted[idx];
-                    var result = serializedJson.searcher.keyOrIndex(path.getKeys());
-                    if (result == null) {
-                        SkJson.severe("Module [Core]: result need to be defined");
-                        return;
-                    }
-                    if (!(result instanceof JsonArray)) {
-                        SkJson.severe("Module [Core]: additional can be used only for JSON arrays. | JSON array given " + result.getClass().getSimpleName());
-                        return;
-                    }
-                    var keys = path.getKeys();
-                    var key = Map.entry((((JsonArray) result).size()) + idx + "", SkriptJsonInputParser.Type.Index);
-                    keys.add(key);
-                    serializedJson.changer.value(keys, json);
+                    serializedJson.changer.add(path.getKeys(), json);
                 });
+            } else if (changeMode == ChangeMode.REMOVE) {
+                SkJson.debug("remove %s", Arrays.toString(delta) );
+                SkJson.debug("remove %s", Arrays.toString(what) );
             }
         }
     };

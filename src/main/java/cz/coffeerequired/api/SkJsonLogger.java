@@ -1,6 +1,8 @@
 package cz.coffeerequired.api;
 
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.AnsiColorConverter;
+import lombok.val;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
@@ -115,6 +117,9 @@ public abstract class SkJsonLogger {
     }
 
     public static String translate(String defaultStringifyJson) {
-        return LegacyComponentSerializer.legacy('&').deserialize(defaultStringifyJson).content();
+
+        val legacy = LegacyComponentSerializer.legacy('&');
+        val deserialized = legacy.deserialize(defaultStringifyJson);
+        return deserialized.content();
     }
 }

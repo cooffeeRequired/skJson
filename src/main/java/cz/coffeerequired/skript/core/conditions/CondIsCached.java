@@ -13,10 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 @Name("Is JSON file cached")
-@Examples("""
-        json storage with id "my-json-storage" is cached:
-            send true
-        """)
+@Examples("send true if json storage with id \"my-json-storage\" is cached")
 @Since("4.1 - API UPDATE")
 public class CondIsCached extends Condition {
 

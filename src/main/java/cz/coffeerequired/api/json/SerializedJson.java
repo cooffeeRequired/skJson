@@ -5,12 +5,10 @@ import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
 import lombok.Getter;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Map;
+import java.util.*;
 
 import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
 
@@ -39,15 +37,19 @@ public class SerializedJson {
     }
 
     public record changer(JsonElement json) {
-        public void key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, String newKey) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
-            JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
-
-            while ((currentKey = deque.pollFirst()) != null) {
-                current = handle(current, currentKey, true);
+        public void add(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
+            var current = getCurrentWithoutRemovingKey(tokens, json, true);
+            if (current instanceof JsonArray array) {
+                array.add(value);
+            } else {
+                SkJson.exception(new SerializedJsonException("Add could be done only in Json Arrays"), "Changer issue");
             }
+        }
+
+        public void key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, String newKey) {
+            var c = getCurrent(tokens, json);
+            JsonElement current = (JsonElement) c.get(1);
+            var key = (String) c.getFirst();
 
             if (!current.isJsonObject()) {
                 Skript.error("Key could be changed only in Json Object but found (" + current.getClass().getSimpleName() + ")", ErrorQuality.SEMANTIC_ERROR);
@@ -58,8 +60,12 @@ public class SerializedJson {
         }
 
         public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
+            value(tokens, value, true);
+        }
+
+        public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value, boolean removeKey) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
-            var temp = deque.removeLast();
+            var temp = removeKey ? deque.removeLast() : deque.getLast();
             var key = temp.getKey();
             JsonElement current = json;
             Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
@@ -143,14 +149,9 @@ public class SerializedJson {
 
     public record remover(JsonElement json) {
         public void byKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
-            JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
-
-            while ((currentKey = deque.pollFirst()) != null) {
-                current = handle(current, currentKey, false);
-            }
+            var c = getCurrent(tokens, json, false);
+            JsonElement current = (JsonElement) c.get(1);
+            var key = (String) c.getFirst();
 
             if (!current.isJsonObject()) {
                 throw new SerializedJsonException("Key could be removed only in Json Objects");
@@ -159,15 +160,30 @@ public class SerializedJson {
             }
         }
 
-        public void byIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
-            JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+        public void allByValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
+            JsonElement current = tokens == null ? json : getCurrentWithoutRemovingKey(tokens, json);
+            JsonElement valueElement = GsonParser.toJson(value);
 
-            while ((currentKey = deque.pollFirst()) != null) {
-                current = handle(current, currentKey, false);
+            if (current instanceof JsonArray array) {
+                var deepCopy = array.deepCopy();
+
+                for (JsonElement element : deepCopy) {
+                    if (element.equals(valueElement)) array.remove(element);
+                }
+            } else if (current instanceof JsonObject jsonObject) {
+                var deepCopy = jsonObject.deepCopy();
+                for (Map.Entry<String, JsonElement> entry : deepCopy.entrySet()) {
+                    if (entry.getValue().equals(valueElement)) jsonObject.remove(entry.getKey());
+                }
+            } else {
+                SkJson.exception(new SerializedJsonException("Value could be removed only in Json Arrays or Json Objects"), "Changer issue");
             }
+        }
+
+        public void byIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+            var c = getCurrent(tokens, json);
+            JsonElement current = (JsonElement) c.get(1);
+            var key = (String) c.getFirst();
 
             Number index;
 
@@ -180,43 +196,57 @@ public class SerializedJson {
 
         public void byValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
             var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
-            JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
-
-            while ((currentKey = deque.pollFirst()) != null) {
-                current = handle(current, currentKey, false);
-            }
+            JsonElement current = getCurrentWithoutRemovingKey(tokens, json);
 
             JsonElement valueElement = GsonParser.toJson(value);
-            Number index;
 
-            if (current instanceof JsonArray jsonArray) {
-                if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
-                    JsonElement val = jsonArray.get(index.intValue());
-                    if (val.equals(valueElement)) jsonArray.remove(index.intValue());
-                } else {
-                    throw new SerializedJsonException("Given key is instance of String not int\\double!");
-                }
+            if (current instanceof JsonArray array) {
+                array.remove(valueElement);
             } else if (current instanceof JsonObject jsonObject) {
-                JsonElement val = jsonObject.get(key);
-                if (val.equals(valueElement)) jsonObject.remove(key);
+                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                    if (entry.getValue().equals(valueElement)) jsonObject.remove(entry.getKey());
+                }
             } else {
-                throw new SerializedJsonException("Value could be removed only in Json Arrays or Json Objects");
+                SkJson.exception(new SerializedJsonException("Value could be removed only in Json Arrays or Json Objects"), "Changer issue");
             }
         }
     }
 
+    private static List<?> getCurrent(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json, boolean setMode) {
+        var deque = SerializedJsonUtils.listToDeque(tokens);
+        var key = deque.removeLast().getKey();
+        JsonElement current = json;
+        Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+
+        while ((currentKey = deque.pollFirst()) != null) {
+            current = handle(current, currentKey, setMode);
+        }
+        return List.of(key, current);
+    }
+
+    private static List<?> getCurrent(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json) {
+        return getCurrent(tokens, json, true);
+    }
+
+    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json, boolean setMode) {
+        var deque = SerializedJsonUtils.listToDeque(tokens);
+        JsonElement current = json;
+        Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+        while ((currentKey = deque.pollFirst()) != null) {
+            current = handle(current, currentKey, setMode);
+        }
+        return current;
+    }
+
+    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json) {
+        return getCurrentWithoutRemovingKey(tokens, json, false);
+    }
+
     public record searcher(JsonElement json) {
         public Object keyOrIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
-            var key = deque.removeLast().getKey();
-            JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
-
-            while ((currentKey = deque.pollFirst()) != null) {
-                current = handle(current, currentKey, true);
-            }
+            var c = getCurrent(tokens, json);
+            JsonElement current = (JsonElement) c.get(1);
+            var key = (String) c.getFirst();
 
             if (current instanceof JsonArray array) {
                 Number index = SerializedJsonUtils.isNumeric(key);

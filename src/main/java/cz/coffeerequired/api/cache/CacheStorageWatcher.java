@@ -221,7 +221,6 @@ public class CacheStorageWatcher {
             });
         }
 
-        @SuppressWarnings("unused")
         public static void unregisterAll() {
             try {
                 SkJson.info("Unregistering all watchers...");

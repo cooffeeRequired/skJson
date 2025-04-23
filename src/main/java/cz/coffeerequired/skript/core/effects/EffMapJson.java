@@ -20,7 +20,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("formatting Json to Skript list variable")
-@Description("Its allow convert Json to skript list variable")
+@Description("Maps the json to a skript list variable. This is used to map the json to a skript list variable.")
 @Since("1.9, 2.9 - Support mapping json from functions, 4.1 performance increase")
 @Examples("""
             map {_json} to {_mapped::*}

@@ -21,7 +21,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("Count keys/values in the json")
-@Description("You can get counts of keys/values inside json object/value")
+@Description("Counts the number of keys or values in the json. This is used to count the number of keys or values in the json.")
 @Since("4.1 - API UPDATE")
 @Examples("""
             set {_json} to json from "{random: 1, key: {random: 2}}"

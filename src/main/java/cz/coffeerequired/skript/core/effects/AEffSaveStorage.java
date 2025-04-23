@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.effects;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -19,9 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Name("Save cached json to file")
-@Examples("""
-            save json storage id "my-json-storage"
-        """)
+@Description("Saves the cached json to a file. This is used to save the cache to a file.")
+@Examples("save json storage id \"my-json-storage\"")
 @Since("4.1 - API UPDATE")
 public class AEffSaveStorage extends AsyncEffect {
 

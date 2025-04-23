@@ -13,12 +13,14 @@ import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Syntax;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @Name("Cached storage watcher - un/bind from file")
-@Description("")
+@Description("Binds or unbinds a storage watcher to a file. This is used to watch for changes in the file and update the cache accordingly.")
+@Syntax("bind storage watcher to <string>")
 @Examples("""
             bind storage watcher to "player-storage"
             unbind storage watcher from "player-storage"

@@ -29,7 +29,10 @@ import java.util.Objects;
 
 
 @Name("New json element")
-@Description("Creates an new json from given input as like strings, objects, websites or either files")
+@Description({
+        "Creates a new json element from any object, file or website.",
+        "This is used to create a new json element from any object, file or website.",
+})
 @Since("4.1 - API UPDATE")
 @Examples({
         "on script load:",

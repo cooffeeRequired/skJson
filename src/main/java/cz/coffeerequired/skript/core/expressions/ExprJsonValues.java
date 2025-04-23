@@ -28,7 +28,12 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("Json values")
-@Description("You can get values/s from the given Json")
+@Description({
+        "Returns the value of the json at the given path. If the path is not provided, it will return all values from the json.",
+        "If the path is a number, it will return the value at that index in the array.",
+        "If the path is a string, it will return the value at that key in the object.",
+        "If the path is empty, it will return all values from the json."
+})
 @Since({"4.1 - API UPDATE", "5.0"})
 @Examples("""
             set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"

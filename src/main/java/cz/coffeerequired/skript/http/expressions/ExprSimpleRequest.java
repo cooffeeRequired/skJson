@@ -18,19 +18,42 @@ import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
-@Name("Prepare Web request")
-@Examples("""
-             set {_request} to prepare GET request on "https://raw.githubusercontent.com/SkJsonTeam/skJson/main/skjson.json"
-             set {_request}'s request content to "{A: true}"
-             set {_request}'s headers to "{Content-Type: application/json+vhd}"
-             execute {_request}
-             set {_response} to last {_request}'s response
-            \s
-             if status of {_response} is "OK":
-                 send content of {_response}
-                 send status code of {_response}
-                 send headers of {_response}
-        \s""")
+@Name("Prepare Web requests")
+@Examples({"""
+                # blocking - synchronous
+                set {_request} to prepare GET request on "https://dummyjson.com/products/1"
+                set {_request}'s headers to "{'Content-Type':'application/json'}"
+                execute {_request}
+               \s
+                set {_response} to last response of {_request}
+
+                if {_response}'s status is "OK":
+                    send "Request was successful!"
+                    send {_response}'s body
+                    send {_response}'s headers
+                    send {_response}'s status code
+                else:
+                    send "Request failed!"
+       \s""",
+        """
+            # non-blocking - asynchronous
+            command /test:
+                trigger:
+                    # non-blocking - asynchronous
+                    set {_request} to prepare GET request on "https://dummyjson.com/products/1"
+                    set {_request}'s headers to "{'Content-Type':'application/json'}"
+                    execute {_request} as non blocking
+
+            on received http response:
+                if event-response's status is "OK":
+                    send "Request was successful!"
+                    send event-response's body
+                    send event-response's headers
+                    send event-response's status code
+                else:
+                    send "Request failed!"
+        """}
+    )
 @Description({
         "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
         "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",

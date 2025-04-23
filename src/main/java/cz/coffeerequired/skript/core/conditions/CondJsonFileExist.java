@@ -12,10 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 @Name("Check if JSON file exists")
-@Examples("""
-        if json file "..." exists:
-            send true
-        """)
+@Examples("send true if json file \"...\" exists")
 public class CondJsonFileExist extends Condition {
 
     private Expression<String> filePathExpression;

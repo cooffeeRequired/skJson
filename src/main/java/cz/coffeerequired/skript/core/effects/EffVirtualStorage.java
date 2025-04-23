@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @Name("Virtual json storage")
-@Description("Allows create an virtual instance of json file-storage, without physical file.")
+@Description("Creates a virtual json storage. This is used to create a virtual json storage that can be used to store data in memory.")
 @Examples("""
             create json virtual storage named "my-virtual-memory-storage"
         """)

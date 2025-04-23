@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -17,6 +18,12 @@ import org.jetbrains.annotations.Nullable;
         "send {_json} is bigger than 1."
 })
 @Since("4.1 - API UPDATE")
+@Description({
+        "Returns the size of the json object or array.",
+        "If the json is null or primitive, it will return null.",
+        "If the json is an object, it will return the number of keys.",
+        "If the json is an array, it will return the number of elements."
+})
 public class ExprJsonSize extends SimplePropertyExpression<JsonElement, Integer> {
 
     protected @NotNull String getPropertyName() {

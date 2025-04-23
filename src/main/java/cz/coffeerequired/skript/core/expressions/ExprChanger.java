@@ -48,7 +48,7 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
         return switch (mode) {
-            case SET -> CollectionUtils.array(Object.class, Object[].class);
+            case SET -> CollectionUtils.array(Object[].class);
             case REMOVE -> CollectionUtils.array(JsonPath.class);
             default -> null;
         };
@@ -57,21 +57,18 @@ public class ExprChanger extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         JsonPath jsonPath = null;
-        if (mode.equals(Changer.ChangeMode.SET)) {
+        if (mode.equals(Changer.ChangeMode.SET) || mode.equals(Changer.ChangeMode.REMOVE)) {
             jsonPath = exprJsonPath.getSingle(event);
 
-            if (jsonPath == null) {
-                SkJson.severe("path cannot be null");
-                return;
-            }
-        }
-
-        if (mode == Changer.ChangeMode.SET) {
             if (delta == null || delta.length < 1) {
                 SkJson.severe("delta needs to be defined");
                 return;
             }
 
+            if (jsonPath == null) {
+                SkJson.severe("path cannot be null");
+                return;
+            }
 
             if (changeType.equals(ChangerType.KEY)) {
                 if (!SkriptUtils.isSingleton(delta)) {
@@ -83,7 +80,11 @@ public class ExprChanger extends SimpleExpression<Object> {
                     SkJson.severe("incorrect format of delta");
                     return;
                 }
+            }
+        }
 
+        if (mode.equals(Changer.ChangeMode.SET)) {
+            if (changeType.equals(ChangerType.KEY)) {
                 SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
                 serializedJson.changer.key(jsonPath.getKeys(), (String) delta[0]);
 
@@ -95,6 +96,22 @@ public class ExprChanger extends SimpleExpression<Object> {
                 serializedJson.changer.value(jsonPath.getKeys(), parsed);
             }
 
+        } else if (mode.equals(Changer.ChangeMode.REMOVE)) {
+            if (changeType.equals(ChangerType.KEY)) {
+                SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
+
+
+
+                serializedJson.remover.byKey(jsonPath.getKeys());
+            } else {
+                assert delta[0] != null;
+
+                SkJson.debug("keys: %s", jsonPath.getKeys());
+
+                JsonElement parsed = GsonParser.toJson(delta[0]);
+                SerializedJson serializedJson = new SerializedJson(jsonPath.getInput());
+                serializedJson.remover.byValue(jsonPath.getKeys(), parsed);
+            }
         }
     }
 
@@ -102,6 +119,9 @@ public class ExprChanger extends SimpleExpression<Object> {
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         changeType = ChangerType.values()[parseResult.mark];
         exprJsonPath = LiteralUtils.defendExpression(expressions[0]);
+
+        SkJson.debug("change type: %s", changeType);
+
         return LiteralUtils.canInitSafely(exprJsonPath) && exprJsonPath.isSingle();
     }
 

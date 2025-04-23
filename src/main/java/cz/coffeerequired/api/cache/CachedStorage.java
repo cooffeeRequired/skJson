@@ -45,4 +45,8 @@ public class CachedStorage<S, J, F> extends ConcurrentHashMap<S, ConcurrentHashM
             }
         });
     }
+
+    public void free() {
+        this.elements().asIterator().forEachRemaining(ConcurrentHashMap::clear);
+    }
 }

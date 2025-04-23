@@ -14,6 +14,7 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
@@ -30,15 +31,37 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Simple json literal")
 @Description({
+        "<b>Explanatory notes</b>",
+        "* - This expression is used to get a values (list) from a json object|array.",
+        "  - Need to be at the end of the path.",
+        "","",
+        "This syntax is a simplification for json path, and shortening the notation and getting closer to the form (jq or other popular tools)",
+        "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep. - for Creating",
+        "- Use rather value/key path expression",
+        "Can handle strict (get/set/remove)",
+        "all variables or expressions must be in “% ... %”",
+
         "This syntax is strictly limited to its intended use; it does allow other expressions or variables to be used.",
         "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep.",
         "Can handle strict (get/set/remove)",
         "* at the end means you want to return a skript list.",
-        "If the data is a JSON array, it is straightforward.",
-        "If it is a JSON object, all the values are extracted and converted into Java objects, making them directly usable within the skript."
 })
 @Examples("""
         set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+
+        set {_json}.array[0]."%player's uuid%" to player
+
+        # OUTPUT
+        {
+          "array": [
+            {
+              "A": 1,
+              "B": 2,
+              "C": 3,
+              "<represent of player uuid>": <player name>
+            }
+          ]
+        }
         
         send {_json}.array[0]* # will print 1,2,3,{}
         
@@ -116,18 +139,11 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
-
         var group = r.group();
-
-        SkJson.debug("regexes: %s", group);
-
         tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
-
-        SkJson.debug("tokens: %s", tokens);
-
-        if (group.contains("%")) {
+        if (group.contains("%"))
             v = parseExpression(group);
-        }
+
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
 
@@ -153,25 +169,65 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         return result;
     }
 
-    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
         return switch (mode) {
-            case SET -> CollectionUtils.array(Object.class, Object[].class);
+            case SET, ADD -> CollectionUtils.array(Object[].class, Object.class);
+            case REMOVE, REMOVE_ALL, DELETE -> CollectionUtils.array(Object[].class);
             default -> null;
         };
     }
 
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+        JsonElement jsonElement = jsonElementExpression.getSingle(event);
+        if (delta == null) return;
         if (mode.equals(Changer.ChangeMode.SET)) {
-            if (delta == null) return;
-
-            JsonElement jsonElement = jsonElementExpression.getSingle(event);
             for (Object o : delta) {
                 JsonElement parsed = GsonParser.toJson(o);
                 SerializedJson serializedJson = new SerializedJson(jsonElement);
                 serializedJson.changer.value(tokens, parsed);
+            }
+        } else if (mode.equals(Changer.ChangeMode.ADD)) {
+            for (Object o : delta) {
+                JsonElement parsed = GsonParser.toJson(o);
+                SerializedJson serializedJson = new SerializedJson(jsonElement);
+                serializedJson.changer.add(tokens, parsed);
+            }
+        } else if (mode.equals(Changer.ChangeMode.REMOVE) || mode.equals(Changer.ChangeMode.DELETE)) {
+            if (delta[0] instanceof JsonObject json) {
+                if (json.has("...changer-properties...")) {
+                    var type = json.get("type").getAsString();
+                    var values = json.get("values").getAsJsonArray();
+
+                    if (type.equals("value")) {
+                        SerializedJson serializedJson = new SerializedJson(jsonElement);
+                        assert values != null;
+                        for (var value : values) {
+                            serializedJson.remover.byValue(tokens, value);
+                        }
+                    } else if (type.equals("key")) {
+                        SerializedJson serializedJson = new SerializedJson(jsonElement);
+                        assert values != null;
+                        for (var value : values) {
+                            var tr = tokens;
+
+                            tr.add(Map.entry(value.getAsString(), SkriptJsonInputParser.Type.Object));
+                            serializedJson.remover.byKey(tr);
+                        }
+                    }
+                }
+            }
+
+
+            for (var o : delta) {
+                SerializedJson serializedJson = new SerializedJson(jsonElement);
+                serializedJson.remover.byValue(tokens, o);
+            }
+        } else if (mode.equals(Changer.ChangeMode.REMOVE_ALL)) {
+            SerializedJson serializedJson = new SerializedJson(jsonElement);
+            for (var o : delta) {
+                serializedJson.remover.allByValue(tokens, o);
             }
         }
     }

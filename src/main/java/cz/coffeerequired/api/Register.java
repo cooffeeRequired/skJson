@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Register {
 
@@ -156,6 +158,8 @@ public class Register {
                 coloredElement(id), count) + AnsiColorConverter.RESET);
     }
 
+    public static List<Extensible> registers = new ArrayList<>();
+
     @SuppressWarnings("unused")
     public static class SkriptRegister {
 
@@ -163,6 +167,7 @@ public class Register {
 
         public void apply(final Extensible extensible) {
             this.extensible = extensible;
+            registers.add(extensible);
         }
 
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {

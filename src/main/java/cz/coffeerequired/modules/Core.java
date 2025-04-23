@@ -70,7 +70,7 @@ public class Core extends Extensible {
         register.registerType(new ClassInfo<>(JsonElement.class, "jsonelement")
                         .user("json ?elements?")
                         .name("jsonelement")
-                        .description("Json representation of any object in skript")
+                        .description("Json element representation")
                         .since("2.9, 4.1 - change")
                         .parser(Json.parser)
                         .serializer(Json.serializer)
@@ -109,6 +109,9 @@ public class Core extends Extensible {
                 "%jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
                 "%jsonelement%<\\[\\d+\\]>"
         );
+
+        register.registerExpression(ExprRemoveValKey.class, JsonElement.class, ExpressionType.SIMPLE, "(:value[s]|:key[s]) %objects%");
+
         register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
                 "(1st|first) (:value|:key) of %jsonelement%",
                 "(2nd|second) (:value|:key) of %jsonelement%",
@@ -137,8 +140,8 @@ public class Core extends Extensible {
                 "%jsonelement% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
         );
         register.registerCondition(CondJsonType.class,
-                "type of %jsonelement% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
-                "type of %jsonelement% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
+                "json type of %jsonelement% is (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)",
+                "json type of %jsonelement% (is(n't| not)) (json[-]:object|json[-]:array|json[-]:primitive|json[-]:null)"
         );
 
         register.registerCondition(CondJsonFileExist.class, "json file %string% exists", "json file %string% does(n't| not) exist");
@@ -165,9 +168,9 @@ public class Core extends Extensible {
         register.registerEvent(
                 "*Json watcher save", WatcherEvent.class, JsonFileChanged.class,
                 "will only run when the json watcher notices a change in the file",
-                "on json watcher save",
+                "on json watcher file change",
                 "2.9",
-                "[json-] watcher save"
+                "[json-] watcher file change", "[json-] watch save"
         );
 
         EventValues.registerEventValue(JsonFileChanged.class, JsonElement.class, JsonFileChanged::getJson, EventValues.TIME_NOW);

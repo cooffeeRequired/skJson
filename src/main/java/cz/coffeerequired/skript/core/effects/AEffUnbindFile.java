@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.effects;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -15,9 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @Name("Unbind the storage for the given id")
-@Examples("""
-            unbind json storage id "my-json-storage"
-        """)
+@Examples("unbind json storage id \"my-json-storage\"")
+@Description("Unbinds the storage for the given id. This is used to unbind the storage from the file.")
 @Since("4.1 - API UPDATE")
 public class AEffUnbindFile extends AsyncEffect {
 

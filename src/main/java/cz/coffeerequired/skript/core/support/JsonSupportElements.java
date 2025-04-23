@@ -17,7 +17,7 @@ import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Support literals")
-@Description("Represent sort of literals for skJson as like 1st/2nd, first, last, random etc.")
+@Description("Returns the first, second, third, last, random or custom value of the json. This is used to get the first, second, third, last, random or custom value of the json.")
 @Since("4.1 - API UPDATE")
 @Examples("""
             set {_json} to json from "[1, 2, 3, 8, 'TEST']"

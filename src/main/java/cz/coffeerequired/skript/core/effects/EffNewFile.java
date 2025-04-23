@@ -17,7 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Create JSON file with/out content")
 @Since("2.6.2, 4.1 - API UPDATE")
-@Description("Allows us to create a JSON file that can either be initialized with some content or remain empty.")
+@Description({
+        "Creates a JSON file with the given name and content. If the file already exists, it will be replaced if the configuration is set to replace=true.",
+        "If the content is not provided, an empty JSON object will be created.",
+        "The configuration can be used to set the encoding and other options.",
+})
 @Examples("""
             create json file "content.json"
             create json file "content.json" with configuration[replace=true, encoding=UTF-8]

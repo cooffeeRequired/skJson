@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -12,9 +13,26 @@ import cz.coffeerequired.api.types.JsonPath;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-// json path %string% in %jsonelement%
-
 @SuppressWarnings("unchecked")
+@Name("Get Json Path")
+@Description("Returns the json path from the given json element. The path must be a valid json path.")
+@Examples("""
+        set {_json} to json from "{array: [{A: 1, B: 2, C: 3}]}"
+        send json path "array.0" in {_json}
+        send json path "array.0.A" in {_json}
+        
+        
+        set {_json} to json from "{}"
+        set value of json path "r[0].A" in {_json} to "classic set - array - nested"
+        set value of json path "r[0].B" in {_json} to "classic set - array - nested"
+        set value of json path "r[1].c" in {_json} to "troll"
+        set value of json path "r[1].d" in {_json} to "troll 2"
+        set value of json path "r[1].e[0].x.b" in {_json} to "troll 3"
+        set value of json path "r[0].X.e" in {_json} to "troll 3"
+        
+        
+        """)
+@Since("5.0")
 public class ExprJsonPath extends SimpleExpression<JsonPath> {
 
     private Expression<JsonElement> exprJson;

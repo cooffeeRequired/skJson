@@ -7,13 +7,11 @@ import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
+@SuppressWarnings("unused")
 public abstract class SkriptUtils {
     @SuppressWarnings("unchecked")
     public static TreeMap<String, Object> getListVariable(String name, Event event, boolean isLocal) {
@@ -75,7 +73,6 @@ public abstract class SkriptUtils {
             }
         }
 
-        // list Initialize new size of a list
         for (int i = 0; i <= maxIndex; i++) {
             list.add(null);
         }
@@ -103,34 +100,39 @@ public abstract class SkriptUtils {
 
     public static void convertJsonToSkriptVariable(@NotNull String variableName, @NotNull JsonElement json, @NotNull Event event, boolean isLocal) {
 
-        if (json instanceof JsonPrimitive primitive) {
-            savePrimitiveToVariable(variableName, SerializedJsonUtils.lazyObjectConverter(primitive), event, isLocal);
-        } else if (json instanceof JsonObject object) {
-            var parsed = GsonParser.fromJson(object);
-            if (!cannotBeParsed(parsed)) {
-                saveParsedToVariable(variableName, parsed, event, isLocal);
-            } else {
-                for (String key : object.keySet()) {
-                    JsonElement value = object.get(key);
-                    String pathKey = variableName + key + SEPARATOR;
-                    if (!cannotBeParsed(value)) {
-                        saveParsedToVariable(pathKey, parsed, event, isLocal);
-                    } else {
-                        convertJsonToSkriptVariable(pathKey, value, event, isLocal);
+        switch (json) {
+            case JsonPrimitive primitive ->
+                    savePrimitiveToVariable(variableName, SerializedJsonUtils.lazyObjectConverter(primitive), event, isLocal);
+            case JsonObject object -> {
+                var parsed = GsonParser.fromJson(object);
+                if (!cannotBeParsed(parsed)) {
+                    saveParsedToVariable(variableName, parsed, event, isLocal);
+                } else {
+                    for (String key : object.keySet()) {
+                        JsonElement value = object.get(key);
+                        String pathKey = variableName + key + SEPARATOR;
+                        if (!cannotBeParsed(value)) {
+                            saveParsedToVariable(pathKey, parsed, event, isLocal);
+                        } else {
+                            convertJsonToSkriptVariable(pathKey, value, event, isLocal);
+                        }
                     }
                 }
             }
-        } else if (json instanceof JsonArray array) {
-            for (int i = 0; i < array.size(); i++) {
-                JsonElement element = array.get(i);
-                String newName = variableName + (i + 1) + SEPARATOR;
-                Object parsed = GsonParser.fromJson(element);
+            case JsonArray array -> {
+                for (int i = 0; i < array.size(); i++) {
+                    JsonElement element = array.get(i);
+                    String newName = variableName + (i + 1) + SEPARATOR;
+                    Object parsed = GsonParser.fromJson(element);
 
-                if (cannotBeParsed(element)) {
-                    convertJsonToSkriptVariable(newName, element, event, isLocal);
-                } else {
-                    saveParsedToVariable(newName, parsed, event, isLocal);
+                    if (cannotBeParsed(element)) {
+                        convertJsonToSkriptVariable(newName, element, event, isLocal);
+                    } else {
+                        saveParsedToVariable(newName, parsed, event, isLocal);
+                    }
                 }
+            }
+            default -> {
             }
         }
     }
@@ -169,4 +171,16 @@ public abstract class SkriptUtils {
     }
 
 
+    @FunctionalInterface
+    public interface ComparatorDelta<T> {
+        boolean compare(T o);
+    }
+
+    public static <E> boolean anyElementIs(Collection<E> delta, ComparatorDelta<E> o) {
+        return delta.stream().anyMatch(o::compare);
+    }
+
+    public static <E> boolean anyElementIs(E[] delta, ComparatorDelta<E> o) {
+        return Arrays.stream(delta).anyMatch(o::compare);
+    }
 }

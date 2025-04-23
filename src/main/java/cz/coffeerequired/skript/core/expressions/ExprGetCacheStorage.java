@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
             send all json storages
         """)
 @Since("2.8.0 - performance & clean")
+@Description("Get cached json storage. This is used to get the cached json storage. If the id is not provided, it will return all json storages.")
 public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
 
     private Expression<String> storedKeyExpr;

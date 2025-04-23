@@ -18,12 +18,41 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("Send created/prepared request")
-@Examples("""
+@Examples({"""
+                # blocking - synchronous
                 set {_request} to prepare GET request on "https://dummyjson.com/products/1"
                 set {_request}'s headers to "{'Content-Type':'application/json'}"
-                execute {_request} as non blocking
                 execute {_request}
-        """)
+               \s
+                set {_response} to last response of {_request}
+
+                if {_response}'s status is "OK":
+                    send "Request was successful!"
+                    send {_response}'s body
+                    send {_response}'s headers
+                    send {_response}'s status code
+                else:
+                    send "Request failed!"
+       \s""",
+        """
+            # non-blocking - asynchronous
+            command /test:
+                trigger:
+                    # non-blocking - asynchronous
+                    set {_request} to prepare GET request on "https://dummyjson.com/products/1"
+                    set {_request}'s headers to "{'Content-Type':'application/json'}"
+                    execute {_request} as non blocking
+
+            on received http response:
+                if event-response's status is "OK":
+                    send "Request was successful!"
+                    send event-response's body
+                    send event-response's headers
+                    send event-response's status code
+                else:
+                    send "Request failed!"
+        """}
+    )
 @Description({
         "Sends a previously created HTTP request to the specified URL",
         "The request must be created using request creation commands (e.g. 'create request').",

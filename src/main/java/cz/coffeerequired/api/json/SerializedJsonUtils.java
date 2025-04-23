@@ -31,38 +31,75 @@ public abstract class SerializedJsonUtils {
     }
 
     public static JsonElement handle(JsonElement json, Map.Entry<String, SkriptJsonInputParser.Type> key_, boolean inSetMode) throws SerializedJsonException {
-        if (json == null || json.isJsonNull()) {
-            throw new SerializedJsonException("Cannot handle a null JSON element");
-        }
-
-        String key = key_.getKey();
-
-        if (json instanceof JsonObject object) {
-            if (!object.has(key) && inSetMode) {
-                var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) || key_.getValue().equals(SkriptJsonInputParser.Type.Index) ? new JsonArray() : new JsonObject();
-                object.add(key, newObject);
-                return newObject;
+        try {
+            if (json == null || json.isJsonNull()) {
+                throw new SerializedJsonException("Cannot handle a null JSON element");
             }
-            return object.get(key);
-        } else if (json instanceof JsonArray array) {
-            int index = Integer.parseInt(key);
-            if (inSetMode) {
-                while (array.size() <= index) {
-                    array.add(JsonNull.INSTANCE);
+
+            String key = key_.getKey();
+
+            if (!inSetMode) {
+                if (json instanceof JsonObject object) {
+                    if (!object.has(key)) {
+                        SkJson.warning("Json object does not contain key: %s", key);
+                        return object;
+                    }
+                    return object.get(key);
+                } else if (json instanceof JsonArray array) {
+                    int index = Integer.parseInt(key);
+                    if (index < 0 || index >= array.size()) {
+                        SkJson.warning("Index out of bounds: %s", index);
+                        return array;
+                    }
                 }
-                JsonElement element = array.get(index);
-                if (element.isJsonNull()) {
-                    var newObject = key_.getValue().equals(SkriptJsonInputParser.Type.List) || key_.getValue().equals(SkriptJsonInputParser.Type.Index) ? new JsonArray() : new JsonObject();
-                    array.set(index, newObject);
-                    return newObject;
-                }
-                return element;
             } else {
-                return array.get(index);
+                if (json instanceof JsonObject object) {
+                    if (! object.has(key)) {
+                        return switch (key_.getValue()) {
+                            case List, Index, ListInit -> {
+                                var new_ = new JsonArray();
+                                object.add(key, new_);
+                                yield new_;
+                            }
+                            case Object -> {
+                                var new_ = new JsonObject();
+                                object.add(key, new_);
+                                yield new_;
+                            }
+                            default -> throw new SerializedJsonException("Unknown type: %s for object".formatted(key_.getValue()));
+                        };
+                    } else {
+                        return object.get(key);
+                    }
+                } else if (json instanceof JsonArray array) {
+                    int index = Integer.parseInt(key);
+                    if (array.isEmpty() || index >= array.size()) {
+                        return switch (key_.getValue()) {
+                            case List, Index -> {
+                                var new_ = new JsonArray();
+                                array.add(new_);
+                                yield new_;
+                            }
+                            case Object, ListObject -> {
+                                var new_ = new JsonObject();
+                                array.add(new_);
+                                yield new_;
+                            }
+                            default -> throw new SerializedJsonException("Unknown type: %s for array".formatted(key_.getValue()));
+                        };
+                    } else {
+                        return array.get(index);
+                    }
+                } else {
+                    throw new SerializedJsonException("Json is not an object or array: %s".formatted(json));
+                }
             }
-        } else {
-            throw new SerializedJsonException("Json is not an object or array: %s".formatted(json));
+        } catch (Exception e) {
+           // SkJson.exception(e, "Error handling JSON element: %s", json);
+            SkJson.severe("Error handling JSON element: %s, %s", json, e.getMessage());
         }
+
+        return json;
     }
 
 

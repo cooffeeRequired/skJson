@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 @Examples({
         "set {_json} to json from \"{data: {}}\"",
-        "if type of {_j} is json-object"
+        "if json type of {_j} is json-object"
 })
 public class CondJsonType extends Condition {
 

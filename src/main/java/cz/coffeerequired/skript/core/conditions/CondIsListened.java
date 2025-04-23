@@ -16,10 +16,7 @@ import java.io.File;
 
 
 @Name("JSON file is listened by storage watcher")
-@Examples("""
-        json storage with id "my-json-storage" is listened:
-            send true
-        """)
+@Examples("send true if json storage with id \"my-json-storage\" is listened")
 @Since("4.1 - API UPDATE")
 
 public class CondIsListened extends Condition {

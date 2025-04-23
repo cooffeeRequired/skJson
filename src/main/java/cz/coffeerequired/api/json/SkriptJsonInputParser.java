@@ -58,7 +58,11 @@ public class SkriptJsonInputParser {
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenize(String path, String delim) {
-        return getTokens(path, delim);
+        SkJson.info("Tokenizing path: %s", path);
+        var tokens = getTokens(path, delim);
+        SkJson.debug("Tokens: %s", tokens);
+
+        return tokens;
     }
 
     private static @NotNull List<Object> getType(int i, String[] tokens, String currentToken) {
@@ -69,37 +73,52 @@ public class SkriptJsonInputParser {
 
         if (currentToken.endsWith("[]")) {
             type = Type.ListInit;
-        } else if (currentToken.matches(".+\\[\\d+]")) {
-            try {
-                var indexOfNumber = currentToken.indexOf('[');
-                var string = currentToken.substring(0, indexOfNumber);
-                currentToken = currentToken.substring(indexOfNumber + 1, currentToken.length() - 1);
-                return List.of(Type.List, string, Type.Index, currentToken);
-
-            } catch (NumberFormatException ignored) {
-                type = Type.Object;
-            }
-        } else if (currentToken.endsWith("*")) {
-            type = Type.ListAll;
-        } else if (currentToken.matches("\\d+")) {
-            // Pokud je token pouze číslo, je to index
-            type = Type.Index;
         } else {
-            if (currentToken.equals(last)) {
-                if (currentToken.matches("\\d+")) {
-                    type = Type.Index;
-                } else if (currentToken.matches("\\d+\\*")) {
-                    type = Type.List;
-                } else {
+            boolean b = nextToken != null && !nextToken.matches("\\d+") && !nextToken.matches("\\d+\\*");
+            if (currentToken.matches(".+\\[\\d+]")) {
+                try {
+                    var indexOfNumber = currentToken.indexOf('[');
+                    var string = currentToken.substring(0, indexOfNumber);
+                    currentToken = currentToken.substring(indexOfNumber + 1, currentToken.length() - 1);
+
+                    // Kontrola, zda je následující token písmeno (ne číslo)
+                    if (b) {
+                        // Pokud je následující token písmeno, pak je to ListObject, ne index
+                        return List.of(Type.List, string, Type.ListObject, currentToken);
+                    } else {
+                        return List.of(Type.List, string, Type.Index, currentToken);
+                    }
+                } catch (NumberFormatException ignored) {
                     type = Type.Object;
                 }
-            } else {
-                if (previousToken != null && (previousToken.matches("\\d+") || previousToken.matches("\\d+\\*"))) {
-                    type = Type.List;
-                } else if (nextToken != null && (nextToken.matches("\\d+") || nextToken.matches("\\d+\\*"))) {
-                    type = Type.List;
+            } else if (currentToken.endsWith("*")) {
+                type = Type.ListAll;
+            } else if (currentToken.matches("\\d+")) {
+                // Kontrola, zda je následující token písmeno (ne číslo)
+                if (b) {
+                    // Pokud je následující token písmeno, pak je to ListObject, ne index
+                    type = Type.ListObject;
                 } else {
-                    type = Type.Object;
+                    // Pokud je token pouze číslo, je to index
+                    type = Type.Index;
+                }
+            } else {
+                if (currentToken.equals(last)) {
+                    if (currentToken.matches("\\d+")) {
+                        type = Type.Index;
+                    } else if (currentToken.matches("\\d+\\*")) {
+                        type = Type.List;
+                    } else {
+                        type = Type.Object;
+                    }
+                } else {
+                    if (previousToken != null && (previousToken.matches("\\d+") || previousToken.matches("\\d+\\*"))) {
+                        type = Type.List;
+                    } else if (nextToken != null && (nextToken.matches("\\d+") || nextToken.matches("\\d+\\*"))) {
+                        type = Type.List;
+                    } else {
+                        type = Type.Object;
+                    }
                 }
             }
         }
@@ -108,11 +127,7 @@ public class SkriptJsonInputParser {
 
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {
         if (isQuoted(path)) path = path.substring(1, path.length() - 1);
-        String convertedPath = convertPath(path);
-
-        SkJson.debug("converted path: %s", convertedPath);
-
-        return getTokens(convertedPath, PROJECT_DELIM);
+        return getTokens(convertPath(path), PROJECT_DELIM);
     }
 
     private static boolean isQuoted(String s) {
@@ -125,16 +140,12 @@ public class SkriptJsonInputParser {
         Pattern arrayPattern = Pattern.compile("\\[\\d+]");
         Pattern arrayAnyPattern = Pattern.compile("\\[]$");
 
-        // StringBuilder to build output
         StringBuilder output = new StringBuilder();
 
-        // Split the input string by '.' to handle each segment
         String[] segments = cleanedInput.split("\\.");
         for (String segment : segments) {
-            // If the segment matches an array with a specific index
             Matcher arrayMatcher = arrayPattern.matcher(segment);
             if (arrayMatcher.find()) {
-                // Pokud je segment pouze [číslo], pak je to přímo index
                 if (segment.matches("\\[\\d+]")) {
                     String index = segment.substring(1, segment.length() - 1);
                     if (!output.isEmpty()) {
@@ -142,7 +153,6 @@ public class SkriptJsonInputParser {
                     }
                     output.append(index);
                 } else {
-                    // Jinak je to název pole s indexem
                     String arrayName = segment.substring(0, segment.indexOf('['));
                     String index = segment.substring(segment.indexOf('[') + 1, segment.indexOf(']'));
                     if (!output.isEmpty()) {
@@ -152,12 +162,10 @@ public class SkriptJsonInputParser {
                 }
                 if (segment.endsWith("*")) output.append("*");
             }
-            // If the segment matches an array without an index (e.g., [])
             else if (arrayAnyPattern.matcher(segment).find()) {
                 if (!output.isEmpty()) output.append(PROJECT_DELIM);
                 output.append(segment);
             }
-            // Otherwise, it's a regular object property
             else {
                 if (!output.isEmpty()) output.append(PROJECT_DELIM);
                 output.append(segment);
@@ -169,7 +177,7 @@ public class SkriptJsonInputParser {
 
     @Getter
     public enum Type {
-        Index(0), List(new JsonArray()), Object(new JsonObject()), ListInit("[]$"), ListAll("*$");
+        Index(0), List(new JsonArray()), Key(""), Object(new JsonObject()), ListInit("[]$"), ListAll("*$"), ListObject(new JsonObject());
 
         private final Object value;
 
