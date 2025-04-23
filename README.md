@@ -66,7 +66,7 @@
 * Additionally, it allows us to use a so-called cache. 
 * We will delve further into all these aspects as we learn more
 
-* [**Wikipedia**](./get_started.md)
+* [**Wikipedia**](https://github.com/cooffeeRequired/skJson/wiki)
 
 <center>
 
