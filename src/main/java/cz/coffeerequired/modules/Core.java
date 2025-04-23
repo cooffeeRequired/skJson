@@ -140,8 +140,8 @@ public class Core extends Extensible {
                 "%jsonelement% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
         );
         register.registerCondition(CondJsonType.class,
-                "json type of %jsonelement% is (json[-|:]object|json[-|:]array|json[-|:]primitive|json[-|:]null)",
-                "json type of %jsonelement% (is(n't| not)) (json[-|:]object|json[-|:]array|json[-|:]primitive|json[-|:]null)"
+                "json type of %jsonelement% is (json[ ](:object)|json[ ](:array)|json[ ](:primitive)|json[ ](:null))",
+                "json type of %jsonelement% (is(n't| not)) (json[ ](:object)|json[ ](:array)|json[ ](:primitive)|json[ ](:null))"
         );
 
         register.registerCondition(CondJsonFileExist.class, "json file %string% exists", "json file %string% does(n't| not) exist");

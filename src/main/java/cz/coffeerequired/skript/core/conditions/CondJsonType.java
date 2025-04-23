@@ -10,6 +10,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
+import cz.coffeerequired.SkJson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 @Examples({
         "set {_json} to json from \"{data: {}}\"",
-        "if json type of {_j} is json-object"
+        "if json type of {_j} is json object"
 })
 public class CondJsonType extends Condition {
 
@@ -49,6 +50,9 @@ public class CondJsonType extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         negated = matchedPattern == 1;
         json = LiteralUtils.defendExpression(expressions[0]);
+
+        SkJson.debug("tags %s", parseResult.tags);
+
         type = Type.fromString(parseResult.tags.getFirst());
         return LiteralUtils.canInitSafely(json);
     }
