@@ -1,6 +1,0 @@
-on load:
-    set {_json} to json from "{random: 1, key: {random: 2}"
-
-
-    # [the] count of (:key[s]|:value[s]) %object% in %jsonelement%
-    send count of value 2 in {_json}

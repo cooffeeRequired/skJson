@@ -19,11 +19,11 @@ test "has all keys !negation":
 
 test "type of json is json-object":
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
-    assert type of {_json} is json-object with "failing: o is json object"
+    assert json type of {_json} is json-object with "failing: o is json object"
 
 test "type of json is json-array":
     set {_json} to json from "[{A: 1, B: 2, C: 3, location: {}}]"
-    assert type of {_json} is json-array with "failing: o is json array"
+    assert json type of {_json} is json-array with "failing: o is json array"
 
 test "json file exists":
     assert json file "./whitelist.json" exists with "failing: json file exists"
