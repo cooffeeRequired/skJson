@@ -87,7 +87,6 @@ public abstract class Converter {
 
         @Override
         public ItemStack fromJson(JsonObject json) {
-
             if (json.has("meta")) {
                 JsonObject metaJson = json.getAsJsonObject("meta");
                 JsonElement customTags = metaJson.remove("custom");
@@ -192,8 +191,11 @@ public abstract class Converter {
         private BundleMeta bundleMeta(final JsonObject rawMeta) {
             if (rawMeta.has("items")) {
                 final JsonArray items = rawMeta.remove("items").getAsJsonArray();
-                final ArrayList<ItemStack> itemsList = new ArrayList<>();
-                items.forEach(item -> ItemStackConverter.fromJson(item.getAsJsonObject()));
+                final List<ItemStack> itemsList = items.getAsJsonArray()
+                        .asList()
+                        .stream()
+                        .map(item ->  ItemStackConverter.fromJson(item.getAsJsonObject()))
+                        .toList();
                 ItemMeta meta = GsonConverter.fromJson(rawMeta, ItemMeta.class);
                 BundleMeta bundleMeta = ((BundleMeta) meta);
                 bundleMeta.setItems(itemsList);
@@ -402,7 +404,7 @@ public abstract class Converter {
                 meta = bannerMeta(jsonMeta);
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(1))) {
                 meta = axolotlMeta(jsonMeta);
-            } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(2))) {
+            } else if (jsonMeta.get("meta-type").getAsString().contains(metaTypes.get(2))) {
                 meta = bundleMeta(jsonMeta);
             } else if (jsonMeta.get("meta-type").getAsString().equals(metaTypes.get(3))) {
                 meta = compassMeta(jsonMeta);

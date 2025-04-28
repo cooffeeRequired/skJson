@@ -25,7 +25,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -296,11 +295,15 @@ public abstract class ParserUtil {
      * @return the json element
      */
     static <T> JsonElement assign(T object) {
+
         if (object == null) return JsonNull.INSTANCE;
         boolean isSerializable = (object instanceof YggdrasilSerializable || object instanceof ConfigurationSerializable);
+
         try {
             if (object instanceof World w) return WorldConverter.toJson(w);
-            if (object instanceof Chunk c) ChunkConverter.toJson(c);
+            if (object instanceof Chunk || Chunk.class.isAssignableFrom(object.getClass())) {
+                return ChunkConverter.toJson((Chunk) object);
+            }
             if (object instanceof Block) {
                 return BlockConverter.toJson((Block) object);
             }

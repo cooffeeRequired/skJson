@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.io.ByteArrayOutputStream
 
 plugins {
     java
@@ -78,5 +79,23 @@ tasks.withType<ShadowJar>().configureEach  {
             from(archiveFile.get().asFile)
             into("\\\\wsl.localhost\\Ubuntu\\home\\coffee\\mc-developing\\plugins")
         }
+
+        val outputStream = ByteArrayOutputStream()
+
+        @Suppress("DEPRECATION")
+        exec {
+            executable = "curl"
+            args = listOf(
+                "-X", "POST",
+                "http://localhost:8291",
+                "-H", "Content-Type: application/json",
+                "-d", """{\"cmd\": [\"reload confirm\"]}"""
+            )
+            standardOutput = outputStream
+            errorOutput = System.err
+            isIgnoreExitValue = true
+        }
+
+        println("> Response: $outputStream")
     }
 }

@@ -36,6 +36,7 @@ import static cz.coffee.skjson.parser.ParserUtil.parse;
 import static cz.coffee.skjson.utils.Logger.error;
 import static cz.coffee.skjson.utils.Logger.warn;
 
+@SuppressWarnings("unused")
 @Name("New json")
 @Description({
     "latest:",

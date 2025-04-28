@@ -23,7 +23,6 @@ import cz.coffee.skjson.SkJsonElements;
 import cz.coffee.skjson.json.JsonParser;
 import cz.coffee.skjson.parser.ParserUtil;
 import cz.coffee.skjson.skript.base.JsonBase;
-import cz.coffee.skjson.utils.Logger;
 import cz.coffee.skjson.utils.PatternUtil;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +34,9 @@ import java.util.List;
 import static cz.coffee.skjson.api.ConfigRecords.*;
 import static cz.coffee.skjson.parser.ParserUtil.GsonConverter;
 import static cz.coffee.skjson.utils.Logger.error;
-import static cz.coffee.skjson.utils.Logger.info;
 import static cz.coffee.skjson.utils.PatternUtil.convertStringToKeys;
 
+@SuppressWarnings("unused")
 public abstract class SkJsonChanger {
 
     public static <V> List<JsonElement> parseAliases(V value) {
@@ -128,7 +127,7 @@ public abstract class SkJsonChanger {
         @SuppressWarnings("all")
         public Class<?> @NotNull [] acceptChange(Changer.@NotNull ChangeMode mode) {
             return switch (mode) {
-                case SET, ADD -> CollectionUtils.array(Object.class);
+                case SET, ADD -> CollectionUtils.array(Object[].class);
                 default -> null;
             };
         }
@@ -148,6 +147,7 @@ public abstract class SkJsonChanger {
                     for (Object delta : inputDelta) {
                         parsedJson = parseAliases(delta);
                         if (((LinkedList<JsonElement>) parsedJson).isEmpty()) parsedJson = ParserUtil.parse(delta);
+
                         try {
                             if (isNested) {
                                 JsonElement input = inputJsonExpression.getSingle(e);
