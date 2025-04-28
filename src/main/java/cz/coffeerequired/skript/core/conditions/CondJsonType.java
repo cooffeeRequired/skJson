@@ -50,9 +50,6 @@ public class CondJsonType extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         negated = matchedPattern == 1;
         json = LiteralUtils.defendExpression(expressions[0]);
-
-        SkJson.debug("tags %s", parseResult.tags);
-
         type = Type.fromString(parseResult.tags.getFirst());
         return LiteralUtils.canInitSafely(json);
     }

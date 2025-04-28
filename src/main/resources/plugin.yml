@@ -11,6 +11,9 @@ prefix: SkJson
 author: CoffeeRequired
 description: '&aDescription: &fSkript JSON library'
 website: 'https://skjson.coffeerequired.info'
+loadbefore:
+  - skript-reflect
+  - SkBee
 commands:
   skjson:
     description: basic skjson
@@ -19,5 +22,3 @@ permissions:
   skjson.use:
     default: op
     description: Allows you to use skjson
-libraries:
-#  - org.glassfish.jersey.core:jersey-server:2.34

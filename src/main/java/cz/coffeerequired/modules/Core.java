@@ -106,8 +106,8 @@ public class Core extends Extensible {
                 "(1:value|0:key) of %jsonpath%"
         );
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-                "%jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
-                "%jsonelement%<\\[\\d+\\]>"
+                "[literal[ json]] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
+                "[literal[ json]] %jsonelement%<\\[\\d+\\]>"
         );
 
         register.registerExpression(ExprRemoveValKey.class, JsonElement.class, ExpressionType.SIMPLE, "(:value[s]|:key[s]) %objects%");
