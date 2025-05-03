@@ -76,27 +76,23 @@ public class SerializedJson {
 
             Number index;
 
-            if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
-                if (current == null) current = new JsonArray();
-                if (!current.isJsonArray())
-                    throw new SerializedJsonException("Index could be changed only in Json Arrays");
 
-                if (((JsonArray) current).isEmpty()) {
-                    ((JsonArray) current).add(value);
-                } else if (((JsonArray) current).size() <= index.intValue()) {
-                    ((JsonArray) current).add(value);
-                } else {
-                    ((JsonArray) current).set(index.intValue(), value);
-                }
-            } else {
-                if (current == null) current = new JsonObject();
+            SkJson.debug("&6Current .-Value change %s", current);
 
-                if (current instanceof JsonArray jArray) {
-                    jArray.add(value);
-                } else if (current instanceof JsonObject jsonObject) {
-                    jsonObject.add(key, value);
-                } else {
-                    throw new SerializedJsonException("Key could be changed only in Json Objects");
+            if (current instanceof JsonObject object) {
+                object.add(key, value);
+            } else if (current instanceof JsonArray array) {
+                if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
+                    if (!current.isJsonArray())
+                        throw new SerializedJsonException("Index could be changed only in Json Arrays");
+
+                    if (array.isEmpty()) {
+                        array.add(value);
+                    } else if (array.size() <= index.intValue()) {
+                        array.add(value);
+                    } else {
+                        array.set(index.intValue(), value);
+                    }
                 }
             }
         }

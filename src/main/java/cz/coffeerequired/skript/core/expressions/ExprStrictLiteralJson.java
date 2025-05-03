@@ -104,6 +104,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     protected @Nullable Object[] get(Event event) {
         if (v != null) {
             String parsed = v.getSingle(event) + "";
+            SkJson.debug("expression: %s -> parsed result: %s", v, parsed);
             tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
         }
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
@@ -141,6 +142,9 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         jsonElementExpression = defendExpression(expressions[0]);
         var group = r.group();
         tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
+
+        SkJson.debug("tokens: %s, group: %s", tokens,group);
+
         if (group.contains("%"))
             v = parseExpression(group);
 
@@ -165,7 +169,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
             return null;
         }
         result = VariableString.newInstance(expr, StringMode.VARIABLE_NAME);
-        SkJson.debug("expression: %s -> parsed result: %s", expr, result);
         return result;
     }
 
@@ -182,6 +185,15 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
         if (delta == null) return;
+
+        if (v != null) {
+            String parsed = v.getSingle(event) + "";
+            SkJson.debug("expression: %s -> parsed result: %s", v, parsed);
+            tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
+        }
+
+        SkJson.debug("&7Changer -> tokens: %s", tokens);
+
         if (mode.equals(Changer.ChangeMode.SET)) {
             for (Object o : delta) {
                 JsonElement parsed = GsonParser.toJson(o);

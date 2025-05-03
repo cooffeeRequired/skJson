@@ -39,12 +39,13 @@ import java.util.UUID;
 public class Core extends Extensible {
 
     static final Collection<Class<?>> allowedTypes = List.of(
+            ConfigurationSerializable.class,
             ItemStack.class,
             Location.class,
             World.class,
             Chunk.class,
-            Inventory.class,
-            ConfigurationSerializable.class
+            JsonElement.class,
+            Inventory.class
     );
 
     public Core() {
@@ -136,8 +137,8 @@ public class Core extends Extensible {
 
         // ################ CONDITIONS ############################
         register.registerCondition(CondJsonHas.class,
-                "%jsonelement% has [:all] (:value[s]|:key[s]) %objects%",
-                "%jsonelement% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
+                "[json] %jsonelement% has [:all] (:value[s]|:key[s]) %objects%",
+                "[json] %jsonelement% does(n't| not) have [:all] (:value[s]|:key[s]) %objects%"
         );
         register.registerCondition(CondJsonType.class,
                 "json type of %jsonelement% is (json[ ](:object)|json[ ](:array)|json[ ](:primitive)|json[ ](:null))",

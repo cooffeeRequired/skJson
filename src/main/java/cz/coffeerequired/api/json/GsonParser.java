@@ -15,6 +15,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -82,16 +83,28 @@ public class GsonParser {
                 String invJsonTitle;
                 String stringifyInventoryHolder;
 
-                if (inventory.getHolder() == null) {
-                    invJsonTitle = "null";
-                    stringifyInventoryHolder = "null";
-                } else {
-                    invJsonTitle = inventory.getHolder().getClass().getName();
+                if (inventory.getHolder() instanceof Entity e) {
+                    invJsonTitle = e.getName();
                     stringifyInventoryHolder = gson.toJson(inventory.getHolder());
+                } else if (inventory.getType() == InventoryType.CHEST ||
+                        inventory.getType() == InventoryType.HOPPER ||
+                        inventory.getType() == InventoryType.SHULKER_BOX ||
+                        inventory.getType() == InventoryType.BARREL ||
+                        inventory.getType() == InventoryType.DROPPER ||
+                        inventory.getType() == InventoryType.DISPENSER ||
+                        inventory.getType() == InventoryType.FURNACE ||
+                        inventory.getType() == InventoryType.WORKBENCH
+                ) {
+                    invJsonTitle = "inventory from " + inventory.getType().toString().toLowerCase();
+                    stringifyInventoryHolder = null;
+                } else {
+                    invJsonTitle = "unknown";
+                    stringifyInventoryHolder = null;
                 }
                 var o = JsonParser.parseString(String.format(
-                        "{\"class\": \"%s\", \"title\": \"%s\", \"holder\": %s, \"size\": %d}",
+                        "{\"type\": \"%s\", \"class\": \"%s\", \"title\": \"%s\", \"holder\": %s, \"size\": %d}",
                         sourceType,
+                        inventory.getClass().getName(),
                         invJsonTitle,
                         stringifyInventoryHolder,
                         inventory.getSize()));
@@ -112,26 +125,24 @@ public class GsonParser {
     }
 
     public static <T> T fromJson(JsonElement json) {
-
         if (json == null) {
-            SkJson.warning("Depth error, json cannot be null, check variable path or input source");
+            SkJson.severe("Depth error, json cannot be null, check variable path or input source");
             return null;
         }
 
-        if (json.isJsonPrimitive()) return SerializedJsonUtils.lazyJsonConverter(json);
-
         Class<?> clazz = null;
 
-        try {
-            if (json.isJsonObject()) {
-                if (json.getAsJsonObject().has("class")) {
-                    String className = json.getAsJsonObject().get("class").getAsString();
-                    clazz = Class.forName(className);
-                }
+        if (json.isJsonPrimitive()) return SerializedJsonUtils.lazyJsonConverter(json);
+        else if (json.isJsonObject() && json.getAsJsonObject().has("class")) {
+            try {
+                String className = json.getAsJsonObject().get("class").getAsString();
+                clazz = Class.forName(className);
+            } catch (Exception e) {
+                SkJson.exception(e, "Could not deserialize class");
             }
-        } catch (Exception e) {
-            throw new JsonParseException("Could not deserialize class");
         }
+
+        SkJson.debug("Converting >> from: %s [found class: %s] to %s", json.getClass(), json.getAsJsonObject().get("class"), clazz == null ? "null" : clazz.getName() );
 
         if (clazz != null) {
             if (clazz == World.class || World.class.isAssignableFrom(clazz)) {
@@ -152,9 +163,15 @@ public class GsonParser {
                 return (T) block;
             } else if (clazz == Inventory.class || Inventory.class.isAssignableFrom(clazz)) {
                 JsonObject jsonObject = json.getAsJsonObject();
-                int size = jsonObject.get("size").getAsInt();
                 String title = jsonObject.get("title").getAsString();
-                Inventory inventory = Bukkit.createInventory(null, size, Component.text(title));
+
+                Inventory inventory;
+
+                if (jsonObject.has("holder") && !jsonObject.get("holder").isJsonNull()) {
+                    inventory = Bukkit.createInventory(null, InventoryType.valueOf(jsonObject.get("type").getAsString().toUpperCase()), Component.text("inventory of "+  title));
+                } else {
+                    inventory = Bukkit.createInventory(null, InventoryType.valueOf(jsonObject.get("type").getAsString().toUpperCase()), Component.text(title));
+                }
 
                 JsonArray itemsArray = jsonObject.getAsJsonArray("slots");
                 for (int i = 0; i < itemsArray.size(); i++) {

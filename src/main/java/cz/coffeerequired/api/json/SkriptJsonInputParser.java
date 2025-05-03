@@ -94,18 +94,20 @@ public class SkriptJsonInputParser {
             } else if (currentToken.endsWith("*")) {
                 type = Type.ListAll;
             } else if (currentToken.matches("\\d+")) {
-                // Kontrola, zda je následující token písmeno (ne číslo)
                 if (b) {
-                    // Pokud je následující token písmeno, pak je to ListObject, ne index
                     type = Type.ListObject;
                 } else {
-                    // Pokud je token pouze číslo, je to index
-                    type = Type.Index;
+                    // Kontrola, zda předchozí token je Type.List
+                    if (i > 0 && getType(i - 1, tokens, previousToken).getFirst() == Type.List) {
+                        type = Type.Index;
+                    } else {
+                        type = Type.Key;
+                    }
                 }
             } else {
                 if (currentToken.equals(last)) {
                     if (currentToken.matches("\\d+")) {
-                        type = Type.Index;
+                        type = Type.Key;
                     } else if (currentToken.matches("\\d+\\*")) {
                         type = Type.List;
                     } else {
@@ -127,7 +129,9 @@ public class SkriptJsonInputParser {
 
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {
         if (isQuoted(path)) path = path.substring(1, path.length() - 1);
-        return getTokens(convertPath(path), PROJECT_DELIM);
+        var tokens = getTokens(convertPath(path), PROJECT_DELIM);
+        SkJson.debug("Tokens: %s", tokens);
+        return tokens;
     }
 
     private static boolean isQuoted(String s) {

@@ -61,7 +61,7 @@ public abstract class SerializedJsonUtils {
                                 object.add(key, new_);
                                 yield new_;
                             }
-                            case Object -> {
+                            case Object, ListObject -> {
                                 var new_ = new JsonObject();
                                 object.add(key, new_);
                                 yield new_;
@@ -80,7 +80,7 @@ public abstract class SerializedJsonUtils {
                                 array.add(new_);
                                 yield new_;
                             }
-                            case Object, ListObject -> {
+                            case Object, ListObject -> { // add ListObject
                                 var new_ = new JsonObject();
                                 array.add(new_);
                                 yield new_;
@@ -95,8 +95,7 @@ public abstract class SerializedJsonUtils {
                 }
             }
         } catch (Exception e) {
-           // SkJson.exception(e, "Error handling JSON element: %s", json);
-            SkJson.severe("Error handling JSON element: %s, %s", json, e.getMessage());
+           SkJson.exception(e, "Error handling JSON element: %s", json);
         }
 
         return json;

@@ -28,7 +28,7 @@ public abstract class Json {
 
         @Override
         public @NotNull String toVariableNameString(JsonElement o) {
-            return toString(o, 1);
+            return toString(o, 0);
         }
 
         @Override

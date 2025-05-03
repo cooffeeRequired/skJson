@@ -33,7 +33,7 @@ import java.util.Map;
 public class CondJsonHas extends Condition {
 
     private Expression<JsonElement> jsonExpression;
-    private Expression<Object> objectsForCheck;
+    private Expression<?> objectsForCheck;
     private boolean negated;
     private boolean isValues;
 
@@ -41,7 +41,11 @@ public class CondJsonHas extends Condition {
     public boolean check(Event event) {
         JsonElement json = jsonExpression.getSingle(event);
         if (json == null) return false;
-        Object[] objects = objectsForCheck.getAll(event);
+        var objects = objectsForCheck.getAll(event);
+
+
+        SkJson.debug("Json %s -< %s", json, Arrays.toString(objects));
+
         if (objects == null) return false;
         boolean found = true;
 
@@ -86,6 +90,6 @@ public class CondJsonHas extends Condition {
         jsonExpression = LiteralUtils.defendExpression(expressions[0]);
         objectsForCheck = LiteralUtils.defendExpression(expressions[1]);
         setNegated(negated);
-        return LiteralUtils.canInitSafely(jsonExpression) && LiteralUtils.canInitSafely(objectsForCheck);
+        return LiteralUtils.canInitSafely(jsonExpression, objectsForCheck);
     }
 }

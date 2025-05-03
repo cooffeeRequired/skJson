@@ -82,7 +82,7 @@ public final class SkJson extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        info("Enabling SkJson.");
+        info("Enabling SkJson...");
 
         if (Api.canInstantiateSafety()) {
             try {
