@@ -24,6 +24,10 @@ public abstract class Api {
     @Getter
     public static final CachedStorage<String, JsonElement, File> cache = new CachedStorage<>();
 
+    public static String getServerName() {
+        return Bukkit.getServer().getName().toLowerCase();
+    }
+
     /**
      * This method will also check if the given server supports all necessary requirements. <br />
      * Checking {@link org.bukkit.Server} server's version and server's name

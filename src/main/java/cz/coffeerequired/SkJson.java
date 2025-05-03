@@ -1,10 +1,7 @@
 package cz.coffeerequired;
 
 import ch.njol.skript.Skript;
-import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.Commands;
-import cz.coffeerequired.api.Register;
-import cz.coffeerequired.api.SkJsonLogger;
+import cz.coffeerequired.api.*;
 import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import cz.coffeerequired.support.Configuration;
 import lombok.Getter;
@@ -12,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.AdvancedPie;
 import org.bstats.charts.SimplePie;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -61,9 +59,6 @@ public final class SkJson extends JavaPlugin {
     public static void debug(Object message, Object... args) {
         if (PROJECT_DEBUG) SkJsonLogger.log(Level.INFO, "&8DEBUG -> &r" + message, args);
     }
-
-
-
 
 
     @Override
@@ -117,6 +112,9 @@ public final class SkJson extends JavaPlugin {
 
             setupMetrics(17374);
             info("BStats metrics enabled.");
+        } else {
+            severe("Unable to instantiate API. Cannot understand server type %s. Supported only %s", Api.getServerName(), ServerType.values());
+            Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 
