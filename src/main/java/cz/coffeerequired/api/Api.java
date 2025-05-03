@@ -46,6 +46,8 @@ public abstract class Api {
             type = ServerType.PURPUR_CORE;
         } else if (version.contains("paper") || serverName.contains("paper")) {
             type = ServerType.PAPER_CORE;
+        } else if (version.contains("leaf") || serverName.contains("leaf")) {
+            type = ServerType.LEAF;
         }
         SkJson.info("Hooking into server %s %s", serverName, version);
         SkJson.info("Server type: %s", type);
@@ -65,7 +67,11 @@ public abstract class Api {
     }
 
     static boolean canInstantiateServer(ServerType type) {
-        return type == ServerType.PURPUR_CORE || type == ServerType.SPIGOT_CORE || type == ServerType.SPONGE_CORE || type == ServerType.PAPER_CORE;
+        return type == ServerType.PURPUR_CORE ||
+                type == ServerType.SPIGOT_CORE ||
+                type == ServerType.SPONGE_CORE ||
+                type == ServerType.LEAF ||
+                type == ServerType.PAPER_CORE;
     }
 
     @SuppressWarnings("unused")
