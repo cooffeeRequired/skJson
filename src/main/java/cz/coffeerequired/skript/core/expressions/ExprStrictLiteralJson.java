@@ -16,6 +16,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
@@ -138,16 +139,19 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        if (Register.isClassAvailable("com.btk5h.skriptmirror.SkriptMirror")) {
+            SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
+        }
+
+
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         var group = r.group();
+
+        SkJson.debug("group: %s", group);
+
         tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
-
-        SkJson.debug("tokens: %s, group: %s", tokens,group);
-
-        if (group.contains("%"))
-            v = parseExpression(group);
-
+        if (group.contains("%")) v = parseExpression(group);
         return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
     }
 

@@ -77,7 +77,7 @@ public class SerializedJson {
             Number index;
 
 
-            SkJson.debug("&6Current .-Value change %s", current);
+            SkJson.debug("&6[SET] tokens: %s, current: %s, value: %s", tokens, current, value);
 
             if (current instanceof JsonObject object) {
                 object.add(key, value);
@@ -244,16 +244,29 @@ public class SerializedJson {
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
 
-            if (current instanceof JsonArray array) {
-                Number index = SerializedJsonUtils.isNumeric(key);
-                if (index != null && index.intValue() <= array.size()) {
-                    return GsonParser.fromJson(array.get(index.intValue()));
+            SkJson.debug("&8[SEARCH] tokens: %s, current: %s, key: %s", SkriptJsonInputParser.getPathFromTokens(tokens), current, key);
+
+            try {
+                if (current instanceof JsonObject object) {
+                    var searched = object.get(key);
+                    if (searched == null) {
+                        SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
+                        return null;
+                    }
+                    return GsonParser.fromJson(searched);
                 }
-            } else if (current instanceof JsonObject object) {
-                var searched = current.getAsJsonObject().get(key);
-                return GsonParser.fromJson(searched);
-            } else {
-                throw new SerializedJsonException("Key could be searched only in Json Objects\\Arrays");
+
+                if (current instanceof JsonArray array) {
+                    Number index = SerializedJsonUtils.isNumeric(key);
+                    if (index != null && index.intValue() <= array.size()) {
+                        return GsonParser.fromJson(array.get(index.intValue()));
+                    } else {
+                        SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
+                        return null;
+                    }
+                }
+            } catch (Exception e) {
+                SkJson.warning("&l&c%s: %s", "Search issue", e.getMessage());
             }
             return null;
         }

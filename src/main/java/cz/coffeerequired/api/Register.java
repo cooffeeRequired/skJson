@@ -69,6 +69,15 @@ public class Register {
         }
     }
 
+    public static boolean isClassAvailable(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public void tryRegisterSkript() {
 
         if (isSkriptAvailable()) {

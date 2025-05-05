@@ -142,8 +142,11 @@ public class GsonParser {
             }
         }
 
-        SkJson.debug("Converting >> from: %s [found class: %s] to %s", json.getClass(), json.getAsJsonObject().get("class"), clazz == null ? "null" : clazz.getName() );
-
+        if (json instanceof JsonObject object) {
+            if (object.has("class")) {
+                SkJson.debug("Converting >> from: %s [found: %s]", object.getClass().getName(), object.get("class"), clazz == null ? "null" : clazz.getName() );
+            }
+        }
         if (clazz != null) {
             if (clazz == World.class || World.class.isAssignableFrom(clazz)) {
                 return (T) Bukkit.getWorld(json.getAsJsonObject().get("worldName").getAsString());

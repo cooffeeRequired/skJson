@@ -141,9 +141,11 @@ tasks.register("withTesting") {
     dependsOn("shadowJar")
     doLast {
         println("> Task :running tests")
-        providers.exec {
-            executable("python")
-            args("test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
+
+        @Suppress("DEPRECATION")
+        exec {
+            workingDir = projectDir
+            commandLine("C:\\Users\\Coffee\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe", "test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
         }
     }
 }

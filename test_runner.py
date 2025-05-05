@@ -503,4 +503,12 @@ if __name__ == "__main__":
     else:
         print_colored("\nTests failed!", Colors.RED)
         print_colored(f"Exit code: {gradle_test_process.returncode}", Colors.RED)
+
+    # Clean up test_runners directory
+    test_runners_dir = skript_repo_path / "build" / "test_runners"
+    if test_runners_dir.exists():
+        print_step("Cleaning up test_runners directory")
+        shutil.rmtree(test_runners_dir)
+        print_colored("Test runners directory cleaned up", Colors.GREEN)
+
     exit(gradle_test_process.returncode)

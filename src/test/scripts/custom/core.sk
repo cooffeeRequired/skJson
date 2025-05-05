@@ -1,4 +1,8 @@
 test "core":
+
+    execute console command "skjson about"
+
+
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
     
     set {_json}.array to "{}"

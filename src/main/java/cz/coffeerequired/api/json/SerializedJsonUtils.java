@@ -61,7 +61,7 @@ public abstract class SerializedJsonUtils {
                                 object.add(key, new_);
                                 yield new_;
                             }
-                            case Object, ListObject -> {
+                            case Object -> {
                                 var new_ = new JsonObject();
                                 object.add(key, new_);
                                 yield new_;
@@ -80,7 +80,7 @@ public abstract class SerializedJsonUtils {
                                 array.add(new_);
                                 yield new_;
                             }
-                            case Object, ListObject -> { // add ListObject
+                            case Object -> { // add ListObject
                                 var new_ = new JsonObject();
                                 array.add(new_);
                                 yield new_;
