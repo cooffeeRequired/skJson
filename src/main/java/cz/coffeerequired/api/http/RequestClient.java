@@ -239,11 +239,12 @@ public class RequestClient implements AutoCloseable {
                 SkJson.debug("Request Method: %s", request.getMethod());
                 SkJson.debug("Request Headers: %s", Arrays.toString(request.getHeader()));
                 SkJson.debug("Request Content: %s", request.getContent());
+                SkJson.debug("Request Attachments: %s", request.getAttachments());
 
 
                 client.setUri(url);
 
-                if (request.getAttachments().isEmpty()) {
+                if (! request.getAttachments().isEmpty()) {
                     client.setAttachments(request.getAttachments());
                     var mpd = MimeMultipartData.newBuilder().addContent(request.getContent());
                     request.getAttachments().forEach(attachment ->

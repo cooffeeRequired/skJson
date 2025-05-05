@@ -1,29 +1,26 @@
-package cz.coffeerequired.skript.http.expressions.requests;
+package cz.coffeerequired.skript.http.expressions.simple;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.api.requests.Pairs;
 import cz.coffeerequired.api.requests.Request;
+import cz.coffeerequired.api.requests.Response;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
-
-
-@Name("Request headers")
+@Name("headers of request/response")
 @Examples("""
+                 <b>Request</b><br />
                  # getting the Request headers;
                  send {_request}'s headers
                  send headers of {_request}
@@ -39,43 +36,41 @@ import java.util.LinkedList;
                  # reset the headers of the Request
                  reset {_request}'s headers
                  reset headers of {_request}
+                 \s
+                 <b>Response</b><br />
+                 # getting the Response headers;
+                 set {_response} to {_request}'s response
+                 \s
+                 send headers of {_response}
         \s""")
-@Description("set or get the current request headers")
-@Since("2.9.9-pre Api Changes")
+@Description({"set or get the current request headers", "get response headers"})
+@Since({"2.9.9-pre Api Changes", "5.1"})
 @ApiStatus.Experimental
-public class propExprHeader extends PropertyExpression<Request, JsonElement> {
-
+public class ExprSimpleHeaders extends SimplePropertyExpression<Object, JsonElement> {
     @Override
-    protected JsonElement @NotNull [] get(@NotNull Event event, Request @NotNull [] source) {
-        var output = new JsonElement[source.length];
-        for (var i = 0; i < source.length; i++) {
-            var pairs = source[i].getHeader();
-            if (pairs == null) continue;
+    public @Nullable JsonElement convert(Object from) {
+        if (from instanceof Request request) {
+            var pairs = request.getHeader();
+            if (pairs == null) return null;
             var o = new JsonObject();
             for (Pairs pair : pairs) {
                 o.addProperty(pair.getKey(), pair.getValue());
             }
-            output[i] = o;
+            return o;
+        } else if (from instanceof Response response) {
+            return response.headers();
         }
-        return output;
+        return null;
     }
 
     @Override
-    public @NotNull Class<? extends JsonElement> getReturnType() {
+    protected String getPropertyName() {
+        return "headers of http request/response";
+    }
+
+    @Override
+    public Class<? extends JsonElement> getReturnType() {
         return JsonElement.class;
-    }
-
-    @Override
-    public @NotNull String toString(@Nullable Event event, boolean debug) {
-        assert event != null;
-        return "headers of " + getExpr().toString(event, debug);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull Kleenean isDelayed, SkriptParser.@NotNull ParseResult parseResult) {
-        setExpr((Expression<? extends Request>) expressions[0]);
-        return true;
     }
 
     @Override
@@ -91,20 +86,26 @@ public class propExprHeader extends PropertyExpression<Request, JsonElement> {
     @SuppressWarnings("NullableProblems")
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
-        var request = getExpr().getSingle(event);
-        assert request != null;
-        if (mode == Changer.ChangeMode.SET) {
-            LinkedList<Pairs> pairs = new LinkedList<>();
-            for (Object d : delta) {
-                if (d instanceof String str) {
-                    pairs.add(new Pairs(str));
-                } else if (d instanceof JsonElement json) {
-                    json.getAsJsonObject().entrySet().forEach(entry -> pairs.add(new Pairs(entry.getKey() + ":" + entry.getValue().getAsString())));
+        Object expr = getExpr().getSingle(event);
+
+        if (expr instanceof Request request) {
+            if (mode == Changer.ChangeMode.SET) {
+                LinkedList<Pairs> pairs = new LinkedList<>();
+                for (Object d : delta) {
+                    if (d instanceof String str) {
+                        pairs.add(new Pairs(str));
+                    } else if (d instanceof JsonElement json) {
+                        json.getAsJsonObject().entrySet().forEach(entry
+                            -> pairs.add(
+                                new Pairs(entry.getKey() + ":" + entry.getValue().getAsString())
+                            )
+                        );
+                    }
                 }
+                request.setHeader(pairs.toArray(new Pairs[0]));
+            } else if (mode == Changer.ChangeMode.RESET) {
+                request.setHeader(new Pairs[0]);
             }
-            request.setHeader(pairs.toArray(new Pairs[0]));
-        } else if (mode == Changer.ChangeMode.RESET) {
-            request.setHeader(new Pairs[0]);
         }
     }
 }

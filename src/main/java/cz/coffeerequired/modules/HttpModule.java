@@ -25,10 +25,10 @@ import cz.coffeerequired.skript.http.events.ResponseReceive;
 import cz.coffeerequired.skript.http.expressions.ExprGetPlayerIP;
 import cz.coffeerequired.skript.http.expressions.ExprSimpleRequest;
 import cz.coffeerequired.skript.http.expressions.requests.*;
-import cz.coffeerequired.skript.http.expressions.responses.propExprResponseBody;
-import cz.coffeerequired.skript.http.expressions.responses.propExprResponseHeaders;
 import cz.coffeerequired.skript.http.expressions.responses.propExprResponseStatus;
 import cz.coffeerequired.skript.http.expressions.responses.propExprResponseStatusCode;
+import cz.coffeerequired.skript.http.expressions.simple.ExprSimpleBody;
+import cz.coffeerequired.skript.http.expressions.simple.ExprSimpleHeaders;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,7 @@ public class HttpModule extends Extensible {
 
         Classes.registerClass(
                 new ClassInfo<>(Request.class, "request")
-                        .user("request")
+                        .user("request?s")
                         .name("request")
                         .description("Representation instance of Request")
                         .since("2.9.9-pre API changes")
@@ -129,19 +129,23 @@ public class HttpModule extends Extensible {
                 "received [http] response"
         );
 
+        //SimplePropertyExpression
+
         EventValues.registerEventValue(HttpReceivedResponse.class, Response.class, HttpReceivedResponse::getResponse, EventValues.TIME_NOW);
         register.registerEventValueExpression(ExprEvtResponse.class, Response.class, "event-response");
 
-        register.registerProperty(propExprAttachment.class, Object.class, "[request] attachments", "requests");
-        register.registerProperty(propExprContent.class, JsonElement.class, "[request] body", "requests");
-        register.registerProperty(propExprHeader.class, JsonElement.class, "[request] header[s]", "requests");
-        register.registerProperty(propExprQueryParams.class, JsonElement.class, "[request] query param(s|meters)", "requests");
         register.registerProperty(propExprResponse.class, Response.class, "[last] response", "requests");
 
-        register.registerProperty(propExprResponseBody.class, Object.class, "(body|content)", "responses");
-        register.registerProperty(propExprResponseStatusCode.class, Integer.class, "status code", "responses");
-        register.registerProperty(propExprResponseStatus.class, String.class, "status", "responses");
-        register.registerProperty(propExprResponseHeaders.class, JsonElement.class, "header[s]", "responses");
+
+        register.registerSimplePropertyExpression(ExprSimpleBody.class, Object.class, "body", "requests/responses");
+        register.registerSimplePropertyExpression(ExprSimpleHeaders.class, JsonElement.class, "header[s]", "requests/responses");
+
+        register.registerProperty(propExprAttachment.class, Object.class, "attachments", "requests");
+        register.registerProperty(propExprQueryParams.class, JsonElement.class, "query param(s|meters)", "requests");
+
+
+        register.registerProperty(propExprResponseStatusCode.class, Integer.class, "status code", "response");
+        register.registerProperty(propExprResponseStatus.class, String.class, "status", "response");
 
     }
 }

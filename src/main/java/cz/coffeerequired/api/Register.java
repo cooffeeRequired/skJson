@@ -6,6 +6,7 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
@@ -222,7 +223,7 @@ public class Register {
             extensible.addNewElement("Expressions", c);
             SkJson.debug("&8Registering simple property expression: &7property: %s&8; from: %s&8; name: %s", 
                 property, fromType, c.getSimpleName());
-            PropertyExpression.register(c, returnType, property, fromType);
+            SimplePropertyExpression.register(c, returnType, property, fromType);
         }
 
         public void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {

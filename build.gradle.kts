@@ -104,7 +104,7 @@ tasks.withType<ShadowJar>().configureEach {
             println("> Task :copy to path")
             copy {
                 from(archiveFile.get().asFile)
-                into("\\\\wsl.localhost\\Ubuntu\\home\\coffee\\mc-developing\\plugins")
+                into("C:\\Users\\Coffee\\Desktop\\mc-developing\\plugins")
             }
         }
     }

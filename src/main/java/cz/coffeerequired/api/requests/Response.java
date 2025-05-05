@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.requests;
 
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.NotNull;
 
 public record Response(Integer statusCode, Object content, JsonElement headers, RequestStatus status) {
     public static Response empty() {
@@ -8,7 +9,7 @@ public record Response(Integer statusCode, Object content, JsonElement headers, 
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Response{" +
                 "statusCode=" + statusCode +
                 ", content=" + shorten(content) +

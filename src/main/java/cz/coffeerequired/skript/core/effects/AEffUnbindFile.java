@@ -8,6 +8,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
@@ -32,16 +33,23 @@ public class AEffUnbindFile extends AsyncEffect {
 
         var file = new File[1];
 
+        SkJson.debug("Trying to unbind storage id '" + id + "' from file");
+
         if (cache.containsKey(id)) {
             cache.get(id).forEach((j, v) -> file[0] = v);
+
             if (file[0].getName().equals("Undefined")) {
                 cache.removeIfPresent(id);
-            } else {
-                if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                    CacheStorageWatcher.Extern.unregister(file[0]);
-                    cache.removeIfPresent(id);
-                }
+                return;
             }
+
+            if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
+                CacheStorageWatcher.Extern.unregister(file[0]);
+                SkJson.debug("Unbound storage watcher id &e'" + id + "'&r from file " + file[0].getName());
+            }
+
+            cache.removeIfPresent(id);
+            SkJson.debug("Unbound storage id &e'" + id + "'&r from file '" + file[0].getName() + "'");
         }
     }
 
