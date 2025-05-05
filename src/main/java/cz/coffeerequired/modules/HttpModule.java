@@ -124,7 +124,7 @@ public class HttpModule extends Extensible {
         register.registerEvent(
                 "*Http response received", ResponseReceive.class, HttpReceivedResponse.class,
                 "will return last http response",
-                "on response received",
+                "on received response",
                 "5.0",
                 "received [http] response"
         );
