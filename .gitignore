@@ -8,7 +8,7 @@ server
 settings.json/build/
 /.gradle/*
 /build/*
-.DS_Store
-tools
-/skript/
+.DS_Store/
+tools/
 /.vscode/settings.json
+skript/
