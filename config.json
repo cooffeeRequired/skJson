@@ -2,10 +2,10 @@
   "system": "auto",
   "configurations": [
     {
-      "name": "Skript 2.9.2",
+      "name": "Skript 2.10.1",
       "workspace_directory": ".",
       "test_script_directory": "./src/test/scripts/custom",
-      "skript_repo_ref": "2.9.2",
+      "skript_repo_ref": "2.10.1",
       "run_vanilla_tests": false,
       "extra_plugins_directory": "./build/libs",
       "skript_repo_git_url": "https://github.com/SkriptLang/Skript.git",

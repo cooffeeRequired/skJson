@@ -505,7 +505,7 @@ if __name__ == "__main__":
         print_colored(f"Exit code: {gradle_test_process.returncode}", Colors.RED)
 
     # Clean up test_runners directory
-    test_runners_dir = skript_repo_path / "build" / "test_runners"
+    test_runners_dir = skript_repo_path / "build"
     if test_runners_dir.exists():
         print_step("Cleaning up test_runners directory")
         shutil.rmtree(test_runners_dir)

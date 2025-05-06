@@ -1,8 +1,11 @@
 package cz.coffeerequired.modules;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Extensible;
@@ -27,6 +30,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.File;
@@ -55,12 +59,18 @@ public class Core extends Extensible {
 
     public void tryRegisterDefaultConverters() {
         try {
-            allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
+            if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
+                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
+            } else {
+                //noinspection removal
+                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
+            }
         } catch (Exception e) {
             SkJson.exception(e, "Error while registering default converters: %s", e.getMessage());
         }
     }
 
+    @SuppressWarnings("removal")
     @Override
     public void registerElements(Register.SkriptRegister register) {
         register.apply(this);
@@ -174,10 +184,30 @@ public class Core extends Extensible {
                 "[json-] watcher file change", "[json-] watch save"
         );
 
-        EventValues.registerEventValue(JsonFileChanged.class, JsonElement.class, JsonFileChanged::getJson, EventValues.TIME_NOW);
-        EventValues.registerEventValue(JsonFileChanged.class, UUID.class, JsonFileChanged::getUuid, EventValues.TIME_NOW);
-        EventValues.registerEventValue(JsonFileChanged.class, File.class, JsonFileChanged::getLinkedFile, EventValues.TIME_NOW);
-
+        try {
+            EventValues.registerEventValue(JsonFileChanged.class, JsonElement.class, JsonFileChanged::getJson, EventValues.TIME_NOW);
+            EventValues.registerEventValue(JsonFileChanged.class, UUID.class, JsonFileChanged::getUuid, EventValues.TIME_NOW);
+            EventValues.registerEventValue(JsonFileChanged.class, File.class, JsonFileChanged::getLinkedFile, EventValues.TIME_NOW);
+        } catch (NoSuchMethodError  e) {
+            EventValues.registerEventValue(JsonFileChanged.class, JsonElement.class, new Getter<>() {
+                @Override
+                public @Nullable JsonElement get(JsonFileChanged arg) {
+                    return arg.getJson();
+                }
+            });
+            EventValues.registerEventValue(JsonFileChanged.class, UUID.class, new Getter<>() {
+                @Override
+                public @Nullable UUID get(JsonFileChanged arg) {
+                    return arg.getUuid();
+                }
+            });
+            EventValues.registerEventValue(JsonFileChanged.class, File.class, new Getter<>() {
+                @Override
+                public @Nullable File get(JsonFileChanged arg) {
+                    return arg.getLinkedFile();
+                }
+            });
+        }
         register.registerEventValueExpression(ExprEvtUUID.class, UUID.class, "event-(uuid|id)");
         register.registerEventValueExpression(ExprEvtFile.class, File.class, "event-(file|link)");
         register.registerEventValueExpression(ExprEvtJson.class, JsonElement.class, "event-(json|content)");
