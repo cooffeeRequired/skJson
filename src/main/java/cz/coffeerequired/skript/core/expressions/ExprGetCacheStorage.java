@@ -14,8 +14,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-
 @Name("Get cached json storage")
 @Examples("""
             send json storage of id "test"
@@ -30,19 +28,16 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement @Nullable [] get(Event event) {
-        String storedKey = storedKeyExpr.getSingle(event);
-        if (storedKey == null) return null;
         var cache = Api.getCache();
         if (line == 0) {
+            String storedKey = storedKeyExpr.getSingle(event);
+            if (storedKey == null) return null;
             if (cache.containsKey(storedKey)) {
-                JsonElement[] json = new JsonElement[1];
-                cache.get(storedKey).forEach((json_, f) -> json[0] = json_);
-                return json;
+                var cacheLink = cache.get(storedKey);
+                return new JsonElement[]{cacheLink.jsonElement()};
             }
         } else {
-            ArrayList<JsonElement> elements = new ArrayList<>();
-            cache.forEach((s, m) -> m.forEach((json, f) -> elements.add(json)));
-            return elements.toArray(new JsonElement[0]);
+            return cache.getJsons();
         }
         return new JsonElement[0];
     }
@@ -70,7 +65,9 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         line = matchedPattern;
-        storedKeyExpr = (Expression<String>) expressions[0];
+        if (line == 0 && expressions.length > 0) {
+            storedKeyExpr = (Expression<String>) expressions[0];
+        }
         return true;
     }
 }

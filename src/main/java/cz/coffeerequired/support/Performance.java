@@ -1,10 +1,39 @@
 package cz.coffeerequired.support;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class Performance {
     private long startTime;
     private long endTime;
+
+    @FunctionalInterface
+    public interface TryRunnable {
+        void run() throws Exception;
+    }
+
+    public static TryBlock exceptionally(TryRunnable block) {
+        return new TryBlock(block);
+    }
+
+    public static class TryBlock {
+        private Exception exception;
+
+        public TryBlock(TryRunnable block) {
+            try {
+                block.run();
+            } catch (Exception e) {
+                this.exception = e;
+            }
+        }
+
+        public TryBlock exception(Consumer<Exception> handler) {
+            if (exception != null) {
+                handler.accept(exception);
+            }
+            return this;
+        }
+    }
 
     public Performance() {
         start();

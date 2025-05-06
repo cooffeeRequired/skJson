@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static cz.coffeerequired.api.Api.Records.*;
+import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
 import static cz.coffeerequired.api.SkJsonCommands.*;
 
 

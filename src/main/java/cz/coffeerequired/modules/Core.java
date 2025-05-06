@@ -133,7 +133,7 @@ public class Core extends Extensible {
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
         register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
-        register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE, "json storage of id %string%", "all json storages");
+        register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE, "json storage of id %-string%", "all json storages");
 
         // ################ CONDITIONS ############################
         register.registerCondition(CondJsonHas.class,
@@ -162,7 +162,7 @@ public class Core extends Extensible {
         register.registerEffect(AEffHandleWatcher.class, "bind storage watcher to %string%", "unbind storage watcher from %string%");
         register.registerEffect(EffVirtualStorage.class, "create json virtual storage named %string%");
         register.registerEffect(AEffBindFile.class, "(bind|link) json file %string% as %string%", "(bind|link) json file %string% as %string% and let bind storage watcher");
-        register.registerEffect(AEffUnbindFile.class, "un(bind|link) json storage id %string%");
+        register.registerEffect(AEffUnbindFile.class, "un(bind|link) json storage [of] id %string%");
         register.registerEffect(AEffSaveStorage.class, "save json storage [id] %string%", "save all json storages");
 
         // ################ EVENTS ############################

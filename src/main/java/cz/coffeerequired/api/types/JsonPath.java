@@ -6,7 +6,6 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
@@ -16,7 +15,6 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +46,7 @@ public class JsonPath {
     public static Serializer<JsonPath> serializer = new Serializer<>() {
 
         @Override
-        public Fields serialize(JsonPath jsonPath) throws NotSerializableException {
+        public Fields serialize(JsonPath jsonPath) {
             Fields fields = new Fields();
             fields.putObject("json path", jsonPath.toString());
             return fields;

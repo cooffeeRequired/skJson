@@ -14,7 +14,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Syntax;
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,19 +38,18 @@ public class AEffHandleWatcher extends AsyncEffect {
 
         CompletableFuture.runAsync(() -> {
             if (cache.containsKey(id)) {
-                File[] file = new File[1];
-                cache.get(id).forEach((j, f) -> file[0] = f);
+                var file = cache.get(id).getFile().orElse(null);
                 if (isBindingMode) {
-                    if (!CacheStorageWatcher.Extern.hasRegistered(file[0])) {
+                    if (!CacheStorageWatcher.Extern.hasRegistered(file)) {
                         try {
-                            CacheStorageWatcher.Extern.register(id, file[0]);
+                            CacheStorageWatcher.Extern.register(id, file);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
                 } else {
-                    if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                        CacheStorageWatcher.Extern.unregister(file[0]);
+                    if (CacheStorageWatcher.Extern.hasRegistered(file)) {
+                        CacheStorageWatcher.Extern.unregister(file);
                     }
                 }
             }

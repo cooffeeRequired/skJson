@@ -110,7 +110,7 @@ public class AEffBindFile extends AsyncEffect {
         withBinding = matchedPattern == 1;
         expressionFilePath = (Expression<String>) expressions[0];
         expressionJsonId = (Expression<String>) expressions[1];
-        getParser().setHasDelayBefore(Kleenean.TRUE);
+        // getParser().setHasDelayBefore(Kleenean.TRUE);
         return expressionFilePath != null && expressionJsonId != null;
     }
 }

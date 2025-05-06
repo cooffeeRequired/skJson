@@ -12,8 +12,6 @@ import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 
 @Name("JSON file is listened by storage watcher")
 @Examples("send true if json storage with id \"my-json-storage\" is listened")
@@ -31,9 +29,7 @@ public class CondIsListened extends Condition {
 
         var cache = Api.getCache();
         if (cache.containsKey(id)) {
-            File[] tempFile = new File[1];
-            cache.get(id).forEach((j, file) -> tempFile[0] = file);
-            return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(tempFile[0]);
+            return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(cache.get(id).file());
         }
         return false;
     }

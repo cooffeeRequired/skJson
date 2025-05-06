@@ -12,5 +12,10 @@ test "json storage cache":
     set {_j1} to json storage of id "virtual"
     set {_j2} to json storage of id "test"
 
-#    assert {_j1} is set with "failing: cannot create virtual storage"
-#    assert {_j2} is set with "failing: cannot create an cache from file"
+    assert json storage with id "virual" is cached with "failing: cannot create virtual storage"
+
+    broadcast {_j1} and {_j2}
+
+    assert {_j1} is set with "failing: cannot create virtual storage"
+    assert {_j2} is set with "failing: cannot create an cache from file"
+

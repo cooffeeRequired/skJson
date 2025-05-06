@@ -10,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.SkJson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

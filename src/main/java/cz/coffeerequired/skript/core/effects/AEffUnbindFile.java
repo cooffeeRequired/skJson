@@ -14,10 +14,8 @@ import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 @Name("Unbind the storage for the given id")
-@Examples("unbind json storage id \"my-json-storage\"")
+@Examples("unbind json storage of id \"my-json-storage\"")
 @Description("Unbinds the storage for the given id. This is used to unbind the storage from the file.")
 @Since("4.1 - API UPDATE")
 public class AEffUnbindFile extends AsyncEffect {
@@ -30,26 +28,25 @@ public class AEffUnbindFile extends AsyncEffect {
         if (id == null) return;
 
         var cache = Api.getCache();
-
-        var file = new File[1];
-
         SkJson.debug("Trying to unbind storage id '" + id + "' from file");
-
         if (cache.containsKey(id)) {
-            cache.get(id).forEach((j, v) -> file[0] = v);
+            var fileOptional = cache.get(id).getFile();
+            if (fileOptional.isPresent()) {
+                var file_ = fileOptional.get();
 
-            if (file[0].getName().equals("Undefined")) {
+                if (file_.getName().equals("Undefined")) {
+                    cache.removeIfPresent(id);
+                    return;
+                }
+
+                if (CacheStorageWatcher.Extern.hasRegistered(file_)) {
+                    CacheStorageWatcher.Extern.unregister(file_);
+                    SkJson.debug("Unbound storage watcher id &e'" + id + "'&r from file " + file_.getName());
+                }
+
                 cache.removeIfPresent(id);
-                return;
+                SkJson.debug("Unbound storage id &e'" + id + "'&r from file '" + file_.getName() + "'");
             }
-
-            if (CacheStorageWatcher.Extern.hasRegistered(file[0])) {
-                CacheStorageWatcher.Extern.unregister(file[0]);
-                SkJson.debug("Unbound storage watcher id &e'" + id + "'&r from file " + file[0].getName());
-            }
-
-            cache.removeIfPresent(id);
-            SkJson.debug("Unbound storage id &e'" + id + "'&r from file '" + file[0].getName() + "'");
         }
     }
 

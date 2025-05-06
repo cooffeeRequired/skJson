@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
+import java.util.regex.Pattern
 
 plugins {
     java
@@ -9,7 +10,7 @@ plugins {
 }
 
 group = "cz.coffee"
-version = "5.1.1"
+version = "5.1.2"
 
 val environment: String by project.extra { if (project.hasProperty("env")) project.property("env") as String else "DEV" }
 println("Using environment: $environment")
@@ -113,6 +114,7 @@ tasks.withType<ShadowJar>().configureEach {
 tasks.register("withRemote") {
     // dependsOn("clean")
     dependsOn("shadowJar")
+    dependsOn("errorLint")
     doLast {
         println("> Task :execute change")
 
@@ -133,6 +135,30 @@ tasks.register("withRemote") {
         }
 
         println("> Response: $outputStream")
+    }
+}
+
+tasks.register("errorLint") {
+    group = "verification"
+    description = "Builds the project and lists compile errors as file:line"
+
+    doLast {
+        val process = ProcessBuilder("./gradlew.bat", "compileJava", "--console=plain")
+            .redirectErrorStream(true)
+            .start()
+
+        val pattern = Pattern.compile("""([^\s]+\.java):(\d+)""")
+        process.inputStream.bufferedReader().lines().forEach { line ->
+            val matcher = pattern.matcher(line)
+            while (matcher.find()) {
+                val file = matcher.group(1)
+                val lineNum = matcher.group(2)
+                val path = project.projectDir.toPath().resolve(file).normalize()
+                println("$path:$lineNum")
+            }
+        }
+
+        process.waitFor()
     }
 }
 

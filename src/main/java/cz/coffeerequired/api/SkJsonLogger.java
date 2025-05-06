@@ -1,6 +1,5 @@
 package cz.coffeerequired.api;
 
-import cz.coffeerequired.SkJson;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.val;
 import net.kyori.adventure.text.TextComponent;

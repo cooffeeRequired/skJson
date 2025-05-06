@@ -12,11 +12,12 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
+import cz.coffeerequired.api.cache.CacheLink;
+import cz.coffeerequired.support.Performance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @Name("Save cached json to file")
@@ -43,25 +44,28 @@ public class AEffSaveStorage extends AsyncEffect {
 
     }
 
-    private void saveStorage(String id, ConcurrentHashMap<JsonElement, File> map) {
-        map.forEach((j, f) -> {
-            try {
-                if ("Undefined".equals(f.getName())) {
+    private void saveStorage(String id, CacheLink<JsonElement, File> cacheLink) {
+        Performance.exceptionally(() -> {
+            if (cacheLink.getFile().isPresent()) {
+                var file = cacheLink.getFile().get();
+
+                if (file.getName().equals("Undefined")) {
                     SkJson.severe("Can't save storage id &r'" + id + "'&c because it is virtual storage");
                     return;
                 }
 
-                FileHandler.write(f.toString(), j, new String[]{"replace=true"}).whenComplete((b, error) -> {
-                    if (error != null) {
-                        SkJson.exception(error, "Cannot save storage id " + id);
-                    } else {
-                        SkJson.debug("Saved storage id " + id);
-                    }
-                });
-            } catch (Exception ex) {
-                SkJson.exception(ex, "Cannot save storage id " + id);
+                JsonElement json;
+                if ((json = cacheLink.jsonElement()) != null) {
+                    FileHandler.write(file.toString(), json, new String[]{"replace=true"}).whenComplete((b, error) -> {
+                        if (error != null) {
+                            SkJson.exception(error, "Cannot save storage id " + id);
+                        } else {
+                            SkJson.debug("Saved storage id " + id);
+                        }
+                    });
+                }
             }
-        });
+        }).exception((e) -> SkJson.exception(e, "Cannot save storage id " + id));
     }
 
     @Override

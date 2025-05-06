@@ -12,7 +12,6 @@ import lombok.Getter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -125,16 +124,12 @@ public class CacheStorageWatcher {
         try {
             if (parentID.contains(";")) {
                 String[] split = parentID.split(";");
-                var fromCache = cache.getValuesById(split[0])
-                        .get(5, TimeUnit.SECONDS);
-                return fromCache.keySet().stream().findFirst()
-                        .map(JsonElement::getAsJsonObject)
-                        .map(json -> json.get(split[1]))
-                        .orElse(new JsonObject());
+                var fromCache = cache.getValuesById(split[0]).get(5, TimeUnit.SECONDS);
+                return fromCache.jsonElement().getAsJsonObject();
             } else {
                 var fromCache = cache.getValuesById(id)
                         .get(5, TimeUnit.SECONDS);
-                return fromCache.keySet().stream().findFirst().orElse(new JsonObject());
+                return fromCache.getJsonElement().orElse(new JsonObject());
             }
         } catch (TimeoutException e) {
             SkJson.warning("Timeout while resolving parent JSON for file: %s".formatted(file.getName()));
@@ -153,9 +148,9 @@ public class CacheStorageWatcher {
                 continue;
             }
 
-            var map = new ConcurrentHashMap<>(Map.of(jsonifyFile, file));
+            var cacheLink = new CacheLink<>(jsonifyFile, file);
             this.event.setJson(jsonifyFile);
-            cache.replace(id, map);
+            cache.replace(id, cacheLink);
             SkJson.debug("File %s was modified", file.getName());
             this.event.callEvent();
             break;
