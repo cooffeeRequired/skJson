@@ -116,6 +116,10 @@ public class Core extends Extensible {
         register.registerExpression(ExprChanger.class, Object.class, ExpressionType.SIMPLE,
                 "(1:value|0:key) of %jsonpath%"
         );
+
+        if (Register.isClassAvailable("com.btk5h.skriptmirror.SkriptMirror")) {
+            SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
+        }
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
                 "[literal] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
                 "[literal] %jsonelement%<\\[\\d+\\]>"
