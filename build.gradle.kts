@@ -1,11 +1,10 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.util.regex.Pattern
 
 plugins {
     java
-    id("com.gradleup.shadow") version "9.0.0-beta12"
+    id("com.gradleup.shadow") version "9.0.0-beta13"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -36,8 +35,6 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.github.SkriptLang:Skript:2.11.0-pre1")
     implementation("com.google.code.gson:gson:2.13.0")
-    implementation("com.google.guava:guava:32.1.3-jre")
-
 
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("de.tr7zw:item-nbt-api:2.14.1")
@@ -90,13 +87,14 @@ tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-tasks.withType<ShadowJar>().configureEach {
+tasks.shadowJar {
+
     archiveClassifier.set("shaded")
     archiveFileName.set("skjson.jar")
 
-    relocate("org.bstats", "cz.coffee.shadowed.bstats")
-    relocate("de.tr7zw.changeme.nbtapi", "cz.coffee.shadowed.nbtapi")
-    relocate("com.google.gson", "cz.coffee.shadowed.gson")
+    relocate("org.bstats", "cz.coffeerequired.shadowed.bstats")
+    relocate("de.tr7zw.changeme.nbtapi", "cz.coffeerequired.shadowed.nbtapi")
+    relocate("com.google", "cz.coffeerequired.shadowed.google")
 
     exclude("META-INF/*.MF", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 
@@ -110,6 +108,11 @@ tasks.withType<ShadowJar>().configureEach {
         }
     }
 }
+
+//tasks.withType<ShadowJar>().configureEach {
+//
+//
+//}
 
 tasks.register("withRemote") {
     // dependsOn("clean")
