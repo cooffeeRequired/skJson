@@ -84,7 +84,7 @@ public class SkriptJsonInputParser {
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenize(String path, String delim) {
-        SkJson.info("Tokenizing path: %s", path);
+        SkJson.debug("Tokenizing path: %s", path);
         var perf = new Performance();
         perf.start();
         var tokens = getTokens(path, delim);
@@ -154,7 +154,7 @@ public class SkriptJsonInputParser {
         SkJson.debug("full path %s", path);
 
         if (isQuoted(path)) path = path.substring(1, path.length() - 1);
-        SkJson.info("Tokenizing pattern: %s", path);
+        SkJson.debug("Tokenizing pattern: %s", path);
         var perf = new Performance();
         perf.start();
         var tokens = getTokens(convertPath(path), PROJECT_DELIM);
