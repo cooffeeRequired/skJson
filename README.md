@@ -24,11 +24,11 @@
 
 ### Support for servers
 
-| 📑 Spigot                      | 🔑 Paper                  | 🆘 Purpur          |
-|--------------------------------------|--------------------------------------    |--------------------------------------|
-| Java 21 +                           | Java 21 +                                 | Java 21 +                           |
-| Minecraft 1.16.5 +                  | Minecraft 1.16.5 +                        | Minecraft 1.16.5 +                  |
-| Skript 2.9.2 +                      | Skript 2.9.2 +                            | Skript 2.9.2 +                      |
+| 📑 Spigot         | 🔑 Paper         | 🆘 Purpur        | 🌿 Leaf           |
+|-------------------|------------------|------------------|--------------------|
+| Java 21+          | Java 21+         | Java 21+         | Java 21+           |
+| Minecraft 1.16.5+ | Minecraft 1.16.5+| Minecraft 1.16.5+| Minecraft 1.21.1+  |
+| Skript 2.9.2+     | Skript 2.9.2+    | Skript 2.9.2+    | Skript 2.11+       |
 
 </center>
 
