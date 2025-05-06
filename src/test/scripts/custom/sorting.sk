@@ -1,0 +1,16 @@
+test "sort ascending":
+    set {_json} to json from "{c: A, b: 2, a: test}"
+    set {_asc_key} to {_json} in ascending order by key
+    set {_asc_value} to {_json} in ascending order by value
+
+    assert "%{_asc_key}%" is "{""a"":""test"",""b"":2,""c"":""A""}" with "cannot sort by key - ascending"
+    assert "%{_asc_value}%" is "{""b"":2,""c"":""A"",""a"":""test""}" with "cannot sort by value - ascending"
+
+test "sort descending":
+    set {_json} to json from "{c: A, b: 2, a: test}"
+    set {_desc_key} to {_json} in descending order by key
+    set {_desc_value} to {_json} in descending order by value
+
+    assert "%{_desc_key}%" is "{""c"":""A"",""b"":2,""a"":""test""}" with "cannot sort by key - descending"
+    assert "%{_desc_value}%" is "{""a"":""test"",""c"":""A"",""b"":2}" with "cannot sort by value - descending"
+
