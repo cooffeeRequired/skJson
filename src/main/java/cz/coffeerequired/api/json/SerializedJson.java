@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.skript.core.expressions.ExprSortJson;
 import lombok.Getter;
 
 import java.util.*;
@@ -29,6 +30,41 @@ public class SerializedJson {
         this.counter = new counter(json);
         this.remover = new remover(json);
         this.searcher = new searcher(json);
+    }
+
+
+    public JsonElement sort(ExprSortJson.SortType type) {
+        if (type.equals(ExprSortJson.SortType.BY_KEY_ASC) || type.equals(ExprSortJson.SortType.BY_KEY_DESC)) {
+            if (json instanceof JsonObject jsonObject) {
+                var keys = new ArrayList<>(jsonObject.keySet());
+                if (type.equals(ExprSortJson.SortType.BY_KEY_ASC)) keys.sort(Comparator.naturalOrder());
+                else keys.sort(Comparator.reverseOrder());
+                var result = new JsonObject();
+                for (String key : keys) {
+                    result.add(key, jsonObject.get(key));
+                }
+                return result;
+            } else if (json instanceof JsonArray jsonArray) {
+                SkJson.severe("Cannot sort Json Arrays by keys, use by value instead");
+                return null;
+            }
+        } else if (type.equals(ExprSortJson.SortType.BY_VALUE_ASC) || type.equals(ExprSortJson.SortType.BY_VALUE_DESC)) {
+            if (json instanceof JsonObject jsonObject) {
+                var entries = new ArrayList<>(jsonObject.entrySet());
+                if (type.equals(ExprSortJson.SortType.BY_VALUE_ASC)) {
+                    entries.sort(JsonValueComparator.byValueAscending());
+                } else {
+                    entries.sort(JsonValueComparator.byValueDescending());
+                }
+
+                var result = new JsonObject();
+                for (var entry : entries) {
+                    result.add(entry.getKey(), entry.getValue());
+                }
+                return result;
+            }
+        }
+        return null;
     }
 
     @Override

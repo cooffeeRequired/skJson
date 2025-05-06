@@ -144,6 +144,9 @@ public class Core extends Extensible {
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
         register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
         register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE, "json storage of id %-string%", "all json storages");
+        register.registerExpression(ExprSortJson.class, JsonElement.class, ExpressionType.SIMPLE,
+                "%jsonelement% [sorted] in (:ascending|:descending) order by (:key|:value)"
+        );
 
         // ################ CONDITIONS ############################
         register.registerCondition(CondJsonHas.class,
