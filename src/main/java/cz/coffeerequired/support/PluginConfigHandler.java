@@ -155,6 +155,8 @@ public class PluginConfigHandler {
 
             var projectVersion = CONFIG_VERSION = get("plugin.config-version", Integer.class);
 
+            DISABLED_UPDATE = get("plugin.enabled-auto-updater", Boolean.class);
+
             if (projectVersion != 5) {
                 throw new IllegalAccessException("Plugin config version is not 5! Config version: " + projectVersion);
             }

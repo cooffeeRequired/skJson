@@ -3,6 +3,7 @@ package cz.coffeerequired.support;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -69,6 +70,13 @@ public class Configuration {
 
     @SuppressWarnings("UnstableApiUsage")
     public void checkForUpdate() {
+
+        if (Api.Records.DISABLED_UPDATE) {
+            SkJson.info("Update checking is disabled by config.");
+            return;
+        }
+
+
         try {
             URI url = new URI(String.format("https://api.github.com/repos/%s/%s/releases/latest", USERNAME, REPOSITORY));
             SkJson.info("Checking for updates");

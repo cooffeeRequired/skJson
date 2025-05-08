@@ -141,12 +141,14 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         var r = parseResult.regexes.getFirst();
         jsonElementExpression = defendExpression(expressions[0]);
         var group = r.group();
-
-        SkJson.debug("group: %s", group);
-
-        tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
-        if (group.contains("%")) v = parseExpression(group);
-        return !tokens.isEmpty() && canInitSafely(jsonElementExpression);
+        SkJson.debug("&egroup: %s", group);
+        if (group.contains("%")) {
+            v = parseExpression(group);
+            tokens = new ArrayList<>();
+        } else {
+            tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
+        }
+        return canInitSafely(jsonElementExpression);
     }
 
     private boolean isQuoted(String original) {
@@ -189,8 +191,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
             SkJson.debug("expression: %s -> parsed result: %s", v, parsed);
             tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
         }
-
-        SkJson.debug("&7Changer -> tokens: %s", tokens);
 
         if (mode.equals(Changer.ChangeMode.SET)) {
             for (Object o : delta) {

@@ -3,6 +3,7 @@ package cz.coffeerequired.api.json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import cz.coffeerequired.support.Performance;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -85,11 +86,16 @@ public class SkriptJsonInputParser {
 
     public static ArrayList<Map.Entry<String, Type>> tokenize(String path, String delim) {
         SkJson.debug("Tokenizing path: %s", path);
-        var perf = new Performance();
-        perf.start();
-        var tokens = getTokens(path, delim);
-        perf.stop();
-        SkJson.debug("&e[form path] tokens: %s, time: %s", tokens, perf.toHumanTime());
+        ArrayList<Map.Entry<String, Type>> tokens;
+        if (Api.Records.PROJECT_DEBUG) {
+            var perf = new Performance();
+            perf.start();
+            tokens = getTokens(path, delim);
+            perf.stop();
+            SkJson.debug("&e[form path] tokens: %s, time: %s", tokens, perf.toHumanTime());
+        } else {
+            tokens = getTokens(path, delim);
+        }
         return tokens;
     }
 
@@ -151,15 +157,17 @@ public class SkriptJsonInputParser {
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenizeFromPattern(String path) {
-        SkJson.debug("full path %s", path);
-
         if (isQuoted(path)) path = path.substring(1, path.length() - 1);
-        SkJson.debug("Tokenizing pattern: %s", path);
-        var perf = new Performance();
-        perf.start();
-        var tokens = getTokens(convertPath(path), PROJECT_DELIM);
-        perf.stop();
-        SkJson.debug("&e[form pattern] tokens: %s, time: %s", tokens, perf.toHumanTime());
+        ArrayList<Map.Entry<String, Type>> tokens;
+        if (Api.Records.PROJECT_DEBUG) {
+            var perf = new Performance();
+            perf.start();
+            tokens = getTokens(convertPath(path), PROJECT_DELIM);
+            perf.stop();
+            SkJson.debug("&e[from pattern] tokens: %s, time: %s", tokens, perf.toHumanTime());
+        } else {
+            tokens = getTokens(convertPath(path), PROJECT_DELIM);
+        }
         return tokens;
     }
 

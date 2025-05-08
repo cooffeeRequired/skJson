@@ -95,7 +95,9 @@ public abstract class Api {
                 Map.entry("WATCHER_INTERVAL", "json.watcher.interval"),
                 Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate"),
                 Map.entry("WATCHER_WATCH_TYPE", "json.watcher.watch-type"),
-                Map.entry("WATCHER_MAX_THREADS", "json.watcher.max-threads")
+                Map.entry("WATCHER_MAX_THREADS", "json.watcher.max-threads"),
+
+                Map.entry("DISABLED_UPDATE", "plugin.enabled-auto-updater")
         ));
 
         public static @NotNull String PROJECT_PERMISSION = "skjson.use";
@@ -109,5 +111,6 @@ public abstract class Api {
         public static int WATCHER_REFRESH_RATE;
         public static JsonWatchType WATCHER_WATCH_TYPE;
         public static Integer CONFIG_VERSION;
+        public static boolean DISABLED_UPDATE;
     }
 }

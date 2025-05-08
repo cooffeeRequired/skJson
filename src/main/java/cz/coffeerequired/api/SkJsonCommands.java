@@ -78,7 +78,8 @@ public abstract class SkJsonCommands {
                         Map.entry("WATCHER_INTERVAL", WATCHER_INTERVAL),
                         Map.entry("WATCHER_REFRESH_RATE", WATCHER_REFRESH_RATE),
                         Map.entry("WATCHER_WATCH_TYPE", WATCHER_WATCH_TYPE),
-                        Map.entry("WATCHER_MAX_THREADS", WATCHER_MAX_THREADS)
+                        Map.entry("WATCHER_MAX_THREADS", WATCHER_MAX_THREADS),
+                        Map.entry("DISABLED_UPDATE", DISABLED_UPDATE)
                 ));
                 configuration.getHandler().reloadConfig();
                 Boolean[] changed = new Boolean[]{false};
