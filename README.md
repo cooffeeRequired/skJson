@@ -21,6 +21,8 @@
 <h6 align="center">Addon for handle JSON easily in <b>SkriptLang</b></h6>
 <hr>
 
+### 5.x Performance comparation [link](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.md)
+
 
 ### Support for servers
 

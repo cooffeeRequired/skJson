@@ -1,0 +1,210 @@
+on script load:
+    execute console command "skjson debug false"
+    execute console command "spark profiler --thread *"
+
+options:
+    avg-iters: 25
+    iters: 10000
+
+command profile:
+    trigger:
+        set {_json} to json from "{A: false}"
+        bind json file "plugins/Skript/scripts/testing/content.json" as "json"
+
+        spawn a cow at spawn of world "world":
+            set {_e2} to entity
+
+        set {_e} to "_F0cus__" parsed as offline player
+
+        broadcast "Running test..."
+        loop {@avg-iters} times:
+            wait 5 seconds
+            broadcast "Iteration %loop-value%"
+            # LOCAL VARIABLES
+            set {_start} to now
+            set {_v} to 0
+            loop {@iters} times:
+                set {_var} to {_v}
+            set {_results::local variables::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            set {_v} to 0
+            loop {@iters} times:
+                set {_var} to loop-value-2
+            set {_results::local variables::write::%loop-value%} to time since {_start} / 1 second
+
+            # MEMORY VARIABLES
+            set {_start} to now
+            set {-var} to 0
+            loop {@iters} times:
+                set {_var} to {-var}
+            set {_results::memory variables (before PR)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set {-var} to loop-value-2
+            set {_results::memory variables (before PR)::write::%loop-value%} to time since {_start} / 1 second
+
+            # MEMORY VARIABLES (PLAYER INDEX)
+            set {_start} to now
+            set {-var::%{_e}%} to 0
+            loop {@iters} times:
+                set {_var} to {-var::%{_e}%}
+            set {_results::memory variables (player index)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set {-var::%{_e}%} to loop-value-2
+            set {_results::memory variables (player index)::write::%loop-value%} to time since {_start} / 1 second
+
+            #NBT (PLAYER)
+            set {_start} to now
+            set int tag "var" of custom nbt of {_e} to 0
+            loop {@iters} times:
+                set {_var} to int tag "var" of custom nbt of {_e}
+            set {_results::nbt (player)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set int tag "var" of custom nbt of {_e} to loop-value-2
+            set {_results::nbt (player)::write::%loop-value%} to time since {_start} / 1 second
+
+            # NBT (COW)
+            set {_start} to now
+            set int tag "var" of custom nbt of {_e2} to 0
+            loop {@iters} times:
+                set {_var} to int tag "var" of custom nbt of {_e2}
+            set {_results::nbt (cow)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set int tag "var" of custom nbt of {_e2} to loop-value-2
+            set {_results::nbt (cow)::write::%loop-value%} to time since {_start} / 1 second
+
+            # NBT (ITEM)
+            set {_start} to now
+            set {_item} to a diamond sword
+            set int tag "var" of custom nbt of {_item} to 0
+            loop {@iters} times:
+                set {_var} to int tag "var" of custom nbt of {_item}
+            set {_results::nbt (item)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set int tag "var" of custom nbt of {_item} to loop-value-2
+            set {_results::nbt (item)::write::%loop-value%} to time since {_start} / 1 second
+
+
+            # NBT (CHUNK)
+            set {_chunk} to chunk at spawn of world "world"
+            set int tag "custom;var" of nbt of {_chunk} to 0
+            set {_start} to now
+            loop {@iters} times:
+                set {_var} to int tag "custom;var" of nbt of {_chunk}
+            set {_results::nbt (chunk)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set int tag "custom;var" of nbt of {_chunk} to loop-value-2
+            set {_results::nbt (chunk)::write::%loop-value%} to time since {_start} / 1 second
+
+            # NBT (HEADLESS)
+            set {_nbt} to a blank nbt compound
+            set int tag "var" of {_nbt} to 0
+
+            set {_start} to now
+            loop {@iters} times:
+                set {_var} to int tag "var" of {_nbt}
+            set {_results::nbt (headless)::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set int tag "var" of {_nbt} to loop-value-2
+            set {_results::nbt (headless)::write::%loop-value%} to time since {_start} / 1 second
+
+            #METADATA
+            set {_start} to now
+            set metadata tag "var" of {_e} to 0
+            loop {@iters} times:
+                set {_var} to metadata tag "var" of {_e}
+            set {_results::metadata::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set metadata tag "var" of {_e} to loop-value-2
+            set {_results::metadata::write::%loop-value%} to time since {_start} / 1 second
+
+            # SkJson - literal variable
+            set {_start} to now
+            set {_json}."%{_e}%"  to 0
+            loop {@iters} times:
+                set {_var} to {_json}."%{_e}%"
+            set {_results::skjson-literal::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set {_json}."%{_e}%" to loop-value-2
+            set {_results::skjson-literal::write::%loop-value%} to time since {_start} / 1 second
+
+
+            # SkJson - literal cache variable
+            set {_start} to now
+            set (json storage of id "json")."%{_e}%"  to 0
+
+            loop {@iters} times:
+                set {_var} to (json storage of id "json")."%{_e}%"
+            set {_results::skjson-cache::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set (json storage of id "json")."%{_e}%" to loop-value-2
+            set {_results::skjson-cache::write::%loop-value%} to time since {_start} / 1 second
+
+
+            # SkJson - value / value/key - changer - variable
+            set {_start} to now
+            set value of json path "%{_e}%" in {_json} to 0
+
+            loop {@iters} times:
+                set {_var} to value "%{_e}%" of {_json}
+            set {_results::skjson-value_value_key-changer-variable::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set value of json path "%{_e}%" in {_json} to loop-value-2
+            set {_results::skjson-value_value_key-changer-variable::write::%loop-value%} to time since {_start} / 1 second
+
+
+            # SkJson - value / value/key - changer - variable-cache
+            set {_start} to now
+            set value of json path "%{_e}%" in (json storage of id "json") to 0
+
+            loop {@iters} times:
+                set {_var} to value "%{_e}%" of (json storage of id "json")
+            set {_results::skjson-cache-value_value_key-changer-variable::read::%loop-value%} to time since {_start} / 1 second
+            set {_start} to now
+            loop {@iters} times:
+                set value of json path "%{_e}%" in (json storage of id "json") to loop-value-2
+            set {_results::skjson-cache-value_value_key-changer-variable::write::%loop-value%} to time since {_start} / 1 second
+
+        broadcast "RESULTS:"
+        broadcast "A read is determined by setting a local variable to the value, so all reads include the time to write a local variable."
+        broadcast "A write is determined by setting the same expression to `loop-number`."
+        broadcast ""
+        loop indices of {_results::*}:            
+            set {_final-results::%loop-value-1%::read} to sum({_results::%loop-value-1%::read::*}) / {@avg-iters}
+            set {_final-results::%loop-value-1%::write} to sum({_results::%loop-value-1%::write::*}) / {@avg-iters}
+            set {_final-results::%loop-value-1%::total} to {_final-results::%loop-value-1%::read} + {_final-results::%loop-value-1%::write}
+            set {_sort::%loop-value-1%} to {_final-results::%loop-value-1%::total}
+        
+        loop sorted indices of {_sort::*} in ascending order:
+            if loop-iteration is 1:
+                set {_min-read} to {_final-results::%loop-value%::read}
+                set {_min-write} to {_final-results::%loop-value%::write}
+                set {_min} to loop-value
+            set {_ratio} to {_final-results::%loop-value%::total} / {_final-results::%{_min}%::total}
+            if {_ratio} is less than 2:
+                set {_colour} to "&a"
+            else if {_ratio} is less than 10:
+                set {_colour} to "&e"
+            else:
+                set {_colour} to "&c"
+            broadcast "%{_colour}%%loop-value% (%{_ratio}%x %{_min}%):"
+            broadcast "&7 - Read: &f%{_final-results::%loop-value%::read}% us / op (%{_final-results::%loop-value%::read} / {_min-read}%x %{_min}%)"
+            broadcast "&7 - Write: &f%{_final-results::%loop-value%::write}% us / op (%{_final-results::%loop-value%::write} / {_min-write}%x %{_min}%)"
+    
+        broadcast "----------------------------------"
+        broadcast "Min read: %{_min-read}%"
+        broadcast "Min write: %{_min-write}%"
+        broadcast "Min total: %{_final-results::%{_min}%::total}%"
+        broadcast "----------------------------------"
+        execute console command "skjson debug true"
+        execute console command "spark profiler stop"
