@@ -70,13 +70,6 @@ public class Configuration {
 
     @SuppressWarnings("UnstableApiUsage")
     public void checkForUpdate() {
-
-        if (Api.Records.DISABLED_UPDATE) {
-            SkJson.info("Update checking is disabled by config.");
-            return;
-        }
-
-
         try {
             URI url = new URI(String.format("https://api.github.com/repos/%s/%s/releases/latest", USERNAME, REPOSITORY));
             SkJson.info("Checking for updates");
@@ -99,6 +92,11 @@ public class Configuration {
             String currentVersion = plugin.getPluginMeta().getVersion();
             if (currentVersion.compareTo(latestVersion) < 0) {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
+                if (Api.Records.DISABLED_UPDATE) {
+                    SkJson.info("&c✖ &r Update checking is disabled by config.");
+                    SkJson.info("Running now on version: &e'%s'&r latest version is: &a'%s'", currentVersion, latestVersion);
+                    return;
+                }
                 scheduleUpdate(downloadUrl);
             } else if (currentVersion.compareTo(latestVersion) > 0) {
                 SkJson.info("Running a Development version, no update required &a ✔");

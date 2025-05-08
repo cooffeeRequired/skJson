@@ -109,13 +109,8 @@ tasks.shadowJar {
     }
 }
 
-//tasks.withType<ShadowJar>().configureEach {
-//
-//
-//}
-
 tasks.register("withRemote") {
-    // dependsOn("clean")
+    dependsOn("clean")
     dependsOn("shadowJar")
     dependsOn("errorLint")
     doLast {
