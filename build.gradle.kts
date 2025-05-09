@@ -58,7 +58,7 @@ sourceSets {
     named("main") {
         resources {
             srcDir("src/main/resources")
-            include("plugin.yml", "config.yml", "lang/default.lang", "tests/**")
+            include("plugin.yml", "config.yml", "lang/default.lang", "libraries/**")
         }
     }
 }
@@ -81,7 +81,7 @@ val fullRev = generateSHA1()
 val shortRev = generateShortSHA1(fullRev)
 
 tasks.processResources {
-    filesMatching(listOf("plugin.yml", "lang/default.lang")) {
+    filesMatching(listOf("plugin.yml", "lang/default.lang", "libraries/configuration.properties")) {
         expand(mapOf("version" to project.version, "rev" to shortRev))
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

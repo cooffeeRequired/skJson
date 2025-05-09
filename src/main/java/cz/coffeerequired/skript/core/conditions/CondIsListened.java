@@ -29,7 +29,7 @@ public class CondIsListened extends Condition {
 
         var cache = Api.getCache();
         if (cache.containsKey(id)) {
-            return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(cache.get(id).file());
+            return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(cache.getValuesById(id).file());
         }
         return false;
     }

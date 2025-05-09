@@ -33,7 +33,7 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
             String storedKey = storedKeyExpr.getSingle(event);
             if (storedKey == null) return null;
             if (cache.containsKey(storedKey)) {
-                var cacheLink = cache.get(storedKey);
+                var cacheLink = cache.getValuesById(storedKey);
                 return new JsonElement[]{cacheLink.jsonElement()};
             }
         } else {

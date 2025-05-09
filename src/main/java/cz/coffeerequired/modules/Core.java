@@ -13,7 +13,6 @@ import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.Json;
-import cz.coffeerequired.api.types.JsonPath;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import cz.coffeerequired.skript.core.conditions.*;
 import cz.coffeerequired.skript.core.effects.*;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.UUID;
 
 
+@SuppressWarnings({"removal","deprecation"})
 @Module(module = "core")
 public class Core extends Extensible {
 
@@ -62,7 +62,6 @@ public class Core extends Extensible {
             if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
                 allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
             } else {
-                //noinspection removal
                 allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
             }
         } catch (Exception e) {
@@ -70,7 +69,6 @@ public class Core extends Extensible {
         }
     }
 
-    @SuppressWarnings("removal")
     @Override
     public void registerElements(Register.SkriptRegister register) {
         register.apply(this);
@@ -89,17 +87,6 @@ public class Core extends Extensible {
                 "type.json"
         );
 
-        register.registerType(new ClassInfo<>(JsonPath.class, "jsonpath")
-                        .user("json? path?")
-                        .name("json path")
-                        .description("Json path representation")
-                        .since("4.1 - API UPDATE")
-                        .parser(JsonPath.parser)
-                        .serializer(JsonPath.serializer)
-                        .changer(JsonPath.changer),
-                "type.jsonpath"
-        );
-
         // ################ EXPRESSIONS ############################
         register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.SIMPLE,
                 "json from file %strings%",
@@ -110,12 +97,6 @@ public class Core extends Extensible {
                 "%jsonelement% as pretty[ printed]",
                 "%jsonelement% as uncolo[u]red pretty[ printed]"
         );
-        register.registerExpression(ExprJsonPath.class, JsonPath.class, ExpressionType.SIMPLE,
-                "json path %string% in %jsonelement%"
-        );
-        register.registerExpression(ExprChanger.class, Object.class, ExpressionType.SIMPLE,
-                "(1:value|0:key) of %jsonpath%"
-        );
 
         if (Register.isClassAvailable("com.btk5h.skriptmirror.SkriptMirror")) {
             SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
@@ -124,8 +105,6 @@ public class Core extends Extensible {
                 "[literal] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
                 "[literal] %jsonelement%<\\[\\d+\\]>"
         );
-
-        register.registerExpression(ExprRemoveValKey.class, JsonElement.class, ExpressionType.SIMPLE, "(:value[s]|:key[s]) %objects%");
 
         register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
                 "(1st|first) (:value|:key) of %jsonelement%",

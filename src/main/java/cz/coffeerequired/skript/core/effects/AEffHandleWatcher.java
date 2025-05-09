@@ -38,7 +38,7 @@ public class AEffHandleWatcher extends AsyncEffect {
 
         CompletableFuture.runAsync(() -> {
             if (cache.containsKey(id)) {
-                var file = cache.get(id).getFile().orElse(null);
+                var file = cache.getValuesById(id).getFile().orElse(null);
                 if (isBindingMode) {
                     if (!CacheStorageWatcher.Extern.hasRegistered(file)) {
                         try {

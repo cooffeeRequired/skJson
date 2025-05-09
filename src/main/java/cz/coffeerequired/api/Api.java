@@ -78,7 +78,6 @@ public abstract class Api {
                 type == ServerType.PAPER_CORE;
     }
 
-    @SuppressWarnings("unused")
     public static class Records {
         @Getter
         public static final HashMap<String, String> mapping = new HashMap<>(Map.ofEntries(
@@ -97,7 +96,8 @@ public abstract class Api {
                 Map.entry("WATCHER_WATCH_TYPE", "json.watcher.watch-type"),
                 Map.entry("WATCHER_MAX_THREADS", "json.watcher.max-threads"),
 
-                Map.entry("DISABLED_UPDATE", "plugin.enabled-auto-updater")
+                Map.entry("DISABLED_UPDATE", "plugin.enabled-auto-updater"),
+                Map.entry("PLUGIN_FALLBACK_ENABLED", "plugin.enabled-fallback")
         ));
 
         public static @NotNull String PROJECT_PERMISSION = "skjson.use";
@@ -112,5 +112,6 @@ public abstract class Api {
         public static JsonWatchType WATCHER_WATCH_TYPE;
         public static Integer CONFIG_VERSION;
         public static boolean DISABLED_UPDATE;
+        public static boolean PLUGIN_FALLBACK_ENABLED;
     }
 }

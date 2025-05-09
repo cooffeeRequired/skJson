@@ -13,6 +13,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
@@ -174,9 +176,12 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
+
+        SkJson.debug("tryiing to change %s", mode);
+
         return switch (mode) {
-            case SET, ADD -> CollectionUtils.array(Object[].class, Object.class);
-            case REMOVE, REMOVE_ALL, DELETE -> CollectionUtils.array(Object[].class);
+            case SET, ADD, REMOVE, REMOVE_ALL -> CollectionUtils.array(Object[].class);
+            case DELETE -> CollectionUtils.array();
             default -> null;
         };
     }
@@ -184,7 +189,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
-        if (delta == null) return;
 
         if (v != null) {
             String parsed = v.getSingle(event) + "";
@@ -192,11 +196,30 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
             tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
         }
 
+        if (mode.equals(Changer.ChangeMode.DELETE)) {
+            SerializedJson serializedJson = new SerializedJson(jsonElement);
+            serializedJson.remover.byKey(tokens);
+        }
+
+        if (delta == null) return;
+
         if (mode.equals(Changer.ChangeMode.SET)) {
-            for (Object o : delta) {
-                JsonElement parsed = GsonParser.toJson(o);
+            if (delta.length > 1) {
+                JsonArray array = new JsonArray();
+
+                for (Object o : delta) {
+                    JsonElement parsed = GsonParser.toJson(o);
+                    array.add(parsed);
+                }
+
                 SerializedJson serializedJson = new SerializedJson(jsonElement);
-                serializedJson.changer.value(tokens, parsed);
+                serializedJson.changer.value(tokens, array);
+            } else {
+                for (Object o : delta) {
+                    JsonElement parsed = GsonParser.toJson(o);
+                    SerializedJson serializedJson = new SerializedJson(jsonElement);
+                    serializedJson.changer.value(tokens, parsed);
+                }
             }
         } else if (mode.equals(Changer.ChangeMode.ADD)) {
             for (Object o : delta) {
@@ -204,7 +227,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
                 SerializedJson serializedJson = new SerializedJson(jsonElement);
                 serializedJson.changer.add(tokens, parsed);
             }
-        } else if (mode.equals(Changer.ChangeMode.REMOVE) || mode.equals(Changer.ChangeMode.DELETE)) {
+        } else if (mode.equals(Changer.ChangeMode.REMOVE)) {
             if (delta[0] instanceof JsonObject json) {
                 if (json.has("...changer-properties...")) {
                     var type = json.get("type").getAsString();

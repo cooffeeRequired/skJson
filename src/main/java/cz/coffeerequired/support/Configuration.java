@@ -24,7 +24,6 @@ public class Configuration {
     private static final String REPOSITORY = "skJson";
     private static final String USERNAME = "cooffeeRequired";
     private final JavaPlugin plugin;
-    @SuppressWarnings("unused")
     @Getter
     private final PluginConfigHandler handler = new PluginConfigHandler(SkJson.getInstance());
 
@@ -68,7 +67,6 @@ public class Configuration {
         return null;
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public void checkForUpdate() {
         try {
             URI url = new URI(String.format("https://api.github.com/repos/%s/%s/releases/latest", USERNAME, REPOSITORY));
@@ -92,9 +90,9 @@ public class Configuration {
             String currentVersion = plugin.getPluginMeta().getVersion();
             if (currentVersion.compareTo(latestVersion) < 0) {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
+                SkJson.info("Running now on version: &e'%s'&r latest version is: &a'%s'", currentVersion, latestVersion);
                 if (Api.Records.DISABLED_UPDATE) {
                     SkJson.info("&c✖ &r Update checking is disabled by config.");
-                    SkJson.info("Running now on version: &e'%s'&r latest version is: &a'%s'", currentVersion, latestVersion);
                     return;
                 }
                 scheduleUpdate(downloadUrl);
@@ -160,5 +158,30 @@ public class Configuration {
             writer.write("new_file_hash: " + newFileHash);
         }
         SkJson.info("Update scheduled, it will be applied after server restart.");
+    }
+
+    /**
+     * Copies a file or folder from the JAR file to the plugin folder
+     * @param resourcePath Path to the file in JAR (e.g. "configs/config.yml")
+     * @param replace True if you want to overwrite existing files
+     */
+    public void copyFromJar(String resourcePath, boolean replace) {
+        try {
+            InputStream in = plugin.getResource(resourcePath);
+            if (in == null) {
+                SkJson.severe("Resource not found: %s", resourcePath);
+                return;
+            }
+
+            File outFile = new File(plugin.getDataFolder(), resourcePath);
+            if (!outFile.exists() || replace) {
+                outFile.getParentFile().mkdirs();
+                Files.copy(in, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                SkJson.debug("File copied: %s",  resourcePath);
+            }
+            in.close();
+        } catch (IOException e) {
+            SkJson.severe("Error copying file %s: %s", resourcePath, e.getMessage());
+        }
     }
 }

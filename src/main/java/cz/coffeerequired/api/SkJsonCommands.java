@@ -79,7 +79,8 @@ public abstract class SkJsonCommands {
                         Map.entry("WATCHER_REFRESH_RATE", WATCHER_REFRESH_RATE),
                         Map.entry("WATCHER_WATCH_TYPE", WATCHER_WATCH_TYPE),
                         Map.entry("WATCHER_MAX_THREADS", WATCHER_MAX_THREADS),
-                        Map.entry("DISABLED_UPDATE", DISABLED_UPDATE)
+                        Map.entry("DISABLED_UPDATE", DISABLED_UPDATE),
+                        Map.entry("PLUGIN_FALLBACK_ENABLED", PLUGIN_FALLBACK_ENABLED)
                 ));
                 configuration.getHandler().reloadConfig();
                 Boolean[] changed = new Boolean[]{false};

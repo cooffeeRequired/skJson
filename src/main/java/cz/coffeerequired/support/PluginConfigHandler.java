@@ -157,6 +157,12 @@ public class PluginConfigHandler {
 
             DISABLED_UPDATE = get("plugin.enabled-auto-updater", Boolean.class);
 
+            PLUGIN_FALLBACK_ENABLED = get("plugin.enabled-fallback", Boolean.class);
+
+            if (PLUGIN_FALLBACK_ENABLED) {
+                SkJson.info("&a✓ Fallback enabled.");
+            }
+
             if (projectVersion != 5) {
                 throw new IllegalAccessException("Plugin config version is not 5! Config version: " + projectVersion);
             }

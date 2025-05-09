@@ -124,16 +124,12 @@ public class CacheStorageWatcher {
         try {
             if (parentID.contains(";")) {
                 String[] split = parentID.split(";");
-                var fromCache = cache.getValuesById(split[0]).get(5, TimeUnit.SECONDS);
+                var fromCache = cache.getValuesById(split[0]);
                 return fromCache.jsonElement().getAsJsonObject();
             } else {
-                var fromCache = cache.getValuesById(id)
-                        .get(5, TimeUnit.SECONDS);
-                return fromCache.getJsonElement().orElse(new JsonObject());
+                var fromCache = cache.getValuesById(id);
+                return fromCache.jsonElement().getAsJsonObject();
             }
-        } catch (TimeoutException e) {
-            SkJson.warning("Timeout while resolving parent JSON for file: %s".formatted(file.getName()));
-            return new JsonObject();
         } catch (Exception e) {
             SkJson.exception(e, "Error while resolving parent JSON for file: %s".formatted(file.getName()));
             return new JsonObject();

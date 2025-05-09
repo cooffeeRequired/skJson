@@ -12,15 +12,12 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.annotators.ExternalAPI;
 import cz.coffeerequired.api.annotators.Module;
 import cz.coffeerequired.api.exceptions.ExtensibleThrowable;
 import cz.coffeerequired.modules.Core;
 import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -30,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.event.Event;
+
 public class Register {
 
     static final String prefix = "[skjson] ";
@@ -38,27 +37,6 @@ public class Register {
     private static SkriptAddon addon;
     @Getter
     private final SkriptRegister skriptRegister = new SkriptRegister();
-
-    @ExternalAPI
-    public static <T extends Extensible> void registerModules(JavaPlugin plugin, Class<T> module) {
-        try {
-            if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
-                Module annotation = module.getAnnotation(Module.class);
-                assert annotation != null;
-                String moduleName = annotation.module();
-
-                SkJson.info(
-                        "Registering module: %s%s&r%s&rr" + AnsiColorConverter.RESET,
-                        AnsiColorConverter.hexToAnsi("#47a5ff"), moduleName
-                );
-                modules.add(module);
-            } else {
-                throw new IllegalCallerException("Class what extends Extensible always need to be annotated by @Module");
-            }
-        } catch (Exception e) {
-            SkJson.exception(e, e.getMessage());
-        }
-    }
 
     public static boolean isClassAvailable(Class<?> className) {
         try {
@@ -172,7 +150,6 @@ public class Register {
 
     public static List<Extensible> registers = new ArrayList<>();
 
-    @SuppressWarnings("unused")
     public static class SkriptRegister {
 
         Extensible extensible;

@@ -3,6 +3,7 @@ package cz.coffeerequired;
 import ch.njol.skript.Skript;
 import cz.coffeerequired.api.*;
 import cz.coffeerequired.api.cache.CacheStorageWatcher;
+import cz.coffeerequired.fallback.FallBack;
 import cz.coffeerequired.support.Configuration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,8 @@ public final class SkJson extends JavaPlugin {
     static Configuration configuration;
     @Getter
     private static YamlConfiguration pluginConfig;
-    private final Register register = new Register();
+    @Getter
+    private static final Register register = new Register();
 
     public static void info(Object message, Object... args) {
         SkJsonLogger.log(Level.INFO, message, args);
@@ -70,6 +72,7 @@ public final class SkJson extends JavaPlugin {
 
         configuration = new Configuration(this);
         configuration.checkForUpdate();
+        configuration.copyFromJar("libraries/configuration.properties", false);
 
         try {
             Class.forName("cz.coffeerequired.api.cache.CacheStorageWatcher");
@@ -87,6 +90,7 @@ public final class SkJson extends JavaPlugin {
         if (Api.canInstantiateSafety()) {
             try {
                 register.registerNewHook(Skript.class);
+                new FallBack();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -160,7 +164,6 @@ public final class SkJson extends JavaPlugin {
         )));
     }
 
-    @SuppressWarnings("unused")
     public void warning(CommandSender sender, String message, Object... args) {
         SkJsonLogger.warning(sender, message, args);
     }

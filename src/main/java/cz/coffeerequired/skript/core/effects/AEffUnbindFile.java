@@ -30,7 +30,7 @@ public class AEffUnbindFile extends AsyncEffect {
         var cache = Api.getCache();
         SkJson.debug("Trying to unbind storage id '" + id + "' from file");
         if (cache.containsKey(id)) {
-            var fileOptional = cache.get(id).getFile();
+            var fileOptional = cache.getValuesById(id).getFile();
             if (fileOptional.isPresent()) {
                 var file_ = fileOptional.get();
 

@@ -36,7 +36,7 @@ public class AEffSaveStorage extends AsyncEffect {
         if (mode.equals(Mode.SINGLE)) {
             String id = expressionId.getSingle(event);
             if (cache.containsKey(id)) {
-                saveStorage(id, cache.get(id));
+                saveStorage(id, cache.getValuesById(id));
             }
         } else {
             cache.forEach(this::saveStorage);
