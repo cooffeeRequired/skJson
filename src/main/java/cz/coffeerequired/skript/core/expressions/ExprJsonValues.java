@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -8,12 +9,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
+import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
@@ -38,7 +41,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Examples("""
             set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"
         
-            send value "test::2" of {_json}
+            send value "test.2" of {_json}
             send values "test" of {_json}
         """)
 public class ExprJsonValues extends SimpleExpression<Object> {
@@ -167,4 +170,72 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     }
 
     enum Type {SINGLE, MULTIPLES}
+
+    @Override
+    public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+        return switch (mode) {
+            case SET, REMOVE_ALL -> CollectionUtils.array(Object[].class);
+            case DELETE -> CollectionUtils.array();
+            default -> null;
+        };
+    }
+
+    @Override
+    public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+        var tokens = SkriptJsonInputParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
+
+        SkJson.debug("&cTrying change -> &e%s", mode);
+
+        SkJson.debug("tokens %s", tokens);
+
+        var json = jsonVariable.getSingle(event);
+        if (json == null) {
+            SkJson.severe(getParser().getNode(), "Trying to change JSON %s what is null", jsonVariable.toString(event, false));
+            return;
+        }
+        var serializedJson = new SerializedJson(json);
+
+        delta = delta == null ? new Object[0] : delta;
+
+        SkJson.debug("type %s", type);
+
+        if (type.equals(Type.SINGLE) && delta.length > 1) {
+            SkJson.severe(getParser().getNode(), "You are using 'value' instead of 'values', Do you want to use 'values' instead?");
+            return;
+        }
+
+        switch (mode) {
+            case SET -> {
+                if (delta.length > 1) {
+                    JsonArray array = new JsonArray();
+
+                    for (Object o : delta) {
+                        JsonElement parsed = GsonParser.toJson(o);
+                        array.add(parsed);
+                    }
+
+                    serializedJson.changer.value(tokens, array);
+                } else {
+                    for (Object o : delta) {
+                        JsonElement parsed = GsonParser.toJson(o);
+                        serializedJson.changer.value(tokens, parsed);
+                    }
+                }
+                break;
+            }
+            case DELETE -> {
+                serializedJson.remover.byKey(tokens);
+                break;
+            }
+            case REMOVE_ALL -> {
+                for (var o : delta) {
+                    serializedJson.remover.allByValue(tokens, o);
+                }
+                break;
+            }
+            default -> {
+                SkJson.severe(getParser().getNode(), "Unknown change mode: %s", mode);
+            }
+        }
+    }
 }

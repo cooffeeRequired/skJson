@@ -2,6 +2,8 @@ package cz.coffeerequired.api.json;
 
 import com.google.gson.*;
 import com.google.gson.internal.LazilyParsedNumber;
+
+import ch.njol.skript.lang.parser.ParserInstance;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.skript.core.support.JsonSupportElements.SearchType;
 
@@ -61,12 +63,15 @@ public abstract class SerializedJsonUtils {
                                 object.add(key, new_);
                                 yield new_;
                             }
-                            case Object -> {
+                            case Object, Key -> {
                                 var new_ = new JsonObject();
                                 object.add(key, new_);
                                 yield new_;
                             }
-                            default -> throw new SerializedJsonException("Unknown type: %s for object".formatted(key_.getValue()));
+                            default -> {
+                                SkJson.severe(ParserInstance.get().getNode(), "Unknown type: &e'%s'&4 for object", key_.getValue());
+                                yield null;
+                            }
                         };
                     } else {
                         return object.get(key);

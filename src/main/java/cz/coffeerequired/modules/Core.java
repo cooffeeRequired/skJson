@@ -120,8 +120,11 @@ public class Core extends Extensible {
 
         register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) %object% in %jsonelement%");
         register.registerExpression(ExprJsonValues.class, Object.class, ExpressionType.COMBINED,
-                "value [%-string%] of %jsonelement%",
-                "values [%-string%] of %jsonelement%"
+                "[json] value [%-string%] of %jsonelement%",
+                "[json] values [%-string%] of %jsonelement%"
+        );
+        register.registerExpression(ExprArrayObject.class, Object.class, ExpressionType.SIMPLE,
+                "json (:array|:object) %string% of %jsonelement%"
         );
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");

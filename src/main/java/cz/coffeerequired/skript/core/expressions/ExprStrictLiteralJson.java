@@ -16,7 +16,6 @@ import ch.njol.util.coll.CollectionUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
@@ -218,29 +217,6 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
                 serializedJson.changer.add(tokens, parsed);
             }
         } else if (mode.equals(Changer.ChangeMode.REMOVE)) {
-            if (delta[0] instanceof JsonObject json) {
-                if (json.has("...changer-properties...")) {
-                    var type = json.get("type").getAsString();
-                    var values = json.get("values").getAsJsonArray();
-
-                    if (type.equals("value")) {
-                        assert values != null;
-                        for (var value : values) {
-                            serializedJson.remover.byValue(tokens, value);
-                        }
-                    } else if (type.equals("key")) {
-                        assert values != null;
-                        for (var value : values) {
-                            var tr = tokens;
-
-                            tr.add(Map.entry(value.getAsString(), SkriptJsonInputParser.Type.Object));
-                            serializedJson.remover.byKey(tr);
-                        }
-                    }
-                }
-            }
-
-
             for (var o : delta) {
                 serializedJson.remover.byValue(tokens, o);
             }

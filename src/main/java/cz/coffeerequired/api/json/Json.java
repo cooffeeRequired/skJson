@@ -4,7 +4,9 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -12,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Map;
 
 public abstract class Json {
     public static Parser<JsonElement> parser = new Parser<>() {
@@ -67,12 +71,44 @@ public abstract class Json {
         @Override
         @SuppressWarnings("all")
         public @Nullable Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
-            return null;
+            return switch(mode) {
+                case RESET, REMOVE, REMOVE_ALL, ADD -> CollectionUtils.array(Object.class);
+                default -> null;
+            };
         }
 
         @Override
         public void change(JsonElement[] what, @Nullable Object[] delta, ChangeMode mode) {
-           
+            JsonElement jsonElement = what[0];
+            SerializedJson serializedJson = new SerializedJson(jsonElement);
+
+            ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> emptyTokens = new ArrayList<>();
+            switch(mode) {
+                case RESET -> {
+                    serializedJson.remover.reset(emptyTokens);
+                    break;
+                }
+                case REMOVE  -> {
+                    for (var o : delta) {
+                        serializedJson.remover.byValue(emptyTokens, o);
+                    }
+                    break;
+                }
+                case REMOVE_ALL -> {
+                    for (var o : delta) {
+                        serializedJson.remover.allByValue(emptyTokens, o);
+                    }
+                    break;
+                }
+                case ADD -> {
+                    for (Object o : delta) {
+                        JsonElement parsed = GsonParser.toJson(o);
+                        serializedJson.changer.add(emptyTokens, parsed);
+                    }
+                    break;
+                }
+                default -> {}
+            }
         }
     };
 }
