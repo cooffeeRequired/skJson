@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.json;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -45,7 +46,7 @@ public class SerializedJson {
                 }
                 return result;
             } else if (json instanceof JsonArray jsonArray) {
-                SkJson.severe("Cannot sort Json Arrays by keys, use by value instead");
+                SkJson.severe(ParserInstance.get().getNode(), "Cannot sort Json Arrays by keys, use by value instead");
                 return null;
             }
         } else if (type.equals(ExprSortJson.SortType.BY_VALUE_ASC) || type.equals(ExprSortJson.SortType.BY_VALUE_DESC)) {
@@ -78,7 +79,8 @@ public class SerializedJson {
             if (current instanceof JsonArray array) {
                 array.add(value);
             } else {
-                SkJson.exception(new SerializedJsonException("Add could be done only in Json Arrays"), "Changer issue");
+                SkJson.severe(ParserInstance.get().getNode(),"Changer issue. Trying to add value %s to %s. But &e'add'&c can be done only in Json Arrays", value, current);
+                return;
             }
         }
 
@@ -88,7 +90,8 @@ public class SerializedJson {
             var key = (String) c.getFirst();
 
             if (!current.isJsonObject()) {
-                Skript.error("Key could be changed only in Json Object but found (" + current.getClass().getSimpleName() + ")", ErrorQuality.SEMANTIC_ERROR);
+                SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to change key %s to %s. But &e'key'&c can be done only in Json Objects", key, newKey);
+                return;
             } else {
                 ((JsonObject) current).add(newKey, current.getAsJsonObject().get(key));
                 ((JsonObject) current).remove(key);
@@ -119,8 +122,10 @@ public class SerializedJson {
                 object.add(key, value);
             } else if (current instanceof JsonArray array) {
                 if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
-                    if (!current.isJsonArray())
-                        throw new SerializedJsonException("Index could be changed only in Json Arrays");
+                    if (!current.isJsonArray()) {
+                        SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to change index %s. But &e'value'&c can be done only in Json Arrays", key);
+                        return;
+                    }       
 
                     if (array.isEmpty()) {
                         array.add(value);
@@ -185,10 +190,36 @@ public class SerializedJson {
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
 
-            if (!current.isJsonObject()) {
-                throw new SerializedJsonException("Key could be removed only in Json Objects");
+            if (current instanceof JsonObject object) {
+                object.remove(key);
+            } else if (current instanceof JsonArray array) {
+                Number num;
+                if ((num = SerializedJsonUtils.isNumeric(key)) != null) {
+                    if (array.isEmpty()) {
+                        SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But array is empty", key);
+                        return;
+                    } else if (array.size() <= num.intValue()) {
+                        SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But array size is %s", key, array.size());
+                        return;
+                    } else {
+                        array.remove(num.intValue());
+                    }
+                } else {
+                    SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove key %s. But key is not a number", key);
+                }
             } else {
-                ((JsonObject) current).remove(key);
+                SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove key %s. But &e'remove'&c can be done only in Json Objects or Json Arrays", key);
+            }
+        }
+
+        public void reset(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+            JsonElement current = tokens == null ? json : getCurrentWithoutRemovingKey(tokens, json);
+            if (current instanceof JsonObject jsonObject) {
+                var deepCopy = jsonObject.deepCopy();
+                deepCopy.entrySet().forEach(entry -> jsonObject.remove(entry.getKey()));
+            } else if (current instanceof JsonArray jsonArray) {
+                var deepCopy = jsonArray.deepCopy();
+                deepCopy.forEach(jsonArray::remove);
             }
         }
 
@@ -208,7 +239,7 @@ public class SerializedJson {
                     if (entry.getValue().equals(valueElement)) jsonObject.remove(entry.getKey());
                 }
             } else {
-                SkJson.exception(new SerializedJsonException("Value could be removed only in Json Arrays or Json Objects"), "Changer issue");
+                SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove value %s. But &e'remove'&c can be done only in Json Arrays or Json Objects", value);
             }
         }
 
@@ -220,8 +251,10 @@ public class SerializedJson {
             Number index;
 
             if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
-                if (!current.isJsonArray())
-                    throw new SerializedJsonException("Index could be removed only in Json Arrays");
+                if (!current.isJsonArray()) {
+                    SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But &e'remove'&c can be done only in Json Arrays", key);
+                    return;
+                }
                 ((JsonArray) current).remove(index.intValue());
             }
         }
@@ -235,11 +268,12 @@ public class SerializedJson {
             if (current instanceof JsonArray array) {
                 array.remove(valueElement);
             } else if (current instanceof JsonObject jsonObject) {
-                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                var deepCopy = jsonObject.deepCopy();
+                for (Map.Entry<String, JsonElement> entry : deepCopy.entrySet()) {
                     if (entry.getValue().equals(valueElement)) jsonObject.remove(entry.getKey());
                 }
             } else {
-                SkJson.exception(new SerializedJsonException("Value could be removed only in Json Arrays or Json Objects"), "Changer issue");
+                SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove value %s. But &e'remove'&c can be done only in Json Arrays or Json Objects", value);
             }
         }
     }
@@ -279,8 +313,6 @@ public class SerializedJson {
             var c = getCurrent(tokens, json);
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
-
-            SkJson.debug("&8[SEARCH] tokens: %s, current: %s, key: %s", SkriptJsonInputParser.getPathFromTokens(tokens), current, key);
 
             try {
                 if (current instanceof JsonObject object) {

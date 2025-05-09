@@ -17,6 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.SerializedJson;
@@ -49,52 +50,44 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         "* at the end means you want to return a skript list.",
 })
 @Examples("""
-        set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    set {_json} to json from "{}"
 
-        set {_json}.array[0]."%player's uuid%" to player
+    # SET
+    set {_json}.list to "[]"
+    set {_json}.object to "{}"
+    set {_json}.object.key to "value"
+    set {_json}.object.val to "value 2"
 
-        # OUTPUT
-        {
-          "array": [
-            {
-              "A": 1,
-              "B": 2,
-              "C": 3,
-              "<represent of player uuid>": <player name>
-            }
-          ]
-        }
-        
-        send {_json}.array[0]* # will print 1,2,3,{}
-        
-        #send {_json}.array[0] # will print {A: 1, B: 2, C: 3, location: {}}
-        
-        set {_json}.array[0].location.loc to location(1, 2, 3) # will set location to key
-        # OUTPUT
-        {
-          "array": [
-            {
-              "A": 1,
-              "B": 2,
-              "C": 3,
-              "location": {
-                "loc": {
-                  "class": "org.bukkit.Location",
-                  "world": "world",
-                  "x": 1.0,
-                  "y": 2.0,
-                  "z": 3.0,
-                  "pitch": 0.0,
-                  "yaw": 0.0
-                }
-              }
-            }
-          ]
-        }
-        
-        send {_json} as uncolored pretty printed
+    # ADD
+    add 40 and "K" to {_json}.list
+    add location(0, 0, 0) and location(0, 0, 1) to {_json}.list
+    add 10 to {_json}.object
+
+    # REMOVE
+    remove 1 and 40 from {_json}.list
+    remove "good" from {_json}.list
+    remove "value" and "value 2" from {_json}.object
+
+    # DELETE -> keys
+    delete {_json}.object
+    delete {_json}.list
+    delete {_json}.list[0]
+
+    # GET
+    send {_json}.list.0 #* -> 1
+    send {_json}.list.1 #* -> 2
+    send {_json}.list.2 #* -> "good"
+    send {_json}.list #* -> 1, 2, "good"
+    send {_json}.object.key #* -> "value"
+
+    #REMOVE ALL
+    remove all 1 from {_json}.list
+    remove all "value" from {_json}.object
+
+    # RESET
+    reset {_json}.object
         """)
-@Since("4.5")
+@Since({"4.5", "5.1.2"})
 public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens;
@@ -176,12 +169,9 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
     @Override
     public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
-
-        SkJson.debug("tryiing to change %s", mode);
-
         return switch (mode) {
             case SET, ADD, REMOVE, REMOVE_ALL -> CollectionUtils.array(Object[].class);
-            case DELETE -> CollectionUtils.array();
+            case DELETE, RESET -> CollectionUtils.array();
             default -> null;
         };
     }
@@ -189,6 +179,8 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
+        SerializedJson serializedJson = new SerializedJson(jsonElement);
+
 
         if (v != null) {
             String parsed = v.getSingle(event) + "";
@@ -197,8 +189,9 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         }
 
         if (mode.equals(Changer.ChangeMode.DELETE)) {
-            SerializedJson serializedJson = new SerializedJson(jsonElement);
             serializedJson.remover.byKey(tokens);
+        } else if (mode.equals(Changer.ChangeMode.RESET)) {
+            serializedJson.remover.reset(tokens);
         }
 
         if (delta == null) return;
@@ -212,19 +205,16 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
                     array.add(parsed);
                 }
 
-                SerializedJson serializedJson = new SerializedJson(jsonElement);
                 serializedJson.changer.value(tokens, array);
             } else {
                 for (Object o : delta) {
                     JsonElement parsed = GsonParser.toJson(o);
-                    SerializedJson serializedJson = new SerializedJson(jsonElement);
                     serializedJson.changer.value(tokens, parsed);
                 }
             }
         } else if (mode.equals(Changer.ChangeMode.ADD)) {
             for (Object o : delta) {
                 JsonElement parsed = GsonParser.toJson(o);
-                SerializedJson serializedJson = new SerializedJson(jsonElement);
                 serializedJson.changer.add(tokens, parsed);
             }
         } else if (mode.equals(Changer.ChangeMode.REMOVE)) {
@@ -234,13 +224,11 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
                     var values = json.get("values").getAsJsonArray();
 
                     if (type.equals("value")) {
-                        SerializedJson serializedJson = new SerializedJson(jsonElement);
                         assert values != null;
                         for (var value : values) {
                             serializedJson.remover.byValue(tokens, value);
                         }
                     } else if (type.equals("key")) {
-                        SerializedJson serializedJson = new SerializedJson(jsonElement);
                         assert values != null;
                         for (var value : values) {
                             var tr = tokens;
@@ -254,11 +242,9 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
 
             for (var o : delta) {
-                SerializedJson serializedJson = new SerializedJson(jsonElement);
                 serializedJson.remover.byValue(tokens, o);
             }
         } else if (mode.equals(Changer.ChangeMode.REMOVE_ALL)) {
-            SerializedJson serializedJson = new SerializedJson(jsonElement);
             for (var o : delta) {
                 serializedJson.remover.allByValue(tokens, o);
             }

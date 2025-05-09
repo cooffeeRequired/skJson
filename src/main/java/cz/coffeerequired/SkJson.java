@@ -1,6 +1,7 @@
 package cz.coffeerequired;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import cz.coffeerequired.api.*;
 import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import cz.coffeerequired.fallback.FallBack;
@@ -48,6 +49,10 @@ public final class SkJson extends JavaPlugin {
 
     public static void severe(Object message, Object... args) {
         SkJsonLogger.log(Level.INFO, "&c" + message, args);
+    }
+
+    public static void severe(Node node, Object message, Object... args) {
+        SkJsonLogger.log(node, Level.SEVERE, "&c" + message, args);
     }
 
     public static void error(CommandSender sender, String message, Object... args) {
