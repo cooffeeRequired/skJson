@@ -49,42 +49,42 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         "* at the end means you want to return a skript list.",
 })
 @Examples("""
-    set {_json} to json from "{}"
-
-    # SET
-    set {_json}.list to "[]"
-    set {_json}.object to "{}"
-    set {_json}.object.key to "value"
-    set {_json}.object.val to "value 2"
-
-    # ADD
-    add 40 and "K" to {_json}.list
-    add location(0, 0, 0) and location(0, 0, 1) to {_json}.list
-    add 10 to {_json}.object
-
-    # REMOVE
-    remove 1 and 40 from {_json}.list
-    remove "good" from {_json}.list
-    remove "value" and "value 2" from {_json}.object
-
-    # DELETE -> keys
-    delete {_json}.object
-    delete {_json}.list
-    delete {_json}.list[0]
-
-    # GET
-    send {_json}.list.0 #* -> 1
-    send {_json}.list.1 #* -> 2
-    send {_json}.list.2 #* -> "good"
-    send {_json}.list #* -> 1, 2, "good"
-    send {_json}.object.key #* -> "value"
-
-    #REMOVE ALL
-    remove all 1 from {_json}.list
-    remove all "value" from {_json}.object
-
-    # RESET
-    reset {_json}.object
+        set {_json} to json from "{}"
+    
+        # SET
+        set {_json}.list to "[]"
+        set {_json}.object to "{}"
+        set {_json}.object.key to "value"
+        set {_json}.object.val to "value 2"
+    
+        # ADD
+        add 40 and "K" to {_json}.list
+        add location(0, 0, 0) and location(0, 0, 1) to {_json}.list
+        add 10 to {_json}.object
+    
+        # REMOVE
+        remove 1 and 40 from {_json}.list
+        remove "good" from {_json}.list
+        remove "value" and "value 2" from {_json}.object
+    
+        # DELETE -> keys
+        delete {_json}.object
+        delete {_json}.list
+        delete {_json}.list[0]
+    
+        # GET
+        send {_json}.list.0 #* -> 1
+        send {_json}.list.1 #* -> 2
+        send {_json}.list.2 #* -> "good"
+        send {_json}.list #* -> 1, 2, "good"
+        send {_json}.object.key #* -> "value"
+    
+        #REMOVE ALL
+        remove all 1 from {_json}.list
+        remove all "value" from {_json}.object
+    
+        # RESET
+        reset {_json}.object
         """)
 @Since({"4.5", "5.1.2"})
 public class ExprStrictLiteralJson extends SimpleExpression<Object> {
