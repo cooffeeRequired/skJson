@@ -25,7 +25,15 @@ plugin:
   # Don't change this value unless you know what you're doing.
   # This is the number of threads that will be used to send requests.
   max-threads: 2
+  # Enable auto updater
+  # Will try to update the plugin if a new version is available
+  # Automatically download a change the JAR file
   enabled-auto-updater: true
+
+  # Enable fallback mode (e.g., if the expression/effect is not found)
+  # Will try to find the expression/effect in the fallback
+  # If the expression/effect is not found, it will throw an error
+  enabled-fallback: true
 
 json:
   # Separator for paths to JSON objects (e.g. "object.nestedObject.value")
