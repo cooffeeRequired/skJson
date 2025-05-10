@@ -13,7 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,11 +53,11 @@ public class CondJsonHas extends Condition {
         for (Object object : objects) {
             if (isValues) {
                 if (json instanceof JsonArray array) {
-                    boolean contains = array.contains(GsonParser.toJson(object));
+                    boolean contains = array.contains(Parser.toJson(object));
                     if (!contains) found = false;
                 } else if (json instanceof JsonObject jsonObject) {
                     var values = jsonObject.entrySet().stream().map(Map.Entry::getValue).toList();
-                    boolean contains = values.contains(GsonParser.toJson(object));
+                    boolean contains = values.contains(Parser.toJson(object));
                     if (!contains) found = false;
                 }
             } else {

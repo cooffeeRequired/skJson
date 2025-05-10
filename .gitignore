@@ -11,4 +11,4 @@ settings.json/build/
 .DS_Store/
 tools/
 /.vscode/settings.json
-skript/
+.skript/

@@ -1,19 +1,13 @@
 package cz.coffeerequired.api.json;
 
-import com.google.gson.*;
-import com.google.gson.internal.LazilyParsedNumber;
-
 import ch.njol.skript.lang.parser.ParserInstance;
+import com.google.gson.*;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.skript.core.support.JsonSupportElements.SearchType;
 
 import java.util.*;
 
-import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
-
 public abstract class SerializedJsonUtils {
-
-    private static final Gson StrictnessGson = new GsonBuilder().setStrictness(Strictness.LEGACY_STRICT).create();
 
     public static boolean isNull(JsonElement json) {
         if (json == null) return false;
@@ -32,10 +26,11 @@ public abstract class SerializedJsonUtils {
         }
     }
 
-    public static JsonElement handle(JsonElement json, Map.Entry<String, SkriptJsonInputParser.Type> key_, boolean inSetMode) throws SerializedJsonException {
+    public static JsonElement handle(JsonElement json, Map.Entry<String, SkriptJsonInputParser.Type> key_, boolean inSetMode) {
         try {
             if (json == null || json.isJsonNull()) {
-                throw new SerializedJsonException("Cannot handle a null JSON element");
+                SkJson.severe(ParserInstance.get().getNode(), "Cannot handle a null JSON element");
+                return json;
             }
 
             String key = key_.getKey();
@@ -70,7 +65,7 @@ public abstract class SerializedJsonUtils {
                             }
                             default -> {
                                 SkJson.severe(ParserInstance.get().getNode(), "Unknown type: &e'%s'&4 for object", key_.getValue());
-                                yield null;
+                                yield json;
                             }
                         };
                     } else {
@@ -90,13 +85,17 @@ public abstract class SerializedJsonUtils {
                                 array.add(new_);
                                 yield new_;
                             }
-                            default -> throw new SerializedJsonException("Unknown type: %s for array".formatted(key_.getValue()));
+                            default -> {
+                                SkJson.severe(ParserInstance.get().getNode(), "Unknown type: &e'%s'&4 for array", key_.getValue());
+                                yield json;
+                            }
                         };
                     } else {
                         return array.get(index);
                     }
                 } else {
-                    throw new SerializedJsonException("Json is not an object or array: %s".formatted(json));
+                    SkJson.severe(ParserInstance.get().getNode(), "Json is not an object or array: %s", json);
+                    return json;
                 }
             }
         } catch (Exception e) {
@@ -107,54 +106,6 @@ public abstract class SerializedJsonUtils {
     }
 
 
-    public static <T> JsonElement lazyObjectConverter(T object) {
-        try {
-            if (object == null) return null;
-            Class<?> clazz = object.getClass();
-            if (clazz.equals(String.class)) {
-                try {
-                    return JsonParser.parseString(object.toString());
-                } catch (Exception e) {
-                    return StrictnessGson.toJsonTree(object);
-                }
-            }
-            if (clazz.equals(Integer.class) || clazz.equals(LazilyParsedNumber.class)) {
-                if (clazz.equals(LazilyParsedNumber.class)) {
-                    return new JsonPrimitive(((LazilyParsedNumber) object).intValue());
-                } else {
-                    return new JsonPrimitive((Integer) object);
-                }
-            }
-
-            if (clazz.equals(Boolean.class))
-                return new JsonPrimitive((Boolean) object);
-            if (clazz.equals(Double.class) || clazz.equals(Float.class))
-                return new JsonPrimitive(((Number) object).doubleValue());
-            if (clazz.equals(Long.class))
-                return new JsonPrimitive((Long) object);
-            if (clazz.equals(Byte.class))
-                return new JsonPrimitive((Byte) object);
-            if (clazz.equals(Short.class))
-                return new JsonPrimitive((Short) object);
-            if (clazz.equals(Character.class))
-                return new JsonPrimitive((Character) object);
-            if (object instanceof JsonElement)
-                return (JsonElement) object;
-            return null;
-        } catch (JsonSyntaxException ignored) {
-            return null;
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public static <T> T lazyJsonConverter(JsonElement json) {
-        if (json == null || json.isJsonNull()) return null;
-        if (json.isJsonArray() || json.isJsonObject()) return (T) json;
-        else if (json.isJsonPrimitive()) return (T) GsonParser.getGson().fromJson(json, Object.class);
-        else return null;
-    }
-
     public static Object[] getAsParsedArray(Object input) {
         if (!(input instanceof JsonElement current)) return new Object[]{input};
         ArrayList<Object> results = new ArrayList<>();
@@ -162,14 +113,14 @@ public abstract class SerializedJsonUtils {
         if (current instanceof JsonArray array) {
             for (JsonElement element : array) {
                 if (element != null) {
-                    results.add(GsonParser.fromJson(element));
+                    results.add(Parser.fromJson(element));
                 }
             }
         } else if (current instanceof JsonObject object) {
             for (String key : object.keySet()) {
                 JsonElement element = object.get(key);
                 if (element != null) {
-                    results.add(GsonParser.fromJson(element));
+                    results.add(Parser.fromJson(element));
                 }
             }
         }
@@ -187,24 +138,6 @@ public abstract class SerializedJsonUtils {
                 c.isAssignableFrom(Long.class));
     }
 
-    public static boolean isValidJson(Object o) {
-        try {
-            if (o instanceof String str) {
-                JsonParser.parseString(str);
-                return true;
-            } else if (o instanceof JsonElement) {
-                return true;
-            } else {
-                return true;
-            }
-        } catch (Exception e) {
-            if (PROJECT_DEBUG) {
-                SkJson.exception(e, "&cisValidJson, wont parse that %s", o);
-            }
-            return false;
-        }
-    }
-
     public static Object getFirst(JsonElement json, SearchType type) {
         if (json.isJsonArray()) {
             JsonArray array = json.getAsJsonArray();
@@ -215,7 +148,7 @@ public abstract class SerializedJsonUtils {
             JsonObject object = json.getAsJsonObject();
             if (!object.isEmpty()) {
                 return type.equals(SearchType.VALUE)
-                        ? GsonParser.fromJson(object.entrySet().iterator().next().getValue())
+                        ? Parser.fromJson(object.entrySet().iterator().next().getValue())
                         : object.keySet().iterator().next();
             }
         }
@@ -226,13 +159,13 @@ public abstract class SerializedJsonUtils {
         if (json.isJsonArray()) {
             JsonArray array = json.getAsJsonArray();
             if (!array.isEmpty()) {
-                return type.equals(SearchType.VALUE) ? GsonParser.fromJson(array.get(array.size() - 1)) : array.size() - 1;
+                return type.equals(SearchType.VALUE) ? Parser.fromJson(array.get(array.size() - 1)) : array.size() - 1;
             }
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (!object.isEmpty()) {
                 return type.equals(SearchType.VALUE)
-                        ? GsonParser.fromJson((JsonElement) (object.entrySet().toArray(Map.Entry[]::new)[object.keySet().size() - 1]).getValue())
+                        ? Parser.fromJson((JsonElement) (object.entrySet().toArray(Map.Entry[]::new)[object.keySet().size() - 1]).getValue())
                         : object.keySet().toArray(String[]::new)[object.keySet().size() - 1];
             }
         }
@@ -244,14 +177,14 @@ public abstract class SerializedJsonUtils {
             JsonArray array = json.getAsJsonArray();
             if (array.size() > index) {
                 return type.equals(SearchType.VALUE)
-                        ? GsonParser.fromJson(array.get(index))
+                        ? Parser.fromJson(array.get(index))
                         : index;
             }
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (object.size() > index) {
                 return type.equals(SearchType.VALUE)
-                        ? GsonParser.fromJson((JsonElement) object.entrySet().toArray()[index])
+                        ? Parser.fromJson((JsonElement) object.entrySet().toArray()[index])
                         : object.keySet().toArray()[index];
             }
         }
@@ -265,14 +198,14 @@ public abstract class SerializedJsonUtils {
             JsonArray array = json.getAsJsonArray();
             if (!array.isEmpty()) {
                 int index = random.nextInt(array.size());
-                return type.equals(SearchType.VALUE) ? GsonParser.fromJson(array.get(index)) : index;
+                return type.equals(SearchType.VALUE) ? Parser.fromJson(array.get(index)) : index;
             }
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (!object.isEmpty()) {
                 int index = random.nextInt(object.size());
                 if (type.equals(SearchType.VALUE)) {
-                    return GsonParser.fromJson((JsonElement) object.entrySet().toArray(Map.Entry[]::new)[index].getValue());
+                    return Parser.fromJson((JsonElement) object.entrySet().toArray(Map.Entry[]::new)[index].getValue());
                 } else {
                     return object.keySet().toArray(String[]::new)[index];
                 }

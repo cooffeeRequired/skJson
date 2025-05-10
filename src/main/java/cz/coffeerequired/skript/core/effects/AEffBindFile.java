@@ -17,7 +17,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.CompletionException;
 
 
@@ -52,13 +51,12 @@ public class AEffBindFile extends AsyncEffect {
         File file = new File(path);
 
         if (!file.exists()) {
-            SkJson.exception(new IOException("File " + path + " does not exist"),
-                    "Cannot bind JSON file: File does not exist at path: " + path);
+            SkJson.severe("File %s does not exist, skipping binding", path);
             return;
         }
 
         if (cache.containsKey(id)) {
-            SkJson.info("Cache already contains key: &e'" + id + "'&r, skipping binding");
+            SkJson.info("Cache already contains key: &e'%s'&r, skipping binding", id);
             return;
         }
 
@@ -73,7 +71,7 @@ public class AEffBindFile extends AsyncEffect {
                 } else {
                     errorMessage += " - " + error.getMessage();
                 }
-                SkJson.exception(error, errorMessage);
+                SkJson.severe(getParser().getNode(), errorMessage);
                 return;
             }
 
@@ -84,15 +82,15 @@ public class AEffBindFile extends AsyncEffect {
                         CacheStorageWatcher.Extern.register(id, file);
                         SkJson.debug("Successfully bound JSON file: " + file.getPath() + " with ID: " + id + " and registered watcher");
                     } catch (Exception ex) {
-                        SkJson.exception(ex, "Failed to register file watcher for: " + file.getPath() + " with ID: " + id);
+                        SkJson.severe(getParser().getNode(), "Failed to register file watcher for: " + file.getPath() + " with ID: " + id);
                     }
                 } else {
                     SkJson.debug("Successfully bound JSON file: " + file.getPath() + " with ID: " + id);
                 }
             } catch (IllegalArgumentException ex) {
-                SkJson.exception(ex, "Invalid JSON format in file: " + file.getPath());
+                SkJson.severe(getParser().getNode(), "Invalid JSON format in file: " + file.getPath());
             } catch (Exception ex) {
-                SkJson.exception(ex, "Unexpected error while binding JSON file: " + file.getPath() + " - " + ex.getMessage());
+                SkJson.severe(getParser().getNode(), "Unexpected error while binding JSON file: " + file.getPath() + " - " + ex.getMessage());
             }
         });
     }

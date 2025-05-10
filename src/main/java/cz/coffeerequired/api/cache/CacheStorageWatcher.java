@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -141,6 +144,12 @@ public class CacheStorageWatcher {
             if (!Objects.equals(event.context(), file.toPath().getFileName()) || jsonifyFile == null) continue;
 
             if (potentialJsonContent.equals(jsonifyFile)) {
+                continue;
+            }
+
+            if (! file.exists()) {
+                SkJson.warning("file %s does not exist, unlinking watcher", file);
+                Extern.unregister(file);
                 continue;
             }
 

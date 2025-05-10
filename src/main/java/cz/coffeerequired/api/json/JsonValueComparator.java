@@ -1,6 +1,7 @@
 package cz.coffeerequired.api.json;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import java.util.Comparator;
 import java.util.Map;

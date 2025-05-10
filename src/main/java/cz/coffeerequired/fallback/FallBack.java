@@ -1,5 +1,9 @@
 package cz.coffeerequired.fallback;
 
+import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
+import cz.coffeerequired.api.Extensible;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -10,10 +14,6 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
-
-import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.Extensible;
 
 public class FallBack {
     private final FallbackProperties fallbackProperties;

@@ -6,10 +6,8 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +51,7 @@ public abstract class Json {
             Object field = fields.getObject("json");
             if (field == null) return JsonNull.INSTANCE;
             fields.removeField("json");
-            return GsonParser.toJson(field);
+            return cz.coffeerequired.api.json.Parser.toJson(field);
         }
 
         @Override
@@ -102,7 +100,7 @@ public abstract class Json {
                 }
                 case ADD -> {
                     for (Object o : delta) {
-                        JsonElement parsed = GsonParser.toJson(o);
+                        JsonElement parsed = cz.coffeerequired.api.json.Parser.toJson(o);
                         serializedJson.changer.add(emptyTokens, parsed);
                     }
                     break;

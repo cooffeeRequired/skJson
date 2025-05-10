@@ -11,7 +11,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.api.FileHandler;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public class EffNewFile extends AsyncEffect {
         if (hasContent) {
             var content = contentExpression.getSingle(event);
             if (content == null) return;
-            var parsedContent = GsonParser.toJson(content);
+            var parsedContent = Parser.toJson(content);
             if (parsedContent == null) parsedContent = new JsonObject();
             FileHandler.write(filePath, parsedContent, configuration).join();
             return;

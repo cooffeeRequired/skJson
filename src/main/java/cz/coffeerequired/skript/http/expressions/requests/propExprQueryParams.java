@@ -12,7 +12,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -50,7 +50,7 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
         return Arrays.stream(requests)
                 .filter(Objects::nonNull)
                 .map(Request::getQueryParams)
-                .map(GsonParser::toJson)
+                .map(Parser::toJson)
                 .toArray(JsonElement[]::new);
     }
 

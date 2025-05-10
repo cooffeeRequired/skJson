@@ -16,7 +16,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
@@ -154,13 +154,13 @@ public class ExprJsonValues extends SimpleExpression<Object> {
             public Object next() {
                 HashMap<String, Object> itMap = new HashMap<>();
                 if (it instanceof JsonArray array) {
-                    itMap.put(String.valueOf(idx), SerializedJsonUtils.lazyJsonConverter(array.get(idx)));
+                    itMap.put(String.valueOf(idx), Parser.fromJson(array.get(idx)));
                     idx++;
                     return itMap;
                 } else if (it instanceof JsonObject object) {
                     var keys = object.keySet().stream().toList();
                     String declaredKey = keys.get(idx);
-                    itMap.put(declaredKey, SerializedJsonUtils.lazyJsonConverter(object.get(declaredKey)));
+                    itMap.put(declaredKey, Parser.fromJson(object.get(declaredKey)));
                     idx++;
                     return itMap;
                 }
@@ -210,14 +210,14 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                     JsonArray array = new JsonArray();
 
                     for (Object o : delta) {
-                        JsonElement parsed = GsonParser.toJson(o);
+                        JsonElement parsed = Parser.toJson(o);
                         array.add(parsed);
                     }
 
                     serializedJson.changer.value(tokens, array);
                 } else {
                     for (Object o : delta) {
-                        JsonElement parsed = GsonParser.toJson(o);
+                        JsonElement parsed = Parser.toJson(o);
                         serializedJson.changer.value(tokens, parsed);
                     }
                 }

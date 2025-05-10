@@ -1,8 +1,6 @@
 package cz.coffeerequired.api.json;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.ErrorQuality;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,7 +23,9 @@ public class SerializedJson {
     public searcher searcher;
 
     public SerializedJson(JsonElement json) {
-        if (SerializedJsonUtils.isNull(json)) throw new SerializedJsonException("Json cannot be null");
+        if (SerializedJsonUtils.isNull(json)) {
+            SkJson.severe(ParserInstance.get().getNode(), "Json cannot be null");
+        }
         this.json = json;
         this.changer = new changer(json);
         this.counter = new counter(json);
@@ -165,7 +165,7 @@ public class SerializedJson {
             deque.add(json);
             JsonElement current;
 
-            JsonElement value = GsonParser.toJson(object);
+            JsonElement value = Parser.toJson(object);
 
             while ((current = deque.pollFirst()) != null) {
                 if (current instanceof JsonObject jsonObject) {
@@ -225,7 +225,7 @@ public class SerializedJson {
 
         public void allByValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
             JsonElement current = tokens == null ? json : getCurrentWithoutRemovingKey(tokens, json);
-            JsonElement valueElement = GsonParser.toJson(value);
+            JsonElement valueElement = Parser.toJson(value);
 
             if (current instanceof JsonArray array) {
                 var deepCopy = array.deepCopy();
@@ -263,7 +263,7 @@ public class SerializedJson {
             var deque = SerializedJsonUtils.listToDeque(tokens);
             JsonElement current = getCurrentWithoutRemovingKey(tokens, json);
 
-            JsonElement valueElement = GsonParser.toJson(value);
+            JsonElement valueElement = Parser.toJson(value);
 
             if (current instanceof JsonArray array) {
                 array.remove(valueElement);
@@ -321,13 +321,13 @@ public class SerializedJson {
                         SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
                         return null;
                     }
-                    return GsonParser.fromJson(searched);
+                    return Parser.fromJson(searched);
                 }
 
                 if (current instanceof JsonArray array) {
                     Number index = SerializedJsonUtils.isNumeric(key);
                     if (index != null && index.intValue() <= array.size()) {
-                        return GsonParser.fromJson(array.get(index.intValue()));
+                        return Parser.fromJson(array.get(index.intValue()));
                     } else {
                         SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
                         return null;

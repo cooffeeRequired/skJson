@@ -22,7 +22,6 @@ public abstract class FileHandler {
     public static CompletableFuture<JsonElement> get(File file) {
         return CompletableFuture.supplyAsync(() -> {
             if (!file.exists()) {
-                SkJson.info("&cFile " + file + " doesn't exist");
                 return JsonNull.INSTANCE;
             }
 

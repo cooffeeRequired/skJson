@@ -1,25 +1,24 @@
 package cz.coffeerequired.skript.core.expressions;
 
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.*;
-
-import org.bukkit.event.Event;
-
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.SerializedJson;
 import cz.coffeerequired.api.json.SkriptJsonInputParser;
-
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import com.google.gson.JsonElement;
 
 
 @Name("Array/Object")
@@ -114,7 +113,7 @@ public class ExprArrayObject extends SimpleExpression<Object> {
         switch (mode) {
             case ADD:
                 for (Object o : delta) {
-                    JsonElement parsed = GsonParser.toJson(o);
+                    JsonElement parsed = Parser.toJson(o);
                     serializedJson.changer.add(tokens, parsed);
                 }
                 break;
