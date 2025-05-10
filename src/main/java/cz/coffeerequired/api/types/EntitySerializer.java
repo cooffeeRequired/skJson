@@ -2,7 +2,6 @@ package cz.coffeerequired.api.types;
 
 import com.google.gson.*;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.nbts.NBTConverter;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
@@ -17,38 +16,42 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.UUID;
 
+import static cz.coffeerequired.api.skript.SkriptClassesConverter.generateObject;
+
 @SuppressWarnings("deprecation")
 public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserializer<Entity> {
 
     @Override
     public JsonElement serialize(Entity src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("uuid", src.getUniqueId().toString());
-        obj.addProperty("type", src.getType().toString());
-        obj.add("location", Parser.toJson(src.getLocation()));
+        var generic = generateObject(src);
+        var _data = generic.getAsJsonObject("_data");
+        _data.addProperty("uuid", src.getUniqueId().toString());
+        _data.addProperty("type", src.getType().toString());
+        _data.add("location", context.serialize(src.getLocation()));
 
         if (src.customName() != null) {
-            obj.addProperty("customName", PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(src.customName())));
+            _data.addProperty("customName", PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(src.customName())));
         } else if (src instanceof Player player) {
-            obj.addProperty("name", player.getName());
+            _data.addProperty("name", player.getName());
         }
 
         if (Api.Records.PROJECT_ENABLED_NBT) {
             NBTEntity nbtEntity = new NBTEntity(src);
             JsonElement json = NBTConverter.toJson(new NBTContainer(nbtEntity.getCompound()));
-            obj.add("nbt", json);
+            _data.add("nbt", json);
         }
 
-        return obj;
+        return generic;
     }
 
     @Override
     public Entity deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject obj = json.getAsJsonObject();
+        JsonObject _json = json.getAsJsonObject();
+        var obj = _json.getAsJsonObject("_data");
 
         String uuidStr = obj.get("uuid").getAsString();
         UUID uuid = UUID.fromString(uuidStr);
-        Location loc = Parser.fromJson(obj.getAsJsonObject("location"));
+        Location loc = context.deserialize(obj.get("location"), Location.class);
 
         assert loc != null;
         World world = loc.getWorld();

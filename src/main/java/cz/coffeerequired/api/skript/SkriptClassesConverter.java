@@ -41,7 +41,7 @@ public abstract class SkriptClassesConverter {
 
     public static final String SERIALIZED_TYPE_KEY = "..";
 
-    private static JsonObject generateObject(Object o) {
+    public static JsonObject generateObject(Object o) {
         JsonObject obj = new JsonObject();
         obj.addProperty(SERIALIZED_TYPE_KEY, o.getClass().getName());
         obj.add("_data", new JsonObject());

@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import cz.coffeerequired.api.json.SafeTypeAdapterFactory;
+import cz.coffeerequired.api.types.EntitySerializer;
 import lombok.Getter;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -20,6 +21,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -149,10 +151,11 @@ public class SkriptClass {
 			.registerTypeHierarchyAdapter(BlockData.class, new SkriptClassesConverter.BlockDataAdapter())
 			.registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
 			.registerTypeAdapter(SkriptClass.class, new SkriptClassesConverter.SkriptClassAdapter())
-			.registerTypeHierarchyAdapter(Player.class, new SkriptClassesConverter.PlayerAdapter())
+			//.registerTypeHierarchyAdapter(Player.class, new SkriptClassesConverter.PlayerAdapter())
 			.registerTypeHierarchyAdapter(World.class, new SkriptClassesConverter.WorldAdapter())
 			.registerTypeHierarchyAdapter(Block.class, new SkriptClassesConverter.BlockAdapter())
 			.registerTypeHierarchyAdapter(Chunk.class, new SkriptClassesConverter.ChunkAdapter())
+			.registerTypeHierarchyAdapter(Entity.class, new EntitySerializer())
 			.addSerializationExclusionStrategy(INACCESSIBLE_EXCLUSION)
 			.addDeserializationExclusionStrategy(INACCESSIBLE_EXCLUSION)
 			.addSerializationExclusionStrategy(REFERENCE_EXCLUSION)
