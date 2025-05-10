@@ -1,5 +1,8 @@
 package cz.coffeerequired.api;
 
+import ch.njol.skript.config.Node;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.log.LogEntry;
 import cz.coffeerequired.support.AnsiColorConverter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -7,16 +10,11 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.LogEntry;
-
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.IllegalFormatException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.Nullable;
 
 @SuppressWarnings("ALL")
 public abstract class SkJsonLogger {

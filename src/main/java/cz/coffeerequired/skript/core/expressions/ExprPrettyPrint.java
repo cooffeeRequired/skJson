@@ -13,7 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,7 +83,7 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
     protected @Nullable String[] get(Event event) {
         JsonElement json = element.getSingle(event);
         if (json == null) return null;
-        return new String[]{this.format.equals(Format.PRETTY) ? colorizeJson(json) : GsonParser.toPrettyPrintString(json)};
+        return new String[]{this.format.equals(Format.PRETTY) ? colorizeJson(json) : Parser.getGson().toJson(json)};
     }
 
     @Override

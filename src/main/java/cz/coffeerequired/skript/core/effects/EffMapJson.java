@@ -8,7 +8,7 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,7 +36,7 @@ public class EffMapJson extends Effect {
     @Override
     protected void execute(Event event) {
         Object variableContent = variable.getSingle(event);
-        JsonElement json = GsonParser.toJson(variableContent);
+        JsonElement json = Parser.toJson(variableContent);
         String variableName = variableNaming.getSingle(event);
         if (variableName == null || json == null) {
             throw new IllegalArgumentException("Variable name or json is null");

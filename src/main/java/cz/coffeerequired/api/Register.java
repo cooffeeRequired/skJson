@@ -18,6 +18,7 @@ import cz.coffeerequired.modules.Core;
 import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
+import org.bukkit.event.Event;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -26,8 +27,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.bukkit.event.Event;
 
 public class Register {
 

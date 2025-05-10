@@ -11,8 +11,8 @@ import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
 import cz.coffeerequired.api.annotators.Module;
-import cz.coffeerequired.api.json.GsonParser;
 import cz.coffeerequired.api.json.Json;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.skript.core.bukkit.JsonFileChanged;
 import cz.coffeerequired.skript.core.conditions.*;
 import cz.coffeerequired.skript.core.effects.*;
@@ -27,6 +27,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-@SuppressWarnings({"removal","deprecation"})
+@SuppressWarnings({"removal"})
 @Module(module = "core")
 public class Core extends Extensible {
 
@@ -49,7 +50,8 @@ public class Core extends Extensible {
             World.class,
             Chunk.class,
             JsonElement.class,
-            Inventory.class
+            Inventory.class,
+            Player.class
     );
 
     public Core() {
@@ -60,9 +62,9 @@ public class Core extends Extensible {
     public void tryRegisterDefaultConverters() {
         try {
             if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
-                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
+                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, Parser::fromJson));
             } else {
-                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, GsonParser::fromJson));
+                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, Parser::fromJson));
             }
         } catch (Exception e) {
             SkJson.exception(e, "Error while registering default converters: %s", e.getMessage());

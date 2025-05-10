@@ -14,7 +14,7 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import cz.coffeerequired.skript.core.expressions.ExprJsonValues;
 import org.bukkit.event.Event;
@@ -66,8 +66,8 @@ public class JsonLoopExpression extends SimpleExpression<Object> {
             
             Object value = entry.getValue();
             if (value instanceof JsonElement element) {
-                Object converted = GsonParser.fromJson(element);
-                return new Object[]{converted != null ? converted : SerializedJsonUtils.lazyJsonConverter(element)};
+                Object converted = Parser.fromJson(element);
+                return new Object[]{converted != null ? converted : Parser.fromJson(element)};
             }
             return new Object[]{value};
         } catch (ClassCastException exception) {

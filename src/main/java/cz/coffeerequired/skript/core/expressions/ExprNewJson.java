@@ -1,6 +1,5 @@
 package cz.coffeerequired.skript.core.expressions;
 
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -12,11 +11,9 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.http.RequestClient;
-import cz.coffeerequired.api.json.GsonParser;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
+import cz.coffeerequired.api.json.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,21 +57,7 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
         return switch (currentTag) {
             case ANY -> {
                 assert values != null;
-                for (var value : values) {
-                    try {
-                        if (SerializedJsonUtils.isValidJson(value)) {
-                            if ((value instanceof ItemType type) && !type.getTypes().isEmpty()) {
-                                type.getTypes().forEach(d -> elements.add(GsonParser.toJson(d)));
-                            } else {
-                                elements.add(GsonParser.toJson(value));
-                            }
-                        }
-                    } catch (Exception ex) {
-                        if (Api.Records.PROJECT_DEBUG)
-                            SkJson.exception(ex, getParser().getNode() == null ? "" : getParser().getNode().toString());
-                    }
-                }
-                yield elements.toArray(new JsonElement[0]);
+                yield Arrays.stream(values).map(Parser::toJson).toArray(JsonElement[]::new);
             }
             case FILE -> switch (fileType) {
                 case JSON -> {
@@ -103,7 +87,7 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
                     if (rsp.statusCode() > 400) yield new JsonElement[0];
 
-                    yield new JsonElement[]{GsonParser.toJson(rsp.body())};
+                    yield new JsonElement[]{Parser.toJson(rsp.body())};
                 } catch (Exception e) {
                     SkJson.exception(e, e.getMessage());
                     yield new JsonElement[0];

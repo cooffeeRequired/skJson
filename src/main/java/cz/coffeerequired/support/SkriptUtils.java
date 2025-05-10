@@ -2,7 +2,7 @@ package cz.coffeerequired.support;
 
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.SerializedJsonUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -82,7 +82,7 @@ public abstract class SkriptUtils {
             if (entry.getKey() != null) {
                 try {
                     int index = Integer.parseInt(entry.getKey().toString());
-                    Object value = GsonParser.toJson(entry.getValue());
+                    Object value = Parser.toJson(entry.getValue());
                     if (value instanceof Map) {
                         list.set(index, cleanupMap((Map<?, ?>) value));
                     } else {
@@ -102,9 +102,9 @@ public abstract class SkriptUtils {
 
         switch (json) {
             case JsonPrimitive primitive ->
-                    savePrimitiveToVariable(variableName, SerializedJsonUtils.lazyObjectConverter(primitive), event, isLocal);
+                    savePrimitiveToVariable(variableName, Parser.fromJson(primitive), event, isLocal);
             case JsonObject object -> {
-                var parsed = GsonParser.fromJson(object);
+                var parsed = Parser.fromJson(object);
                 if (!cannotBeParsed(parsed)) {
                     saveParsedToVariable(variableName, parsed, event, isLocal);
                 } else {
@@ -123,7 +123,7 @@ public abstract class SkriptUtils {
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement element = array.get(i);
                     String newName = variableName + (i + 1) + SEPARATOR;
-                    Object parsed = GsonParser.fromJson(element);
+                    Object parsed = Parser.fromJson(element);
 
                     if (cannotBeParsed(element)) {
                         convertJsonToSkriptVariable(newName, element, event, isLocal);
@@ -142,7 +142,7 @@ public abstract class SkriptUtils {
             if (variableName.endsWith(SEPARATOR)) {
                 variableName = variableName.substring(0, variableName.length() - 2);
             }
-            value = value instanceof JsonPrimitive ? SerializedJsonUtils.lazyJsonConverter((JsonPrimitive) value) : value;
+            value = value instanceof JsonPrimitive ? Parser.fromJson((JsonPrimitive) value) : value;
             assert value != null;
             Variables.setVariable(variableName, value, event, isLocal);
         }
@@ -157,7 +157,6 @@ public abstract class SkriptUtils {
             if (variableName.endsWith(SEPARATOR)) {
                 variableName = variableName.substring(0, variableName.length() - 2);
             }
-
             if (SerializedJsonUtils.isJavaType(o)) {
                 savePrimitiveToVariable(variableName, o, event, isLocal);
             } else {

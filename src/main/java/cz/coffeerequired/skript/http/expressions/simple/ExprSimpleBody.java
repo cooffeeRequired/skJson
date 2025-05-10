@@ -9,7 +9,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.requests.Request;
 import cz.coffeerequired.api.requests.Response;
 import org.bukkit.event.Event;
@@ -83,7 +83,7 @@ public class ExprSimpleBody extends SimplePropertyExpression<Object, Object> {
                 assert delta != null;
                 for (var d : delta) {
                     if (d instanceof String str) {
-                        request.setContent(GsonParser.toJson(str));
+                        request.setContent(Parser.toJson(str));
                     } else if (d instanceof JsonElement json) {
                         request.setContent(json);
                     }

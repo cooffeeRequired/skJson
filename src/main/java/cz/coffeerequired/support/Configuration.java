@@ -14,8 +14,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.util.Formatter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static cz.coffeerequired.api.Api.Records.mapping;
 
@@ -161,27 +164,51 @@ public class Configuration {
     }
 
     /**
-     * Copies a file or folder from the JAR file to the plugin folder
+     * Copies a file or folder from the JAR file to the plugin folder using modern NIO.2 API.
+     * For large files (>1MB), the copy operation is performed asynchronously.
+     *
      * @param resourcePath Path to the file in JAR (e.g. "configs/config.yml")
      * @param replace True if you want to overwrite existing files
+     * @return CompletableFuture<Path> that completes when the file is copied
      */
-    public void copyFromJar(String resourcePath, boolean replace) {
-        try {
-            InputStream in = plugin.getResource(resourcePath);
-            if (in == null) {
-                SkJson.severe("Resource not found: %s", resourcePath);
-                return;
-            }
+    public CompletableFuture<Path> copyFromJar(String resourcePath, boolean replace) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                // Get resource as stream
+                try (InputStream in = plugin.getResource(resourcePath)) {
+                    if (in == null) {
+                        throw new FileNotFoundException("Resource not found: " + resourcePath);
+                    }
 
-            File outFile = new File(plugin.getDataFolder(), resourcePath);
-            if (!outFile.exists() || replace) {
-                outFile.getParentFile().mkdirs();
-                Files.copy(in, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                SkJson.debug("File copied: %s",  resourcePath);
+                    Path outPath = plugin.getDataFolder().toPath().resolve(resourcePath);
+                    
+                    // Create parent directories if they don't exist
+                    Files.createDirectories(outPath.getParent());
+
+                    // Check if we should copy
+                    if (!Files.exists(outPath) || replace) {
+                        // For large files (>1MB), use buffered copy
+                        if (in.available() > 1_000_000) {
+                            try (BufferedInputStream bis = new BufferedInputStream(in);
+                                 BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(outPath, 
+                                     StandardOpenOption.CREATE, 
+                                     StandardOpenOption.TRUNCATE_EXISTING))) {
+                                bis.transferTo(bos);
+                            }
+                        } else {
+                            // For smaller files, use direct copy
+                            Files.copy(in, outPath, 
+                                StandardCopyOption.REPLACE_EXISTING);
+                        }
+                        SkJson.debug("File copied successfully: {}", resourcePath);
+                        return outPath;
+                    }
+                    return outPath;
+                }
+            } catch (IOException e) {
+                SkJson.severe("Failed to copy file {}: {}", resourcePath, e.getMessage());
+                throw new CompletionException(e);
             }
-            in.close();
-        } catch (IOException e) {
-            SkJson.severe("Error copying file %s: %s", resourcePath, e.getMessage());
-        }
+        });
     }
 }

@@ -1,11 +1,11 @@
 package cz.coffeerequired.fallback;
 
+import cz.coffeerequired.SkJson;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-
-import cz.coffeerequired.SkJson;
 
 public class FallbackProperties {
     private static FallbackProperties instance;

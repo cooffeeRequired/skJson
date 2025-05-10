@@ -2,7 +2,7 @@ package cz.coffeerequired.api.types;
 
 import com.google.gson.*;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.GsonParser;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.nbts.NBTConverter;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
@@ -25,7 +25,7 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
         JsonObject obj = new JsonObject();
         obj.addProperty("uuid", src.getUniqueId().toString());
         obj.addProperty("type", src.getType().toString());
-        obj.add("location", GsonParser.toJson(src.getLocation()));
+        obj.add("location", Parser.toJson(src.getLocation()));
 
         if (src.customName() != null) {
             obj.addProperty("customName", PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(src.customName())));
@@ -48,7 +48,7 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
 
         String uuidStr = obj.get("uuid").getAsString();
         UUID uuid = UUID.fromString(uuidStr);
-        Location loc = GsonParser.fromJson(obj.getAsJsonObject("location"));
+        Location loc = Parser.fromJson(obj.getAsJsonObject("location"));
 
         assert loc != null;
         World world = loc.getWorld();
