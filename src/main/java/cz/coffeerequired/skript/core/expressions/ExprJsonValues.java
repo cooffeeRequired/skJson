@@ -17,9 +17,9 @@ import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.json.SerializedJson;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
-import cz.coffeerequired.api.json.SkriptJsonInputParser;
+import cz.coffeerequired.api.json.JsonAccessor;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
+import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,18 +59,18 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
             if (tempJson == null || tempJson instanceof JsonNull) return new Object[0];
 
-            SerializedJson serializedJson = new SerializedJson(tempJson);
+            JsonAccessor serializedJson = new JsonAccessor(tempJson);
 
             var stringifyPath = !isPathEmpty ? pathVariable.getSingle(event) : null;
-            var tokens = SkriptJsonInputParser.tokenize(stringifyPath, Api.Records.PROJECT_DELIM);
+            var tokens = PathParser.tokenize(stringifyPath, Api.Records.PROJECT_DELIM);
 
             if (type.equals(Type.MULTIPLES)) {
                 if (!isPathEmpty) {
                     Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
                     if (searcherResult == null) return new Object[0];
-                    return relevantToLoop ? new Object[]{searcherResult} : SerializedJsonUtils.getAsParsedArray(searcherResult);
+                    return relevantToLoop ? new Object[]{searcherResult} : JsonAccessorUtils.getAsParsedArray(searcherResult);
                 } else {
-                    return relevantToLoop ? new JsonElement[]{serializedJson.getJson()} : SerializedJsonUtils.getAsParsedArray(serializedJson.getJson());
+                    return relevantToLoop ? new JsonElement[]{serializedJson.getJson()} : JsonAccessorUtils.getAsParsedArray(serializedJson.getJson());
                 }
             } else if (type.equals(Type.SINGLE)) {
                 if (!isPathEmpty) {
@@ -182,7 +182,7 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
     @Override
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
-        var tokens = SkriptJsonInputParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
+        var tokens = PathParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
 
         SkJson.debug("&cTrying change -> &e%s", mode);
 
@@ -193,7 +193,7 @@ public class ExprJsonValues extends SimpleExpression<Object> {
             SkJson.severe(getParser().getNode(), "Trying to change JSON %s what is null", jsonVariable.toString(event, false));
             return;
         }
-        var serializedJson = new SerializedJson(json);
+        var serializedJson = new JsonAccessor(json);
 
         delta = delta == null ? new Object[0] : delta;
 

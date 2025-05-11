@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
-public class SkriptJsonInputParser {
+public class PathParser {
     private static final ConcurrentHashMap<String, ArrayList<Map.Entry<String, Type>>> TOKEN_CACHE = new ConcurrentHashMap<>();
     private static final Pattern ARRAY_PATTERN = Pattern.compile("\\[\\d+]");
     private static final Pattern ARRAY_ANY_PATTERN = Pattern.compile("\\[]$");
@@ -141,7 +141,7 @@ public class SkriptJsonInputParser {
     }
 
     private static List<Object> processWordToken(String currentToken, @Nullable String previousToken) {
-        boolean isNumeric = SerializedJsonUtils.isNumeric(currentToken) != null;
+        boolean isNumeric = JsonAccessorUtils.isNumeric(currentToken) != null;
         boolean isPreviousNumericOrArray = previousToken != null && 
             (NUMERIC_PATTERN.matcher(previousToken).matches() || ARRAY_INDEX_PATTERN.matcher(previousToken).matches());
 

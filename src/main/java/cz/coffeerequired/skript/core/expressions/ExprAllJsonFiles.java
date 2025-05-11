@@ -12,19 +12,21 @@ import cz.coffeerequired.api.FileHandler;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 
 @Name("Get all files paths in given directory")
 @Examples("all json files from dir \".\"")
 @Description("Returns all json files from the given directory. The directory must be a valid path.")
 @Since("5.0")
-public class ExprAllJsonFiles extends SimpleExpression<String> {
+public class ExprAllJsonFiles extends SimpleExpression<File> {
 
     private Expression<String> directoryPathExpression;
 
     @Override
-    protected @Nullable String[] get(Event event) {
+    protected @Nullable File[] get(Event event) {
         var directoryPath = directoryPathExpression.getSingle(event);
-        return FileHandler.walk(directoryPath).join();
+        return FileHandler.walkAsFiles(directoryPath).join();
     }
 
     @Override
@@ -33,8 +35,8 @@ public class ExprAllJsonFiles extends SimpleExpression<String> {
     }
 
     @Override
-    public Class<? extends String> getReturnType() {
-        return String.class;
+    public Class<? extends File> getReturnType() {
+        return File.class;
     }
 
     @Override

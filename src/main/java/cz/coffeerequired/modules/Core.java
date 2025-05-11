@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-@SuppressWarnings({"removal"})
+@SuppressWarnings({"removal", "deprecation"})
 @Module(module = "core")
 public class Core extends Extensible {
 
@@ -130,7 +130,7 @@ public class Core extends Extensible {
         );
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
-        register.registerExpression(ExprAllJsonFiles.class, String.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
+        register.registerExpression(ExprAllJsonFiles.class, File.class, ExpressionType.COMBINED, "[all] json [files] (from|in) (dir[ectory]|folder) %string%");
         register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE, "json storage of id %-string%", "all json storages");
         register.registerExpression(ExprSortJson.class, JsonElement.class, ExpressionType.SIMPLE,
                 "%jsonelement% [sorted] in (:ascending|:descending) order by (:key|:value)"

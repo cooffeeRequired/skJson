@@ -10,7 +10,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.api.json.SerializedJson;
+import cz.coffeerequired.api.json.JsonAccessor;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class ExprCountElements extends SimpleExpression<Integer> {
         Integer[] found = {0};
 
         final JsonElement json = jsonVariable.getSingle(event);
-        SerializedJson serialized = new SerializedJson(json);
+        JsonAccessor serialized = new JsonAccessor(json);
         if (json == null) return new Integer[0];
 
         Collections.singleton(inputValues.getSingle(event))

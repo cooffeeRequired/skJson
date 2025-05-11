@@ -10,10 +10,10 @@ import lombok.Getter;
 
 import java.util.*;
 
-import static cz.coffeerequired.api.json.SerializedJsonUtils.handle;
+import static cz.coffeerequired.api.json.JsonAccessorUtils.handle;
 
 @SuppressWarnings("unused")
-public class SerializedJson {
+public class JsonAccessor {
     @Getter
     private final JsonElement json;
 
@@ -22,8 +22,8 @@ public class SerializedJson {
     public remover remover;
     public searcher searcher;
 
-    public SerializedJson(JsonElement json) {
-        if (SerializedJsonUtils.isNull(json)) {
+    public JsonAccessor(JsonElement json) {
+        if (JsonAccessorUtils.isNull(json)) {
             SkJson.severe(ParserInstance.get().getNode(), "Json cannot be null");
         }
         this.json = json;
@@ -74,7 +74,7 @@ public class SerializedJson {
     }
 
     public record changer(JsonElement json) {
-        public void add(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
+        public void add(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement value) {
             var current = getCurrentWithoutRemovingKey(tokens, json, true);
             if (current instanceof JsonArray array) {
                 array.add(value);
@@ -84,7 +84,7 @@ public class SerializedJson {
             }
         }
 
-        public void key(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, String newKey) {
+        public void key(ArrayList<Map.Entry<String, PathParser.Type>> tokens, String newKey) {
             var c = getCurrent(tokens, json);
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
@@ -98,16 +98,16 @@ public class SerializedJson {
             }
         }
 
-        public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value) {
+        public void value(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement value) {
             value(tokens, value, true);
         }
 
-        public void value(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement value, boolean removeKey) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
+        public void value(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement value, boolean removeKey) {
+            var deque = JsonAccessorUtils.listToDeque(tokens);
             var temp = removeKey ? deque.removeLast() : deque.getLast();
             var key = temp.getKey();
             JsonElement current = json;
-            Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+            Map.Entry<String, PathParser.Type> currentKey;
 
             while ((currentKey = deque.pollFirst()) != null) {
                 current = handle(current, currentKey, true);
@@ -121,7 +121,7 @@ public class SerializedJson {
             if (current instanceof JsonObject object) {
                 object.add(key, value);
             } else if (current instanceof JsonArray array) {
-                if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
+                if ((index = JsonAccessorUtils.isNumeric(key)) != null) {
                     if (!current.isJsonArray()) {
                         SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to change index %s. But &e'value'&c can be done only in Json Arrays", key);
                         return;
@@ -185,7 +185,7 @@ public class SerializedJson {
     }
 
     public record remover(JsonElement json) {
-        public void byKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public void byKey(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
             var c = getCurrent(tokens, json, false);
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
@@ -194,7 +194,7 @@ public class SerializedJson {
                 object.remove(key);
             } else if (current instanceof JsonArray array) {
                 Number num;
-                if ((num = SerializedJsonUtils.isNumeric(key)) != null) {
+                if ((num = JsonAccessorUtils.isNumeric(key)) != null) {
                     if (array.isEmpty()) {
                         SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But array is empty", key);
                         return;
@@ -212,7 +212,7 @@ public class SerializedJson {
             }
         }
 
-        public void reset(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public void reset(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
             JsonElement current = tokens == null ? json : getCurrentWithoutRemovingKey(tokens, json);
             if (current instanceof JsonObject jsonObject) {
                 var deepCopy = jsonObject.deepCopy();
@@ -223,7 +223,7 @@ public class SerializedJson {
             }
         }
 
-        public void allByValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
+        public void allByValue(ArrayList<Map.Entry<String, PathParser.Type>> tokens, Object value) {
             JsonElement current = tokens == null ? json : getCurrentWithoutRemovingKey(tokens, json);
             JsonElement valueElement = Parser.toJson(value);
 
@@ -243,14 +243,14 @@ public class SerializedJson {
             }
         }
 
-        public void byIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public void byIndex(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
             var c = getCurrent(tokens, json);
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
 
             Number index;
 
-            if ((index = SerializedJsonUtils.isNumeric(key)) != null) {
+            if ((index = JsonAccessorUtils.isNumeric(key)) != null) {
                 if (!current.isJsonArray()) {
                     SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But &e'remove'&c can be done only in Json Arrays", key);
                     return;
@@ -259,8 +259,8 @@ public class SerializedJson {
             }
         }
 
-        public void byValue(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, Object value) {
-            var deque = SerializedJsonUtils.listToDeque(tokens);
+        public void byValue(ArrayList<Map.Entry<String, PathParser.Type>> tokens, Object value) {
+            var deque = JsonAccessorUtils.listToDeque(tokens);
             JsonElement current = getCurrentWithoutRemovingKey(tokens, json);
 
             JsonElement valueElement = Parser.toJson(value);
@@ -278,11 +278,11 @@ public class SerializedJson {
         }
     }
 
-    private static List<?> getCurrent(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json, boolean setMode) {
-        var deque = SerializedJsonUtils.listToDeque(tokens);
+    private static List<?> getCurrent(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement json, boolean setMode) {
+        var deque = JsonAccessorUtils.listToDeque(tokens);
         var key = deque.removeLast().getKey();
         JsonElement current = json;
-        Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+        Map.Entry<String, PathParser.Type> currentKey;
 
         while ((currentKey = deque.pollFirst()) != null) {
             current = handle(current, currentKey, setMode);
@@ -290,26 +290,26 @@ public class SerializedJson {
         return List.of(key, current);
     }
 
-    private static List<?> getCurrent(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json) {
+    private static List<?> getCurrent(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement json) {
         return getCurrent(tokens, json, true);
     }
 
-    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json, boolean setMode) {
-        var deque = SerializedJsonUtils.listToDeque(tokens);
+    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement json, boolean setMode) {
+        var deque = JsonAccessorUtils.listToDeque(tokens);
         JsonElement current = json;
-        Map.Entry<String, SkriptJsonInputParser.Type> currentKey;
+        Map.Entry<String, PathParser.Type> currentKey;
         while ((currentKey = deque.pollFirst()) != null) {
             current = handle(current, currentKey, setMode);
         }
         return current;
     }
 
-    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens, JsonElement json) {
+    private static JsonElement getCurrentWithoutRemovingKey(ArrayList<Map.Entry<String, PathParser.Type>> tokens, JsonElement json) {
         return getCurrentWithoutRemovingKey(tokens, json, false);
     }
 
     public record searcher(JsonElement json) {
-        public Object keyOrIndex(ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens) {
+        public Object keyOrIndex(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
             var c = getCurrent(tokens, json);
             JsonElement current = (JsonElement) c.get(1);
             var key = (String) c.getFirst();
@@ -318,18 +318,18 @@ public class SerializedJson {
                 if (current instanceof JsonObject object) {
                     var searched = object.get(key);
                     if (searched == null) {
-                        SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
+                        SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
                         return null;
                     }
                     return Parser.fromJson(searched);
                 }
 
                 if (current instanceof JsonArray array) {
-                    Number index = SerializedJsonUtils.isNumeric(key);
+                    Number index = JsonAccessorUtils.isNumeric(key);
                     if (index != null && index.intValue() <= array.size()) {
                         return Parser.fromJson(array.get(index.intValue()));
                     } else {
-                        SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  SkriptJsonInputParser.getPathFromTokens(tokens));
+                        SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
                         return null;
                     }
                 }

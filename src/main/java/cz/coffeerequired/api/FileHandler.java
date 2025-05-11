@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -157,6 +158,14 @@ public abstract class FileHandler {
                     .map(File::getPath)
                     .filter(f -> f.endsWith(".json"))
                     .toArray(String[]::new);
+        });
+    }
+
+    public static CompletableFuture<File[]> walkAsFiles(final String directoryPath) {
+        return CompletableFuture.supplyAsync(() -> {
+            File input = new File(directoryPath);
+            if (!input.isDirectory() && !input.canRead()) return new File[0];
+            return Arrays.stream(Objects.requireNonNull(input.listFiles(File::isFile))).filter(f -> f.getPath().endsWith(".json")).toArray(File[]::new);
         });
     }
 }

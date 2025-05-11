@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cz.coffee"
-version = "5.2"
+version = "5.3"
 
 val environment: String by project.extra { if (project.hasProperty("env")) project.property("env") as String else "DEV" }
 println("Using environment: $environment")

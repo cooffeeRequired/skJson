@@ -11,7 +11,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.SerializedJson;
+import cz.coffeerequired.api.json.JsonAccessor;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +43,7 @@ public class ExprSortJson extends SimpleExpression<JsonElement> {
             SkJson.severe("Cannot sort null json element");
             return new JsonElement[0];
         }
-        SerializedJson json = new SerializedJson(jsonElement);
+        JsonAccessor json = new JsonAccessor(jsonElement);
         return new JsonElement[]{json.sort(sortType)};
 
     }

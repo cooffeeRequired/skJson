@@ -15,8 +15,8 @@ import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.json.SerializedJson;
-import cz.coffeerequired.api.json.SkriptJsonInputParser;
+import cz.coffeerequired.api.json.JsonAccessor;
+import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
             remove "lol" from json array "x.y.z" of {_json}
 
             delete json value "x" of {_json}
-            delete json values "x.y" of {_json} #-> #?throws error when single
+            delete json values "x.y" of {_json}
 
             set {_value} to json value "x.y" of {_json}
             set {_values::*} to json values "x.y" of {_json}
@@ -95,18 +95,13 @@ public class ExprArrayObject extends SimpleExpression<Object> {
 
     @Override
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
-        var tokens = SkriptJsonInputParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
-
-        SkJson.debug("&cTrying change -> &e%s", mode);
-
-        SkJson.debug("tokens %s", tokens);
-
+        var tokens = PathParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
         var json = jsonVariable.getSingle(event);
         if (json == null) {
             SkJson.severe(getParser().getNode(), "Trying to change JSON %s what is null", jsonVariable.toString(event, false));
             return;
         }
-        var serializedJson = new SerializedJson(json);
+        var serializedJson = new JsonAccessor(json);
 
         delta = delta == null ? new Object[0] : delta;
 

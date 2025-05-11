@@ -12,8 +12,8 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
-import cz.coffeerequired.api.json.SerializedJson;
-import cz.coffeerequired.api.json.SkriptJsonInputParser;
+import cz.coffeerequired.api.json.JsonAccessor;
+import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,9 +42,9 @@ public class ExprGetAllKeys extends SimpleExpression<String> {
             return new String[0];
         }
         if (pathExpression != null) {
-            SerializedJson json = new SerializedJson(jsonElement);
+            JsonAccessor json = new JsonAccessor(jsonElement);
             String path = pathExpression.getSingle(event);
-            var tokens = SkriptJsonInputParser.tokenize(path, PROJECT_DELIM);
+            var tokens = PathParser.tokenize(path, PROJECT_DELIM);
             var searched = json.searcher.keyOrIndex(tokens);
             if (searched instanceof JsonObject j) jsonElement = j;
             else {
@@ -52,15 +52,6 @@ public class ExprGetAllKeys extends SimpleExpression<String> {
                 return new String[0];
             }
         }
-
-        /* TODO: support values?
-        jsonElement.getAsJsonObject()
-                .entrySet()
-                .stream()
-                .map(Map.Entry::getValue)
-                .map(GsonParser::fromJson)
-                .toArray(Object[]::new); */
-
         return jsonElement.getAsJsonObject().keySet().toArray(String[]::new);
     }
 

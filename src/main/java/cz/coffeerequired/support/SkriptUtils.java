@@ -1,18 +1,60 @@
 package cz.coffeerequired.support;
 
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
+import cz.coffeerequired.api.skript.SkriptSecLoop;
+import cz.coffeerequired.skript.core.expressions.ExprJson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
 @SuppressWarnings("unused")
 public abstract class SkriptUtils {
+
+    public static List<SecLoop> currentLoops() {
+        return ParserInstance.get().getCurrentSections(SecLoop.class);
+    }
+
+    public static SkriptSecLoop getSecLoop(int i, String input) {
+        int j = 1;
+        SecLoop loop = null;
+        for (SecLoop l : currentLoops()) {
+            if (l.getLoopedExpression() instanceof ExprJson) {
+                if (j < i) {
+                    j++;
+                    continue;
+                }
+                if (loop != null) {
+                    return null;
+                }
+                loop = l;
+                if (j == i)
+                    break;
+            }
+        }
+
+        return new SkriptSecLoop(loop);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] newArray(Class<T> clazz, int length) {
+        return (T[]) Array.newInstance(clazz, length);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] emptyArray(Class<T> clazz) {
+        return (T[]) Array.newInstance(clazz, 0);
+    }
+
     @SuppressWarnings("unchecked")
     public static TreeMap<String, Object> getListVariable(String name, Event event, boolean isLocal) {
         return (TreeMap<String, Object>) Variables.getVariable(name, event, isLocal);
@@ -157,7 +199,7 @@ public abstract class SkriptUtils {
             if (variableName.endsWith(SEPARATOR)) {
                 variableName = variableName.substring(0, variableName.length() - 2);
             }
-            if (SerializedJsonUtils.isJavaType(o)) {
+            if (JsonAccessorUtils.isJavaType(o)) {
                 savePrimitiveToVariable(variableName, o, event, isLocal);
             } else {
                 Variables.setVariable(variableName, o, event, isLocal);

@@ -17,9 +17,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.json.SerializedJson;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
-import cz.coffeerequired.api.json.SkriptJsonInputParser;
+import cz.coffeerequired.api.json.JsonAccessor;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
+import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +87,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Since({"4.5", "5.1.2"})
 public class ExprStrictLiteralJson extends SimpleExpression<Object> {
 
-    private ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> tokens;
+    private ArrayList<Map.Entry<String, PathParser.Type>> tokens;
 
     private Expression<JsonElement> jsonElementExpression;
     private Expression<?> v;
@@ -97,17 +97,17 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
         if (v != null) {
             String parsed = v.getSingle(event) + "";
             SkJson.debug("expression: %s -> parsed result: %s", v, parsed);
-            tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
+            tokens = PathParser.tokenizeFromPattern(parsed);
         }
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
         if (jsonElement == null) return new Object[0];
 
-        SerializedJson serializedJson = new SerializedJson(jsonElement);
+        JsonAccessor serializedJson = new JsonAccessor(jsonElement);
         Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
         if (searcherResult == null) return new Object[0];
 
-        if (tokens.getLast().getValue().equals(SkriptJsonInputParser.Type.ListAll)) {
-            return SerializedJsonUtils.getAsParsedArray(searcherResult);
+        if (tokens.getLast().getValue().equals(PathParser.Type.ListAll)) {
+            return JsonAccessorUtils.getAsParsedArray(searcherResult);
         } else {
             return new Object[]{searcherResult};
         }
@@ -138,7 +138,7 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
             v = parseExpression(group);
             tokens = new ArrayList<>();
         } else {
-            tokens = SkriptJsonInputParser.tokenizeFromPattern(group);
+            tokens = PathParser.tokenizeFromPattern(group);
         }
         return canInitSafely(jsonElementExpression);
     }
@@ -176,13 +176,13 @@ public class ExprStrictLiteralJson extends SimpleExpression<Object> {
     @Override
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         JsonElement jsonElement = jsonElementExpression.getSingle(event);
-        SerializedJson serializedJson = new SerializedJson(jsonElement);
+        JsonAccessor serializedJson = new JsonAccessor(jsonElement);
 
 
         if (v != null) {
             String parsed = v.getSingle(event) + "";
             SkJson.debug("expression: %s -> parsed result: %s", v, parsed);
-            tokens = SkriptJsonInputParser.tokenizeFromPattern(parsed);
+            tokens = PathParser.tokenizeFromPattern(parsed);
         }
 
         if (mode.equals(Changer.ChangeMode.DELETE)) {

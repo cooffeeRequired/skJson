@@ -78,9 +78,9 @@ public abstract class Json {
         @Override
         public void change(JsonElement[] what, @Nullable Object[] delta, ChangeMode mode) {
             JsonElement jsonElement = what[0];
-            SerializedJson serializedJson = new SerializedJson(jsonElement);
+            JsonAccessor serializedJson = new JsonAccessor(jsonElement);
 
-            ArrayList<Map.Entry<String, SkriptJsonInputParser.Type>> emptyTokens = new ArrayList<>();
+            ArrayList<Map.Entry<String, PathParser.Type>> emptyTokens = new ArrayList<>();
             switch(mode) {
                 case RESET -> {
                     serializedJson.remover.reset(emptyTokens);

@@ -15,7 +15,7 @@ import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
 import cz.coffeerequired.skript.core.expressions.ExprJsonValues;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -111,7 +111,7 @@ public class JsonLoopExpression extends SimpleExpression<Object> {
             loopType = parts[1];
             MatchResult numberOfLoop = !parseResult.regexes.isEmpty() ? parseResult.regexes.getFirst() : null;
             if (numberOfLoop != null) {
-                loopIndex = Objects.requireNonNull(SerializedJsonUtils.isNumeric(numberOfLoop.group(0))).intValue();
+                loopIndex = Objects.requireNonNull(JsonAccessorUtils.isNumeric(numberOfLoop.group(0))).intValue();
             }
         }
 

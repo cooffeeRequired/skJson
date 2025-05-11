@@ -9,7 +9,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
-import cz.coffeerequired.api.json.SerializedJsonUtils;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,15 +41,15 @@ public class JsonSupportElements extends SimpleExpression<Object> {
         final JsonElement json = jsonVariable.getSingle(event);
         if (json == null) return new Object[0];
         return new Object[]{switch (type) {
-            case FIRST -> SerializedJsonUtils.getFirst(json, searchType);
-            case LAST -> SerializedJsonUtils.getLast(json, searchType);
-            case SECOND -> SerializedJsonUtils.get(json, 1, searchType);
-            case THIRD -> SerializedJsonUtils.get(json, 2, searchType);
-            case RANDOM -> SerializedJsonUtils.getRandom(json, searchType);
+            case FIRST -> JsonAccessorUtils.getFirst(json, searchType);
+            case LAST -> JsonAccessorUtils.getLast(json, searchType);
+            case SECOND -> JsonAccessorUtils.get(json, 1, searchType);
+            case THIRD -> JsonAccessorUtils.get(json, 2, searchType);
+            case RANDOM -> JsonAccessorUtils.getRandom(json, searchType);
             case CUSTOM -> {
                 Integer index = userCustomIndexInput.getSingle(event);
                 if (index == null) yield null;
-                yield SerializedJsonUtils.get(json, index - 1, searchType);
+                yield JsonAccessorUtils.get(json, index - 1, searchType);
             }
         }};
     }
