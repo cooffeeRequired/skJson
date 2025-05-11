@@ -31,10 +31,6 @@ public class ExprJson<T> extends SimpleExpression<Object> {
             "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
         );
     }
-
-    // indexes of json array <json>
-    // indices of json array <json> at path ".."
-
     Expression<JsonElement> jsonExpression;
     Expression<String> pathExpression;
     @Getter
@@ -149,7 +145,6 @@ public class ExprJson<T> extends SimpleExpression<Object> {
         return Object.class;
     }
 
-    // "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
     @Override
     public String toString(@Nullable Event event, boolean debug) {
         return "loop %ss of json %s %s %s".formatted(
