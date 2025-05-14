@@ -13,7 +13,6 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.json.JsonAccessor;
@@ -22,9 +21,6 @@ import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Iterator;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
@@ -49,7 +45,6 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     private Type type;
     private Expression<JsonElement> jsonVariable;
     private Expression<String> pathVariable;
-    public boolean relevantToLoop = false;
 
     @Override
     protected @Nullable Object[] get(Event event) {
@@ -68,9 +63,9 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                 if (!isPathEmpty) {
                     Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
                     if (searcherResult == null) return new Object[0];
-                    return relevantToLoop ? new Object[]{searcherResult} : JsonAccessorUtils.getAsParsedArray(searcherResult);
+                    return JsonAccessorUtils.getAsParsedArray(searcherResult);
                 } else {
-                    return relevantToLoop ? new JsonElement[]{serializedJson.getJson()} : JsonAccessorUtils.getAsParsedArray(serializedJson.getJson());
+                    return  JsonAccessorUtils.getAsParsedArray(serializedJson.getJson());
                 }
             } else if (type.equals(Type.SINGLE)) {
                 if (!isPathEmpty) {
@@ -112,61 +107,7 @@ public class ExprJsonValues extends SimpleExpression<Object> {
         type = i == 0 ? Type.SINGLE : Type.MULTIPLES;
         jsonVariable = defendExpression(expressions[1]);
         pathVariable = (Expression<String>) expressions[0];
-
         return canInitSafely(jsonVariable);
-    }
-
-    @Override
-    public boolean isLoopOf(String input) {
-        relevantToLoop = input.equals("skjson-custom-loop");
-        return input.equals("skjson-custom-loop");
-    }
-
-    @Override
-    public @Nullable Iterator<?> iterator(Event event) {
-        Object o;
-        JsonElement json = null;
-
-        Iterator<?> superIterator = super.iterator(event);
-        if (superIterator == null) return null;
-
-        while (superIterator.hasNext()) {
-            o = superIterator.next();
-            if (!(o instanceof JsonElement)) return null;
-            else json = (JsonElement) o;
-        }
-
-        JsonElement it = json;
-        return new Iterator<>() {
-            int idx = 0;
-
-            @Override
-            public boolean hasNext() {
-                if (it instanceof JsonArray array) {
-                    return idx < array.size();
-                } else if (it instanceof JsonObject object) {
-                    return idx < object.entrySet().size();
-                }
-                return false;
-            }
-
-            @Override
-            public Object next() {
-                HashMap<String, Object> itMap = new HashMap<>();
-                if (it instanceof JsonArray array) {
-                    itMap.put(String.valueOf(idx), Parser.fromJson(array.get(idx)));
-                    idx++;
-                    return itMap;
-                } else if (it instanceof JsonObject object) {
-                    var keys = object.keySet().stream().toList();
-                    String declaredKey = keys.get(idx);
-                    itMap.put(declaredKey, Parser.fromJson(object.get(declaredKey)));
-                    idx++;
-                    return itMap;
-                }
-                return null;
-            }
-        };
     }
 
     enum Type {SINGLE, MULTIPLES}
@@ -216,17 +157,13 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                     }
                 }
             }
-            case DELETE -> {
-                serializedJson.remover.byKey(tokens);
-            }
+            case DELETE -> serializedJson.remover.byKey(tokens);
             case REMOVE_ALL -> {
                 for (var o : delta) {
                     serializedJson.remover.allByValue(tokens, o);
                 }
             }
-            default -> {
-                SkJson.severe(getParser().getNode(), "Unknown change mode: %s", mode);
-            }
+            default -> SkJson.severe(getParser().getNode(), "Unknown change mode: %s", mode);
         }
     }
 }

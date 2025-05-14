@@ -3,6 +3,7 @@ package cz.coffeerequired.skript.core.expressions;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -25,8 +26,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @Name("Json")
-@Description("")
-@Examples("")
+@Description("<b>Gets, sets, removes values/keys etc.. of JSON</b>")
+@Examples("""
+    set {_json} to json from "{'A': false, 'B': 'Another', C: 33, 'nested': [1, 2, 3, 4]}"
+    set {_values::*} to values of json object {_json}
+    set {_values::*} to values of array {_json} at path "nested"
+""")
+@Since("5.4")
 @SuppressWarnings("unchecked")
 public class ExprJson<T> extends SimpleExpression<Object> {
     Expression<JsonElement> jsonExpression;

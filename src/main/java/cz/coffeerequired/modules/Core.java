@@ -22,7 +22,6 @@ import cz.coffeerequired.skript.core.eventexpressions.ExprEvtUUID;
 import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
 import cz.coffeerequired.skript.core.support.ExprJsonLoop;
-import cz.coffeerequired.skript.core.support.JsonLoopExpression;
 import cz.coffeerequired.skript.core.support.JsonSupportElements;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -40,7 +39,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-@SuppressWarnings({"removal", "deprecation"})
+@SuppressWarnings({"removal"})
 @Module(module = "core")
 public class Core extends Extensible {
 
@@ -73,6 +72,7 @@ public class Core extends Extensible {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void registerElements(Register.SkriptRegister register) {
         register.apply(this);
 
@@ -118,9 +118,6 @@ public class Core extends Extensible {
                 "%integer%. (:value|:key) of %jsonelement%"
         );
         register.registerExpression(ExprGetAllKeys.class, String.class, ExpressionType.SIMPLE, "[all] keys [%-string%] of %jsonelement%");
-
-        register.registerExpression(JsonLoopExpression.class, Object.class, ExpressionType.SIMPLE, "[the] json-(:key|:value)[-<(\\d+)>]");
-
         register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE, "[the] count of (:key[s]|:value[s]) %object% in %jsonelement%");
         register.registerExpression(ExprJsonValues.class, Object.class, ExpressionType.COMBINED,
                 "[json] value [%-string%] of %jsonelement%",
@@ -144,6 +141,19 @@ public class Core extends Extensible {
 
         register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
                 "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
+        );
+
+        register.registerType(new ClassInfo<>(File.class, "file")
+                .user("file?s")
+                .name("file")
+                .description("File representation")
+                .since("5.4"),
+            "type.file"
+        );
+
+        register.registerProperty(propExprJsonFile.class, Object.class,
+                "(1:name|2:path|3:size|4:content) [:without file type]",
+                "files"
         );
 
         // ################ CONDITIONS ############################
