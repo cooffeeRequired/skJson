@@ -51,12 +51,12 @@ public class AEffBindFile extends AsyncEffect {
         File file = new File(path);
 
         if (!file.exists()) {
-            SkJson.severe("File %s does not exist, skipping binding", path);
+            SkJson.debug("&4File %s does not exist, skipping binding", path);
             return;
         }
 
         if (cache.containsKey(id)) {
-            SkJson.info("Cache already contains key: &e'%s'&r, skipping binding", id);
+            SkJson.debug("&4Cache already contains key: &e'%s'&4, skipping binding", id);
             return;
         }
 

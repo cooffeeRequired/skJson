@@ -16,9 +16,9 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.JsonAccessor;
 import cz.coffeerequired.api.json.JsonAccessorUtils;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -184,10 +184,6 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
         var tokens = PathParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
 
-        SkJson.debug("&cTrying change -> &e%s", mode);
-
-        SkJson.debug("tokens %s", tokens);
-
         var json = jsonVariable.getSingle(event);
         if (json == null) {
             SkJson.severe(getParser().getNode(), "Trying to change JSON %s what is null", jsonVariable.toString(event, false));
@@ -196,8 +192,6 @@ public class ExprJsonValues extends SimpleExpression<Object> {
         var serializedJson = new JsonAccessor(json);
 
         delta = delta == null ? new Object[0] : delta;
-
-        SkJson.debug("type %s", type);
 
         if (type.equals(Type.SINGLE) && delta.length > 1) {
             SkJson.severe(getParser().getNode(), "You are using 'value' instead of 'values', Do you want to use 'values' instead?");
@@ -221,17 +215,14 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                         serializedJson.changer.value(tokens, parsed);
                     }
                 }
-                break;
             }
             case DELETE -> {
                 serializedJson.remover.byKey(tokens);
-                break;
             }
             case REMOVE_ALL -> {
                 for (var o : delta) {
                     serializedJson.remover.allByValue(tokens, o);
                 }
-                break;
             }
             default -> {
                 SkJson.severe(getParser().getNode(), "Unknown change mode: %s", mode);

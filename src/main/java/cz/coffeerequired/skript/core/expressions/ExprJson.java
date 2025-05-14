@@ -1,13 +1,13 @@
 package cz.coffeerequired.skript.core.expressions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,20 +24,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Map;
 
+@Name("Json")
+@Description("")
+@Examples("")
+@SuppressWarnings("unchecked")
 public class ExprJson<T> extends SimpleExpression<Object> {
-
-    static {
-        Skript.registerExpression(ExprJson.class, Object.class, ExpressionType.SIMPLE,
-            "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
-        );
-    }
     Expression<JsonElement> jsonExpression;
     Expression<String> pathExpression;
     @Getter
     private JsonType jsonType;
 
     public enum JsonState {
-        VALUE, INDEX, KEY, ENTRIES
+        VALUE, INDEX, INDICES, KEY, ENTRIES
     }
 
     public enum JsonType {
@@ -53,12 +51,14 @@ public class ExprJson<T> extends SimpleExpression<Object> {
         return get(event, this.jsonExpression.getSingle(event), this.state);
     }
 
+    @SuppressWarnings("unused")
     public boolean checkType(Object json, JsonType type) {
        return checkType(json, type,null);
     }
 
     public boolean checkType(Object json, JsonType type, String message) {
         Class<? extends JsonElement> toClass = type.equals(JsonType.OBJECT) ? JsonObject.class : JsonArray.class;
+
         if (toClass != json.getClass()) {
             SkJson.severe(getParser().getNode(), message != null ? message : "");
             return false;
@@ -116,7 +116,7 @@ public class ExprJson<T> extends SimpleExpression<Object> {
                     }
                 }
             }
-            case INDEX -> {
+            case INDEX, INDICES -> {
                 if (tokens.isEmpty()) {
                     if (checkType(json, JsonType.ARRAY, "You can loops indices only in json array but given %s".formatted(json.getClass().getSimpleName().toLowerCase()))) {
                         return (T[]) JsonAccessorUtils.getArrayIndices(((JsonArray) json)).toArray();
@@ -147,12 +147,12 @@ public class ExprJson<T> extends SimpleExpression<Object> {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "loop %ss of json %s %s %s".formatted(
-                state.toString().toLowerCase(),
-                jsonType.toString().toLowerCase(),
-                jsonExpression.toString(event, debug),
-                pathExpression != null ? "at path " + pathExpression.toString(event, debug) : ""
-        );
+        var state_ = state.toString().toLowerCase();
+        var jsonType_ = jsonType.toString().toLowerCase();
+        var jE =  jsonExpression.toString(event, debug);
+        var pE = pathExpression == null ? "" : "at path " + pathExpression.toString(event, debug);
+
+        return "loop %s of json %s %s %s".formatted(state_, jsonType_, jE, pE);
     }
 
     @Override
@@ -161,8 +161,9 @@ public class ExprJson<T> extends SimpleExpression<Object> {
         state = parseResult.hasTag("values")
                 ? JsonState.VALUE : parseResult.hasTag("keys")
                 ? JsonState.KEY : parseResult.hasTag("entries")
-                ? JsonState.ENTRIES : (parseResult.hasTag("indexes") || parseResult.hasTag("indices"))
-                ? JsonState.INDEX : null;
+                ? JsonState.ENTRIES : parseResult.hasTag("indexes")
+                ? JsonState.INDEX : parseResult.hasTag("indices")
+                ? JsonState.INDICES : null;
         jsonExpression = LiteralUtils.defendExpression(expressions[0]);
         pathExpression = LiteralUtils.defendExpression(expressions[1]);
         return LiteralUtils.canInitSafely(jsonExpression);

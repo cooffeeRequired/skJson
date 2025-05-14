@@ -62,7 +62,7 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
     @Override
     public @NotNull String toString(@Nullable Event event, boolean b) {
         assert event != null;
-        return "request params of %s" + getExpr().toString(event, b);
+        return "request params of %s".formatted(getExpr().toString(event, b));
     }
 
     @Override

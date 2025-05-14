@@ -80,7 +80,6 @@ public class JsonAccessor {
                 array.add(value);
             } else {
                 SkJson.severe(ParserInstance.get().getNode(),"Changer issue. Trying to add value %s to %s. But &e'add'&c can be done only in Json Arrays", value, current);
-                return;
             }
         }
 
@@ -115,8 +114,6 @@ public class JsonAccessor {
 
             Number index;
 
-
-            SkJson.debug("&6[SET] tokens: %s, current: %s, value: %s", tokens, current, value);
 
             if (current instanceof JsonObject object) {
                 object.add(key, value);

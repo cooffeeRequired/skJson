@@ -17,7 +17,6 @@ import cz.coffeerequired.api.json.Parser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @Name("Json has value/keys")
@@ -42,10 +41,6 @@ public class CondJsonHas extends Condition {
         JsonElement json = jsonExpression.getSingle(event);
         if (json == null) return false;
         var objects = objectsForCheck.getAll(event);
-
-
-        SkJson.debug("Json %s -< %s", json, Arrays.toString(objects));
-
         if (objects == null) return false;
         boolean found = true;
 
@@ -72,7 +67,6 @@ public class CondJsonHas extends Condition {
             }
             if (!found) break;
         }
-        SkJson.debug("Found keys %s in %s", Arrays.toString(objects), json);
         return found == !negated;
     }
 

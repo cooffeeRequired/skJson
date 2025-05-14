@@ -1,5 +1,6 @@
 package cz.coffeerequired.api.requests;
 
+import ch.njol.skript.util.Timespan;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
 import lombok.Data;
@@ -23,6 +24,9 @@ public class Request {
     private HashMap<String, String> queryParams = new HashMap<>();
     private Response response = Response.empty();
     private HttpReceivedResponse event = null;
+    private Timespan timeout;
+    private boolean followRedirects;
+    private String httpVersion;
 
     public Request(String uri, RequestMethod method, JsonElement content, Pairs[] headers) {
         this.uri = uri;
@@ -36,12 +40,15 @@ public class Request {
         this.method = method;
     }
 
+    public void setTimeout(Timespan time) {
+        this.timeout = time;
+    }
+
     public Request setResponse(Response response) {
         this.response = response;
         this.event.setResponse(response);
         return this;
     }
-
 
     public Request setContent(JsonElement content) {
         this.content = content;

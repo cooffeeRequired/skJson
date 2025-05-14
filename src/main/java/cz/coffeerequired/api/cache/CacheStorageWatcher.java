@@ -134,7 +134,6 @@ public class CacheStorageWatcher {
                 return fromCache.jsonElement().getAsJsonObject();
             }
         } catch (Exception e) {
-            SkJson.exception(e, "Error while resolving parent JSON for file: %s".formatted(file.getName()));
             return new JsonObject();
         }
     }

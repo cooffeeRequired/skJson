@@ -1,12 +1,13 @@
 package cz.coffeerequired.api.json;
 
 import ch.njol.skript.lang.parser.ParserInstance;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.skript.core.support.JsonSupportElements.SearchType;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public abstract class JsonAccessorUtils {
@@ -45,10 +46,7 @@ public abstract class JsonAccessorUtils {
 
             if (!inSetMode) {
                 if (json instanceof JsonObject object) {
-                    if (!object.has(key)) {
-                        SkJson.warning("Json object does not contain key: %s", key);
-                        return object;
-                    }
+                    if (!object.has(key)) return object;
                     return object.get(key);
                 } else if (json instanceof JsonArray array) {
                     int index = Integer.parseInt(key);

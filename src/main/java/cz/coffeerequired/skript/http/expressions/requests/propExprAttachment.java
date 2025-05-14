@@ -60,7 +60,7 @@ public class propExprAttachment extends PropertyExpression<Request, Object> {
     @Override
     public @NotNull String toString(@Nullable Event event, boolean debug) {
         assert event != null;
-        return "attachment/s of " + getExpr().toString(event, debug);
+        return "attachment/s of %s".formatted(getExpr().toString(event, debug));
     }
 
     @Override

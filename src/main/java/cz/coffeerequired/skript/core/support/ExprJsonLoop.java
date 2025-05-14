@@ -1,10 +1,11 @@
 package cz.coffeerequired.skript.core.support;
 
-import javax.annotation.Nullable;
-
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import com.google.gson.JsonArray;
+import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.Parser;
@@ -13,36 +14,21 @@ import cz.coffeerequired.skript.core.expressions.ExprJson;
 import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
-
-import java.util.Arrays;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class ExprJsonLoop extends SimpleExpression<Object> {
 
-    static {
-        Skript.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
-                "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
-        );
-    }
-
-    public static enum LoopState {
+    public enum LoopState {
         ID, VALUE, KEY, INDEX
     }
 
     private String name;
-    private Expression<Integer> number;
     boolean itsIntendedLoop = false;
 
     private AbstractLoop loop;
     private LoopState state;
     private ExprJson.JsonState jsonState;
-    private ExprJson.JsonType jsonType;
 
     @Override
     public Class<?> getReturnType() {
@@ -60,10 +46,7 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
         Object current = loop.getCurrent(event);
         ExprJson<?> jsonExpr = (ExprJson<?>) loop.getLoopedExpression();
         jsonState = jsonExpr.getState();
-        jsonType = jsonExpr.getJsonType();
         if (current == null) return null;
-
-        SkJson.debug("&e&l-> json state &f%s&e&l, json type &f%s", jsonState, jsonType);
 
         switch (state) {
             case VALUE -> {
@@ -76,7 +59,7 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
                 }
                 return new Object[] { getKey(current) };
             } case INDEX -> {
-                if (!jsonState.equals(ExprJson.JsonState.INDEX)) {
+                if (!(jsonState.equals(ExprJson.JsonState.INDEX) || jsonState.equals(ExprJson.JsonState.INDICES))) {
                     SkJson.severe(getParser().getNode(), "Loop: %s. Cannot get loop-index while it is loop of %s.", jsonExpr.toString(), jsonState.toString().toLowerCase());
                     return null;
                 }
@@ -121,17 +104,15 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
         return current.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    private String getIndex(Object current) {
-        SkJson.debug("index -> current %s [%s]", current, current.getClass());
-        return current.toString();
+    private Object getIndex(Object current) {
+        return current;
     }
 
     @Override
     @SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
         name = parser.expr;
-		number = (Expression<Integer>) vars[0];
+        Expression<Integer> number = (Expression<Integer>) vars[0];
         String expressionName = name.split("-")[1];
 
         int i = -1;

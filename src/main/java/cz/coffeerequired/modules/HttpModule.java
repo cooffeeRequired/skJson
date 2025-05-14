@@ -10,6 +10,7 @@ import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Timespan;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
@@ -24,9 +25,7 @@ import cz.coffeerequired.skript.http.eventexpressions.ExprEvtResponse;
 import cz.coffeerequired.skript.http.events.ResponseReceive;
 import cz.coffeerequired.skript.http.expressions.ExprGetPlayerIP;
 import cz.coffeerequired.skript.http.expressions.ExprSimpleRequest;
-import cz.coffeerequired.skript.http.expressions.requests.propExprAttachment;
-import cz.coffeerequired.skript.http.expressions.requests.propExprQueryParams;
-import cz.coffeerequired.skript.http.expressions.requests.propExprResponse;
+import cz.coffeerequired.skript.http.expressions.requests.*;
 import cz.coffeerequired.skript.http.expressions.responses.propExprResponseStatus;
 import cz.coffeerequired.skript.http.expressions.responses.propExprResponseStatusCode;
 import cz.coffeerequired.skript.http.expressions.simple.ExprSimpleBody;
@@ -144,6 +143,9 @@ public class HttpModule extends Extensible {
 
         register.registerProperty(propExprAttachment.class, Object.class, "attachments", "requests");
         register.registerProperty(propExprQueryParams.class, JsonElement.class, "query param(s|meters)", "requests");
+        register.registerProperty(propExprRequestTimeout.class, Timespan.class, "timeout", "requests");
+        register.registerProperty(propExprRequestFollowRedirects.class, Boolean.class, "follow redirects", "requests");
+        register.registerProperty(propExprRequestHttpVersion.class, String.class, "http version", "requests");
 
 
         register.registerProperty(propExprResponseStatusCode.class, Integer.class, "status code", "response");

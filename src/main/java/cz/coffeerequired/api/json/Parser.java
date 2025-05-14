@@ -25,6 +25,11 @@ public class Parser {
         return (Class<T>) object.getClass();
     }
 
+    public static boolean isScalarType(Object o) {
+        return o instanceof String || o instanceof Number || o instanceof Boolean || o instanceof Character
+                || o instanceof JsonElement;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T fromJson(JsonElement json) {
         switch (json) {
@@ -35,7 +40,9 @@ public class Parser {
                 try {
                     Class<? extends T> cls = getDeserializationClass(object);
                     var deserialized = gson.fromJson(json, cls);
-                    SkJson.debug("&e->deserialize %s %s", deserialized.getClass(), deserialized);
+                    if (! isScalarType(deserialized)){
+                        SkJson.debug("&e-> deserialize %s %s", deserialized.getClass(), deserialized);
+                    }
                     return deserialized;
                 } catch (Exception e) {
                     SkJson.exception(e, "Failed to parse object");
@@ -45,7 +52,9 @@ public class Parser {
             case JsonArray array -> { return (T) array; }
             default -> {
                 var deserialized = gson.fromJson(json, Object.class);
-                SkJson.debug("&e->deserialize %s %s", deserialized.getClass(), deserialized);
+                if (! isScalarType(deserialized)){
+                    SkJson.debug("&e-> deserialize %s %s", deserialized.getClass(), deserialized);
+                }
                 return (T) deserialized;
             }
         }

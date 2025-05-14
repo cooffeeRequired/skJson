@@ -21,6 +21,7 @@ import cz.coffeerequired.skript.core.eventexpressions.ExprEvtJson;
 import cz.coffeerequired.skript.core.eventexpressions.ExprEvtUUID;
 import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
+import cz.coffeerequired.skript.core.support.ExprJsonLoop;
 import cz.coffeerequired.skript.core.support.JsonLoopExpression;
 import cz.coffeerequired.skript.core.support.JsonSupportElements;
 import org.bukkit.Chunk;
@@ -134,6 +135,15 @@ public class Core extends Extensible {
         register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE, "json storage of id %-string%", "all json storages");
         register.registerExpression(ExprSortJson.class, JsonElement.class, ExpressionType.SIMPLE,
                 "%jsonelement% [sorted] in (:ascending|:descending) order by (:key|:value)"
+        );
+
+
+        register.registerExpression(ExprJson.class, Object.class, ExpressionType.SIMPLE,
+                "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
+        );
+
+        register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
+                "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
         );
 
         // ################ CONDITIONS ############################

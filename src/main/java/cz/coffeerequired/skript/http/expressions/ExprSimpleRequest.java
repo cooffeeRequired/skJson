@@ -73,7 +73,10 @@ public class ExprSimpleRequest extends SimpleExpression<Request> {
     protected Request @Nullable [] get(Event event) {
         var method = exprMethod.getSingle(event);
         var url = exprUrl.getSingle(event);
-        return new Request[]{new Request(url, method)};
+        var request = new Request(url, method);
+        request.setHttpVersion("HTTP/1.1");
+        request.setFollowRedirects(true);
+        return new Request[]{request};
     }
 
     @Override

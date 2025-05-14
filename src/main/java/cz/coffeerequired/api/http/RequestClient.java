@@ -1,11 +1,14 @@
 package cz.coffeerequired.api.http;
 
+import ch.njol.skript.util.Timespan;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
+import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.requests.*;
 import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -18,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
@@ -45,21 +49,48 @@ public class RequestClient implements AutoCloseable {
                 }
         );
 
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
     private final Gson gson;
     private HttpRequest.Builder requestBuilder;
     private HttpRequest.BodyPublisher bodyPublisher; // Keep track of the actual body publisher
+    @Getter
+    private Timespan timeout;
+    private final HttpClient.Builder httpBuilder;
 
     public RequestClient() {
-        this.httpClient = HttpClient.newBuilder()
-                .executor(threadPool)  // Use our shared cached thread pool
+        this.httpBuilder = HttpClient.newBuilder()
+                .executor(threadPool)
                 .connectTimeout(Duration.ofSeconds(5))
                 .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
-        this.gson = new Gson();
+                .followRedirects(HttpClient.Redirect.NORMAL);
+
+        this.gson = Parser.getGson();
 
         SkJson.debug("HTTP Client initialized with shared thread pool");
+    }
+
+    public record RequestConfiguration(
+            boolean followRedirects,
+            Timespan timeout,
+            String httpVersion
+    ) { }
+
+    public void withConfiguration(RequestConfiguration configuration) {
+
+        HttpClient.Version version = HttpClient.Version.HTTP_1_1;
+        if (configuration.httpVersion() != null) {
+            var num = configuration.httpVersion().contains("1.1") ? 1 : 2;
+            if (num == 2) version = HttpClient.Version.HTTP_2;
+        }
+        this.httpBuilder
+                .connectTimeout(configuration.timeout() != null ? configuration.timeout().getDuration() : Duration.of(5, ChronoUnit.SECONDS))
+                .version(version)
+                .followRedirects(configuration.followRedirects() ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER);
+    }
+
+    public RequestClient build() {
+        this.httpClient = this.httpBuilder.build();
+        return this;
     }
 
     public Object getUri() {
@@ -234,15 +265,27 @@ public class RequestClient implements AutoCloseable {
 
 
             try (var client = new RequestClient()) {
-                SkJson.debug("Preparing to send HTTP request.");
-                SkJson.debug("Request URI: %s", url);
-                SkJson.debug("Request Method: %s", request.getMethod());
-                SkJson.debug("Request Headers: %s", Arrays.toString(request.getHeader()));
-                SkJson.debug("Request Content: %s", request.getContent());
-                SkJson.debug("Request Attachments: %s", request.getAttachments());
-
+                client.withConfiguration(new RequestClient.RequestConfiguration(
+                        request.isFollowRedirects(),
+                        request.getTimeout(),
+                        request.getHttpVersion()
+                ));
 
                 client.setUri(url);
+                client.build();
+
+                SkJson.debug("&8----------------- &fHTTP REQUEST DEBUG &8-----------------");
+                String sb = "\n\t\t\t\t&8 URI: &f" + url + "\n\t\t\t\t" +
+                        "&8 Method: &f" + request.getMethod() + "\n\t\t\t\t" +
+                        "&8 Headers: &f" + Arrays.toString(request.getHeader()) + "\n\t\t\t\t" +
+                        "&8 Body: &f" + request.getContent() + "\n\t\t\t\t" +
+                        "&8 Attachments: &f" + Arrays.toString(request.getAttachments().toArray()) + "\n\t\t\t\t" +
+                        "&8 Timeout: &f" + request.getTimeout() + "\n\t\t\t\t" +
+                        "&8 Follow redirects: &f" + request.isFollowRedirects() + "\n\t\t\t\t" +
+                        "&8 HTTP version: &f" + request.getHttpVersion() + "\n\t\t\t\t";
+
+                SkJson.debug(sb);
+                SkJson.debug("&8----------------------------------------------------------");
 
                 if (! request.getAttachments().isEmpty()) {
                     client.setAttachments(request.getAttachments());
