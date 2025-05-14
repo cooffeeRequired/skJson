@@ -75,10 +75,7 @@ public class ExprSimpleBody extends SimplePropertyExpression<Object, Object> {
     @Override
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
         Object expr = getExpr().getSingle(event);
-        assert expr != null;
-        if (expr.equals(Request.class)) {
-            assert expr instanceof Request;
-            Request request = (Request) expr;
+        if (expr instanceof Request request) {
             if (mode == Changer.ChangeMode.SET) {
                 assert delta != null;
                 for (var d : delta) {

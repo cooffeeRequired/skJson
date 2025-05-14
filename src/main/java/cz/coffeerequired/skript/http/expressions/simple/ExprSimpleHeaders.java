@@ -17,6 +17,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 @Name("headers of request/response")
 @Examples("""
@@ -36,6 +37,9 @@ import java.util.LinkedList;
                  # reset the headers of the Request
                  reset {_request}'s headers
                  reset headers of {_request}
+                 \s
+                 # add the header to the Request
+                 add "Accept: application/json" to {_request}'s headers
                  \s
                  <b>Response</b><br />
                  # getting the Response headers;
@@ -77,10 +81,27 @@ public class ExprSimpleHeaders extends SimplePropertyExpression<Object, JsonElem
     @SuppressWarnings("all")
     public Class<?>[] acceptChange(Changer.@NotNull ChangeMode mode) {
         return switch (mode) {
-            case SET -> CollectionUtils.array(JsonElement.class, String[].class);
+            case SET, ADD -> CollectionUtils.array(JsonElement.class, String[].class);
             case RESET -> CollectionUtils.array();
             default -> null;
         };
+    }
+
+    private LinkedList<Pairs> getPairs(Object[] delta) {
+        LinkedList<Pairs> pairs = new LinkedList<>();
+        for (Object d : delta) {
+            if (d instanceof String str) {
+                pairs.add(new Pairs(str));
+            } else if (d instanceof JsonElement json) {
+                json.getAsJsonObject()
+                        .entrySet()
+                        .forEach(entry -> pairs.add(
+                            new Pairs(entry.getKey() + ":" + entry.getValue().getAsString())
+                        )
+                );
+            }
+        }
+        return pairs;
     }
 
     @SuppressWarnings("NullableProblems")
@@ -90,21 +111,15 @@ public class ExprSimpleHeaders extends SimplePropertyExpression<Object, JsonElem
 
         if (expr instanceof Request request) {
             if (mode == Changer.ChangeMode.SET) {
-                LinkedList<Pairs> pairs = new LinkedList<>();
-                for (Object d : delta) {
-                    if (d instanceof String str) {
-                        pairs.add(new Pairs(str));
-                    } else if (d instanceof JsonElement json) {
-                        json.getAsJsonObject().entrySet().forEach(entry
-                            -> pairs.add(
-                                new Pairs(entry.getKey() + ":" + entry.getValue().getAsString())
-                            )
-                        );
-                    }
-                }
+                LinkedList<Pairs> pairs = getPairs(delta);
                 request.setHeader(pairs.toArray(new Pairs[0]));
             } else if (mode == Changer.ChangeMode.RESET) {
                 request.setHeader(new Pairs[0]);
+            } else if (mode == Changer.ChangeMode.ADD) {
+                LinkedList<Pairs> pairs = getPairs(delta);
+                LinkedList<Pairs> requestHeaders = new LinkedList<>(Arrays.stream(request.getHeader()).toList());
+                requestHeaders.addAll(pairs);
+                request.setHeader(requestHeaders.toArray(new Pairs[0]));
             }
         }
     }
