@@ -27,19 +27,19 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
             send last value of {_json}
             send random value of {_json}
             send 4. value of {_json}
-            """)
+""")
 public class JsonSupportElements extends SimpleExpression<Object> {
 
     private SearchType searchType;
     private Type type;
-    private Expression<JsonElement> jsonVariable;
+    private Expression<Object> jsonVariable;
     private Expression<Integer> userCustomIndexInput;
 
 
     @Override
     protected @Nullable Object[] get(Event event) {
-        final JsonElement json = jsonVariable.getSingle(event);
-        if (json == null) return new Object[0];
+        final Object o = jsonVariable.getSingle(event);
+        if (!(o instanceof JsonElement json)) return new Object[0];
         return new Object[]{switch (type) {
             case FIRST -> JsonAccessorUtils.getFirst(json, searchType);
             case LAST -> JsonAccessorUtils.getLast(json, searchType);

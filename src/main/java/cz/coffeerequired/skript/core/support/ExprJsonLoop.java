@@ -122,15 +122,11 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
         MatchResult numberOfLoop = !parser.regexes.isEmpty() ? parser.regexes.getFirst() : null;
         var number = SkriptUtils.getLoopIndex(numberOfLoop);
 
-        //Expression<Integer> number = (Expression<Integer>) vars[0];
         String expressionName = name.split("-")[1];
+        SkJson.debug("expressionName: %s, name: %s", expressionName, name);
 
         int i = -1;
-        if (number != null) {
-            //i = ((Literal<Integer>) number).getSingle();
-            i = number;
-        }
-
+        if (number != null) i = number;
 
         AbstractLoop loop = SkriptUtils.getSecLoop(i, expressionName);
 

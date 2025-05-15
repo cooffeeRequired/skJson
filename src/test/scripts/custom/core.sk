@@ -1,7 +1,5 @@
 test "core":
-
     execute console command "skjson about"
-
 
     set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
     
@@ -15,17 +13,18 @@ test "core":
 
     assert {_json}.array[0].A is false with "failing: json array changes"
 
-    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}"
+    set {_json} to json from "{array: [{A: 1, B: 2, C: 3, location: {}}]}" 
 
-    assert first key of {_json}.array is 0 with "failing: get first key of json"
 
-    assert first value of {_json}.array[0] is 1 with "failing: get first value of json"
+    assert first key of ({_json}.array) is 0 with "failing: get first key of json"
 
-    assert 2. key of {_json}.array[0] is "B" with "failing: get `number` key of json"
+    assert first value of ({_json}.array[0]) is 1 with "failing: get first value of json"
+
+    assert 2. key of ({_json}.array[0]) is "B" with "failing: get `number` key of json"
 
     assert all keys "array[0]" of {_json} is "A", "B" and "C", "location" with "failing: cannot retrieve all keys"
 
-    assert count of keys "A" in {_json}.array[0] is 1 with "failing: cannot retrieve count of keys"
+    assert count of keys "A" in ({_json}.array[0]) is 1 with "failing: cannot retrieve count of keys"
 
     assert "%value "array" of {_json}%" is "[{""A"":1,""B"":2,""C"":3,""location"":{}}]" with "failing: cannot retrieve all elements"
 
@@ -41,4 +40,5 @@ test "core":
 
     set {_player} to "player"
 
+    
     assert literal {_j}.array.0."%{_player}%" is 2 with "failing: cannot set value of json with variable"

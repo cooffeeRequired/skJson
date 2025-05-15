@@ -2,18 +2,17 @@ test "json loop":
     set {_json} to json from "{data: [{special: [1, 2, 3], player: 2}]}"
 
     loop entries of json object {_json}:
-        broadcast "&aKEY-1: %loop-key-1%"
         assert "%loop-key-1%" is "data" with "failing: cannot loop through json object"
         if loop-val-1 is json element:
             assert "%literal loop-val-1.0.special%" is "[1,2,3]" with "failing: cannot loop through json object"
             set {_json-list::*} to literal loop-val-1.0.special*
-            broadcast "%{_json-list::*}%"
-            broadcast literal loop-val-1.0.special*
+            broadcast "&eliteral: %literal loop-val-1.0.special%"
+            broadcast "&c%{_json-list::*}%"
+            set {_val} to loop-val-1
             assert "%literal loop-val-1[0].special*%" is "1, 2 and 3" with "failing: cannot loop through json object with *"
 
             loop values of json object loop-val-1:
                 assert "%loop-val-2%" is "{""special"":[1,2,3],""player"":2}" with "failing: cannot loop through json array"
-                broadcast loop-val-2
                 set {_list::*} to values "special" of loop-val-2
                 broadcast "%{_list::*}%"
                 assert {_list::*} is 1, 2 and 3 with "failing: cannot loop through json array"

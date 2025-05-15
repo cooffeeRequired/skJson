@@ -3,6 +3,7 @@ package cz.coffeerequired.modules;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Version;
@@ -104,9 +105,9 @@ public class Core extends Extensible {
         if (Register.isClassAvailable("com.btk5h.skriptmirror.SkriptMirror")) {
             SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
         }
-        register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+        register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.COMBINED,
                 "[literal] %jsonelement%<\\[[\\d]+\\]>",
-                "[literal] %jsonelement%<(\\.[\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")?>"
+                "[literal] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")?>"
         );
 
         register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
@@ -139,7 +140,7 @@ public class Core extends Extensible {
                 "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
         );
 
-        register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.COMBINED,
                 //"[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]",
                 "[the] loop-(1¦key|2¦val|3¦iteration)[-<(\\d+)>]"
         );
