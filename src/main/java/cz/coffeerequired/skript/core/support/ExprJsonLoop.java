@@ -1,7 +1,6 @@
 package cz.coffeerequired.skript.core.support;
 
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
@@ -16,6 +15,7 @@ import org.bukkit.event.Event;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.regex.MatchResult;
 
 public class ExprJsonLoop extends SimpleExpression<Object> {
 
@@ -32,7 +32,9 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
 
     @Override
     public Class<?> getReturnType() {
-        return Object.class;
+        if (state.equals(LoopState.KEY)) return String.class;
+        else if (state.equals(LoopState.INDEX)) return Integer.class;
+        return ((ExprJson<?>) loop.getLoopedExpression()).getReturnType();
     }
 
     @Override
@@ -54,20 +56,25 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
             }
             case KEY -> {
                 if (!(jsonState.equals(ExprJson.JsonState.KEY) || jsonState.equals(ExprJson.JsonState.ENTRIES))) {
-                    SkJson.severe(getParser().getNode(), "Loop: %s. Cannot get loop-key while it is loop of %s.", jsonExpr.toString(), jsonState.toString().toLowerCase());
+                    SkJson.severe(getParser().getNode(), "Loop: %s. Cannot get loop-key while it is loop of %s.",
+                            jsonExpr.toString(),
+                            jsonState.toString().toLowerCase()
+                    );
                     return null;
                 }
                 return new Object[] { getKey(current) };
             } case INDEX -> {
                 if (!(jsonState.equals(ExprJson.JsonState.INDEX) || jsonState.equals(ExprJson.JsonState.INDICES))) {
-                    SkJson.severe(getParser().getNode(), "Loop: %s. Cannot get loop-index while it is loop of %s.", jsonExpr.toString(), jsonState.toString().toLowerCase());
+                    SkJson.severe(getParser().getNode(), "Loop: %s. Cannot get loop-index while it is loop of %s.",
+                            jsonExpr.toString(),
+                            jsonState.toString().toLowerCase()
+                    );
                     return null;
                 }
                 return new Object[] { getIndex(current) };
             }
 
         }
-
         return null;
     }
 
@@ -109,16 +116,21 @@ public class ExprJsonLoop extends SimpleExpression<Object> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
         name = parser.expr;
-        Expression<Integer> number = (Expression<Integer>) vars[0];
+
+        MatchResult numberOfLoop = !parser.regexes.isEmpty() ? parser.regexes.getFirst() : null;
+        var number = SkriptUtils.getLoopIndex(numberOfLoop);
+
+        //Expression<Integer> number = (Expression<Integer>) vars[0];
         String expressionName = name.split("-")[1];
 
         int i = -1;
         if (number != null) {
-            i = ((Literal<Integer>) number).getSingle();
+            //i = ((Literal<Integer>) number).getSingle();
+            i = number;
         }
+
 
         AbstractLoop loop = SkriptUtils.getSecLoop(i, expressionName);
 

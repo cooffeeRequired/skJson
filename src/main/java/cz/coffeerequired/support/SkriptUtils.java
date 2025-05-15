@@ -4,6 +4,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.variables.Variables;
 import com.google.gson.*;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.JsonAccessorUtils;
 import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.skript.SkriptSecLoop;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.regex.MatchResult;
 
 import static ch.njol.skript.lang.Variable.SEPARATOR;
 
@@ -40,8 +42,18 @@ public abstract class SkriptUtils {
                     break;
             }
         }
-
         return new SkriptSecLoop(loop);
+    }
+
+    public static Integer getLoopIndex(MatchResult numberOfLoop) {
+        try {
+            if (numberOfLoop == null) return null;
+            var group = numberOfLoop.group(0);
+            SkJson.debug("group -> %s", group);
+            return Integer.parseInt(group);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 

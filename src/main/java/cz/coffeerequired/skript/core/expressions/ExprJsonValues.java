@@ -36,9 +36,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Since({"4.1 - API UPDATE", "5.0"})
 @Examples("""
             set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"
-        
             send value "test.2" of {_json}
-            send values "test" of {_json}
         """)
 public class ExprJsonValues extends SimpleExpression<Object> {
 

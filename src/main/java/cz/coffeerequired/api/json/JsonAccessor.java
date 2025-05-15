@@ -90,7 +90,6 @@ public class JsonAccessor {
 
             if (!current.isJsonObject()) {
                 SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to change key %s to %s. But &e'key'&c can be done only in Json Objects", key, newKey);
-                return;
             } else {
                 ((JsonObject) current).add(newKey, current.getAsJsonObject().get(key));
                 ((JsonObject) current).remove(key);
@@ -194,10 +193,8 @@ public class JsonAccessor {
                 if ((num = JsonAccessorUtils.isNumeric(key)) != null) {
                     if (array.isEmpty()) {
                         SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But array is empty", key);
-                        return;
                     } else if (array.size() <= num.intValue()) {
                         SkJson.severe(ParserInstance.get().getNode(), "Changer issue. Trying to remove index %s. But array size is %s", key, array.size());
-                        return;
                     } else {
                         array.remove(num.intValue());
                     }
@@ -314,10 +311,7 @@ public class JsonAccessor {
             try {
                 if (current instanceof JsonObject object) {
                     var searched = object.get(key);
-                    if (searched == null) {
-                        SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
-                        return null;
-                    }
+                    if (searched == null) return null;
                     return Parser.fromJson(searched);
                 }
 
@@ -325,13 +319,11 @@ public class JsonAccessor {
                     Number index = JsonAccessorUtils.isNumeric(key);
                     if (index != null && index.intValue() <= array.size()) {
                         return Parser.fromJson(array.get(index.intValue()));
-                    } else {
-                        SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
-                        return null;
                     }
+                    return null;
                 }
             } catch (Exception e) {
-                SkJson.warning("&l&c%s: %s", "Search issue", e.getMessage());
+                SkJson.exception(e, ParserInstance.get().getNode());
             }
             return null;
         }

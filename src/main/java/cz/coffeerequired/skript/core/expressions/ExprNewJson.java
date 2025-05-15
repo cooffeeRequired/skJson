@@ -8,6 +8,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +54,6 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement[] get(Event event) {
-        List<JsonElement> elements = new ArrayList<>();
         Object[] values = anyObjectExpression != null ? anyObjectExpression.getArray(event) : null;
 
         return switch (currentTag) {
@@ -80,6 +82,14 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
                 if (website == null) yield new JsonElement[0];
 
                 try (RequestClient client = new RequestClient()) {
+                    client.withConfiguration(
+                            new RequestClient.RequestConfiguration(
+                                    true,
+                                    Timespan.fromDuration(Duration.of(10, ChronoUnit.SECONDS)),
+                                    "HTTP/1.1"
+                            )
+                    );
+                    client.build();
                     HttpResponse<String> rsp = client
                             .setUri(website)
                             .method("GET")

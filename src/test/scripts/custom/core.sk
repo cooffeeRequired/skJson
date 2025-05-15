@@ -41,4 +41,4 @@ test "core":
 
     set {_player} to "player"
 
-    assert {_j}.array[0]."%{_player}%" is 2 with "failing: cannot set value of json with variable"
+    assert literal {_j}.array.0."%{_player}%" is 2 with "failing: cannot set value of json with variable"

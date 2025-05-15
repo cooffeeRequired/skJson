@@ -105,8 +105,8 @@ public class Core extends Extensible {
             SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
         }
         register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-                "[literal] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
-                "[literal] %jsonelement%<\\[\\d+\\]>"
+                "[literal] %jsonelement%<\\[[\\d]+\\]>",
+                "[literal] %jsonelement%<(\\.[\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")?>"
         );
 
         register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
@@ -140,7 +140,8 @@ public class Core extends Extensible {
         );
 
         register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
-                "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
+                //"[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]",
+                "[the] loop-(1¦key|2¦val|3¦iteration)[-<(\\d+)>]"
         );
 
         register.registerType(new ClassInfo<>(File.class, "file")
