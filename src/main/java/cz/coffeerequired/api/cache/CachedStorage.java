@@ -21,7 +21,6 @@ public final class CachedStorage<S, J, F> {
         addValue(id, new CacheLink<>(jsonElement, file));
     }
 
-
     public void addValue(S id, CacheLink<J, F> cacheLink) {
         map.computeIfAbsent(id, k -> cacheLink);
     }
@@ -29,7 +28,6 @@ public final class CachedStorage<S, J, F> {
     public CacheLink<J, F> getValuesById(S id) {
         return map.get(id);
     }
-
 
     public void removeIfPresent(S id) {
         map.remove(id);

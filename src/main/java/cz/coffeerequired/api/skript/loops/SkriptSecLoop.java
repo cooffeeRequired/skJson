@@ -1,4 +1,4 @@
-package cz.coffeerequired.api.skript;
+package cz.coffeerequired.api.skript.loops;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.sections.SecLoop;

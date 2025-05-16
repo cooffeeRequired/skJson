@@ -7,7 +7,7 @@ import com.google.gson.*;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.JsonAccessorUtils;
 import cz.coffeerequired.api.json.Parser;
-import cz.coffeerequired.api.skript.SkriptSecLoop;
+import cz.coffeerequired.api.skript.loops.SkriptSecLoop;
 import cz.coffeerequired.skript.core.expressions.ExprJson;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
