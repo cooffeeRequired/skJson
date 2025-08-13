@@ -83,7 +83,6 @@ public class ExprSimpleHeaders extends SimplePropertyExpression<Object, JsonElem
         };
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public void change(@NotNull Event event, Object @NotNull [] delta, Changer.@NotNull ChangeMode mode) {
         Object expr = getExpr().getSingle(event);

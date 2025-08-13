@@ -91,8 +91,7 @@ public class RequestClient implements AutoCloseable {
                 HttpRequest.BodyPublishers.noBody() :
                 HttpRequest.BodyPublishers.ofString(gson.toJson(body));
 
-        this.requestBuilder.header("Content-Type", "application/json")
-                .POST(this.bodyPublisher);
+        this.requestBuilder.POST(this.bodyPublisher);
     }
 
     public void setBodyPublisher(HttpRequest.BodyPublisher bodyPublisher) {

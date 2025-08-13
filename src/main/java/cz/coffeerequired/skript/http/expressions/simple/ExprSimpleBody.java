@@ -9,6 +9,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.json.Parser;
 import cz.coffeerequired.api.requests.Request;
 import cz.coffeerequired.api.requests.Response;
@@ -75,22 +76,19 @@ public class ExprSimpleBody extends SimplePropertyExpression<Object, Object> {
     @Override
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
         Object expr = getExpr().getSingle(event);
-        assert expr != null;
-        if (expr.equals(Request.class)) {
-            assert expr instanceof Request;
-            Request request = (Request) expr;
-            if (mode == Changer.ChangeMode.SET) {
-                assert delta != null;
-                for (var d : delta) {
-                    if (d instanceof String str) {
-                        request.setContent(Parser.toJson(str));
-                    } else if (d instanceof JsonElement json) {
-                        request.setContent(json);
-                    }
+        assert expr instanceof Request;
+        Request request = (Request) expr;
+        if (mode == Changer.ChangeMode.SET) {
+            assert delta != null;
+            for (var d : delta) {
+                if (d instanceof String str) {
+                    request.setContent(Parser.toJson(str));
+                } else if (d instanceof JsonElement json) {
+                    request.setContent(json);
                 }
-            } else if (mode == Changer.ChangeMode.RESET) {
-                request.setContent(new JsonObject());
             }
+        } else if (mode == Changer.ChangeMode.RESET) {
+            request.setContent(new JsonObject());
         }
     }
 }

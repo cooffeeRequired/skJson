@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cz.coffee"
-version = "5.3"
+version = "5.4.1"
 
 val environment: String by project.extra { if (project.hasProperty("env")) project.property("env") as String else "DEV" }
 println("Using environment: $environment")
@@ -103,7 +103,7 @@ tasks.shadowJar {
             println("> Task :copy to path")
             copy {
                 from(archiveFile.get().asFile)
-                into("C:\\Users\\Coffee\\Desktop\\mc-developing\\plugins")
+                into("\\custom\\mc-developing")
             }
         }
     }
@@ -112,27 +112,27 @@ tasks.shadowJar {
 tasks.register("withRemote") {
     dependsOn("clean")
     dependsOn("shadowJar")
-    dependsOn("errorLint")
+//    dependsOn("errorLint")
     doLast {
         println("> Task :execute change")
 
         val outputStream = ByteArrayOutputStream()
 
-        @Suppress("DEPRECATION")
-        exec {
-            executable = "curl"
-            args = listOf(
-                "-X", "POST",
-                "http://localhost:8291",
-                "-H", "Content-Type: application/json",
-                "-d", """{\"cmd\": [\"reload confirm\"]}"""
-            )
-            standardOutput = outputStream
-            errorOutput = System.err
-            isIgnoreExitValue = true
-        }
-
-        println("> Response: $outputStream")
+//        @Suppress("DEPRECATION")
+//        exec {
+//            executable = "curl"
+//            args = listOf(
+//                "-X", "POST",
+//                "http://localhost:8291",
+//                "-H", "Content-Type: application/json",
+//                "-d", """{\"cmd\": [\"reload confirm\"]}"""
+//            )
+//            standardOutput = outputStream
+//            errorOutput = System.err
+//            isIgnoreExitValue = true
+//        }
+//
+//        println("> Response: $outputStream")
     }
 }
 

@@ -8,6 +8,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
+import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.requests.Request;
 import org.bukkit.event.Event;
