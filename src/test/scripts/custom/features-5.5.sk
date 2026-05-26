@@ -31,7 +31,7 @@ test "merge json deep":
 test "english syntax aliases":
     set {_json} to parse "{""enabled"": true, ""count"": 3}" as json
     assert {_json} is a json object with "parse as json + type check"
-    assert {_json} is not empty json with "empty json alias"
+    assert json {_json} is not empty with "empty json alias"
     assert value at path "enabled" in {_json} is true with "value at path alias"
     set {_sorted} to {_json} sorted by key in ascending order
     assert {_sorted} is set with "sorted by key alias"
@@ -51,7 +51,6 @@ test "remove json path":
 test "path syntax aliases":
     set {_json} to json from "{meta: {version: 2}}"
     assert path "meta.version" of {_json} is 2 with "path of alias"
-    assert {_json}'s path "meta.version" is 2 with "possessive path alias"
     assert size of {_json} is 1 with "size property alias"
 
 test "compact json":

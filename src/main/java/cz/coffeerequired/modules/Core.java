@@ -306,8 +306,7 @@ public class Core extends Extensible {
                 "event-file", "event-link", "changed file", "json file");
 
         register.registerExpression(ExprJson.class, Object.class, ExpressionType.SIMPLE,
-                "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]",
-                "(:keys|:values|:entries) (of|in) %jsonelement% [at path %-string%]"
+                "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
         );
         register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
                 "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]",

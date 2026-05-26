@@ -29,8 +29,10 @@ public class CondJsonIsEmpty extends Condition {
         boolean result = true;
         if (JSON == null) return true;
         if (JSON instanceof JsonObject) result = JSON.getAsJsonObject().isEmpty();
-        if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
-        return (line == 0) == result;
+        else if (JSON instanceof JsonArray) result = JSON.getAsJsonArray().isEmpty();
+        else result = false;
+        boolean expectEmpty = line % 2 == 0;
+        return expectEmpty == result;
     }
 
     @Override

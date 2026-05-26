@@ -51,7 +51,7 @@ public class EffMergeJson extends Effect {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         source = defendExpression(expressions[0]);
         target = defendExpression(expressions[1]);
-        deep = parseResult.hasTag("deep");
+        deep = matchedPattern != 0;
         return canInitSafely(source, target);
     }
 }
