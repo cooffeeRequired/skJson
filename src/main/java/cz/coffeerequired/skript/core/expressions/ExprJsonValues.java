@@ -102,10 +102,20 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     }
 
 
+    private static boolean isMultiplesPattern(int matchedPattern, SkriptParser.ParseResult parseResult) {
+        if (parseResult.hasTag("values")) {
+            return true;
+        }
+        return switch (matchedPattern) {
+            case 0, 1, 3, 4, 6, 7 -> true;
+            default -> false;
+        };
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        type = parseResult.hasTag("values") ? Type.MULTIPLES : Type.SINGLE;
+        type = isMultiplesPattern(i, parseResult) ? Type.MULTIPLES : Type.SINGLE;
         pathVariable = null;
         jsonVariable = null;
         for (Expression<?> expr : expressions) {

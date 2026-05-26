@@ -161,12 +161,15 @@ public class Core extends Extensible {
                 "[the] number of (:key[s]|:value[s]) %object% in %jsonelement%"
         );
         register.registerExpression(ExprJsonValues.class, Object.class, ExpressionType.COMBINED,
-                "[json] :value [%-string%] of %jsonelement%",
                 "[json] :values [%-string%] of %jsonelement%",
-                "value at path [%-string%] in %jsonelement%",
+                "[json] values [of] %jsonelement%",
+                "[json] :value [%-string%] of %jsonelement%",
                 ":values at path [%-string%] in %jsonelement%",
-                "value of path [%-string%] in %jsonelement%",
+                "values at path [%-string%] in %jsonelement%",
+                "value at path [%-string%] in %jsonelement%",
                 ":values of path [%-string%] in %jsonelement%",
+                "values of path [%-string%] in %jsonelement%",
+                "value of path [%-string%] in %jsonelement%",
                 "path %string% of %jsonelement%",
                 "the path %string% in %jsonelement%",
                 "%jsonelement%'s path %string%",
@@ -212,8 +215,8 @@ public class Core extends Extensible {
         register.registerCondition(CondJsonType.class,
                 "json type of %jsonelement% is (json[ ](:object)|json[ ](:array)|json[ ](:primitive)|json[ ](:null))",
                 "json type of %jsonelement% (is(n't| not)) (json[ ](:object)|json[ ](:array)|json[ ](:primitive)|json[ ](:null))",
-                "%jsonelement% is [a] json[ ](:object|array|primitive|null)",
-                "%jsonelement% is(n't| not) [a] json[ ](:object|array|primitive|null)"
+                "%jsonelement% is [a] json[ ](:object|:array|:primitive|:null)",
+                "%jsonelement% is(n't| not) [a] json[ ](:object|:array|:primitive|:null)"
         );
 
         register.registerCondition(CondJsonFileExist.class,

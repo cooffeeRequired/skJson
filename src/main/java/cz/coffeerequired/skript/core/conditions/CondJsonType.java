@@ -50,15 +50,22 @@ public class CondJsonType extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         negated = matchedPattern % 2 == 1;
         json = LiteralUtils.defendExpression(expressions[0]);
-        if (parseResult.hasTag("object")) {
+        if (parseResult.hasTag("object") || parseResult.hasTag("json-object")) {
             type = Type.OBJECT;
-        } else if (parseResult.hasTag("array")) {
+        } else if (parseResult.hasTag("array") || parseResult.hasTag("json-array")) {
             type = Type.ARRAY;
-        } else if (parseResult.hasTag("primitive")) {
+        } else if (parseResult.hasTag("primitive") || parseResult.hasTag("json-primitive")) {
             type = Type.PRIMITIVE;
-        } else if (parseResult.hasTag("null")) {
+        } else if (parseResult.hasTag("null") || parseResult.hasTag("json-null")) {
             type = Type.NULL;
         } else {
+            for (String tag : parseResult.tags) {
+                try {
+                    type = Type.fromString(tag);
+                    return LiteralUtils.canInitSafely(json);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
             Skript.error("Unknown json type in condition.");
             return false;
         }

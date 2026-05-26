@@ -200,28 +200,44 @@ public abstract class JsonAccessorUtils {
 
 
     public static Object[] getAsParsedArray(Object input) {
-        if (!(input instanceof JsonElement current)) return new Object[]{input};
-        if (current.isJsonPrimitive() || current.isJsonNull()) {
+        if (input == null) {
             return new Object[0];
         }
-        if (current instanceof JsonArray array) {
-            Object[] results = new Object[array.size()];
-            for (int i = 0; i < array.size(); i++) {
-                JsonElement element = array.get(i);
-                results[i] = element != null ? Parser.fromJson(element) : null;
+        if (input instanceof Collection<?> collection) {
+            return collection.toArray();
+        }
+        if (input instanceof JsonElement current) {
+            if (current.isJsonPrimitive() || current.isJsonNull()) {
+                return new Object[0];
+            }
+            if (current instanceof JsonArray array) {
+                Object[] results = new Object[array.size()];
+                for (int i = 0; i < array.size(); i++) {
+                    JsonElement element = array.get(i);
+                    results[i] = element != null ? Parser.fromJson(element) : null;
+                }
+                return results;
+            }
+            if (current instanceof JsonObject object) {
+                Object[] results = new Object[object.size()];
+                int i = 0;
+                for (String key : object.keySet()) {
+                    JsonElement element = object.get(key);
+                    results[i++] = element != null ? Parser.fromJson(element) : null;
+                }
+                return results;
+            }
+            return new Object[0];
+        }
+        if (input.getClass().isArray()) {
+            int length = java.lang.reflect.Array.getLength(input);
+            Object[] results = new Object[length];
+            for (int i = 0; i < length; i++) {
+                results[i] = java.lang.reflect.Array.get(input, i);
             }
             return results;
         }
-        if (current instanceof JsonObject object) {
-            Object[] results = new Object[object.size()];
-            int i = 0;
-            for (String key : object.keySet()) {
-                JsonElement element = object.get(key);
-                results[i++] = element != null ? Parser.fromJson(element) : null;
-            }
-            return results;
-        }
-        return new Object[0];
+        return new Object[]{input};
     }
 
     public static boolean isJavaType(Object object) {
