@@ -3,6 +3,7 @@ package cz.coffeerequired.api;
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.json.Parser;
 import org.bukkit.Bukkit;
 
 import java.io.*;
@@ -117,8 +118,7 @@ public abstract class FileHandler {
                  JsonWriter jsonWriter = new JsonWriter(writer)) {
 
                 jsonWriter.setIndent(" ".repeat(finalTabs)); // Set indentation dynamically
-                Gson gson = new Gson();
-                gson.toJson(json, jsonWriter);
+                Parser.getGson().toJson(json, jsonWriter);
 
                 return true;
             } catch (IOException e) {

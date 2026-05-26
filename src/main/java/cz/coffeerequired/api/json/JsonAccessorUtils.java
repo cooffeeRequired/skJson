@@ -5,8 +5,10 @@ import com.google.gson.*;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.skript.core.support.JsonSupportElements.SearchType;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 public abstract class JsonAccessorUtils {
@@ -20,7 +22,34 @@ public abstract class JsonAccessorUtils {
         return new ArrayDeque<>(list);
     }
 
+    public static @Nullable Integer parseArrayIndex(String key) {
+        if (key == null || key.isEmpty()) {
+            return null;
+        }
+        int len = key.length();
+        for (int i = 0; i < len; i++) {
+            char c = key.charAt(i);
+            if (c < '0' || c > '9') {
+                return null;
+            }
+        }
+        try {
+            return Integer.parseInt(key);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     public static Number isNumeric(Object obj) {
+        if (obj instanceof Number number) {
+            return number;
+        }
+        if (obj instanceof String str) {
+            Integer index = parseArrayIndex(str);
+            if (index != null) {
+                return index;
+            }
+        }
         try {
             return Double.parseDouble(obj.toString());
         } catch (NumberFormatException e) {
@@ -34,6 +63,67 @@ public abstract class JsonAccessorUtils {
                 .toList();
     }
 
+    public static @Nullable JsonElement navigate(JsonElement json, Map.Entry<String, PathParser.Type> key_) {
+        if (json == null || json.isJsonNull()) {
+            return null;
+        }
+        String key = key_.getKey();
+        if (json instanceof JsonObject object) {
+            if (!object.has(key)) {
+                return null;
+            }
+            return object.get(key);
+        }
+        if (json instanceof JsonArray array) {
+            Integer index = parseArrayIndex(key);
+            if (index == null) {
+                Number numeric = isNumeric(key);
+                if (numeric == null) {
+                    return null;
+                }
+                index = numeric.intValue();
+            }
+            if (index < 0 || index >= array.size()) {
+                return null;
+            }
+            return array.get(index);
+        }
+        return null;
+    }
+
+    public static boolean pathExists(JsonElement json, java.util.List<Map.Entry<String, PathParser.Type>> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return json != null && !json.isJsonNull();
+        }
+        JsonElement current = json;
+        for (var token : tokens) {
+            current = navigate(current, token);
+            if (current == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static @Nullable JsonElement resolve(JsonElement root, List<Map.Entry<String, PathParser.Type>> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return root;
+        }
+        JsonElement current = root;
+        for (var token : tokens) {
+            current = navigate(current, token);
+            if (current == null) {
+                return null;
+            }
+        }
+        return current;
+    }
+
+    public static @Nullable Object resolveParsed(JsonElement root, List<Map.Entry<String, PathParser.Type>> tokens) {
+        JsonElement element = resolve(root, tokens);
+        return element == null ? null : Parser.fromJson(element);
+    }
+
     public static JsonElement handle(JsonElement json, Map.Entry<String, PathParser.Type> key_, boolean inSetMode) {
         try {
             if (json == null || json.isJsonNull()) {
@@ -41,23 +131,18 @@ public abstract class JsonAccessorUtils {
                 return json;
             }
 
+            if (!inSetMode) {
+                JsonElement next = navigate(json, key_);
+                if (next == null) {
+                    SkJson.warning("Json path segment not found: %s", key_.getKey());
+                    return json;
+                }
+                return next;
+            }
+
             String key = key_.getKey();
 
-            if (!inSetMode) {
-                if (json instanceof JsonObject object) {
-                    if (!object.has(key)) {
-                        SkJson.warning("Json object does not contain key: %s", key);
-                        return object;
-                    }
-                    return object.get(key);
-                } else if (json instanceof JsonArray array) {
-                    int index = Integer.parseInt(key);
-                    if (index < 0 || index >= array.size()) {
-                        SkJson.warning("Index out of bounds: %s", index);
-                        return array;
-                    }
-                }
-            } else {
+            {
                 if (json instanceof JsonObject object) {
                     if (! object.has(key)) {
                         return switch (key_.getValue()) {
@@ -116,24 +201,27 @@ public abstract class JsonAccessorUtils {
 
     public static Object[] getAsParsedArray(Object input) {
         if (!(input instanceof JsonElement current)) return new Object[]{input};
-        ArrayList<Object> results = new ArrayList<>();
-        if (current.isJsonPrimitive() || current.isJsonNull()) return results.toArray();
+        if (current.isJsonPrimitive() || current.isJsonNull()) {
+            return new Object[0];
+        }
         if (current instanceof JsonArray array) {
-            for (JsonElement element : array) {
-                if (element != null) {
-                    results.add(Parser.fromJson(element));
-                }
+            Object[] results = new Object[array.size()];
+            for (int i = 0; i < array.size(); i++) {
+                JsonElement element = array.get(i);
+                results[i] = element != null ? Parser.fromJson(element) : null;
             }
-        } else if (current instanceof JsonObject object) {
+            return results;
+        }
+        if (current instanceof JsonObject object) {
+            Object[] results = new Object[object.size()];
+            int i = 0;
             for (String key : object.keySet()) {
                 JsonElement element = object.get(key);
-                if (element != null) {
-                    results.add(Parser.fromJson(element));
-                }
+                results[i++] = element != null ? Parser.fromJson(element) : null;
             }
+            return results;
         }
-
-        return results.toArray();
+        return new Object[0];
     }
 
     public static boolean isJavaType(Object object) {
@@ -172,9 +260,18 @@ public abstract class JsonAccessorUtils {
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (!object.isEmpty()) {
-                return type.equals(SearchType.VALUE)
-                        ? Parser.fromJson((JsonElement) (object.entrySet().toArray(Map.Entry[]::new)[object.keySet().size() - 1]).getValue())
-                        : object.keySet().toArray(String[]::new)[object.keySet().size() - 1];
+                if (type.equals(SearchType.VALUE)) {
+                    Map.Entry<String, JsonElement> last = null;
+                    for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                        last = entry;
+                    }
+                    return last == null ? json : Parser.fromJson(last.getValue());
+                }
+                String lastKey = null;
+                for (String objectKey : object.keySet()) {
+                    lastKey = objectKey;
+                }
+                return lastKey == null ? json : lastKey;
             }
         }
         return json;
@@ -191,31 +288,52 @@ public abstract class JsonAccessorUtils {
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
             if (object.size() > index) {
-                return type.equals(SearchType.VALUE)
-                        ? Parser.fromJson((JsonElement) object.entrySet().toArray()[index])
-                        : object.keySet().toArray()[index];
+                if (type.equals(SearchType.VALUE)) {
+                    int i = 0;
+                    for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                        if (i++ == index) {
+                            return Parser.fromJson(entry.getValue());
+                        }
+                    }
+                } else {
+                    int i = 0;
+                    for (String objectKey : object.keySet()) {
+                        if (i++ == index) {
+                            return objectKey;
+                        }
+                    }
+                }
             }
         }
         return json;
     }
 
     public static Object getRandom(JsonElement json, SearchType type) {
-        Random random = new Random();
-
         if (json.isJsonArray()) {
             JsonArray array = json.getAsJsonArray();
             if (!array.isEmpty()) {
-                int index = random.nextInt(array.size());
-                return type.equals(SearchType.VALUE) ? Parser.fromJson(array.get(index)) : index;
+                int pick = ThreadLocalRandom.current().nextInt(array.size());
+                return type.equals(SearchType.VALUE) ? Parser.fromJson(array.get(pick)) : pick;
             }
         } else if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
-            if (!object.isEmpty()) {
-                int index = random.nextInt(object.size());
+            int size = object.size();
+            if (size > 0) {
+                int pick = ThreadLocalRandom.current().nextInt(size);
                 if (type.equals(SearchType.VALUE)) {
-                    return Parser.fromJson((JsonElement) object.entrySet().toArray(Map.Entry[]::new)[index].getValue());
+                    int i = 0;
+                    for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                        if (i++ == pick) {
+                            return Parser.fromJson(entry.getValue());
+                        }
+                    }
                 } else {
-                    return object.keySet().toArray(String[]::new)[index];
+                    int i = 0;
+                    for (String objectKey : object.keySet()) {
+                        if (i++ == pick) {
+                            return objectKey;
+                        }
+                    }
                 }
             }
         }

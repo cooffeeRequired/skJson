@@ -4,12 +4,10 @@ package cz.coffeerequired.api;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.annotators.Module;
@@ -19,6 +17,14 @@ import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -137,7 +143,7 @@ public class Register {
             case "Functions" -> "&7Functions";
             case "Structures" -> "&9Structures";
             case "Types" -> "&6Types";
-            case "Event Expressions" -> "&aEvent Expressions";
+            case "Event Values" -> "&aEvent Values";
             default -> input;
         };
     }
@@ -149,6 +155,30 @@ public class Register {
 
     public static List<Extensible> registers = new ArrayList<>();
 
+    static SyntaxRegistry syntaxRegistry() {
+        return addon.syntaxRegistry();
+    }
+
+    static EventValueRegistry eventValueRegistry() {
+        return addon.registry(EventValueRegistry.class);
+    }
+
+    static String[] prefixPatterns(String... patterns) {
+        String[] prefixed = patterns.clone();
+        for (int i = 0; i < prefixed.length; i++) {
+            prefixed[i] = prefix + prefixed[i];
+        }
+        return prefixed;
+    }
+
+    static Priority priorityFrom(ExpressionType type) {
+        return type.priority();
+    }
+
+    static Priority priorityFrom(ConditionType type) {
+        return type.priority();
+    }
+
     public static class SkriptRegister {
 
         Extensible extensible;
@@ -159,95 +189,133 @@ public class Register {
         }
 
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
             extensible.addNewElement("Effects", effect);
-            SkJson.debug("&8Registering effect: &7patterns: %s&8; name: %s", 
+            SkJson.debug("&8Registering effect: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 effect.getSimpleName());
-            Skript.registerEffect(effect, patterns);
+            syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effect)
+                    .addPatterns(prefixPatterns(patterns))
+                    .build());
         }
 
         public <T> void registerProperty(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
             extensible.addNewElement("Expressions", expressionClass);
-            SkJson.debug("&8Registering property: &7property: %s&8; from: %s&8; name: %s", 
+            SkJson.debug("&8Registering property: &7property: %s&8; from: %s&8; name: %s",
                 property, fromType, expressionClass.getSimpleName());
-            Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+            syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, type)
+                    .priority(PropertyExpression.DEFAULT_PRIORITY)
+                    .addPatterns(prefixPatterns(
+                            "[the] " + property + " of %" + fromType + "%",
+                            "%" + fromType + "%'[s] " + property
+                    ))
+                    .build());
         }
 
         public <T> void registerType(ClassInfo<T> classInfo, String name) {
             extensible.addNewElement("Types", classInfo.getClass());
-            SkJson.debug("&8Registering type: &7name: %s&8; class: %s", 
+            SkJson.debug("&8Registering type: &7name: %s&8; class: %s",
                 name, classInfo.getClass().getSimpleName());
             Classes.registerClass(classInfo);
         }
 
         public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {
             extensible.addNewElement("Expressions", c);
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
-            SkJson.debug("&8Registering expression: &7patterns: %s&8; name: %s", 
+            SkJson.debug("&8Registering expression: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 c.getSimpleName());
-            Skript.registerExpression(c, returnType, type, patterns);
+            syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(c, returnType)
+                    .priority(priorityFrom(type))
+                    .addPatterns(prefixPatterns(patterns))
+                    .build());
         }
 
-        public <E extends EventValueExpression<T>, T> void registerEventValueExpression(Class<E> c, Class<T> returnType, String pattern) {
-            extensible.addNewElement("Event Expressions", c);
-            SkJson.debug("&8Registering event value expression: &7pattern: %s&8; name: %s", 
-                pattern, c.getSimpleName());
-            Skript.registerExpression(c, returnType, ExpressionType.EVENT, "[the] " + pattern);
-        }
-
-        public <T> void registerPropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
-            extensible.addNewElement("Expressions", c);
-            SkJson.debug("&8Registering property expression: &7property: %s&8; from: %s&8; name: %s", 
-                property, fromType, c.getSimpleName());
-            PropertyExpression.register(c, returnType, property, fromType);
-        }
-
-        public <T> void registerSimplePropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
-            extensible.addNewElement("Expressions", c);
-            SkJson.debug("&8Registering simple property expression: &7property: %s&8; from: %s&8; name: %s", 
-                property, fromType, c.getSimpleName());
-            SimplePropertyExpression.register(c, returnType, property, fromType);
+        public <E extends Event, V> void registerEventValue(
+                Class<E> eventClass,
+                Class<V> valueClass,
+                Converter<E, V> converter,
+                String... patterns
+        ) {
+            extensible.addNewElement("Event Values", eventClass);
+            SkJson.debug("&8Registering event value: &7patterns: %s&8; event: %s&8; type: %s",
+                Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
+                eventClass.getSimpleName(), valueClass.getSimpleName());
+            eventValueRegistry().register(EventValue.builder(eventClass, valueClass)
+                    .getter(converter)
+                    .patterns(patterns)
+                    .time(EventValue.Time.NOW)
+                    .build());
         }
 
         public void registerEvent(String name, Class<? extends SkriptEvent> c, Class<? extends Event> event, String description, String examples, String version, String... patterns) {
             extensible.addNewElement("Events", c);
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
+            String[] prefixed = prefixPatterns(patterns);
+            for (int i = 0; i < prefixed.length; i++) {
+                prefixed[i] = BukkitSyntaxInfos.fixPattern(prefixed[i]);
+            }
 
-            SkJson.debug("&8Registering event: &7patterns: %s&8; name: %s&8; version: %s", 
-                Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
+            SkJson.debug("&8Registering event: &7patterns: %s&8; name: %s&8; version: %s",
+                Arrays.toString(prefixed).substring(1, Arrays.toString(prefixed).length() - 1),
                 name, version);
 
-            Skript.registerEvent(name, c, event, patterns)
-                    .since(version)
-                    .examples(examples)
-                    .description(description);
+            syntaxRegistry().register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(c, name)
+                    .addDescription(description)
+                    .addExamples(examples)
+                    .addSince(version)
+                    .addEvent(event)
+                    .addPatterns(prefixed)
+                    .build());
         }
 
         public <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
+            registerCondition(c, ConditionType.COMBINED, patterns);
+        }
+
+        public <E extends Condition> void registerCondition(Class<E> c, ConditionType type, String... patterns) {
             extensible.addNewElement("Conditions", c);
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
-            SkJson.debug("&8Registering condition: &7patterns: %s&8; name: %s", 
+            SkJson.debug("&8Registering condition: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 c.getSimpleName());
-            Skript.registerCondition(c, patterns);
+            syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(c)
+                    .priority(priorityFrom(type))
+                    .addPatterns(prefixPatterns(patterns))
+                    .build());
         }
 
         public <E extends Section> void registerSection(Class<E> requestClass, String... patterns) {
             extensible.addNewElement("Sections", requestClass);
-            for (int i = 0; i < patterns.length; i++) patterns[i] = prefix + patterns[i];
-            SkJson.debug("&8Registering section: &7patterns: %s&8; name: %s", 
+            SkJson.debug("&8Registering section: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 requestClass.getSimpleName());
-            Skript.registerSection(requestClass, patterns);
+            syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(requestClass)
+                    .addPatterns(prefixPatterns(patterns))
+                    .build());
         }
 
-        public JavaFunction<?> registerFunction(JavaFunction<?> fn) {
+        public <T> void registerPropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
+            extensible.addNewElement("Expressions", c);
+            SkJson.debug("&8Registering property expression: &7property: %s&8; from: %s&8; name: %s",
+                property, fromType, c.getSimpleName());
+            syntaxRegistry().register(SyntaxRegistry.EXPRESSION, PropertyExpression.infoBuilder(c, returnType, property, fromType, false)
+                    .clearPatterns()
+                    .addPatterns(prefixPatterns(PropertyExpression.getPatterns(property, fromType)))
+                    .build());
+        }
+
+        public <T> void registerSimplePropertyExpression(Class<? extends Expression<T>> c, Class<T> returnType, String property, String fromType) {
+            extensible.addNewElement("Expressions", c);
+            SkJson.debug("&8Registering simple property expression: &7property: %s&8; from: %s&8; name: %s",
+                property, fromType, c.getSimpleName());
+            syntaxRegistry().register(SyntaxRegistry.EXPRESSION, PropertyExpression.infoBuilder(c, returnType, property, fromType, false)
+                    .clearPatterns()
+                    .addPatterns(prefixPatterns(PropertyExpression.getPatterns(property, fromType)))
+                    .build());
+        }
+
+        public DefaultFunction<?> registerFunction(DefaultFunction<?> fn) {
             extensible.addNewElement("Functions", fn.getClass());
-            SkJson.debug("&8Registering function: &7name: %s&8; class: %s", 
-                fn.getName(), fn.getClass().getSimpleName());
-            return Functions.registerFunction(fn);
+            SkJson.debug("&8Registering function: &7name: %s&8; class: %s",
+                fn.name(), fn.getClass().getSimpleName());
+            return Functions.register(fn);
         }
     }
 }

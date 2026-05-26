@@ -31,6 +31,18 @@ public class Parser {
             case null -> {
                 return null;
             }
+            case JsonPrimitive primitive -> {
+                if (primitive.isBoolean()) {
+                    return (T) Boolean.valueOf(primitive.getAsBoolean());
+                }
+                if (primitive.isString()) {
+                    return (T) primitive.getAsString();
+                }
+                if (primitive.isNumber()) {
+                    return (T) primitive.getAsNumber();
+                }
+                return null;
+            }
             case JsonObject object -> {
                 try {
                     Class<? extends T> cls = getDeserializationClass(object);
@@ -64,6 +76,12 @@ public class Parser {
     }
 
     public static JsonElement toJson(Object src) {
+        if (src instanceof JsonElement element) {
+            return element;
+        }
+        if (src instanceof Boolean || src instanceof Number) {
+            return gson.toJsonTree(src);
+        }
         try {
             if (src instanceof String str) {
                 try {

@@ -13,9 +13,7 @@ import cz.coffeerequired.skript.core.expressions.ExprJson;
 import cz.coffeerequired.support.SkriptUtils;
 import org.bukkit.event.Event;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -24,12 +22,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class ExprJsonLoop extends SimpleExpression<Object> {
-
-    static {
-        Skript.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
-                "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
-        );
-    }
 
     public static enum LoopState {
         ID, VALUE, KEY, INDEX

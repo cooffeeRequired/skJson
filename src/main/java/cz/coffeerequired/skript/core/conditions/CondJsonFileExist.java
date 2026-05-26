@@ -22,7 +22,8 @@ public class CondJsonFileExist extends Condition {
     public boolean check(Event event) {
         final String filePath = filePathExpression.getSingle(event);
         if (filePath == null || !filePath.endsWith(".json")) return false;
-        return (line == 0) == FileHandler.exists(filePath);
+        boolean expectExists = line % 2 == 0;
+        return expectExists == FileHandler.exists(filePath);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class CondJsonFileExist extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         filePathExpression = (Expression<String>) expressions[0];
         line = matchedPattern;
-        setNegated(line == 1);
+        setNegated(line % 2 == 1);
         return true;
     }
 }

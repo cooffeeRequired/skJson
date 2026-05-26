@@ -5,11 +5,8 @@ import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.DefaultClasses;
-import ch.njol.skript.registrations.EventValues;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.api.Extensible;
 import cz.coffeerequired.api.Register;
@@ -20,7 +17,6 @@ import cz.coffeerequired.api.requests.RequestMethod;
 import cz.coffeerequired.api.requests.Response;
 import cz.coffeerequired.skript.http.bukkit.HttpReceivedResponse;
 import cz.coffeerequired.skript.http.effects.EffSendRequest;
-import cz.coffeerequired.skript.http.eventexpressions.ExprEvtResponse;
 import cz.coffeerequired.skript.http.events.ResponseReceive;
 import cz.coffeerequired.skript.http.expressions.ExprGetPlayerIP;
 import cz.coffeerequired.skript.http.expressions.ExprSimpleRequest;
@@ -46,9 +42,21 @@ public class HttpModule extends Extensible {
         register.apply(this);
 
 
-        register.registerExpression(ExprGetPlayerIP.class, String.class, ExpressionType.SIMPLE, "json-get %player% ip");
-        register.registerExpression(ExprSimpleRequest.class, Request.class, ExpressionType.SIMPLE, "prepare %requestmethod% request on %string%");
-        register.registerEffect(EffSendRequest.class, "execute %request% [as [(:non|:not)(-| )blocking]]");
+        register.registerExpression(ExprGetPlayerIP.class, String.class, ExpressionType.SIMPLE,
+                "json-get %player% ip",
+                "[the] ip [address] of %player%",
+                "%player%'s ip [address]"
+        );
+        register.registerExpression(ExprSimpleRequest.class, Request.class, ExpressionType.SIMPLE,
+                "prepare %requestmethod% request on %string%",
+                "prepare [a] %requestmethod% request [to [url]] %string%",
+                "create [a] %requestmethod% request [for [url]] %string%"
+        );
+        register.registerEffect(EffSendRequest.class,
+                "execute %request% [as [(:non|:not)(-| )blocking]]",
+                "send %request% [as [(:non|:not)(-| )blocking]]",
+                "run %request% [as [(:non|:not)(-| )blocking]]"
+        );
 
         Classes.registerClass(new EnumClassInfo<>(RequestMethod.class, "requestmethod", "request method")
                 .user("request ?method?")
@@ -107,34 +115,26 @@ public class HttpModule extends Extensible {
                         })
         );
 
-        Parameter<?>[] string = new Parameter[]{new Parameter<>("object", DefaultClasses.STRING, true, null)};
-
-        register.registerFunction(new SimpleJavaFunction<>("attachment", string, DefaultClasses.OBJECT, true) {
-                    @Override
-                    @SuppressWarnings("all")
-                    public Attachment @NotNull [] executeSimple(Object[][] params) {
-                        String data = params[0][0].toString();
-                        return new Attachment[]{new Attachment(data)};
-                    }
-                })
+        register.registerFunction(DefaultFunction.builder(Register.getAddon(), "attachment", Attachment[].class)
                 .description("Create new Attachment for the web request from path to file, when the file starts with */ the file will be found automatically.")
                 .since("2.9.9 API Changes")
-                .examples("attachment(\"*/test.json\") and attachment(\"*/config.sk\")");
+                .examples("attachment(\"*/test.json\") and attachment(\"*/config.sk\")")
+                .parameter("object", String.class)
+                .build(args -> new Attachment[]{new Attachment(args.get("object"))}));
 
 
         // ################ EVENTS ############################
         register.registerEvent(
                 "*Http response received", ResponseReceive.class, HttpReceivedResponse.class,
-                "will return last http response",
-                "on received response",
-                "5.0",
-                "received [http] response"
+                "Runs when an HTTP response is received.",
+                "on http response",
+                "5.0, 5.5",
+                "received [http] response",
+                "http response received"
         );
 
-        //SimplePropertyExpression
-
-        EventValues.registerEventValue(HttpReceivedResponse.class, Response.class, HttpReceivedResponse::getResponse, EventValues.TIME_NOW);
-        register.registerEventValueExpression(ExprEvtResponse.class, Response.class, "event-response");
+        register.registerEventValue(HttpReceivedResponse.class, Response.class, HttpReceivedResponse::getResponse,
+                "event-response", "http response", "received response");
 
         register.registerProperty(propExprResponse.class, Response.class, "[last] response", "requests");
 

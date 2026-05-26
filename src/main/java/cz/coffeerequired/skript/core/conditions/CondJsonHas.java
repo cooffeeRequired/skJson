@@ -52,13 +52,23 @@ public class CondJsonHas extends Condition {
 
         for (Object object : objects) {
             if (isValues) {
+                JsonElement needle = Parser.toJson(object);
                 if (json instanceof JsonArray array) {
-                    boolean contains = array.contains(Parser.toJson(object));
-                    if (!contains) found = false;
+                    if (!array.contains(needle)) {
+                        found = false;
+                    }
                 } else if (json instanceof JsonObject jsonObject) {
-                    var values = jsonObject.entrySet().stream().map(Map.Entry::getValue).toList();
-                    boolean contains = values.contains(Parser.toJson(object));
-                    if (!contains) found = false;
+                    boolean contains = false;
+                    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                        JsonElement value = entry.getValue();
+                        if (value != null && value.equals(needle)) {
+                            contains = true;
+                            break;
+                        }
+                    }
+                    if (!contains) {
+                        found = false;
+                    }
                 }
             } else {
                 String key = object.toString();

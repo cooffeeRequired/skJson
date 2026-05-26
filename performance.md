@@ -28,6 +28,21 @@ Slight performance cost, acceptable in most cases:
 
 _Read/write times: 0.01–0.03 µs/op_
 
+### 5.5 optimizations
+- Path token cache is bounded (1024 entries) and avoids redundant parsing.
+- JSON path existence checks no longer emit warnings when probing missing keys.
+- `getAsParsedArray` uses fixed-size arrays instead of growing lists.
+- File watcher compares compact JSON snapshots to skip duplicate reload work.
+
+### 5.6 optimizations
+- `Parser.fromJson` uses a fast path for JSON primitives (no Gson round-trip).
+- `Parser.toJson` returns existing `JsonElement` instances and fast-paths numbers/booleans.
+- Path reads use `resolve` / `resolveParsed` with integer index parsing for array keys.
+- `handle` read mode delegates to `navigate` (fixes array index reads).
+- Object key pickers (`last` / `random` / indexed) avoid `entrySet().toArray()` allocations.
+- File writes reuse the shared Gson instance from `Parser`.
+- Watcher snapshot compare uses `hashCode` before full string equality.
+
 ---
 
 ## 🔴 High Impact (10–50× metadata)

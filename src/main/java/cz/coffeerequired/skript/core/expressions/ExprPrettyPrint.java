@@ -83,7 +83,11 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
     protected @Nullable String[] get(Event event) {
         JsonElement json = element.getSingle(event);
         if (json == null) return null;
-        return new String[]{this.format.equals(Format.PRETTY) ? colorizeJson(json) : Parser.getGson().toJson(json)};
+        return switch (format) {
+            case PRETTY -> new String[]{colorizeJson(json)};
+            case COMPACT -> new String[]{Parser.getGson().toJson(json)};
+            case UNCOLORED -> new String[]{Parser.getGson().toJson(json)};
+        };
     }
 
     @Override
@@ -103,14 +107,18 @@ public class ExprPrettyPrint extends SimpleExpression<String> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        if (i == 0) format = Format.PRETTY;
-        else if (i == 1) format = Format.UNCOLORED;
+        format = switch (i) {
+            case 0 -> Format.PRETTY;
+            case 1 -> Format.UNCOLORED;
+            default -> Format.COMPACT;
+        };
         element = LiteralUtils.defendExpression(expressions[0]);
         return LiteralUtils.canInitSafely(element);
     }
 
     private enum Format {
         PRETTY,
-        UNCOLORED
+        UNCOLORED,
+        COMPACT
     }
 }

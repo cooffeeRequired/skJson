@@ -49,10 +49,18 @@ jobs:
           test_script_directory: src/test/scripts
           extra_plugins_directory: extra-plugins/
 
-      - name: Run tests - 2.10+
+      - name: Run tests - 2.14+
         uses: SkriptLang/skript-test-action@v1.2
         with:
-          skript_repo_ref: 2.10.1
+          skript_repo_ref: 2.14.2
+          run_vanilla_tests: false
+          test_script_directory: src/test/scripts
+          extra_plugins_directory: extra-plugins/
+
+      - name: Run tests - 2.15+
+        uses: SkriptLang/skript-test-action@v1.2
+        with:
+          skript_repo_ref: 2.15.2
           run_vanilla_tests: false
           test_script_directory: src/test/scripts
           extra_plugins_directory: extra-plugins/

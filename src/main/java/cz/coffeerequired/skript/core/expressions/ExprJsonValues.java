@@ -59,26 +59,24 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
             if (tempJson == null || tempJson instanceof JsonNull) return new Object[0];
 
-            JsonAccessor serializedJson = new JsonAccessor(tempJson);
-
             var stringifyPath = !isPathEmpty ? pathVariable.getSingle(event) : null;
             var tokens = PathParser.tokenize(stringifyPath, Api.Records.PROJECT_DELIM);
 
             if (type.equals(Type.MULTIPLES)) {
                 if (!isPathEmpty) {
-                    Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
-                    if (searcherResult == null) return new Object[0];
-                    return relevantToLoop ? new Object[]{searcherResult} : JsonAccessorUtils.getAsParsedArray(searcherResult);
+                    Object resolved = JsonAccessorUtils.resolveParsed(tempJson, tokens);
+                    if (resolved == null) return new Object[0];
+                    return relevantToLoop ? new Object[]{resolved} : JsonAccessorUtils.getAsParsedArray(resolved);
                 } else {
-                    return relevantToLoop ? new JsonElement[]{serializedJson.getJson()} : JsonAccessorUtils.getAsParsedArray(serializedJson.getJson());
+                    return relevantToLoop ? new JsonElement[]{tempJson} : JsonAccessorUtils.getAsParsedArray(tempJson);
                 }
             } else if (type.equals(Type.SINGLE)) {
                 if (!isPathEmpty) {
-                    Object searcherResult = serializedJson.searcher.keyOrIndex(tokens);
-                    if (searcherResult instanceof JsonArray)
+                    Object resolved = JsonAccessorUtils.resolveParsed(tempJson, tokens);
+                    if (resolved instanceof JsonArray)
                         SkJson.warning("You didn't want to use \"value\" instead of \"values\", the plural expression will ensure that you get the array");
-                    if (searcherResult == null) return new Object[0];
-                    return new Object[]{searcherResult};
+                    if (resolved == null) return new Object[0];
+                    return new Object[]{resolved};
                 } else {
                     SkJson.warning("You cannot use \"value\" in root without specified path");
                     return new Object[0];
@@ -109,9 +107,14 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        type = i == 0 ? Type.SINGLE : Type.MULTIPLES;
-        jsonVariable = defendExpression(expressions[1]);
-        pathVariable = (Expression<String>) expressions[0];
+        type = parseResult.hasTag("values") ? Type.MULTIPLES : Type.SINGLE;
+        if (expressions[0].getReturnType() == JsonElement.class) {
+            jsonVariable = defendExpression(expressions[0]);
+            pathVariable = (Expression<String>) expressions[1];
+        } else {
+            jsonVariable = defendExpression(expressions[1]);
+            pathVariable = (Expression<String>) expressions[0];
+        }
 
         return canInitSafely(jsonVariable);
     }

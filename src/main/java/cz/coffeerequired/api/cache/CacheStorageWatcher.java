@@ -33,7 +33,7 @@ public class CacheStorageWatcher {
     @Getter
     private final File file;
     private final WatchService watchService;
-    private final AtomicReference<JsonElement> lastContent = new AtomicReference<>();
+    private final AtomicReference<String> lastContentSnapshot = new AtomicReference<>();
     private final CachedStorage<String, JsonElement, File> cache;
     private final Supplier<JsonElement> fileSupplier;
     private JsonFileChanged event;
@@ -108,9 +108,13 @@ public class CacheStorageWatcher {
 
                 var potentialJsonContent = resolveParentJson();
 
-                if (!Objects.equals(jsonifyFile, lastContent.get())) {
+                String snapshot = jsonifyFile.toString();
+                String previous = lastContentSnapshot.get();
+                if (previous == null
+                        || snapshot.hashCode() != previous.hashCode()
+                        || !snapshot.equals(previous)) {
                     handleChange(jsonifyFile, potentialJsonContent, key);
-                    lastContent.set(jsonifyFile);
+                    lastContentSnapshot.set(snapshot);
                 }
 
                 key.reset();

@@ -154,7 +154,7 @@ public final class SkJson extends JavaPlugin {
                 "Functions",            core.get("Functions").size(),
                 "Structures",           core.get("Structures").size(),
                 "Types",                core.get("Types").size(),
-                "Event Expressions",    core.get("Event Expressions").size()
+                "Event Values",         core.get("Event Values").size()
         )));
 
         metrics.addCustomChart(new AdvancedPie("features_http", () -> Map.of(
@@ -165,7 +165,7 @@ public final class SkJson extends JavaPlugin {
                 "Functions",            http.get("Functions").size(),
                 "Structures",           http.get("Structures").size(),
                 "Types",                http.get("Types").size(),
-                "Event Expressions",    http.get("Event Expressions").size()
+                "Event Values",         http.get("Event Values").size()
         )));
     }
 

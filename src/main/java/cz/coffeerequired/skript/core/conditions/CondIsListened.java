@@ -29,7 +29,8 @@ public class CondIsListened extends Condition {
 
         var cache = Api.getCache();
         if (cache.containsKey(id)) {
-            return (line == 0) == CacheStorageWatcher.Extern.hasRegistered(cache.getValuesById(id).file());
+            boolean expectListened = line % 2 == 0;
+            return expectListened == CacheStorageWatcher.Extern.hasRegistered(cache.getValuesById(id).file());
         }
         return false;
     }
@@ -46,7 +47,7 @@ public class CondIsListened extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         JSONIdExpression = (Expression<String>) expressions[0];
         line = matchedPattern;
-        setNegated(matchedPattern == 1);
+        setNegated(matchedPattern % 2 == 1);
         return JSONIdExpression != null;
     }
 }
