@@ -51,7 +51,7 @@ test "remove json path":
 test "path syntax aliases":
     set {_json} to json from "{meta: {version: 2}}"
     assert path "meta.version" of {_json} is 2 with "path of alias"
-    assert size of {_json} is 1 with "size property alias"
+    assert json size of {_json} is 1 with "size property alias"
 
 test "compact json":
     set {_json} to json from "{a: 1}"

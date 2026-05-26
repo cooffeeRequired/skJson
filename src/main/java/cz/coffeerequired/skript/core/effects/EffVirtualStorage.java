@@ -55,7 +55,13 @@ public class EffVirtualStorage extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        expressionName = (Expression<String>) expressions[0];
+        expressionName = null;
+        for (Expression<?> expr : expressions) {
+            if (expr != null && expr.getReturnType() == String.class) {
+                expressionName = (Expression<String>) expr;
+                break;
+            }
+        }
         return expressionName != null;
     }
 }

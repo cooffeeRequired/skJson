@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -49,7 +50,18 @@ public class CondJsonType extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         negated = matchedPattern % 2 == 1;
         json = LiteralUtils.defendExpression(expressions[0]);
-        type = Type.fromString(parseResult.tags.getFirst());
+        if (parseResult.hasTag("object")) {
+            type = Type.OBJECT;
+        } else if (parseResult.hasTag("array")) {
+            type = Type.ARRAY;
+        } else if (parseResult.hasTag("primitive")) {
+            type = Type.PRIMITIVE;
+        } else if (parseResult.hasTag("null")) {
+            type = Type.NULL;
+        } else {
+            Skript.error("Unknown json type in condition.");
+            return false;
+        }
         return LiteralUtils.canInitSafely(json);
     }
 

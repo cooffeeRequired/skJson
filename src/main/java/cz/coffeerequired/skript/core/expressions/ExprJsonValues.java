@@ -106,12 +106,18 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         type = parseResult.hasTag("values") ? Type.MULTIPLES : Type.SINGLE;
-        if (expressions[0].getReturnType() == JsonElement.class) {
-            jsonVariable = defendExpression(expressions[0]);
-            pathVariable = (Expression<String>) expressions[1];
-        } else {
-            jsonVariable = defendExpression(expressions[1]);
-            pathVariable = (Expression<String>) expressions[0];
+        pathVariable = null;
+        jsonVariable = null;
+        for (Expression<?> expr : expressions) {
+            if (expr == null) {
+                continue;
+            }
+            Class<?> returnType = expr.getReturnType();
+            if (returnType != null && JsonElement.class.isAssignableFrom(returnType)) {
+                jsonVariable = defendExpression(expr);
+            } else if (returnType != null && String.class.isAssignableFrom(returnType)) {
+                pathVariable = (Expression<String>) expr;
+            }
         }
 
         return canInitSafely(jsonVariable);
