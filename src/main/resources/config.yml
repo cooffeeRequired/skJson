@@ -1,7 +1,7 @@
 # Author: coffeerequired
 # me: https://github.com/cooffeeRequired
 # Description: Addon for handle JSON easily in SkriptLang.
-# - Supports Spigot, Paper, and Purpur (Java 21+, Minecraft 1.16.5+, Skript 2.9.2+).
+# - Supports Spigot, Paper, and Purpur (Java 21+, Minecraft 1.16.5+, Skript 2.14+).
 # - Features include creating JSON from various sources (strings, Bukkit objects), working with .json files (future .jsonc support),
 # - handling HTTP requests/responses, FileWatchers for dynamic file updates (e.g., ops.json),
 # - fast MemoryCache (100-1000 us read/write), VirtualCachedJson for dynamic storage, NBT support via NBT-API,

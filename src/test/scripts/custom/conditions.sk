@@ -35,11 +35,27 @@ test "json is empty":
     set {_json} to json from "[1, 2, 3]"
     assert json {_json} is not empty with "failing: json is not empty !negation"
 
+test "json is empty english":
+    set {_json} to json from "{}"
+    assert {_json} is empty json with "failing: empty json english alias"
+    set {_json} to json from "{a: 1}"
+    assert {_json} is not empty json with "failing: not empty json english alias"
 
-test "json is chached":
-    assert true is true with "failing: whitelist is chached"
+test "json type english":
+    set {_obj} to json from "{a: 1}"
+    set {_arr} to json from "[1, 2]"
+    assert {_obj} is a json object with "failing: english object type"
+    assert {_arr} is a json array with "failing: english array type"
 
-test "json is listened":
-    assert true is true with "failing: whitelist is listened"
+
+test "json is cached":
+    create json virtual storage named "cache-cond-test"
+    assert json cache "cache-cond-test" exists with "failing: virtual json cache exists"
+
+test "json is watched":
+    create json virtual storage named "watch-cond-test"
+    watch json cache "watch-cond-test"
+    assert json cache "watch-cond-test" is being watched with "failing: json cache is watched"
+    stop watching json cache "watch-cond-test"
 
 

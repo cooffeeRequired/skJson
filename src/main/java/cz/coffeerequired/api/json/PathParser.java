@@ -11,16 +11,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 public class PathParser {
-    private static final ConcurrentHashMap<String, ArrayList<Map.Entry<String, Type>>> TOKEN_CACHE = new ConcurrentHashMap<>();
+    private static final int TOKEN_CACHE_LIMIT = 1024;
+    private static final LinkedHashMap<String, List<Map.Entry<String, Type>>> TOKEN_CACHE =
+            new LinkedHashMap<>(256, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, List<Map.Entry<String, Type>>> eldest) {
+                    return size() > TOKEN_CACHE_LIMIT;
+                }
+            };
     private static final Pattern ARRAY_PATTERN = Pattern.compile("\\[\\d+]");
     private static final Pattern ARRAY_ANY_PATTERN = Pattern.compile("\\[]$");
     private static final Pattern STRING_PATTERN = Pattern.compile("([\\W\\w]+)");
@@ -34,10 +41,13 @@ public class PathParser {
             return new ArrayList<>();
         }
 
-        String cacheKey = path + delim;
-        ArrayList<Map.Entry<String, Type>> cachedTokens = TOKEN_CACHE.get(cacheKey);
-        if (cachedTokens != null) {
-            return new ArrayList<>(cachedTokens);
+        String cacheKey = path + '\0' + delim;
+        List<Map.Entry<String, Type>> cachedTokens;
+        synchronized (TOKEN_CACHE) {
+            cachedTokens = TOKEN_CACHE.get(cacheKey);
+            if (cachedTokens != null) {
+                return new ArrayList<>(cachedTokens);
+            }
         }
 
         String[] tokens = path.split(Pattern.quote(delim));
@@ -54,7 +64,10 @@ public class PathParser {
             }
         }
 
-        TOKEN_CACHE.put(cacheKey, new ArrayList<>(tokensList));
+        List<Map.Entry<String, Type>> frozen = List.copyOf(tokensList);
+        synchronized (TOKEN_CACHE) {
+            TOKEN_CACHE.put(cacheKey, frozen);
+        }
         return tokensList;
     }
 
@@ -85,9 +98,9 @@ public class PathParser {
     }
 
     public static ArrayList<Map.Entry<String, Type>> tokenize(String path, String delim) {
-        SkJson.debug("Tokenizing path: %s", path);
         ArrayList<Map.Entry<String, Type>> tokens;
         if (Api.Records.PROJECT_DEBUG) {
+            SkJson.debug("Tokenizing path: %s", path);
             var perf = new Performance();
             perf.start();
             tokens = getTokens(path, delim);

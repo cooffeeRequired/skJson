@@ -21,7 +21,7 @@ public abstract class Extensible {
             "Structures", new ArrayList<>(),
             "Functions", new ArrayList<>(),
             "Conditions", new ArrayList<>(),
-            "Event Expressions", new ArrayList<>()
+            "Event Values", new ArrayList<>()
     ));
 
     protected String sign;
@@ -61,8 +61,8 @@ public abstract class Extensible {
             case "functions":
                 loadedElements.get("Functions").add(element);
                 break;
-            case "event expressions":
-                loadedElements.get("Event Expressions").add(element);
+            case "event values":
+                loadedElements.get("Event Values").add(element);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported type: " + type);

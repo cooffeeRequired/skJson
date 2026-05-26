@@ -47,7 +47,7 @@ public class CondJsonType extends Condition {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        negated = matchedPattern == 1;
+        negated = matchedPattern % 2 == 1;
         json = LiteralUtils.defendExpression(expressions[0]);
         type = Type.fromString(parseResult.tags.getFirst());
         return LiteralUtils.canInitSafely(json);

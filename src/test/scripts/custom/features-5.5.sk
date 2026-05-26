@@ -1,0 +1,60 @@
+test "json path exists":
+    set {_json} to json from "{user: {name: ""Alex"", role: ""admin""}}"
+    assert {_json} has path "user.name" with "path user.name should exist"
+    assert {_json} contains path "user.role" with "contains path alias"
+    assert {_json} does not have path "user.age" with "path user.age should be missing"
+    assert {_json} does not contain path "missing" with "contains path negation"
+
+test "deep copy json":
+    set {_original} to json from "{count: 1, nested: {flag: true}}"
+    set {_copy} to deep copy of {_original}
+    set value "count" of {_copy} to 99
+    assert value "count" of {_original} is 1 with "original unchanged after deep copy"
+    assert value "count" of {_copy} is 99 with "copy was modified"
+
+test "merge json shallow":
+    set {_base} to json from "{a: 1, shared: {keep: true, overwrite: 1}}"
+    set {_patch} to json from "{b: 2, shared: {overwrite: 2}}"
+    merge {_patch} into {_base}
+    assert {_base} has path "a" with "shallow merge keeps a"
+    assert {_base} has path "b" with "shallow merge adds b"
+    assert value "shared.overwrite" of {_base} is 2 with "shallow merge replaces leaf"
+
+test "merge json deep":
+    set {_base} to json from "{nested: {x: 1, inner: {p: 1}}}"
+    set {_patch} to json from "{nested: {y: 2, inner: {q: 2}}}"
+    merge {_patch} into {_base} deeply
+    assert {_base} has path "nested.x" with "deep merge keeps nested.x"
+    assert {_base} has path "nested.y" with "deep merge adds nested.y"
+    assert {_base} has path "nested.inner.q" with "deep merge adds nested.inner.q"
+
+test "english syntax aliases":
+    set {_json} to parse "{""enabled"": true, ""count"": 3}" as json
+    assert {_json} is a json object with "parse as json + type check"
+    assert {_json} is not empty json with "empty json alias"
+    assert value at path "enabled" in {_json} is true with "value at path alias"
+    set {_sorted} to {_json} sorted by key in ascending order
+    assert {_sorted} is set with "sorted by key alias"
+
+test "english cache syntax":
+    create a virtual json cache named "test-cache-en"
+    assert json cache "test-cache-en" exists with "json cache exists alias"
+    save json cache "test-cache-en"
+
+test "remove json path":
+    set {_json} to json from "{a: 1, nested: {x: 1}}"
+    remove path "nested.x" from {_json}
+    delete path "a" in {_json}
+    assert {_json} does not have path "a" with "delete path alias"
+    assert {_json} does not have path "nested.x" with "remove path works"
+
+test "path syntax aliases":
+    set {_json} to json from "{meta: {version: 2}}"
+    assert path "meta.version" of {_json} is 2 with "path of alias"
+    assert {_json}'s path "meta.version" is 2 with "possessive path alias"
+    assert size of {_json} is 1 with "size property alias"
+
+test "compact json":
+    set {_json} to json from "{a: 1}"
+    set {_compact} to {_json} as compact json
+    assert {_compact} contains "a" with "compact json output"

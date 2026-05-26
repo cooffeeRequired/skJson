@@ -23,7 +23,8 @@ public class CondIsCached extends Condition {
     @Override
     public boolean check(Event event) {
         String id = expressionId.getSingle(event);
-        return (line == 0) == Api.getCache().containsKey(id);
+        boolean expectCached = line % 2 == 0;
+        return expectCached == Api.getCache().containsKey(id);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class CondIsCached extends Condition {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         line = matchedPattern;
-        setNegated(matchedPattern == 1);
+        setNegated(matchedPattern % 2 == 1);
         expressionId = (Expression<String>) expressions[0];
         return true;
     }

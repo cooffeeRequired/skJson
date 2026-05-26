@@ -4,14 +4,26 @@ import java.util.regex.Pattern
 
 plugins {
     java
-    id("com.gradleup.shadow") version "9.0.0-beta13"
+    id("com.gradleup.shadow") version "9.2.2"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 group = "cz.coffee"
-version = "5.4.1"
+version = "5.6.0"
+
+// --- dependency versions (Skript 2.15.x / Paper 1.21.11+) ---
+val paperApiVersion = "1.21.11-R0.1-SNAPSHOT"
+val skriptVersion = "2.15.2"
+val gsonVersion = "2.14.0"
+val bstatsVersion = "3.2.1"
+val nbtApiVersion = "2.15.6"
+val lombokVersion = "1.18.42"
 
 val environment: String by project.extra { if (project.hasProperty("env")) project.property("env") as String else "DEV" }
+val devDeployPath: String by project.extra {
+    (findProperty("devDeployPath") as String?) ?: "\\custom\\mc-developing"
+}
+
 println("Using environment: $environment")
 
 java {
@@ -31,19 +43,17 @@ repositories {
 }
 
 dependencies {
+    compileOnly("io.papermc.paper:paper-api:$paperApiVersion")
+    compileOnly("com.github.SkriptLang:Skript:$skriptVersion")
 
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("com.github.SkriptLang:Skript:2.11.0-pre1")
-    implementation("com.google.code.gson:gson:2.13.0")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("org.bstats:bstats-bukkit:$bstatsVersion")
+    implementation("de.tr7zw:item-nbt-api:$nbtApiVersion")
 
-    implementation("org.bstats:bstats-bukkit:3.1.0")
-    implementation("de.tr7zw:item-nbt-api:2.14.1")
-
-
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
-    testCompileOnly("org.projectlombok:lombok:1.18.38")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
     components {
         withModule("com.github.SkriptLang:Skript") {
@@ -68,6 +78,14 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:deprecation")
 }
 
+tasks.named<Jar>("jar") {
+    enabled = false
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
 fun generateSHA1(): String {
     val time = System.currentTimeMillis().toString()
     val md = MessageDigest.getInstance("SHA-1")
@@ -88,7 +106,6 @@ tasks.processResources {
 }
 
 tasks.shadowJar {
-
     archiveClassifier.set("shaded")
     archiveFileName.set("skjson.jar")
 
@@ -100,39 +117,22 @@ tasks.shadowJar {
 
     if (environment == "DEV") {
         doLast {
-            println("> Task :copy to path")
+            println("> Task :copy to path ($devDeployPath)")
             copy {
                 from(archiveFile.get().asFile)
-                into("\\custom\\mc-developing")
+                into(devDeployPath)
             }
         }
     }
 }
 
 tasks.register("withRemote") {
-    dependsOn("clean")
-    dependsOn("shadowJar")
-//    dependsOn("errorLint")
+    dependsOn("clean", "shadowJar")
     doLast {
-        println("> Task :execute change")
-
+        println("> Task :execute change (remote reload disabled)")
+        @Suppress("UNUSED_VARIABLE")
         val outputStream = ByteArrayOutputStream()
-
-//        @Suppress("DEPRECATION")
-//        exec {
-//            executable = "curl"
-//            args = listOf(
-//                "-X", "POST",
-//                "http://localhost:8291",
-//                "-H", "Content-Type: application/json",
-//                "-d", """{\"cmd\": [\"reload confirm\"]}"""
-//            )
-//            standardOutput = outputStream
-//            errorOutput = System.err
-//            isIgnoreExitValue = true
-//        }
-//
-//        println("> Response: $outputStream")
+        // curl reload can be re-enabled when a local test server endpoint is available
     }
 }
 
@@ -161,15 +161,21 @@ tasks.register("errorLint") {
 }
 
 tasks.register("withTesting") {
-    dependsOn("clean")
-    dependsOn("shadowJar")
+    dependsOn("clean", "shadowJar")
     doLast {
         println("> Task :running tests")
 
         @Suppress("DEPRECATION")
         exec {
             workingDir = projectDir
-            commandLine("C:\\Users\\Coffee\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe", "test_runner.py", "--configuration=1", "--jdk=auto", "--system=auto", "--no-interactive")
+            commandLine(
+                "C:\\Users\\Coffee\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
+                "test_runner.py",
+                "--configuration=1",
+                "--jdk=auto",
+                "--system=auto",
+                "--no-interactive"
+            )
         }
     }
 }

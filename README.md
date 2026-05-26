@@ -22,6 +22,11 @@
 <h6 align="center">Addon for handle JSON easily in <b>SkriptLang</b></h6>
 <hr>
 
+### 5.5 Highlights
+- Natural English syntax aliases (`parse … as json`, `value at path … in`, `json cache`, `merge … into … deeply`)
+- New: `deep copy of`, `has path`, `merge … into …`
+- Performance: bounded path cache, faster array parsing, quieter path checks
+
 ### 5.x Performance comparation [link](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.md)
 
 
@@ -31,7 +36,7 @@
 |-------------------|------------------|------------------|--------------------|
 | Java 21+          | Java 21+         | Java 21+         | Java 21+           |
 | Minecraft 1.16.5+ | Minecraft 1.16.5+| Minecraft 1.16.5+| Minecraft 1.21.1+  |
-| Skript 2.10+      | Skript 2.10+     | Skript 2.10+     | Skript 2.11+       |
+| Skript 2.14+      | Skript 2.14+     | Skript 2.14+     | Skript 2.15+       |
 
 </center>
 

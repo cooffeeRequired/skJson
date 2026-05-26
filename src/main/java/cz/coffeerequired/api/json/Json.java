@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public abstract class Json {
+
+    @SuppressWarnings("rawtypes")
+    private static final ArrayList<Map.Entry<String, PathParser.Type>> EMPTY_TOKENS = new ArrayList<>(0);
+
     public static Parser<JsonElement> parser = new Parser<>() {
         @Override
         public @NotNull String toString(JsonElement o, int flags) {
@@ -70,7 +74,7 @@ public abstract class Json {
         @SuppressWarnings("all")
         public @Nullable Class<?> @NotNull [] acceptChange(@NotNull ChangeMode mode) {
             return switch(mode) {
-                case RESET, REMOVE, REMOVE_ALL, ADD -> CollectionUtils.array(Object.class);
+                case RESET, REMOVE, REMOVE_ALL, ADD, SET -> CollectionUtils.array(Object.class);
                 default -> null;
             };
         }
@@ -80,29 +84,35 @@ public abstract class Json {
             JsonElement jsonElement = what[0];
             JsonAccessor serializedJson = new JsonAccessor(jsonElement);
 
-            ArrayList<Map.Entry<String, PathParser.Type>> emptyTokens = new ArrayList<>();
             switch(mode) {
                 case RESET -> {
-                    serializedJson.remover.reset(emptyTokens);
+                    serializedJson.remover.reset(EMPTY_TOKENS);
                     break;
                 }
                 case REMOVE  -> {
                     for (var o : delta) {
-                        serializedJson.remover.byValue(emptyTokens, o);
+                        serializedJson.remover.byValue(EMPTY_TOKENS, o);
                     }
                     break;
                 }
                 case REMOVE_ALL -> {
                     for (var o : delta) {
-                        serializedJson.remover.allByValue(emptyTokens, o);
+                        serializedJson.remover.allByValue(EMPTY_TOKENS, o);
                     }
                     break;
                 }
                 case ADD -> {
                     for (Object o : delta) {
                         JsonElement parsed = cz.coffeerequired.api.json.Parser.toJson(o);
-                        serializedJson.changer.add(emptyTokens, parsed);
+                        serializedJson.changer.add(EMPTY_TOKENS, parsed);
                     }
+                    break;
+                }
+                case SET -> {
+                    if (delta == null || delta.length == 0) {
+                        return;
+                    }
+                    what[0] = cz.coffeerequired.api.json.Parser.toJson(delta[0]);
                     break;
                 }
                 default -> {}

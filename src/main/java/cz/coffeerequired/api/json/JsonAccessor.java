@@ -309,34 +309,24 @@ public class JsonAccessor {
     }
 
     public record searcher(JsonElement json) {
-        public Object keyOrIndex(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
-            var c = getCurrent(tokens, json);
-            JsonElement current = (JsonElement) c.get(1);
-            var key = (String) c.getFirst();
 
-            try {
-                if (current instanceof JsonObject object) {
-                    var searched = object.get(key);
-                    if (searched == null) {
-                        SkJson.warning("&l&c%s: key '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
-                        return null;
-                    }
-                    return Parser.fromJson(searched);
-                }
-
-                if (current instanceof JsonArray array) {
-                    Number index = JsonAccessorUtils.isNumeric(key);
-                    if (index != null && index.intValue() <= array.size()) {
-                        return Parser.fromJson(array.get(index.intValue()));
-                    } else {
-                        SkJson.warning("&l&c%s: index '%s' not found", "Search issue",  PathParser.getPathFromTokens(tokens));
-                        return null;
-                    }
-                }
-            } catch (Exception e) {
-                SkJson.warning("&l&c%s: %s", "Search issue", e.getMessage());
+        public boolean pathExists(String path, String delimiter) {
+            if (path == null || path.isBlank()) {
+                return json != null && !json.isJsonNull();
             }
-            return null;
+            return JsonAccessorUtils.pathExists(json, PathParser.tokenize(path, delimiter));
+        }
+
+        public boolean pathExists(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
+            return JsonAccessorUtils.pathExists(json, tokens);
+        }
+
+        public Object keyOrIndex(ArrayList<Map.Entry<String, PathParser.Type>> tokens) {
+            Object value = JsonAccessorUtils.resolveParsed(json, tokens);
+            if (value == null && tokens != null && !tokens.isEmpty()) {
+                SkJson.warning("&l&c%s: path '%s' not found", "Search issue", PathParser.getPathFromTokens(tokens));
+            }
+            return value;
         }
     }
 }

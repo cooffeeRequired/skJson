@@ -1,8 +1,6 @@
 package cz.coffeerequired.skript.core.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -25,12 +23,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class ExprJson<T> extends SimpleExpression<Object> {
-
-    static {
-        Skript.registerExpression(ExprJson.class, Object.class, ExpressionType.SIMPLE,
-            "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
-        );
-    }
 
     // indexes of json array <json>
     // indices of json array <json> at path ".."

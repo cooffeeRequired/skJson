@@ -4,6 +4,7 @@ test "json storage cache":
     create json file "jsons/test.json" and write to it {_json} with configuration[replace=true, encoding=UTF-8]
 
     create json virtual storage named "virtual"
+    create a virtual json cache named "virtual-en"
 
     set (json storage of id "virtual").new to "Test"
 
