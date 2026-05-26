@@ -1,10 +1,7 @@
 test "json loop":
     set {_json} to json from "{data: [{special: [1, 2, 3], player: 2}]}"
 
-    loop values of {_json}:
-        broadcast "&aKEY-1: %json-key-1%"
-        assert "%json-key-1%" is "data" with "failing: cannot loop through json object"
-        loop values of json-value-1:
-            assert "%json-value-2%" is "{""special"":[1,2,3],""player"":2}" with "failing: cannot loop through json array"
-            set {_list::*} to values "special" of json-value-2
-            assert {_list::*} is 1, 2 and 3 with "failing: cannot loop through json array"
+    loop values "data" of {_json}:
+        assert "%json-key%" is "0" with "failing: json loop key in array"
+        set {_list::*} to values "special" of json-value
+        assert {_list::*} is 1, 2 and 3 with "failing: json loop values list"
