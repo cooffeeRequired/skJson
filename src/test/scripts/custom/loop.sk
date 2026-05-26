@@ -1,6 +1,8 @@
 test "json loop":
-    set {_json} to json from "{data: [{special: [1, 2, 3], player: 2}]}"
+    set {_json} to json from "{data: {special: [1, 2, 3], player: 2}}"
 
     loop values of {_json}:
         assert "%json-key-1%" is "data" with "failing: json loop root key"
-        assert values "data.special" of {_json} is 1, 2 and 3 with "failing: json loop nested values path"
+
+    set {_special::*} to values "data.special" of {_json}
+    assert {_special::*} is 1, 2 and 3 with "failing: json values at nested path"

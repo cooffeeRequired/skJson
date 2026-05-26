@@ -123,8 +123,6 @@ public class JsonLoopExpression extends SimpleExpression<Object> {
                 continue;
             }
             
-            ((ExprJsonValues) l.getLoopedExpression()).relevantToLoop = true;
-            
             if (currentIndex < loopIndex) {
                 currentIndex++;
                 continue;

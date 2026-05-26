@@ -49,8 +49,6 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     private Type type;
     private Expression<JsonElement> jsonVariable;
     private Expression<String> pathVariable;
-    public boolean relevantToLoop = false;
-
     @Override
     protected @Nullable Object[] get(Event event) {
         try {
@@ -66,9 +64,9 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                 if (!isPathEmpty) {
                     Object resolved = JsonAccessorUtils.resolveParsed(tempJson, tokens);
                     if (resolved == null) return new Object[0];
-                    return relevantToLoop ? new Object[]{resolved} : JsonAccessorUtils.getAsParsedArray(resolved);
+                    return JsonAccessorUtils.getAsParsedArray(resolved);
                 } else {
-                    return relevantToLoop ? new JsonElement[]{tempJson} : JsonAccessorUtils.getAsParsedArray(tempJson);
+                    return JsonAccessorUtils.getAsParsedArray(tempJson);
                 }
             } else if (type.equals(Type.SINGLE)) {
                 if (!isPathEmpty) {
@@ -121,25 +119,31 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
     @Override
     public boolean isLoopOf(String input) {
-        relevantToLoop = input.equals("skjson-custom-loop");
         return input.equals("skjson-custom-loop");
     }
 
     @Override
     public @Nullable Iterator<?> iterator(Event event) {
-        Object o;
-        JsonElement json = null;
-
-        Iterator<?> superIterator = super.iterator(event);
-        if (superIterator == null) return null;
-
-        while (superIterator.hasNext()) {
-            o = superIterator.next();
-            if (!(o instanceof JsonElement)) return null;
-            else json = (JsonElement) o;
+        if (type != Type.MULTIPLES) {
+            return null;
         }
+        JsonElement root = jsonVariable.getSingle(event);
+        if (root == null || root.isJsonNull()) {
+            return null;
+        }
+        if (pathVariable != null) {
+            String path = pathVariable.getSingle(event);
+            if (path != null && !path.isEmpty()) {
+                root = JsonAccessorUtils.resolve(root, PathParser.tokenize(path, Api.Records.PROJECT_DELIM));
+                if (root == null) {
+                    return null;
+                }
+            }
+        }
+        return entryIterator(root);
+    }
 
-        JsonElement it = json;
+    private Iterator<HashMap<String, Object>> entryIterator(JsonElement it) {
         return new Iterator<>() {
             int idx = 0;
 
@@ -147,27 +151,29 @@ public class ExprJsonValues extends SimpleExpression<Object> {
             public boolean hasNext() {
                 if (it instanceof JsonArray array) {
                     return idx < array.size();
-                } else if (it instanceof JsonObject object) {
-                    return idx < object.entrySet().size();
+                }
+                if (it instanceof JsonObject object) {
+                    return idx < object.size();
                 }
                 return false;
             }
 
             @Override
-            public Object next() {
+            public HashMap<String, Object> next() {
                 HashMap<String, Object> itMap = new HashMap<>();
                 if (it instanceof JsonArray array) {
                     itMap.put(String.valueOf(idx), Parser.fromJson(array.get(idx)));
                     idx++;
                     return itMap;
-                } else if (it instanceof JsonObject object) {
+                }
+                if (it instanceof JsonObject object) {
                     var keys = object.keySet().stream().toList();
                     String declaredKey = keys.get(idx);
                     itMap.put(declaredKey, Parser.fromJson(object.get(declaredKey)));
                     idx++;
                     return itMap;
                 }
-                return null;
+                throw new IllegalStateException("Cannot iterate json element: " + it);
             }
         };
     }
