@@ -53,13 +53,21 @@ public class Core extends Extensible {
 
     public void tryRegisterDefaultConverters() {
         try {
-            if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
-                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, element -> convertJsonElement(element, type)));
-            } else {
-                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, element -> convertJsonElement(element, type)));
+            for (Class<?> type : allowedTypes) {
+                registerJsonConverter(type);
             }
         } catch (Exception e) {
             SkJson.exception(e, "Error while registering default converters: %s", e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void registerJsonConverter(Class<?> rawType) {
+        Class<T> targetType = (Class<T>) rawType;
+        if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
+            Converters.registerConverter(JsonElement.class, targetType, element -> convertJsonElement(element, targetType));
+        } else {
+            ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, targetType, element -> convertJsonElement(element, targetType));
         }
     }
 
