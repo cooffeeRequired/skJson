@@ -58,13 +58,27 @@ public class Core extends Extensible {
     public void tryRegisterDefaultConverters() {
         try {
             if (Skript.getVersion().isLargerThan(new Version(2, 10))) {
-                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, Parser::fromJson));
+                allowedTypes.forEach(type -> Converters.registerConverter(JsonElement.class, type, element -> convertJsonElement(element, type)));
             } else {
-                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, Parser::fromJson));
+                allowedTypes.forEach(type -> ch.njol.skript.registrations.Converters.registerConverter(JsonElement.class, type, element -> convertJsonElement(element, type)));
             }
         } catch (Exception e) {
             SkJson.exception(e, "Error while registering default converters: %s", e.getMessage());
         }
+    }
+
+    private static <T> T convertJsonElement(JsonElement element, Class<T> targetType) {
+        if (element == null || element.isJsonNull()) {
+            return null;
+        }
+        Object parsed = Parser.fromJson(element);
+        if (parsed == null) {
+            return null;
+        }
+        if (targetType.isInstance(parsed)) {
+            return targetType.cast(parsed);
+        }
+        return null;
     }
 
     @Override
@@ -160,7 +174,6 @@ public class Core extends Extensible {
         );
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
-        register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "size", "jsonelements");
         register.registerExpression(ExprAllJsonFiles.class, File.class, ExpressionType.COMBINED,
                 "[all] json [files] (from|in) (dir[ectory]|folder) %string%",
                 "json files in [the] (folder|directory) %string%",
@@ -280,10 +293,11 @@ public class Core extends Extensible {
                 "unlink json cache %string%"
         );
         register.registerEffect(AEffSaveStorage.class,
-                "save json storage [id] %string%",
-                "save all json storages",
                 "save json cache %string%",
-                "save [all] json cache[s]"
+                "save json storage [with id] %string%",
+                "save json storage id %string%",
+                "save all json storages to disk",
+                "save all json caches to disk"
         );
 
         // ################ EVENTS ############################

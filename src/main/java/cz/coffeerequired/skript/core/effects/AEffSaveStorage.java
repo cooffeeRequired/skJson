@@ -76,7 +76,7 @@ public class AEffSaveStorage extends AsyncEffect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        mode = matchedPattern == 0 ? Mode.SINGLE : Mode.ALL;
+        mode = matchedPattern >= 3 ? Mode.ALL : Mode.SINGLE;
         if (mode == Mode.SINGLE) {
             expressionId = (Expression<String>) expressions[0];
         }

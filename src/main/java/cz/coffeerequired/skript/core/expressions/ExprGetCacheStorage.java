@@ -44,7 +44,7 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
 
     @Override
     public boolean isSingle() {
-        return true;
+        return line == 0;
     }
 
     @Override
