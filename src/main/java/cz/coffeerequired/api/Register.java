@@ -199,11 +199,16 @@ public class Register {
         }
 
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {
+            registerEffect(effect, ExpressionType.COMBINED, patterns);
+        }
+
+        public <E extends Effect> void registerEffect(Class<E> effect, ExpressionType priorityType, String... patterns) {
             extensible.addNewElement("Effects", effect);
             SkJson.debug("&8Registering effect: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 effect.getSimpleName());
             syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effect)
+                    .priority(priorityFrom(priorityType))
                     .addPatterns(prefixPatterns(patterns))
                     .build());
         }

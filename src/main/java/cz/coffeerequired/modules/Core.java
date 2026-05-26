@@ -20,9 +20,7 @@ import cz.coffeerequired.skript.core.events.WatcherEvent;
 import cz.coffeerequired.skript.core.expressions.*;
 import cz.coffeerequired.skript.core.support.JsonLoopExpression;
 import cz.coffeerequired.skript.core.support.JsonSupportElements;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -43,8 +41,6 @@ public class Core extends Extensible {
             ConfigurationSerializable.class,
             ItemStack.class,
             Location.class,
-            World.class,
-            Chunk.class,
             JsonElement.class,
             Inventory.class,
             Player.class
@@ -293,8 +289,8 @@ public class Core extends Extensible {
                 "unlink json cache %string%"
         );
         register.registerEffect(AEffSaveStorage.class,
-                "save json cache %string%",
-                "save json storage [with id] %string%",
+                "save [the] json cache [with] id %string%",
+                "save json storage [with] id %string%",
                 "save json storage id %string%",
                 "save all json storages to disk",
                 "save all json caches to disk"

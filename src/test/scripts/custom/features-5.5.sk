@@ -39,7 +39,7 @@ test "english syntax aliases":
 test "english cache syntax":
     create a virtual json cache named "test-cache-en"
     assert json cache "test-cache-en" exists with "json cache exists alias"
-    save json cache "test-cache-en"
+    save json storage id "test-cache-en"
 
 test "remove json path":
     set {_json} to json from "{a: 1, nested: {x: 1}}"
