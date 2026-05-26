@@ -61,9 +61,19 @@ public class Register {
         }
     }
 
+    private static final String EVENT_VALUE_REGISTRY =
+            "org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry";
+
     public void tryRegisterSkript() {
 
         if (isSkriptAvailable()) {
+            if (!isClassAvailable(EVENT_VALUE_REGISTRY)) {
+                SkJson.severe(
+                        "SkJson 5.6 requires Skript 2.15 or newer (missing EventValueRegistry). "
+                                + "Please update Skript before using this addon."
+                );
+                return;
+            }
             addon = Skript.registerAddon(SkJson.getInstance());
             addon.setLanguageFileDirectory("lang");
 

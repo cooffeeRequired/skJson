@@ -65,8 +65,8 @@ public class AEffHandleWatcher extends AsyncEffect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        isBindingMode = matchedPattern == 0;
+        isBindingMode = matchedPattern == 0 || matchedPattern == 2;
         expressionId = (Expression<String>) expressions[0];
-        return expressionId == null;
+        return expressionId != null;
     }
 }

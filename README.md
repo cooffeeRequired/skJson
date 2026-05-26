@@ -36,7 +36,7 @@
 |-------------------|------------------|------------------|--------------------|
 | Java 21+          | Java 21+         | Java 21+         | Java 21+           |
 | Minecraft 1.16.5+ | Minecraft 1.16.5+| Minecraft 1.16.5+| Minecraft 1.21.1+  |
-| Skript 2.14+      | Skript 2.14+     | Skript 2.14+     | Skript 2.15+       |
+| Skript 2.15+      | Skript 2.15+     | Skript 2.15+     | Skript 2.15+       |
 
 </center>
 

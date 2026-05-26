@@ -56,6 +56,6 @@ test "json is watched":
     create json virtual storage named "watch-cond-test"
     watch json cache "watch-cond-test"
     assert json cache "watch-cond-test" is being watched with "failing: json cache is watched"
-    stop watching json cache "watch-cond-test"
+    unbind storage watcher from "watch-cond-test"
 
 
