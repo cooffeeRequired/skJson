@@ -98,10 +98,7 @@ public class Parser {
             JsonObject fallback = new JsonObject();
             fallback.addProperty("type", src.getClass().getName());
             fallback.addProperty("_toString", String.valueOf(src));
-
-            var serialized = gson.toJsonTree(src);
-            SkJson.debug("&cFallback - Serialized object: %s", serialized);
-            return serialized;
+            return fallback;
         }
     }
 }

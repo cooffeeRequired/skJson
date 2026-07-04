@@ -20,9 +20,14 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("formatting Json to Skript list variable")
-@Description("Maps the json to a skript list variable. This is used to map the json to a skript list variable.")
+@Description({
+        "Maps a JSON value into a Skript list variable.",
+        "Object keys become variable indices; arrays become numbered list entries.",
+        "Prefix with `async` to run the conversion off the main thread."
+})
 @Since("1.9, 2.9 - Support mapping json from functions, 4.1 performance increase")
 @Examples("""
+            set {_json} to parse "{""a"": 1, ""b"": {""c"": 2}}" as json
             map {_json} to {_mapped::*}
             send {_mapped::b} to console
         """)
@@ -49,7 +54,7 @@ public class EffMapJson extends Effect {
                 public void run() {
                     SkriptUtils.convertJsonToSkriptVariable(finalVariableName + SEPARATOR, json, event, isLocal);
                 }
-            };
+            }.runTaskAsynchronously(cz.coffeerequired.SkJson.getInstance());
         } else {
             SkriptUtils.convertJsonToSkriptVariable(variableName + SEPARATOR, json, event, isLocal);
         }

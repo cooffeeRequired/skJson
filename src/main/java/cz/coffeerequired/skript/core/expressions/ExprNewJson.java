@@ -11,6 +11,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.FileHandler;
 import cz.coffeerequired.api.http.RequestClient;
 import cz.coffeerequired.api.json.Parser;
@@ -25,21 +26,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-
 @Name("New json element")
 @Description({
-        "Creates a new json element from any object, file or website.",
-        "This is used to create a new json element from any object, file or website.",
+        "Creates a JsonElement from a string, Bukkit object, file, or URL.",
+        "Supported sources include items, locations, inventories, players, and other registered types.",
+        "Files under `~` are resolved relative to the Skript scripts folder.",
+        "Prefer `parse … as json` for JSON strings."
 })
 @Since("4.1 - API UPDATE")
 @Examples({
         "on script load:",
-        "\tset {_json} to json from file \"plugins/Skript/json-storage/database.json\"",
-        "\tset {_json::*} to json from \"{'test' :true}\", \"B\"",
-        "\tset {_json} to json from diamond tools",
+        "\tset {_json} to json from file \"plugins/SkJson/skjson/homes.json\"",
+        "\tset {_json} to parse \"{\\\"test\\\": true}\" as json",
         "\tset {_json} to json from player's location",
         "\tset {_json} to json from player's inventory",
-        "\tset {_json} to json from website file \"https://json.org/sample.json\"",
+        "\tset {_json} to json from url \"https://json.org/sample.json\"",
 })
 public class ExprNewJson extends SimpleExpression<JsonElement> {
 
@@ -51,33 +52,39 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
 
     @Override
     protected @Nullable JsonElement[] get(Event event) {
-        List<JsonElement> elements = new ArrayList<>();
-        Object[] values = anyObjectExpression != null ? anyObjectExpression.getArray(event) : null;
-
         return switch (currentTag) {
             case ANY -> {
-                assert values != null;
+                Object[] values = anyObjectExpression.getArray(event);
+                if (values == null) {
+                    yield new JsonElement[0];
+                }
                 yield Arrays.stream(values).map(Parser::toJson).toArray(JsonElement[]::new);
             }
             case FILE -> switch (fileType) {
                 case JSON -> {
                     String filePath = fileExpression.getSingle(event);
-                    if (filePath == null) yield new JsonElement[0];
+                    if (filePath == null) {
+                        yield new JsonElement[0];
+                    }
 
                     if (filePath.startsWith("~")) {
-                        filePath = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("Skript")).getDataFolder().getPath() + "/scripts/" + filePath.substring(1);
+                        filePath = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("Skript"))
+                                .getDataFolder().getPath() + "/scripts/" + filePath.substring(1);
                     }
 
                     JsonElement jsonContent = FileHandler.get(new File(filePath)).join();
-                    if (jsonContent == null) yield new JsonElement[0];
-
+                    if (jsonContent == null) {
+                        yield new JsonElement[0];
+                    }
                     yield new JsonElement[]{jsonContent};
                 }
                 case UNKNOWN, YAML -> new JsonElement[0];
             };
             case WEBSITE -> {
                 String website = websiteExpression.getSingle(event);
-                if (website == null) yield new JsonElement[0];
+                if (website == null) {
+                    yield new JsonElement[0];
+                }
 
                 try (RequestClient client = new RequestClient()) {
                     HttpResponse<String> rsp = client
@@ -85,8 +92,9 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
                             .method("GET")
                             .send();
 
-                    if (rsp.statusCode() > 400) yield new JsonElement[0];
-
+                    if (rsp.statusCode() > 400) {
+                        yield new JsonElement[0];
+                    }
                     yield new JsonElement[]{Parser.toJson(rsp.body())};
                 } catch (Exception e) {
                     SkJson.exception(e, e.getMessage());
@@ -110,26 +118,29 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    public String toString(@Nullable Event event, boolean b) {
+    public String toString(@Nullable Event event, boolean debug) {
         return "json from any sources";
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        currentTag = switch (i) {
-            case 0 -> Type.FILE;
-            case 1 -> Type.WEBSITE;
+    public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
+        currentTag = switch (matchedPattern) {
+            case 0, 1, 2 -> Type.FILE;
+            case 3, 4, 5 -> Type.WEBSITE;
             default -> Type.ANY;
         };
 
         return switch (currentTag) {
             case FILE -> {
                 fileExpression = LiteralUtils.defendExpression(expressions[0]);
-
-                if (fileExpression.toString().contains(".json")) fileType = FileType.JSON;
-                else if (fileExpression.toString().contains(".yaml")) fileType = FileType.YAML;
-                else fileType = FileType.UNKNOWN;
-
+                String sample = fileExpression.toString();
+                if (sample.contains(".json") || sample.contains(".jsonc")) {
+                    fileType = FileType.JSON;
+                } else if (sample.contains(".yaml")) {
+                    fileType = FileType.YAML;
+                } else {
+                    fileType = FileType.UNKNOWN;
+                }
                 yield LiteralUtils.canInitSafely(fileExpression);
             }
             case ANY -> {
@@ -138,7 +149,9 @@ public class ExprNewJson extends SimpleExpression<JsonElement> {
             }
             case WEBSITE -> {
                 websiteExpression = LiteralUtils.defendExpression(expressions[0]);
-                if (!websiteExpression.isSingle()) yield false;
+                if (!websiteExpression.isSingle()) {
+                    yield false;
+                }
                 yield LiteralUtils.canInitSafely(websiteExpression);
             }
         };

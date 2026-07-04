@@ -3,6 +3,7 @@ package cz.coffeerequired.fallback;
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.Api;
 import cz.coffeerequired.api.Extensible;
+import cz.coffeerequired.api.Register;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,11 @@ public class FallBack {
                     try {
                         Class<?> cls = classLoader.loadClass(className);
                         if (Extensible.class.isAssignableFrom(cls)) {
-                            SkJson.getRegister().registerModule(cls.asSubclass(Extensible.class));
+                            Class<? extends Extensible> extensibleClass = cls.asSubclass(Extensible.class);
+                            if (Register.isModuleRegistered(extensibleClass)) {
+                                continue;
+                            }
+                            SkJson.getRegister().registerModule(extensibleClass);
                         }
                     } catch (Throwable t) {
                         SkJson.exception(t, "Failed to load class: %s", className);

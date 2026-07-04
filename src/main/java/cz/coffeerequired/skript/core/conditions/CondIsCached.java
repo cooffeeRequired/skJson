@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.conditions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -13,7 +14,16 @@ import org.jetbrains.annotations.Nullable;
 
 
 @Name("Is JSON file cached")
-@Examples("send true if json storage with id \"my-json-storage\" is cached")
+@Description({
+        "Checks whether a JSON cache id is loaded in memory.",
+        "Aliases: `json cache … exists` and `json storage with id … is cached`."
+})
+@Examples("""
+        if json cache "homesdb" exists:
+            send true
+        if the json storage with id "benchdb" is cached:
+            send true
+        """)
 @Since("4.1 - API UPDATE")
 public class CondIsCached extends Condition {
 

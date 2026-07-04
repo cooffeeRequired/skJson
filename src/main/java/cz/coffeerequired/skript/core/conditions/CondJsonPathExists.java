@@ -10,7 +10,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.api.Api;
-import cz.coffeerequired.api.json.JsonAccessor;
+import cz.coffeerequired.api.json.JsonAccessorUtils;
+import cz.coffeerequired.api.json.PathParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,10 +19,13 @@ import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Json path exists")
-@Description("Checks whether a path exists inside a JSON value without changing it.")
+@Description({
+        "Checks whether a path exists inside a JSON value without changing it.",
+        "Aliases: `contains path …` / `does not contain path …`."
+})
 @Since("5.5")
 @Examples("""
-        set {_json} to json from "{user: {name: ""Alex""}}"
+        set {_json} to parse "{""user"": {""name"": ""Alex""}}" as json
         if {_json} has path "user.name":
             send "found"
         if {_json} does not have path "user.age":
@@ -40,7 +44,7 @@ public class CondJsonPathExists extends Condition {
         if (json == null || path == null) {
             return negated;
         }
-        boolean exists = new JsonAccessor(json).searcher.pathExists(path, Api.Records.PROJECT_DELIM);
+        boolean exists = JsonAccessorUtils.pathExists(json, PathParser.tokenize(path, Api.Records.PROJECT_DELIM));
         return exists != negated;
     }
 

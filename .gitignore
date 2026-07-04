@@ -12,3 +12,7 @@ settings.json/build/
 tools/
 /.vscode/settings.json
 .skript/
+run/
+custom/
+scripts/
+skript/

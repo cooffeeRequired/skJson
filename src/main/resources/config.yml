@@ -1,8 +1,8 @@
 # Author: coffeerequired
 # me: https://github.com/cooffeeRequired
 # Description: Addon for handle JSON easily in SkriptLang.
-# - Supports Spigot, Paper, and Purpur (Java 21+, Minecraft 1.16.5+, Skript 2.15+).
-# - Features include creating JSON from various sources (strings, Bukkit objects), working with .json files (future .jsonc support),
+# - Supports Spigot, Paper, and Purpur (Java 25+, Minecraft 1.16.5+, Skript 2.15+).
+# - Features include creating JSON from various sources (strings, Bukkit objects), working with .json and .jsonc files,
 # - handling HTTP requests/responses, FileWatchers for dynamic file updates (e.g., ops.json),
 # - fast MemoryCache (100-1000 us read/write), VirtualCachedJson for dynamic storage, NBT support via NBT-API,
 # - and serialization/deserialization of almost everything in Minecraft.
@@ -23,12 +23,15 @@ plugin:
   enabled-nbt: false
   # Maximum number of threads for HTTP requests (default: 2)
   # Don't change this value unless you know what you're doing.
-  # This is the number of threads that will be used to send requests.
   max-threads: 2
-  # Enable auto updater
-  # Will try to update the plugin if a new version is available
-  # Automatically download a change the JAR file
-  enabled-auto-updater: true
+  # Seconds to wait for a full HTTP response (default: 30)
+  http-request-timeout-seconds: 30
+  # Seconds to wait when opening a connection (default: 10)
+  http-connect-timeout-seconds: 10
+  # Enable auto updater (downloads and replaces the plugin JAR when a new release is available)
+  enabled-auto-updater: false
+  # LRU cache size for NBT → JSON conversions (only when enabled-nbt is true)
+  nbt-cache-size: 256
 
   # Enable fallback mode (e.g., if the expression/effect is not found)
   # Will try to find the expression/effect in the fallback
@@ -38,12 +41,16 @@ plugin:
 json:
   # Separator for paths to JSON objects (e.g. "object.nestedObject.value")
   path-delimiter: "."
+  # Maximum cached parsed JSON paths (default: 1024)
+  path-token-cache-size: 1024
   # Settings for monitoring changes in JSON files
   watcher:
     # Interval for checking for changes in milliseconds (how often the file is checked)
     interval: 100
     # Frequency of data refresh from the JSON file in milliseconds (how often data is loaded after a change is detected)
     refresh-rate: 50
+    # Thread pool size for shared file watcher tasks
+    max-threads: 2
 
     # Defines the file watching mode:
     # - wsl: Optimized for watching files in WSL environments.

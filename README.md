@@ -22,10 +22,16 @@
 <h6 align="center">Addon for handle JSON easily in <b>SkriptLang</b></h6>
 <hr>
 
-### 5.5 Highlights
+### 5.6 Highlights
+- Skript 2.15+ compatibility with modern SyntaxRegistry APIs
+- New: `set value at path … in … to …`, `.jsonc` file support (comments + trailing commas)
+- Shared HTTP client with configurable timeouts and thread pool
+- Performance: NBT conversion cache, configurable path token cache
 - Natural English syntax aliases (`parse … as json`, `value at path … in`, `json cache`, `merge … into … deeply`)
-- New: `deep copy of`, `has path`, `merge … into …`
-- Performance: bounded path cache, faster array parsing, quieter path checks
+
+> **Note:** SkJson handles **outgoing** HTTP requests (`execute {_request}` / `on http response`).
+> It does **not** use Java `HttpExchange` or incoming web-server syntax like `reply … with …`.
+> That comes from addons such as **SkriptWebAPI** — do not confuse the two.
 
 ### 5.x Performance comparation [link](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.md)
 
@@ -55,8 +61,8 @@
 ## ❓ What can SkJson do?
 
 * create JSON from string and other sources, for example from various Bukkit objects such as `Location, Player, Entitiy, Inventory, and many more`
-* it can also work with `.json` files, in the future it will also be able to work with `.jsonc` -> which are files that can contain comments.
-* it can also report HTTP requests and send http responses json encoded.
+* it can also work with `.json` and `.jsonc` files (JSON with comments and trailing commas)
+* it can also report HTTP requests and send http responses json encoded (outgoing requests only — not an embedded web server)
 * it can also work with `FileWatchers` which is an advantage when for example you have a file that changes the server like for example `ops.json` -> a file that contains Server Operators
   * at this point SkJson can read this file and can update its cache with each change
 * `SkJson` works with **`MemoryCache`** so it is very fast to write and read around `100-1000 us`

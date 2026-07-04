@@ -44,7 +44,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
                     set {_request}'s headers to "{'Content-Type':'application/json'}"
                     execute {_request} as non blocking
 
-            on received http response:
+            on http response:
                 if event-response's status is "OK":
                     send "Request was successful!"
                     send event-response's body
@@ -55,12 +55,10 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         """}
     )
 @Description({
-        "allowed methods are [GET, POST, PUT, HEAD, MOCK, DELETE, PATCH]",
-        "allowed value type of content is Json or stringify json (Json as String) e.g. \"{\"\"Test\"\": true}\"",
-        "allowed value type of header is Json or (Pairs e.g. \"Content-Type: application/Json\", \"Allow: restrict\")",
-        "",
-        "You can execute the request by 'send prepared {_request}', otherwise the request will be not sent, but the request will be still stored",
-        "And you can get response status/content/headers like in the examples"
+        "Creates a Request object for the given HTTP method and URL.",
+        "Allowed methods: GET, POST, PUT, HEAD, MOCK, DELETE, PATCH.",
+        "Configure body, headers, query params and attachments before calling `execute {_request}`.",
+        "Blocking responses are read with `last response of {_request}`; non-blocking calls fire `on http response`."
 })
 @Since({"2.9.9-pre API changes", "5.0 - change Response.API"})
 @ApiStatus.Experimental

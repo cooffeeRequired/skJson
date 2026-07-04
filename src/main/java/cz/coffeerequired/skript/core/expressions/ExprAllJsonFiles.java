@@ -16,8 +16,11 @@ import java.io.File;
 
 
 @Name("Get all files paths in given directory")
-@Examples("all json files from dir \".\"")
-@Description("Returns all json files from the given directory. The directory must be a valid path.")
+@Examples("""
+        loop all json files in "plugins/SkJson":
+            broadcast loop-value
+        """)
+@Description("Returns every `.json` / `.jsonc` file under the given directory path.")
 @Since("5.0")
 public class ExprAllJsonFiles extends SimpleExpression<File> {
 

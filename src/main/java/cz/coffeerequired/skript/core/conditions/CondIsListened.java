@@ -1,5 +1,6 @@
 package cz.coffeerequired.skript.core.conditions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -14,7 +15,16 @@ import org.jetbrains.annotations.Nullable;
 
 
 @Name("JSON file is listened by storage watcher")
-@Examples("send true if json storage with id \"my-json-storage\" is listened")
+@Description({
+        "Checks whether a cache id has an active file watcher.",
+        "Aliases: `json cache … is watched` and `json file watcher for … is active`."
+})
+@Examples("""
+        if json cache "homesdb" is watched:
+            send true
+        if the json storage with id "homesdb" is listened:
+            send true
+        """)
 @Since("4.1 - API UPDATE")
 
 public class CondIsListened extends Condition {

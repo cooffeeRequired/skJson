@@ -21,26 +21,24 @@ import org.jetbrains.annotations.Nullable;
 @Name("body of request/response")
 @Examples("""
                  <b>Request</b><br />
-                 # getting the Request content;
-                 send {_request}'s content
                  send body of {_request}
+                 send {_request}'s body
                 \s
-                 # setting the Request content;
-                 set {_request}'s body to (json from "{'Allow': false}")
-                 set body of {_request} to (json from "{'Allow': false}")
+                 set body of {_request} to parse "{""Allow"": false}" as json
+                 set {_request}'s body to parse "{""Allow"": false}" as json
                 \s
-                 # reset the body of the Request
-                 reset {_request}'s body
                  reset body of {_request}
+                 reset {_request}'s body
                  \s
                  <b>Response</b><br />
-                  # getting the Response body;
-                 set {_response} to {_request}'s response
-                 \s
-                 send {_response}'s body
+                 set {_response} to last response of {_request}
                  send body of {_response}
+                 send {_response}'s body
         \s""")
-@Description({"set/reset or get the current request body", "get response body"})
+@Description({
+        "Gets, sets, or resets the request body (JSON or string).",
+        "Response bodies are read-only."
+})
 @Since({"2.9.9-pre Api Changes", "5.1"})
 @ApiStatus.Experimental
 public class ExprSimpleBody extends SimplePropertyExpression<Object, Object> {

@@ -10,7 +10,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 import java.util.IllegalFormatException;
 import java.util.logging.Level;
@@ -79,7 +79,9 @@ public abstract class SkJsonLogger {
 
         try {
             msgText = args != null && args.length > 0 ? String.format(msgText, args) : msgText;
-        } catch (IllegalFormatException ignored) {}
+        } catch (IllegalFormatException e) {
+            msgText = message.toString();
+        }
 
         var text = AnsiColorConverter.convertToAnsi("[" + prefix + "] " + colorCode + msgText);
         LOGGER.log(level, text);

@@ -15,11 +15,17 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Type of Json")
-@Description("You can get type of given Json.")
+@Description({
+        "Checks whether a JSON value is an object, array, primitive, or null.",
+        "Patterns: `{json} is a json object` or `json type of {json} is json array`."
+})
 @Since("2.7")
 @Examples({
-        "set {_json} to json from \"{data: {}}\"",
-        "if json type of {_j} is json object"
+        "set {_json} to parse \"{\\\"data\\\": {}}\" as json",
+        "if {_json} is a json object:",
+        "\tsend \"object\"",
+        "if json type of {_json} is json object:",
+        "\tsend \"object\""
 })
 public class CondJsonType extends Condition {
 

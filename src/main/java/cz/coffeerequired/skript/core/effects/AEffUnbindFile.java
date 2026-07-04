@@ -15,8 +15,14 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Unbind the storage for the given id")
-@Examples("unbind json storage of id \"my-json-storage\"")
-@Description("Unbinds the storage for the given id. This is used to unbind the storage from the file.")
+@Examples("""
+        unbind json cache "my-json-storage"
+        unlink json cache "my-json-storage"
+        """)
+@Description({
+        "Removes a cache id from memory and unregisters its file watcher if present.",
+        "Patterns: `unbind json storage of id …`, `unbind json cache …`, `unlink json cache …`."
+})
 @Since("4.1 - API UPDATE")
 public class AEffUnbindFile extends AsyncEffect {
 

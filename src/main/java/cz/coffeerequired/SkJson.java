@@ -3,7 +3,10 @@ package cz.coffeerequired;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import cz.coffeerequired.api.*;
+import cz.coffeerequired.api.http.HttpClientProvider;
 import cz.coffeerequired.api.cache.CacheStorageWatcher;
+import cz.coffeerequired.modules.Core;
+import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.fallback.FallBack;
 import cz.coffeerequired.support.Configuration;
 import lombok.Getter;
@@ -17,6 +20,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -48,7 +53,7 @@ public final class SkJson extends JavaPlugin {
     }
 
     public static void severe(Object message, Object... args) {
-        SkJsonLogger.log(Level.INFO, "&c" + message, args);
+        SkJsonLogger.log(Level.SEVERE, message, args);
     }
 
     public static void severe(Node node, Object message, Object... args) {
@@ -134,6 +139,7 @@ public final class SkJson extends JavaPlugin {
         Api.getCache().free();
         info("Cache storage was freed.");
 
+        HttpClientProvider.shutdown();
         super.onDisable();
     }
 
@@ -143,30 +149,43 @@ public final class SkJson extends JavaPlugin {
         Metrics metrics = new Metrics(this, id);
         metrics.addCustomChart(new SimplePie("skript_version", () -> Skript.getVersion().toString()));
 
-        var core = Register.registers.getFirst().getLoadedElements();
-        var http = Register.registers.getLast().getLoadedElements();
+        var coreModule = Register.registers.stream()
+                .filter(module -> Core.class.isAssignableFrom(module.getClass()))
+                .findFirst()
+                .map(Extensible::getLoadedElements)
+                .orElse(Map.of());
+        var httpModule = Register.registers.stream()
+                .filter(module -> HttpModule.class.isAssignableFrom(module.getClass()))
+                .findFirst()
+                .map(Extensible::getLoadedElements)
+                .orElse(Map.of());
 
         metrics.addCustomChart(new AdvancedPie("features_core", () -> Map.of(
-                "Expressions",          core.get("Expressions").size(),
-                "Effects",              core.get("Effects").size(),
-                "Sections",             core.get("Sections").size(),
-                "Conditions",           core.get("Conditions").size(),
-                "Functions",            core.get("Functions").size(),
-                "Structures",           core.get("Structures").size(),
-                "Types",                core.get("Types").size(),
-                "Event Values",         core.get("Event Values").size()
+                "Expressions",          sizeOf(coreModule, "Expressions"),
+                "Effects",              sizeOf(coreModule, "Effects"),
+                "Sections",             sizeOf(coreModule, "Sections"),
+                "Conditions",           sizeOf(coreModule, "Conditions"),
+                "Functions",            sizeOf(coreModule, "Functions"),
+                "Structures",           sizeOf(coreModule, "Structures"),
+                "Types",                sizeOf(coreModule, "Types"),
+                "Event Values",         sizeOf(coreModule, "Event Values")
         )));
 
         metrics.addCustomChart(new AdvancedPie("features_http", () -> Map.of(
-                "Expressions",          http.get("Expressions").size(),
-                "Effects",              http.get("Effects").size(),
-                "Sections",             http.get("Sections").size(),
-                "Conditions",           http.get("Conditions").size(),
-                "Functions",            http.get("Functions").size(),
-                "Structures",           http.get("Structures").size(),
-                "Types",                http.get("Types").size(),
-                "Event Values",         http.get("Event Values").size()
+                "Expressions",          sizeOf(httpModule, "Expressions"),
+                "Effects",              sizeOf(httpModule, "Effects"),
+                "Sections",             sizeOf(httpModule, "Sections"),
+                "Conditions",           sizeOf(httpModule, "Conditions"),
+                "Functions",            sizeOf(httpModule, "Functions"),
+                "Structures",           sizeOf(httpModule, "Structures"),
+                "Types",                sizeOf(httpModule, "Types"),
+                "Event Values",         sizeOf(httpModule, "Event Values")
         )));
+    }
+
+    private static int sizeOf(Map<String, ArrayList<Class<?>>> module, String key) {
+        ArrayList<Class<?>> values = module.get(key);
+        return values == null ? 0 : values.size();
     }
 
     public void warning(CommandSender sender, String message, Object... args) {

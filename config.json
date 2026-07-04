@@ -2,6 +2,16 @@
   "system": "auto",
   "configurations": [
     {
+      "name": "Skript 2.15.4",
+      "workspace_directory": ".",
+      "test_script_directory": "./src/test/scripts/custom",
+      "skript_repo_ref": "2.15.4",
+      "run_vanilla_tests": false,
+      "extra_plugins_directory": "./build/libs",
+      "skript_repo_git_url": "https://github.com/SkriptLang/Skript.git",
+      "skript_repo_path": "./skript"
+    },
+    {
       "name": "Skript 2.10.1",
       "workspace_directory": ".",
       "test_script_directory": "./src/test/scripts/custom",
@@ -24,5 +34,5 @@
       "jdk_path": "C:\\Users\\Coffee\\.jdks\\amazon-corretto-17"
     }
   ],
-  "default_configuration": 1
+  "default_configuration": 0
 }

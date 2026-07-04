@@ -36,7 +36,7 @@ public abstract class Extensible {
         if (this.sign.isEmpty() || this.skriptElementPath.isEmpty()) {
             throw new ExtensibleThrowable("Cannot invoke Skript registration for empty sign or elements packages");
         }
-        Register.getAddon().loadClasses(this.skriptElementPath);
+        Register.loadAddonClasses(this.skriptElementPath);
     }
 
     public abstract void registerElements(Register.SkriptRegister register);

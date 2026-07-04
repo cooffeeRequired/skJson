@@ -20,14 +20,22 @@ import java.util.regex.Pattern;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 public class PathParser {
-    private static final int TOKEN_CACHE_LIMIT = 1024;
+    private static final int DEFAULT_TOKEN_CACHE_LIMIT = 1024;
+    private static volatile int tokenCacheLimit = DEFAULT_TOKEN_CACHE_LIMIT;
     private static final LinkedHashMap<String, List<Map.Entry<String, Type>>> TOKEN_CACHE =
             new LinkedHashMap<>(256, 0.75f, true) {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry<String, List<Map.Entry<String, Type>>> eldest) {
-                    return size() > TOKEN_CACHE_LIMIT;
+                    return size() > tokenCacheLimit;
                 }
             };
+
+    public static void configureTokenCache(int limit) {
+        tokenCacheLimit = Math.max(64, limit);
+        synchronized (TOKEN_CACHE) {
+            TOKEN_CACHE.clear();
+        }
+    }
     private static final Pattern ARRAY_PATTERN = Pattern.compile("\\[\\d+]");
     private static final Pattern ARRAY_ANY_PATTERN = Pattern.compile("\\[]$");
     private static final Pattern STRING_PATTERN = Pattern.compile("([\\W\\w]+)");
@@ -68,7 +76,7 @@ public class PathParser {
         synchronized (TOKEN_CACHE) {
             TOKEN_CACHE.put(cacheKey, frozen);
         }
-        return tokensList;
+        return new ArrayList<>(frozen);
     }
 
     private static void processSingleType(ArrayList<Map.Entry<String, Type>> tokensList, List<Object> typeResult) {

@@ -16,16 +16,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Formatting skript variable to json")
-@Description("Formats the skript variable to json. This is used to format the skript variable to json.")
+@Description({
+        "Converts a Skript list variable into a JSON object or array.",
+        "Nested list indices become JSON keys; deeper nesting follows SkJson variable rules.",
+        "Use `{list variable}'s formatted json` or `{list variable}'s form`."
+})
 @Since("4.1 - API UPDATE")
 @Examples("""
             set {_test::A} to false
             set {_test::B} to "Raw"
-            set {_test::B::C} to 100 // that will be ignored, because it violates the json standard
-            set {_test::B::C::*} to 1, 2, 4, false, true, "A" and location(0, 1, 2) and world("world")
-        
-            set {_json} to {_test::*}'s form
-        
+            set {_test::B::C::*} to 1, 2, 4, false, true, "A" and location(0, 1, 2)
+
+            set {_json} to {_test::*}'s formatted json
             send {_json} as uncolored pretty printed
         """)
 public class ExprFormattingJsonToVariable extends SimpleExpression<JsonElement> {

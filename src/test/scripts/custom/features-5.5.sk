@@ -48,6 +48,13 @@ test "remove json path":
     assert {_json} does not have path "a" with "delete path alias"
     assert {_json} does not have path "nested.x" with "remove path works"
 
+test "set json path":
+    set {_json} to json from "{user: {name: ""Alex""}, score: 0}"
+    set value at path "user.name" in {_json} to "Bob"
+    set value of json path "score" in {_json} to 42
+    assert value at path "user.name" in {_json} is "Bob" with "set value at path"
+    assert value at path "score" in {_json} is 42 with "set value of json path alias"
+
 test "path syntax aliases":
     set {_json} to json from "{meta: {version: 2}}"
     assert path "meta.version" of {_json} is 2 with "path of alias"

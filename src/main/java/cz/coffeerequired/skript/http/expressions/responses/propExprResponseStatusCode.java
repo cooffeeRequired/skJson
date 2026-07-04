@@ -20,12 +20,11 @@ import java.util.Objects;
 
 @Name("Response status code")
 @Examples("""
-             # getting the Response status code;
-             set {_response} to {_request}'s response
-             \s
+             set {_response} to last response of {_request}
              send status code of {_response}
+             send {_response}'s status code
         \s""")
-@Description({"Receive response status code", "That could be anything from 100 to 504"})
+@Description("Returns the HTTP status code (100–599) from a response.")
 @Since("5.0")
 @ApiStatus.Experimental
 public class propExprResponseStatusCode extends PropertyExpression<Response, Integer> {

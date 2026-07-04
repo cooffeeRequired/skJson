@@ -91,21 +91,43 @@ public class Configuration {
             JsonObject jsonObject = JsonParser.parseString(response.toString()).getAsJsonObject();
             String latestVersion = jsonObject.get("tag_name").getAsString();
             String currentVersion = plugin.getPluginMeta().getVersion();
-            if (currentVersion.compareTo(latestVersion) < 0) {
+            if (compareVersions(currentVersion, latestVersion) < 0) {
                 String downloadUrl = jsonObject.getAsJsonArray("assets").get(0).getAsJsonObject().get("browser_download_url").getAsString();
                 SkJson.info("Running now on version: &e'%s'&r latest version is: &a'%s'", currentVersion, latestVersion);
-                if (Api.Records.DISABLED_UPDATE) {
+                if (!Api.Records.ENABLED_AUTO_UPDATER) {
                     SkJson.info("&c✖ &r Update checking is disabled by config.");
                     return;
                 }
                 scheduleUpdate(downloadUrl);
-            } else if (currentVersion.compareTo(latestVersion) > 0) {
+            } else if (compareVersions(currentVersion, latestVersion) > 0) {
                 SkJson.info("Running a Development version, no update required &a ✔");
             } else {
                 SkJson.info("SkJson is up-to-date &a ✔");
             }
         } catch (Exception e) {
             SkJson.severe("Update failed " + e.getMessage());
+        }
+    }
+
+    static int compareVersions(String left, String right) {
+        String[] leftParts = left.replaceAll("^[^0-9]*", "").split("\\.");
+        String[] rightParts = right.replaceAll("^[^0-9]*", "").split("\\.");
+        int length = Math.max(leftParts.length, rightParts.length);
+        for (int i = 0; i < length; i++) {
+            int leftPart = i < leftParts.length ? parseVersionPart(leftParts[i]) : 0;
+            int rightPart = i < rightParts.length ? parseVersionPart(rightParts[i]) : 0;
+            if (leftPart != rightPart) {
+                return Integer.compare(leftPart, rightPart);
+            }
+        }
+        return 0;
+    }
+
+    private static int parseVersionPart(String part) {
+        try {
+            return Integer.parseInt(part.replaceAll("[^0-9].*", ""));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 

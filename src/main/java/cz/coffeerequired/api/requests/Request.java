@@ -38,7 +38,9 @@ public class Request {
 
     public Request setResponse(Response response) {
         this.response = response;
-        this.event.setResponse(response);
+        if (this.event != null) {
+            this.event.setResponse(response);
+        }
         return this;
     }
 

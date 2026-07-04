@@ -21,11 +21,11 @@ import static cz.coffeerequired.api.Api.Records.PROJECT_DELIM;
 
 
 @Name("Get all keys from Json object")
-@Description("Returns all keys from the given json object. If the path is provided, it will return all keys from the object at that path.")
+@Description("Returns all keys from a JSON object, optionally at a nested path.")
 @Examples("""
-        set {_json} to json from "{array: [{A: 1, B: 2, C: 3}]}"
-        send all keys "array::0" of {_json}
-        send all keys of {_json} # that will return all root-keys
+        set {_json} to parse "{""array"": [{""A"": 1, ""B"": 2, ""C"": 3}]}" as json
+        send keys at path "array.0" in {_json}
+        send all keys of {_json}
         """)
 @Since("4.0.1")
 public class ExprGetAllKeys extends SimpleExpression<String> {

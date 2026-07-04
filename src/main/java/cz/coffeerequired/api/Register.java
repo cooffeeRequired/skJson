@@ -2,10 +2,8 @@ package cz.coffeerequired.api;
 
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
@@ -17,6 +15,7 @@ import cz.coffeerequired.modules.HttpModule;
 import cz.coffeerequired.support.AnsiColorConverter;
 import lombok.Getter;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -32,12 +31,15 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Register {
 
     static final String prefix = "[skjson] ";
     static ArrayDeque<Class<? extends Extensible>> modules = new ArrayDeque<>();
+    private static final Set<Class<? extends Extensible>> registeredModuleClasses = new HashSet<>();
     @Getter
     private static SkriptAddon addon;
     @Getter
@@ -72,10 +74,14 @@ public class Register {
                         "SkJson 5.6 requires Skript 2.15 or newer (missing EventValueRegistry). "
                                 + "Please update Skript before using this addon."
                 );
+                org.bukkit.Bukkit.getPluginManager().disablePlugin(SkJson.getInstance());
                 return;
             }
-            addon = Skript.registerAddon(SkJson.getInstance());
-            addon.setLanguageFileDirectory("lang");
+            addon = Skript.instance().registerAddon(SkJson.class, SkJson.getInstance().getName());
+            addon.localizer().setSourceDirectories(
+                    "lang",
+                    SkJson.getInstance().getDataFolder().getAbsolutePath() + "/lang"
+            );
 
             SkJson.info("Hooking into Skript plugin... Hooks initialized.");
             SkJson.info("Trying register Skript addon...");
@@ -115,7 +121,15 @@ public class Register {
         return isClassAvailable(Skript.class);
     }
 
+    public static boolean isModuleRegistered(Class<? extends Extensible> module) {
+        return registeredModuleClasses.contains(module);
+    }
+
     public <T extends Extensible> void registerModule(Class<T> module) {
+        if (registeredModuleClasses.contains(module)) {
+            SkJson.debug("Module already registered, skipping: %s", module.getSimpleName());
+            return;
+        }
         try {
             if (module.isAnnotationPresent(Module.class) && Modifier.isPublic(module.getModifiers())) {
                 Module annotation = module.getAnnotation(Module.class);
@@ -129,6 +143,7 @@ public class Register {
                     Extensible m = module.getDeclaredConstructor().newInstance();
                     m.load();
                     m.registerElements(this.getSkriptRegister());
+                    registeredModuleClasses.add(module);
                     printAllRegistered(m);
                 } catch (ExtensibleThrowable | InstantiationException | IllegalAccessException |
                          InvocationTargetException |
@@ -165,6 +180,13 @@ public class Register {
 
     public static List<Extensible> registers = new ArrayList<>();
 
+    public static void loadAddonClasses(String path) {
+        org.skriptlang.skript.util.ClassLoader.builder()
+                .basePackage(path)
+                .build()
+                .loadClasses(SkJson.class);
+    }
+
     static SyntaxRegistry syntaxRegistry() {
         return addon.syntaxRegistry();
     }
@@ -181,14 +203,6 @@ public class Register {
         return prefixed;
     }
 
-    static Priority priorityFrom(ExpressionType type) {
-        return type.priority();
-    }
-
-    static Priority priorityFrom(ConditionType type) {
-        return type.priority();
-    }
-
     public static class SkriptRegister {
 
         Extensible extensible;
@@ -199,16 +213,16 @@ public class Register {
         }
 
         public <E extends Effect> void registerEffect(Class<E> effect, String... patterns) {
-            registerEffect(effect, ExpressionType.COMBINED, patterns);
+            registerEffect(effect, SyntaxInfo.COMBINED, patterns);
         }
 
-        public <E extends Effect> void registerEffect(Class<E> effect, ExpressionType priorityType, String... patterns) {
+        public <E extends Effect> void registerEffect(Class<E> effect, Priority priority, String... patterns) {
             extensible.addNewElement("Effects", effect);
             SkJson.debug("&8Registering effect: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 effect.getSimpleName());
             syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effect)
-                    .priority(priorityFrom(priorityType))
+                    .priority(priority)
                     .addPatterns(prefixPatterns(patterns))
                     .build());
         }
@@ -233,13 +247,13 @@ public class Register {
             Classes.registerClass(classInfo);
         }
 
-        public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, ExpressionType type, String... patterns) {
+        public <E extends Expression<T>, T> void registerExpression(Class<E> c, Class<T> returnType, Priority priority, String... patterns) {
             extensible.addNewElement("Expressions", c);
             SkJson.debug("&8Registering expression: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 c.getSimpleName());
             syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(c, returnType)
-                    .priority(priorityFrom(type))
+                    .priority(priority)
                     .addPatterns(prefixPatterns(patterns))
                     .build());
         }
@@ -282,16 +296,16 @@ public class Register {
         }
 
         public <E extends Condition> void registerCondition(Class<E> c, String... patterns) {
-            registerCondition(c, ConditionType.COMBINED, patterns);
+            registerCondition(c, SyntaxInfo.COMBINED, patterns);
         }
 
-        public <E extends Condition> void registerCondition(Class<E> c, ConditionType type, String... patterns) {
+        public <E extends Condition> void registerCondition(Class<E> c, Priority priority, String... patterns) {
             extensible.addNewElement("Conditions", c);
             SkJson.debug("&8Registering condition: &7patterns: %s&8; name: %s",
                 Arrays.toString(patterns).substring(1, Arrays.toString(patterns).length() - 1),
                 c.getSimpleName());
             syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(c)
-                    .priority(priorityFrom(type))
+                    .priority(priority)
                     .addPatterns(prefixPatterns(patterns))
                     .build());
         }

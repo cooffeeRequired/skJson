@@ -21,11 +21,12 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 
 @Name("Count keys/values in the json")
-@Description("Counts the number of keys or values in the json. This is used to count the number of keys or values in the json.")
+@Description("Returns how many times the given key or value appears anywhere in the JSON tree.")
 @Since("4.1 - API UPDATE")
 @Examples("""
-            set {_json} to json from "{random: 1, key: {random: 2}}"
-            send count of value 2 in {_json}
+            set {_json} to parse "{""random"": 1, ""key"": {""random"": 2}}" as json
+            send the count of value 2 in {_json}
+            send the number of key "random" in {_json}
         """)
 public class ExprCountElements extends SimpleExpression<Integer> {
 
@@ -39,8 +40,10 @@ public class ExprCountElements extends SimpleExpression<Integer> {
         Integer[] found = {0};
 
         final JsonElement json = jsonVariable.getSingle(event);
+        if (json == null || json.isJsonNull()) {
+            return new Integer[0];
+        }
         JsonAccessor serialized = new JsonAccessor(json);
-        if (json == null) return new Integer[0];
 
         Collections.singleton(inputValues.getSingle(event))
                 .forEach((value) -> {

@@ -18,34 +18,43 @@ import org.jetbrains.annotations.Nullable;
 @Name("Create JSON file with/out content")
 @Since("2.6.2, 4.1 - API UPDATE")
 @Description({
-        "Creates a JSON file with the given name and content. If the file already exists, it will be replaced if the configuration is set to replace=true.",
-        "If the content is not provided, an empty JSON object will be created.",
-        "The configuration can be used to set the encoding and other options.",
+        "Creates or overwrites a JSON file on disk.",
+        "Without content, writes an empty `{}`.",
+        "Optional configuration: `[replace=true, encoding=UTF-8]`."
 })
 @Examples("""
-            create json file "content.json"
-            create json file "content.json" with configuration[replace=true, encoding=UTF-8]
-            create json file "content.json" and write to it <any>
-            create json file "content.json" and write to it <any> with configuration[replace=true, encoding=UTF-8]
+            create json file "skjson/temp.json"
+            create json file "skjson/temp.json" with configuration[replace=true, encoding=UTF-8]
+            create json file "skjson/temp.json" and write to it {_data} with configuration[replace=true, encoding=UTF-8]
+            write {_data} to json file "skjson/temp.json"
         """)
 public class EffNewFile extends AsyncEffect {
 
+    private static final int[] CONTENT_PATTERNS = {1, 3, 5, 7};
+    private static final int REVERSED_CONTENT_PATTERN = 7;
+
     private boolean hasContent;
+    private boolean reversedArgs;
     private Expression<String> fileExpression;
     private Expression<Object> contentExpression;
     private String[] configuration;
 
-
     @Override
     protected void execute(Event event) {
         String filePath = fileExpression.getSingle(event);
-        if (filePath == null) return;
+        if (filePath == null) {
+            return;
+        }
 
         if (hasContent) {
             var content = contentExpression.getSingle(event);
-            if (content == null) return;
+            if (content == null) {
+                return;
+            }
             var parsedContent = Parser.toJson(content);
-            if (parsedContent == null) parsedContent = new JsonObject();
+            if (parsedContent == null) {
+                parsedContent = new JsonObject();
+            }
             FileHandler.write(filePath, parsedContent, configuration).join();
             return;
         }
@@ -54,24 +63,43 @@ public class EffNewFile extends AsyncEffect {
     }
 
     @Override
-    public String toString(@Nullable Event event, boolean b) {
-        return String.format("create json file %s %s", fileExpression.toString(event, b), hasContent ? "and write to it" + contentExpression.toString(event, b) : "");
+    public String toString(@Nullable Event event, boolean debug) {
+        return "create json file %s %s".formatted(
+                fileExpression.toString(event, debug),
+                hasContent ? "and write to it " + contentExpression.toString(event, debug) : ""
+        );
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        hasContent = i == 1;
+    public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
+        hasContent = containsPattern(CONTENT_PATTERNS, matchedPattern);
+        reversedArgs = matchedPattern == REVERSED_CONTENT_PATTERN;
 
         if (!parseResult.regexes.isEmpty()) {
             configuration = parseResult.regexes.getFirst().group().split(",");
         }
 
+        if (reversedArgs) {
+            contentExpression = LiteralUtils.defendExpression(expressions[0]);
+            fileExpression = (Expression<String>) expressions[1];
+            return LiteralUtils.canInitSafely(contentExpression, fileExpression);
+        }
+
         fileExpression = (Expression<String>) expressions[0];
         if (hasContent) {
             contentExpression = LiteralUtils.defendExpression(expressions[1]);
-            return LiteralUtils.canInitSafely(contentExpression);
+            return LiteralUtils.canInitSafely(contentExpression, fileExpression);
         }
         return fileExpression != null;
+    }
+
+    private static boolean containsPattern(int[] patterns, int value) {
+        for (int pattern : patterns) {
+            if (pattern == value) {
+                return true;
+            }
+        }
+        return false;
     }
 }

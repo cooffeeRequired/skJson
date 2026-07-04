@@ -42,6 +42,9 @@ _Read/write times: 0.01–0.03 µs/op_
 - Object key pickers (`last` / `random` / indexed) avoid `entrySet().toArray()` allocations.
 - File writes reuse the shared Gson instance from `Parser`.
 - Watcher snapshot compare uses `hashCode` before full string equality.
+- Dedicated `set value at path … in … to …` effect for path writes (used by performance benchmarks).
+- LRU cache for NBT → JSON conversion; path token cache size is configurable in `config.yml`.
+- `.jsonc` files supported (line/block comments and trailing commas stripped before parse).
 
 ---
 

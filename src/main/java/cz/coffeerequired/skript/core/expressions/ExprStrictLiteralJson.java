@@ -31,23 +31,15 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Simple json literal")
 @Description({
-        "<b>Explanatory notes</b>",
-        "* - This expression is used to get a values (list) from a json object|array.",
-        "  - Need to be at the end of the path.",
-        "","",
-        "This syntax is a simplification for json path, and shortening the notation and getting closer to the form (jq or other popular tools)",
-        "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep. - for Creating",
-        "- Use rather value/key path expression",
-        "Can handle strict (get/set/remove)",
-        "all variables or expressions must be in “% ... %”",
-
-        "This syntax is strictly limited to its intended use; it does allow other expressions or variables to be used.",
-        "**RECOMMENDATION**: Use this syntax exclusively for paths that are a maximum of 2 keys deep.",
-        "Can handle strict (get/set/remove)",
-        "* at the end means you want to return a skript list.",
+        "Dot-path shorthand for reading and changing JSON, similar to jq-style access.",
+        "Syntax: `{json}.key`, `{json}.key.subkey`, `{json}.list[0]`.",
+        "A trailing `*` on the path returns a Skript list of all values at that node.",
+        "Supports get, set, add, remove, remove all, delete and reset.",
+        "Recommended for shallow paths (about two keys deep); use `value at path … in …` for deeper trees.",
+        "Dynamic path segments can use `%variable%` inside the literal path."
 })
 @Examples("""
-        set {_json} to json from "{}"
+        set {_json} to parse "{}" as json
     
         # SET
         set {_json}.list to "[]"

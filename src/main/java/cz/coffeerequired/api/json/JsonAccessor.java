@@ -23,7 +23,11 @@ public class JsonAccessor {
     public searcher searcher;
 
     public JsonAccessor(JsonElement json) {
-        if (JsonAccessorUtils.isNull(json)) {
+        if (json == null) {
+            SkJson.severe(ParserInstance.get().getNode(), "Json cannot be null");
+            throw new IllegalArgumentException("Json cannot be null");
+        }
+        if (json.isJsonNull()) {
             SkJson.severe(ParserInstance.get().getNode(), "Json cannot be null");
         }
         this.json = json;

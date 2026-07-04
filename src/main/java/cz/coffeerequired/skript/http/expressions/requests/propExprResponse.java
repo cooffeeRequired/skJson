@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 @Name("Response of request [sync]")
-@Examples("send response of {_request}")
-@Description({"Get last response from request"})
+@Examples("send last response of {_request}")
+@Description("Returns the last blocking response stored on the request after `execute {_request}`.")
 @Since({"2.9.9-pre Api Changes", "5.0"})
 @ApiStatus.Experimental
 public class propExprResponse extends PropertyExpression<Request, Response> {

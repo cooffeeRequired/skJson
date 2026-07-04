@@ -3,7 +3,7 @@ package cz.coffeerequired.modules;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.lang.ExpressionType;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.common.function.DefaultFunction;
@@ -42,12 +42,12 @@ public class HttpModule extends Extensible {
         register.apply(this);
 
 
-        register.registerExpression(ExprGetPlayerIP.class, String.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprGetPlayerIP.class, String.class, SyntaxInfo.SIMPLE,
                 "json-get %player% ip",
                 "[the] ip [address] of %player%",
                 "%player%'s ip [address]"
         );
-        register.registerExpression(ExprSimpleRequest.class, Request.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprSimpleRequest.class, Request.class, SyntaxInfo.SIMPLE,
                 "prepare %requestmethod% request on %string%",
                 "prepare [a] %requestmethod% request [to [url]] %string%",
                 "create [a] %requestmethod% request [for [url]] %string%"
@@ -61,8 +61,8 @@ public class HttpModule extends Extensible {
         Classes.registerClass(new EnumClassInfo<>(RequestMethod.class, "requestmethod", "request method")
                 .user("request ?method?")
                 .name("Request methods")
-                .description("represent allowed methods for make a request, e.g. POST, GET")
-                .examples("")
+                .description("HTTP methods supported by SkJson requests: GET, POST, PUT, PATCH, DELETE, HEAD, MOCK.")
+                .examples("prepare GET request on \"https://example.com/api\"")
                 .since("2.9")
         );
 
@@ -70,7 +70,7 @@ public class HttpModule extends Extensible {
                 new ClassInfo<>(Request.class, "request")
                         .user("request?s")
                         .name("request")
-                        .description("Representation instance of Request")
+                        .description("Prepared HTTP request; configure body, headers, query params and attachments before executing.")
                         .since("2.9.9-pre API changes")
                         .parser(new Parser<>() {
                             @Override
@@ -95,7 +95,7 @@ public class HttpModule extends Extensible {
                 new ClassInfo<>(Response.class, "response")
                         .user("response?s")
                         .name("response")
-                        .description("Representation instance of Response")
+                        .description("HTTP response with status, status code, headers and body.")
                         .since("5.0")
                         .parser(new Parser<>() {
                             @Override
@@ -116,9 +116,9 @@ public class HttpModule extends Extensible {
         );
 
         register.registerFunction(DefaultFunction.builder(Register.getAddon(), "attachment", Attachment[].class)
-                .description("Create new Attachment for the web request from path to file, when the file starts with */ the file will be found automatically.")
+                .description("Creates a multipart attachment from a file path. Paths starting with `*/` resolve from the Skript scripts folder.")
                 .since("2.9.9 API Changes")
-                .examples("attachment(\"*/test.json\") and attachment(\"*/config.sk\")")
+                .examples("attachment(\"*/test.json\")")
                 .parameter("object", String.class)
                 .build(args -> new Attachment[]{new Attachment(args.get("object"))}));
 
@@ -126,8 +126,12 @@ public class HttpModule extends Extensible {
         // ################ EVENTS ############################
         register.registerEvent(
                 "*Http response received", ResponseReceive.class, HttpReceivedResponse.class,
-                "Runs when an HTTP response is received.",
-                "on http response",
+                "Runs after a non-blocking HTTP request completes (`execute {_request} as non blocking`).",
+                """
+                        on http response:
+                            if event-response's status is "OK":
+                                send event-response's body
+                        """,
                 "5.0, 5.5",
                 "received [http] response",
                 "http response received"

@@ -23,28 +23,19 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Array/Object")
 @Description({
-        "Changer.",
-        "You can SET/ADD/REMOVE/RESET/DELETE/REMOVE_ALL",
+        "Changer for a JSON array or object at the given path.",
+        "Supports ADD, REMOVE and RESET on `json array … of …` / `json object … of …`.",
+        "For reading or setting scalar values use the path value expressions instead."
 })
 @Examples("""
-            set json value "x.y" of {_json} to 1
-            set json values "x.y" of {_json} to 2, 3 and 4 #-> #?throws error when single
+            set {_json} to parse "{""x"": {""y"": {""z"": []}}}" as json
 
-            add 10 to json array "x.y.z[]" of {_json}
+            add 10 to json array "x.y.z" of {_json}
             add 20 and 30 and "lol" to json array "x.y.z" of {_json}
 
             remove 10 from json array "x.y.z" of {_json}
             remove "lol" from json array "x.y.z" of {_json}
 
-            delete json value "x" of {_json}
-            delete json values "x.y" of {_json}
-
-            set {_value} to json value "x.y" of {_json}
-            set {_values::*} to json values "x.y" of {_json}
-
-            remove all 1 from json values "x.y" of {_json}
-            remove all 2 and 3 from json values "x.y" of {_json}
-            \s
             reset json array "x.y.z" of {_json}
             reset json object "x.y" of {_json}
         """

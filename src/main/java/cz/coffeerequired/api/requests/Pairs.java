@@ -32,10 +32,16 @@ public class Pairs {
     }
 
     public String getKey() {
+        if (this.LEFT == null) {
+            return "";
+        }
         return this.LEFT.trim();
     }
 
     public String getValue() {
+        if (this.RIGHT == null) {
+            return "";
+        }
         return this.RIGHT.trim();
     }
 

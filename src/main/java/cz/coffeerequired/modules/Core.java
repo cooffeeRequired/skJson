@@ -2,7 +2,7 @@ package cz.coffeerequired.modules;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.ExpressionType;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import ch.njol.skript.util.Version;
 import com.google.gson.JsonElement;
 import cz.coffeerequired.SkJson;
@@ -95,7 +95,7 @@ public class Core extends Extensible {
         register.registerType(new ClassInfo<>(JsonElement.class, "jsonelement")
                         .user("json ?elements?")
                         .name("jsonelement")
-                        .description("Json element representation")
+                        .description("JSON value (object, array, primitive, or null) used throughout SkJson syntax.")
                         .since("2.9, 4.1 - change")
                         .parser(Json.parser)
                         .serializer(Json.serializer)
@@ -104,7 +104,7 @@ public class Core extends Extensible {
         );
 
         // ################ EXPRESSIONS ############################
-        register.registerExpression(ExprNewJson.class, JsonElement.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprNewJson.class, JsonElement.class, SyntaxInfo.SIMPLE,
                 "json from file %strings%",
                 "json (loaded|read) from [the] file[s] %strings%",
                 "load json from file %strings%",
@@ -115,12 +115,12 @@ public class Core extends Extensible {
                 "parse %objects% as json",
                 "json (parsed|created) from %objects%"
         );
-        register.registerExpression(ExprJsonCopy.class, JsonElement.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprJsonCopy.class, JsonElement.class, SyntaxInfo.SIMPLE,
                 "[a] deep copy of %jsonelement%",
                 "[a] copy of %jsonelement%",
                 "%jsonelement% (deeply )copied"
         );
-        register.registerExpression(ExprPrettyPrint.class, String.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprPrettyPrint.class, String.class, SyntaxInfo.SIMPLE,
                 "%jsonelement% as pretty[ printed]",
                 "%jsonelement% as (pretty[ printed]|formatted) json",
                 "%jsonelement% as uncolo[u]red pretty[ printed]",
@@ -132,12 +132,12 @@ public class Core extends Extensible {
         if (Register.isClassAvailable("com.btk5h.skriptmirror.SkriptMirror")) {
             SkJson.warning("You are using Skript-reflect, which is not compatible with this expression. Please do not use&c 'literal <json element>[<index>]'&6&l but use instead of it &f'<json element>.<index>'&6&l for arrays.\n And for objects use please&f 'literal <json element>.<key>'.");
         }
-        register.registerExpression(ExprStrictLiteralJson.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+        register.registerExpression(ExprStrictLiteralJson.class, Object.class, SyntaxInfo.PATTERN_MATCHES_EVERYTHING,
                 "[literal] %jsonelement%.<([\\p{L}\\d_%\\[\\]*]+|\"[^\"]*\")(\\\\[\\\\]|\\\\[\\\\d+\\\\])?(\\\\.)?>",
                 "[literal] %jsonelement%<\\[\\d+\\]>"
         );
 
-        register.registerExpression(JsonSupportElements.class, Object.class, ExpressionType.COMBINED,
+        register.registerExpression(JsonSupportElements.class, Object.class, SyntaxInfo.COMBINED,
                 "(1st|first) (:value|:key) of %jsonelement%",
                 "(2nd|second) (:value|:key) of %jsonelement%",
                 "(3rd|third) (:value|:key) of %jsonelement%",
@@ -145,22 +145,22 @@ public class Core extends Extensible {
                 "random (:value|:key) of %jsonelement%",
                 "%integer%. (:value|:key) of %jsonelement%"
         );
-        register.registerExpression(ExprGetAllKeys.class, String.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprGetAllKeys.class, String.class, SyntaxInfo.SIMPLE,
                 "[all] keys [%-string%] of %jsonelement%",
                 "[every|all] key[s] (at|in) [path] [%-string%] (of|in) %jsonelement%",
                 "keys (at|in) [path] [%-string%] (of|in) %jsonelement%"
         );
 
-        register.registerExpression(JsonLoopExpression.class, Object.class, ExpressionType.SIMPLE,
+        register.registerExpression(JsonLoopExpression.class, Object.class, SyntaxInfo.SIMPLE,
                 "[the] json-(:key|:value)[-<(\\d+)>]",
                 "[the] json loop-(:key|:value)[-<(\\d+)>]"
         );
 
-        register.registerExpression(ExprCountElements.class, Integer.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprCountElements.class, Integer.class, SyntaxInfo.SIMPLE,
                 "[the] count of (:key[s]|:value[s]) %object% in %jsonelement%",
                 "[the] number of (:key[s]|:value[s]) %object% in %jsonelement%"
         );
-        register.registerExpression(ExprJsonValues.class, Object.class, ExpressionType.COMBINED,
+        register.registerExpression(ExprJsonValues.class, Object.class, SyntaxInfo.COMBINED,
                 "[json] :values [%-string%] of %jsonelement%",
                 "[json] values [of] %jsonelement%",
                 "[json] :value [%-string%] of %jsonelement%",
@@ -175,18 +175,18 @@ public class Core extends Extensible {
                 "%jsonelement%'s path %string%",
                 "%jsonelement%'s value at path %string%"
         );
-        register.registerExpression(ExprArrayObject.class, Object.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprArrayObject.class, Object.class, SyntaxInfo.SIMPLE,
                 "json (:array|:object) %string% of %jsonelement%",
                 "json (:array|object) at path %string% (of|in) %jsonelement%"
         );
         register.registerPropertyExpression(ExprFormattingJsonToVariable.class, JsonElement.class, "form[atted [json]]", "jsonelements");
         register.registerPropertyExpression(ExprJsonSize.class, Integer.class, "json size", "jsonelements");
-        register.registerExpression(ExprAllJsonFiles.class, File.class, ExpressionType.COMBINED,
+        register.registerExpression(ExprAllJsonFiles.class, File.class, SyntaxInfo.COMBINED,
                 "[all] json [files] (from|in) (dir[ectory]|folder) %string%",
                 "json files in [the] (folder|directory) %string%",
                 "all json files in %string%"
         );
-        register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprGetCacheStorage.class, JsonElement.class, SyntaxInfo.SIMPLE,
                 "json storage of id %-string%",
                 "cached json [with id] %-string%",
                 "json cache %-string%",
@@ -194,7 +194,7 @@ public class Core extends Extensible {
                 "all cached json",
                 "all json caches"
         );
-        register.registerExpression(ExprSortJson.class, JsonElement.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprSortJson.class, JsonElement.class, SyntaxInfo.SIMPLE,
                 "%jsonelement% [sorted] in (:ascending|:descending) order by (:key|:value)",
                 "%jsonelement% sorted by (:key|value) in (:ascending|descending) order"
         );
@@ -251,7 +251,11 @@ public class Core extends Extensible {
                 "new json file %~string%",
                 "new json file %~string% with [content] %-objects%",
                 "create [a] new json file %~string%",
-                "create [a] new json file %~string% with [content] %-objects%"
+                "create [a] new json file %~string% with [content] %-objects%",
+                "create json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
+                "create json file %string% and write to it %object% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
+                "write json to file %string%",
+                "write %object% to json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]"
         );
         register.registerEffect(EffMapJson.class,
                 "[:async] (map|copy) %jsonelement% to %objects%",
@@ -268,11 +272,10 @@ public class Core extends Extensible {
                 "delete [json] path %string% in %jsonelement%",
                 "delete value at path %string% in %jsonelement%"
         );
-        register.registerEffect(EffNewFile.class,
-                "create json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
-                "create json file %string% and write to it %object% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]",
-                "write json to file %string%",
-                "write %object% to json file %string% [:with configuration<\\[\\s*((\\w+)=([\\w-]+)(?:,\\s*)?)+\\s*\\]>]"
+        register.registerEffect(EffSetJsonPath.class,
+                "set [json] [value [at]] path %string% in %jsonelement% to %objects%",
+                "set value at path %string% in %jsonelement% to %objects%",
+                "set value of json path %string% in %jsonelement% to %objects%"
         );
 
         // ################ CACHE ############################
@@ -310,8 +313,13 @@ public class Core extends Extensible {
         // ################ EVENTS ############################
         register.registerEvent(
                 "*Json file change", WatcherEvent.class, JsonFileChanged.class,
-                "Runs when a watched JSON file or cache changes on disk.",
-                "on json file change",
+                "Runs when a watched JSON file or in-memory cache linked to a file is updated.",
+                """
+                        on json file change:
+                            send changed json
+                            send json file
+                            send watcher uuid
+                        """,
                 "2.9, 5.5",
                 "[json-] watcher file change",
                 "[json-] watch save",
@@ -326,10 +334,10 @@ public class Core extends Extensible {
         register.registerEventValue(JsonFileChanged.class, File.class, JsonFileChanged::getLinkedFile,
                 "event-file", "event-link", "changed file", "json file");
 
-        register.registerExpression(ExprJson.class, Object.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprJson.class, Object.class, SyntaxInfo.SIMPLE,
                 "(:indexes|:indices|:keys|:values|:entries) (of|in) [json] (:array|:object) %jsonelement% [at path %-string%]"
         );
-        register.registerExpression(ExprJsonLoop.class, Object.class, ExpressionType.SIMPLE,
+        register.registerExpression(ExprJsonLoop.class, Object.class, SyntaxInfo.SIMPLE,
                 "[the] loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]",
                 "[the] json loop-(1¦key|2¦val|3¦iteration)[-%-*integer%]"
         );

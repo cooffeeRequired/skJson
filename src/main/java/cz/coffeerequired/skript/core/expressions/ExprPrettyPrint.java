@@ -21,12 +21,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 @Name("Pretty print")
-@Description("Allows you print out the json with formatted format, 4 tab padding and colored for some elements")
+@Description({
+        "Formats JSON for chat or console output.",
+        "Modes: colored pretty print (default), uncolored pretty print, and compact/minified JSON."
+})
 @Since("2.9")
 @Examples({
-        "set {_json} to json from \"{'test': 'skJson', 'Object' : {'new': 'data'}}\"",
-        "send {_json} as pretty print",
-        "send {_json} as uncolored pretty print"
+        "set {_json} to parse \"{\\\"test\\\": \\\"skJson\\\", \\\"Object\\\" : {\\\"new\\\": \\\"data\\\"}}\" as json",
+        "send {_json} as pretty printed",
+        "send {_json} as formatted json",
+        "send {_json} as compact json"
 })
 public class ExprPrettyPrint extends SimpleExpression<String> {
 

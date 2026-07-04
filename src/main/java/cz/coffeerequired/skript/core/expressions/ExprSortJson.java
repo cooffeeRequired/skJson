@@ -19,16 +19,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Sort JSON in descending/ascending order by key/value")
 @Description({
-    "Sorts the JSON element in descending/ascending order by key/value.",
-    "The JSON element can be a JSON object or an array.",
-    "The sort type can be specified as a string in the format of 'by key ascending' or 'by value descending'.",
-    "The sort type can also be specified as a SortType enum value."
+    "Returns a sorted copy of a JSON object or array.",
+    "Sort by key or value in ascending or descending order."
 })
 @Examples({
-    "{_json} in descending order by key",
-    "{_json} in ascending order by key",
-    "{_json} in descending order by value",
-    "{_json} in ascending order by value"
+    "set {_sorted} to {_json} sorted in ascending order by key",
+    "set {_sorted} to {_json} sorted in descending order by value"
 })
 @Since("5.1.2")
 public class ExprSortJson extends SimpleExpression<JsonElement> {

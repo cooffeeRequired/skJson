@@ -2,6 +2,8 @@ package cz.coffeerequired.support;
 
 import cz.coffeerequired.SkJson;
 import cz.coffeerequired.api.cache.JsonWatchType;
+import cz.coffeerequired.api.json.PathParser;
+import cz.coffeerequired.api.nbts.NBTJsonCache;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,23 +17,9 @@ import java.util.Locale;
 
 import static cz.coffeerequired.api.Api.Records.*;
 
-/**
- * A handler class for managing plugin configuration files.
- * This class provides methods to load, regenerate, save, and retrieve
- * configuration settings from a YAML file associated with a Bukkit/Spigot plugin.<br />
- * <b>Examples</b>
- * Example usage in your main plugin class:</br></br>
- *
- * <pre>
- *  PluginConfigHandler configHandler = new PluginConfigHandler(this);</br>
- *  String someValue = configHandler.getString("some.path", "defaultValue");</br>
- *  configHandler.set("another.path", "newValue");</br>
- *  Enum enumValue = configHandler.get("some.enum.path", Enum);</br>
- *  PluginConfigHandler customConfigHandler = new PluginConfigHandler(this, "data/types.yml");</br>
- *  </pre>
- */
 @SuppressWarnings("all")
 public class PluginConfigHandler {
+    private static final String FORBIDDEN_DELIMITER_CHARS = "$#^[]{}_-";
     private final File configFile;
     private final JavaPlugin plugin;
     private FileConfiguration config;
@@ -41,8 +29,13 @@ public class PluginConfigHandler {
         try {
             loadRecords();
         } catch (Exception e) {
-            SkJson.severe("Config file is invalid.Regenerating config file!");
+            SkJson.severe("Config file is invalid. Regenerating config file!");
             regenerateConfig();
+            try {
+                loadRecords();
+            } catch (Exception reloadError) {
+                SkJson.exception(reloadError, "Failed to load regenerated config");
+            }
         }
     }
 
@@ -51,7 +44,6 @@ public class PluginConfigHandler {
         this.configFile = new File(plugin.getDataFolder(), fileName);
         loadOrRegenerateConfig();
     }
-
 
     private void loadOrRegenerateConfig() {
         try {
@@ -69,14 +61,17 @@ public class PluginConfigHandler {
         } catch (Exception e) {
             SkJson.exception(e, "Config file is invalid. Regenerating config file!");
             regenerateConfig();
+            try {
+                loadRecords();
+            } catch (Exception reloadError) {
+                SkJson.exception(reloadError, "Failed to load regenerated config");
+            }
         }
     }
-
 
     private void regenerateConfig() {
         try {
             if (configFile.exists()) {
-
                 String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
                 File brokenFile = new File(configFile.getParent(), configFile.getName().replace(".yml", ".broken-" + timestamp + ".yml"));
                 if (configFile.renameTo(brokenFile)) {
@@ -99,7 +94,6 @@ public class PluginConfigHandler {
         }
     }
 
-
     public String getString(String path, String defaultValue) {
         if (!config.contains(path)) {
             config.set(path, defaultValue);
@@ -108,26 +102,28 @@ public class PluginConfigHandler {
         return config.getString(path, defaultValue);
     }
 
-
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> T get(String key, Class<T> type) throws Exception{
-        boolean isEnumClass = type.isEnum();
-
-        if (isEnumClass) {
-            String value = (String) config.get(key);
-            if (value == null) return null;
-            return (T) Enum.valueOf((Class<Enum>) type, value.toUpperCase(Locale.ROOT));
-        } else {
-            return config.getObject(key, type);
+    public <T> T get(String key, Class<T> type) throws Exception {
+        if (type == Boolean.class) {
+            return (T) Boolean.valueOf(config.getBoolean(key));
         }
+        if (type == Integer.class) {
+            return (T) Integer.valueOf(config.getInt(key));
+        }
+        if (type.isEnum()) {
+            String value = config.getString(key);
+            if (value == null) {
+                return null;
+            }
+            return (T) Enum.valueOf((Class<Enum>) type, value.toUpperCase(Locale.ROOT));
+        }
+        return config.getObject(key, type);
     }
-
 
     public void set(String path, Object value) {
         config.set(path, value);
         saveConfig();
     }
-
 
     private void saveConfig() {
         try {
@@ -138,60 +134,61 @@ public class PluginConfigHandler {
     }
 
     private void loadRecords() throws Exception {
-        try {
-            PROJECT_DEBUG = get("plugin.debug", Boolean.class);
-            PROJECT_PERMISSION = getString("plugin.permission", "skjson.*");
+        PROJECT_DEBUG = config.getBoolean("plugin.debug", false);
+        PROJECT_PERMISSION = getString("plugin.permission", "skjson.use");
+        PROJECT_ENABLED_NBT = config.getBoolean("plugin.enabled-nbt", false);
+        PROJECT_ENABLED_HTTP = config.getBoolean("plugin.enabled-http", true);
+        PROJECT_DELIM = getString("json.path-delimiter", ".");
+        PATH_TOKEN_CACHE_SIZE = config.getInt("json.path-token-cache-size", 1024);
+        PathParser.configureTokenCache(PATH_TOKEN_CACHE_SIZE);
+        NBT_CACHE_SIZE = config.getInt("plugin.nbt-cache-size", 256);
+        NBTJsonCache.configure(NBT_CACHE_SIZE);
+        WATCHER_INTERVAL = config.getInt("json.watcher.interval", 100);
+        WATCHER_REFRESH_RATE = config.getInt("json.watcher.refresh-rate", 50);
+        WATCHER_MAX_THREADS = config.getInt("json.watcher.max-threads", 2);
+        WATCHER_WATCH_TYPE = get("json.watcher.watch-type", JsonWatchType.class);
+        if (WATCHER_WATCH_TYPE == null) {
+            WATCHER_WATCH_TYPE = JsonWatchType.DEFAULT;
+        }
+        HTTP_MAX_THREADS = config.getInt("plugin.max-threads", 2);
+        HTTP_REQUEST_TIMEOUT_SEC = config.getInt("plugin.http-request-timeout-seconds", 30);
+        HTTP_CONNECT_TIMEOUT_SEC = config.getInt("plugin.http-connect-timeout-seconds", 10);
+        CONFIG_VERSION = config.getInt("plugin.config-version", 5);
+        ENABLED_AUTO_UPDATER = config.getBoolean("plugin.enabled-auto-updater", false);
+        PLUGIN_FALLBACK_ENABLED = config.getBoolean("plugin.enabled-fallback", true);
 
-            PROJECT_ENABLED_NBT = get("plugin.enabled-nbt", Boolean.class);
-            PROJECT_ENABLED_HTTP = get("plugin.enabled-http", Boolean.class);
+        if (PLUGIN_FALLBACK_ENABLED) {
+            SkJson.info("&a✓ Fallback enabled.");
+        }
 
-            PROJECT_DELIM = getString("json.path-delimiter", ".");
-            WATCHER_INTERVAL = get("json.watcher.interval", Integer.class);
-            WATCHER_REFRESH_RATE = get("json.watcher.refresh-rate", Integer.class);
+        if (CONFIG_VERSION != 5) {
+            throw new IllegalAccessException("Plugin config version is not 5! Config version: " + CONFIG_VERSION);
+        }
 
-            WATCHER_WATCH_TYPE = get("json.watcher.watch-type", JsonWatchType.class);
-
-            HTTP_MAX_THREADS = get("plugin.max-threads", Integer.class);
-
-            var projectVersion = CONFIG_VERSION = get("plugin.config-version", Integer.class);
-
-            DISABLED_UPDATE = get("plugin.enabled-auto-updater", Boolean.class);
-
-            PLUGIN_FALLBACK_ENABLED = get("plugin.enabled-fallback", Boolean.class);
-
-            if (PLUGIN_FALLBACK_ENABLED) {
-                SkJson.info("&a✓ Fallback enabled.");
+        switch (WATCHER_WATCH_TYPE) {
+            case WSL -> SkJson.info("&7&lWATCHER* &rWatch type set to WSL - optimized for Windows Subsystem for Linux");
+            case BOTH -> {
+                SkJson.warning("&7&lWATCHER* &rWatch type set to BOTH - using both watch methods");
+                SkJson.warning("&7&lWATCHER* &rThis mode may impact system performance");
             }
+            case DEFAULT -> SkJson.info("&7&lWATCHER* &rWatch type set to DEFAULT - standard file watching");
+        }
 
-            if (projectVersion != 5) {
-                throw new IllegalAccessException("Plugin config version is not 5! Config version: " + projectVersion);
-            }
-
-            // Informative messages about watch type
-            switch (WATCHER_WATCH_TYPE) {
-                case WSL:
-                    SkJson.info("&7&lWATCHER* &rWatch type set to WSL - optimized for Windows Subsystem for Linux");
-                    break;
-                case BOTH:
-                    SkJson.warning("&7&lWATCHER* &rWatch type set to BOTH - using both watch methods");
-                    SkJson.warning("&7&lWATCHER* &rThis mode may impact system performance");
-                    break;
-                case DEFAULT:
-                    SkJson.info("&7&lWATCHER* &rWatch type set to DEFAULT - standard file watching");
-                    break;
-            }
-
-            if (PROJECT_DELIM.matches("[$#^\\[\\]{}_-]")) {
-                SkJson.info("The delimiter contains not allowed unicodes.. '$#^\\/[]{}_-'");
-                SkJson.severe("Restart server and change the path-delimiter to something what doesn't contains this characters '$#^\\/[]{}'");
-                Bukkit.getPluginManager().disablePlugin(plugin);
-                return;
-            }
-        } catch (Exception e) {
-            throw e;
+        if (containsForbiddenDelimiterChar(PROJECT_DELIM)) {
+            SkJson.severe("Path delimiter '%s' contains forbidden characters (%s). Use a safe delimiter such as '.'",
+                    PROJECT_DELIM, FORBIDDEN_DELIMITER_CHARS);
+            Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }
 
+    private static boolean containsForbiddenDelimiterChar(String delimiter) {
+        for (int i = 0; i < delimiter.length(); i++) {
+            if (FORBIDDEN_DELIMITER_CHARS.indexOf(delimiter.charAt(i)) >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void reloadConfig() {
         if (configFile.exists()) {
@@ -200,13 +197,16 @@ public class PluginConfigHandler {
                 SkJson.info("Config reloaded from file.");
                 loadRecords();
             } catch (Exception e) {
-                SkJson.severe("Config file is invalid. Regenerating config file!", e);
-                SkJson.severe(e.getLocalizedMessage());
+                SkJson.severe("Config file is invalid. Regenerating config file!");
                 regenerateConfig();
+                try {
+                    loadRecords();
+                } catch (Exception reloadError) {
+                    SkJson.exception(reloadError, "Failed to load regenerated config");
+                }
             }
         } else {
             SkJson.warning("Config file does not exist! It cannot be reloaded.");
         }
     }
 }
-

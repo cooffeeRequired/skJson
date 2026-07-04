@@ -21,10 +21,14 @@ import java.util.concurrent.CompletionException;
 
 
 @Name("Bind JSON file as simply string id")
-@Description("Allows you create an simply string if for bound json file")
+@Description({
+        "Loads a JSON file into memory under the given cache id.",
+        "Optional watcher suffix keeps the cache in sync when the file changes on disk.",
+        "Patterns: `bind json file … as …`, `link json file … to cache …`, `watch json file … as cache …`."
+})
 @Examples("""
-        bind json file "jsons/mow.json" as "my-template-json-storage"
-        bind json file "json/mow.json" as "my-template-json-storage" and let bind storage watcher
+        bind json file "skjson/homes.json" as "homesdb"
+        link json file "skjson/homes.json" to cache "homesdb" and watch it
         """)
 @Since("2.8.0 - performance & clean")
 public class AEffBindFile extends AsyncEffect {
@@ -105,7 +109,7 @@ public class AEffBindFile extends AsyncEffect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        withBinding = matchedPattern == 1;
+        withBinding = matchedPattern == 1 || matchedPattern == 2 || matchedPattern == 4;
         expressionFilePath = (Expression<String>) expressions[0];
         expressionJsonId = (Expression<String>) expressions[1];
         getParser().setHasDelayBefore(Kleenean.TRUE);

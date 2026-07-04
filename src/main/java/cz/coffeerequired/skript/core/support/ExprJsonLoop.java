@@ -1,6 +1,6 @@
 package cz.coffeerequired.skript.core.support;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.registrations.Classes;

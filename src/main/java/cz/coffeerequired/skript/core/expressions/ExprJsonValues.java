@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
@@ -32,17 +33,19 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Json values")
 @Description({
-        "Returns the value of the json at the given path. If the path is not provided, it will return all values from the json.",
-        "If the path is a number, it will return the value at that index in the array.",
-        "If the path is a string, it will return the value at that key in the object.",
-        "If the path is empty, it will return all values from the json."
+        "Reads or changes a single value or a list of values at a JSON path.",
+        "Use `value at path … in …` / `values at path … in …` for the preferred syntax.",
+        "Legacy aliases `json value`, `json values`, `path … of …` and `{json}'s value at path …` are also supported.",
+        "Without a path, `values …` returns all top-level values and can be used as a loop source."
 })
 @Since({"4.1 - API UPDATE", "5.0"})
 @Examples("""
-            set {_json} to json from "{test: [true, false, {A: [1,2,3]}]}"
-        
-            send value "test.2" of {_json}
-            send values "test" of {_json}
+            set {_json} to parse "{""test"": [true, false, {""A"": [1, 2, 3]}]}" as json
+
+            send value at path "test.2" in {_json}
+            send values at path "test" in {_json}
+            loop values at path "test" in {_json}:
+                send "%loop-value%"
         """)
 public class ExprJsonValues extends SimpleExpression<Object> {
 
@@ -160,6 +163,13 @@ public class ExprJsonValues extends SimpleExpression<Object> {
     }
 
     private Iterator<HashMap<String, Object>> entryIterator(JsonElement it) {
+        final List<String> objectKeys;
+        if (it instanceof JsonObject object) {
+            objectKeys = List.copyOf(object.keySet());
+        } else {
+            objectKeys = List.of();
+        }
+
         return new Iterator<>() {
             int idx = 0;
 
@@ -168,8 +178,8 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                 if (it instanceof JsonArray array) {
                     return idx < array.size();
                 }
-                if (it instanceof JsonObject object) {
-                    return idx < object.size();
+                if (it instanceof JsonObject) {
+                    return idx < objectKeys.size();
                 }
                 return false;
             }
@@ -183,8 +193,7 @@ public class ExprJsonValues extends SimpleExpression<Object> {
                     return itMap;
                 }
                 if (it instanceof JsonObject object) {
-                    var keys = object.keySet().stream().toList();
-                    String declaredKey = keys.get(idx);
+                    String declaredKey = objectKeys.get(idx);
                     itMap.put(declaredKey, Parser.fromJson(object.get(declaredKey)));
                     idx++;
                     return itMap;
@@ -207,6 +216,10 @@ public class ExprJsonValues extends SimpleExpression<Object> {
 
     @Override
     public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+        if (pathVariable == null) {
+            SkJson.severe(getParser().getNode(), "Cannot change root json without a path");
+            return;
+        }
         var tokens = PathParser.tokenize(pathVariable.getSingle(event), Api.Records.PROJECT_DELIM);
 
         SkJson.debug("&cTrying change -> &e%s", mode);

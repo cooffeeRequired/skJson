@@ -44,7 +44,7 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
                     set {_request}'s headers to "{'Content-Type':'application/json'}"
                     execute {_request} as non blocking
 
-            on received http response:
+            on http response:
                 if event-response's status is "OK":
                     send "Request was successful!"
                     send event-response's body
@@ -55,9 +55,10 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
         """}
     )
 @Description({
-        "Sends a previously created HTTP request to the specified URL",
-        "The request must be created using request creation commands (e.g. 'create request').",
-        "Supports both synchronous and asynchronous sending using the 'non' or 'not' tag."
+        "Sends a prepared HTTP request.",
+        "Blocking (default): waits on an async thread, then use `last response of {_request}`. Does not fire `on http response`.",
+        "Non-blocking (`as non blocking`): returns immediately and fires `on http response` on the main thread when the call completes (success or failure).",
+        "Timeouts are configured in plugins/SkJson/config.yml (`http-request-timeout-seconds`, `http-connect-timeout-seconds`)."
 })
 @Since({"2.9.9-pre Api Changes", "5.0"})
 public class EffSendRequest extends AsyncEffect {
@@ -68,7 +69,7 @@ public class EffSendRequest extends AsyncEffect {
     @Override
     protected void execute(Event event) {
         Request request = requests.getSingle(event);
-        var requestHandler = new RequestClient.Handler(request, event);
+        var requestHandler = new RequestClient.Handler(request);
 
         if (isAsync) {
             requestHandler.runAsNonBlocking();

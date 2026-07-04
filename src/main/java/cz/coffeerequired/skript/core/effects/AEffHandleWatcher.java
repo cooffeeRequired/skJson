@@ -13,16 +13,18 @@ import cz.coffeerequired.api.cache.CacheStorageWatcher;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Syntax;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @Name("Cached storage watcher - un/bind from file")
-@Description("Binds or unbinds a storage watcher to a file. This is used to watch for changes in the file and update the cache accordingly.")
-@Syntax("bind storage watcher to <string>")
+@Description({
+        "Attaches or detaches a file watcher to an already loaded cache id.",
+        "Aliases: `watch json cache …` / `stop watching json cache …`.",
+        "To bind file + watcher in one step, use the bind-file effect instead."
+})
 @Examples("""
-            bind storage watcher to "player-storage"
-            unbind storage watcher from "player-storage"
+            watch json cache "homesdb"
+            stop watching json cache "homesdb"
         """)
 @Since("4.1 - API UPDATE")
 public class AEffHandleWatcher extends AsyncEffect {

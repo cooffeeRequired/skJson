@@ -19,12 +19,15 @@ import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Remove json path")
-@Description("Removes a value at the given path from a JSON object or array.")
+@Description({
+        "Deletes the value at a JSON path.",
+        "Patterns: `remove path … from …`, `delete json path … in …`, `delete value at path … in …`."
+})
 @Since("5.6")
 @Examples("""
-        set {_data} to json from "{a: 1, nested: {x: 1}}"
+        set {_data} to parse "{""a"": 1, ""nested"": {""x"": 1, ""y"": 2}}" as json
         remove path "nested.x" from {_data}
-        delete path "a" in {_data}
+        delete json path "a" in {_data}
         """)
 public class EffRemoveJsonPath extends Effect {
 

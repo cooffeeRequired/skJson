@@ -21,13 +21,11 @@ import java.util.Objects;
 
 @Name("Response status")
 @Examples("""
-             # getting the Response status;
-             set {_response} to {_request}'s response
-             \s
+             set {_response} to last response of {_request}
              if {_response}'s status is "OK":
                  send body of {_response}
         \s""")
-@Description({"Receive response status", "That could be OK, UNKNOWN or FAILED"})
+@Description("Returns the logical request status: OK, UNKNOWN, or FAILED.")
 @Since("5.0")
 @ApiStatus.Experimental
 public class propExprResponseStatus extends PropertyExpression<Response, String> {

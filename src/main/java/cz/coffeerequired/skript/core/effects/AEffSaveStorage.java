@@ -21,8 +21,15 @@ import java.io.File;
 
 
 @Name("Save cached json to file")
-@Description("Saves the cached json to a file. This is used to save the cache to a file.")
-@Examples("save json storage id \"my-json-storage\"")
+@Description({
+        "Writes a cached JSON back to its bound file.",
+        "Virtual caches (not linked to a file) cannot be saved.",
+        "Use `save all json caches to disk` to flush every bound cache."
+})
+@Examples("""
+        save json cache "homesdb"
+        save all json storages to disk
+        """)
 @Since("4.1 - API UPDATE")
 public class AEffSaveStorage extends AsyncEffect {
 

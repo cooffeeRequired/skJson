@@ -14,8 +14,7 @@ import java.util.stream.IntStream;
 public abstract class JsonAccessorUtils {
 
     public static boolean isNull(JsonElement json) {
-        if (json == null) return false;
-        return json.isJsonNull();
+        return json == null || json.isJsonNull();
     }
 
     public static <E> Deque<E> listToDeque(ArrayList<E> list) {

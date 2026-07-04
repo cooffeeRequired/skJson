@@ -1,7 +1,9 @@
 package cz.coffeerequired.skript.core.conditions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -13,9 +15,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Check if JSON is empty")
+@Description("True when the JSON value is an empty object `{}` or an empty array `[]`.")
+@Since("2.6.2")
 @Examples("""
-        set {_json} to json from "{}"
+        set {_json} to parse "{}" as json
         if json {_json} is empty:
+            send true
+        if {_json} is empty json:
             send true
         """)
 public class CondJsonIsEmpty extends Condition {
@@ -45,7 +51,7 @@ public class CondJsonIsEmpty extends Condition {
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         jsonElementExpression = (Expression<JsonElement>) expressions[0];
         line = matchedPattern;
-        setNegated(line == 1);
+        setNegated(matchedPattern % 2 == 1);
         return true;
     }
 }

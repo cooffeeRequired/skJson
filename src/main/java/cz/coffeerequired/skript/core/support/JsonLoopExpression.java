@@ -30,14 +30,14 @@ import java.util.regex.Pattern;
 import static cz.coffeerequired.api.Api.Records.PROJECT_DEBUG;
 
 @Name("Json loop")
-@Description("""
-            That will allow loop through json, and get key/index or value
-            **json-value**, **json-key**
-            """)
+@Description({
+            "Inside a `loop values …` / `loop values at path … in …` section, exposes the current key or value.",
+            "Use `json-key`, `json-value`, or `json-key-2` / `json-value-2` for nested loops."
+            })
 @Since("4.1 - API UPDATE")
 @Examples("""
-            set {_json} to json from "{test: [true, false, {A: [1,8,3]}]}"
-            loop values "test::2" of {_json}:
+            set {_json} to parse "{""test"": [true, false, {""A"": [1, 8, 3]}]}" as json
+            loop values at path "test.2" in {_json}:
                 send "&eLOOP: %json-key%: %json-value%"
                 loop values of json-value:
                     send "&bLOOP 2: %json-key-2%: %json-value-2%"

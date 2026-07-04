@@ -42,7 +42,11 @@ import java.util.Objects;
                  reset {_request}'s attachments
                  reset attachments of {_request}
         \s""")
-@Description("set/add/reset or get the current request attachment")
+@Description({
+        "Gets, sets, adds, or resets multipart attachments on a POST request.",
+        "Use the `attachment(path)` function; paths starting with `*/` resolve from the Skript scripts folder.",
+        "Attachments are only allowed for POST requests."
+})
 @Since("2.9.9-pre Api Changes")
 @ApiStatus.Experimental
 public class propExprAttachment extends PropertyExpression<Request, Object> {

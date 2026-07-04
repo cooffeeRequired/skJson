@@ -209,8 +209,8 @@ def check_java_version_compatibility(java_path: str) -> bool:
             if major_version == 17:
                 print_colored(f"Java version {version} is ideal for Gradle", Colors.GREEN)
                 return True
-            elif 17 <= major_version <= 21:
-                print_colored(f"Java version {version} is compatible with Gradle, but Java 17 is recommended", Colors.YELLOW)
+            elif major_version >= 17:
+                print_colored(f"Java version {version} is compatible with Gradle", Colors.GREEN)
                 return True
             else:
                 print_colored(f"Java version {version} is not compatible with Gradle (Java 17 required)", Colors.RED)
@@ -317,11 +317,12 @@ def download_jdk(version: int = 17) -> Optional[str]:
             print_colored(f"Error downloading JDK: {e}", Colors.RED)
             return None
 
-def find_compatible_jdk(args: argparse.Namespace) -> Optional[str]:
+def find_compatible_jdk(args: argparse.Namespace, configured_jdk: Optional[str] = None) -> Optional[str]:
     """Finds compatible JDK in the following order:
     1. Check JDK_PATH from configuration
-    2. Check installations in .jdks
-    3. Offer to download new version
+    2. Check JAVA_HOME / system java
+    3. Check installations in .jdks
+    4. Offer to download new version
     """
     print_step("Looking for compatible JDK")
     
@@ -331,12 +332,43 @@ def find_compatible_jdk(args: argparse.Namespace) -> Optional[str]:
         return download_jdk(17)
     
     # 1. First check JDK from configuration
-    if jdk_path and os.path.exists(jdk_path):
-        print_colored(f"Checking JDK from configuration: {jdk_path}", Colors.YELLOW)
-        if check_java_version_compatibility(jdk_path):
-            return jdk_path
+    if configured_jdk and os.path.exists(configured_jdk):
+        print_colored(f"Checking JDK from configuration: {configured_jdk}", Colors.YELLOW)
+        if check_java_version_compatibility(configured_jdk):
+            return configured_jdk
         else:
             print_colored("JDK from configuration is not compatible", Colors.RED)
+
+    # 1b. JAVA_HOME environment variable
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home and os.path.exists(java_home):
+        print_colored(f"Checking JAVA_HOME: {java_home}", Colors.YELLOW)
+        if check_java_version_compatibility(java_home):
+            return java_home
+
+    # 1c. Resolve from `which java` (Linux/macOS/WSL)
+    try:
+        which = subprocess.run(["which", "java"], capture_output=True, text=True)
+        if which.returncode == 0:
+            java_bin = Path(which.stdout.strip()).resolve()
+            candidate = str(java_bin.parent.parent)
+            print_colored(f"Checking java from PATH: {candidate}", Colors.YELLOW)
+            if check_java_version_compatibility(candidate):
+                return candidate
+    except Exception:
+        pass
+
+    # 1d. Common Linux JVM paths
+    for candidate in [
+        "/usr/lib/jvm/java-25-openjdk-amd64",
+        "/usr/lib/jvm/java-21-openjdk-amd64",
+        "/usr/lib/jvm/java-17-openjdk-amd64",
+        "/usr/lib/jvm/default-java",
+    ]:
+        if os.path.exists(candidate):
+            print_colored(f"Checking system JVM: {candidate}", Colors.YELLOW)
+            if check_java_version_compatibility(candidate):
+                return candidate
     
     # 2. Check installations in .jdks
     jdks_dir = Path.home() / ".jdks"
@@ -482,7 +514,7 @@ if __name__ == "__main__":
 
     # Check Java installation before running tests
     print_step("Checking Java installation")
-    compatible_jdk = find_compatible_jdk(args)
+    compatible_jdk = find_compatible_jdk(args, jdk_path)
     if compatible_jdk:
         print_colored(f"Using JDK: {compatible_jdk}", Colors.GREEN)
         os.environ['JAVA_HOME'] = compatible_jdk

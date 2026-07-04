@@ -17,11 +17,14 @@ import static ch.njol.skript.util.LiteralUtils.canInitSafely;
 import static ch.njol.skript.util.LiteralUtils.defendExpression;
 
 @Name("Merge json")
-@Description("Merges one JSON object or array into another. Deep merge combines nested objects.")
+@Description({
+        "Merges one JSON value into another in place.",
+        "Default merge replaces top-level keys; `deeply` recursively merges nested objects."
+})
 @Since("5.5")
 @Examples("""
-        set {_base} to json from "{a: 1, nested: {x: 1}}"
-        set {_patch} to json from "{b: 2, nested: {y: 2}}"
+        set {_base} to parse "{""a"": 1, ""nested"": {""x"": 1}}" as json
+        set {_patch} to parse "{""b"": 2, ""nested"": {""y"": 2}}" as json
         merge {_patch} into {_base} deeply
         """)
 public class EffMergeJson extends Effect {

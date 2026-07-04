@@ -18,9 +18,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @Name("Virtual json storage")
-@Description("Creates a virtual json storage. This is used to create a virtual json storage that can be used to store data in memory.")
+@Description({
+        "Creates an in-memory JSON cache that is not backed by a file.",
+        "Use `save json cache …` only after binding the cache to a file.",
+        "Patterns: `create a virtual json cache named …` or `create json cache named …`."
+})
 @Examples("""
-            create json virtual storage named "my-virtual-memory-storage"
+            create a virtual json cache named "my-virtual-memory-storage"
         """)
 @Since("2.9")
 public class EffVirtualStorage extends Effect {

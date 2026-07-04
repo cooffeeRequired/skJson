@@ -21,15 +21,13 @@ public final class CachedStorage<S, J, F> {
         addValue(id, new CacheLink<>(jsonElement, file));
     }
 
-
     public void addValue(S id, CacheLink<J, F> cacheLink) {
-        map.computeIfAbsent(id, k -> cacheLink);
+        map.put(id, cacheLink);
     }
 
     public CacheLink<J, F> getValuesById(S id) {
         return map.get(id);
     }
-
 
     public void removeIfPresent(S id) {
         map.remove(id);
@@ -39,7 +37,6 @@ public final class CachedStorage<S, J, F> {
         map.clear();
     }
 
-    
     public JsonElement[] getJsons() {
         return this.map.values()
                 .stream()
@@ -49,7 +46,11 @@ public final class CachedStorage<S, J, F> {
     }
 
     public void replace(S id, CacheLink<J, F> cacheLink) {
-        map.replace(id, cacheLink);
+        map.put(id, cacheLink);
+    }
+
+    public void put(S id, CacheLink<J, F> cacheLink) {
+        map.put(id, cacheLink);
     }
 
     public boolean containsKey(S id) {

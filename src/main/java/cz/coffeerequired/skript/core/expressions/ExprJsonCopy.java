@@ -19,9 +19,9 @@ import static ch.njol.skript.util.LiteralUtils.defendExpression;
 @Description("Returns a deep copy of a JSON value so changes to the copy do not affect the original.")
 @Since("5.5")
 @Examples("""
-        set {_original} to json from "{count: 1}"
+        set {_original} to parse "{""count"": 1}" as json
         set {_copy} to deep copy of {_original}
-        set value "count" of {_copy} to 2
+        set value at path "count" in {_copy} to 2
         """)
 public class ExprJsonCopy extends SimpleExpression<JsonElement> {
 

@@ -4,31 +4,29 @@ import java.util.regex.Pattern
 
 plugins {
     java
-    id("com.gradleup.shadow") version "9.2.2"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.gradleup.shadow") version "9.4.3"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
 group = "cz.coffee"
 version = "5.6.0"
 
-// --- dependency versions (Skript 2.15.x / Paper 1.21.11+) ---
-val paperApiVersion = "1.21.11-R0.1-SNAPSHOT"
-val skriptVersion = "2.15.2"
+// --- dependency versions (Skript 2.15.x / Paper 26.2.x, July 2026) ---
+val paperApiVersion = "26.2.build.47-alpha"
+val skriptVersion = "2.15.4"
 val gsonVersion = "2.14.0"
 val bstatsVersion = "3.2.1"
-val nbtApiVersion = "2.15.6"
-val lombokVersion = "1.18.42"
+val nbtApiVersion = "2.15.7"
+val lombokVersion = "1.18.46"
 
-val environment: String by project.extra { if (project.hasProperty("env")) project.property("env") as String else "DEV" }
-val devDeployPath: String by project.extra {
-    (findProperty("devDeployPath") as String?) ?: "\\custom\\mc-developing"
-}
+val environment: String = if (project.hasProperty("env")) project.property("env") as String else "DEV"
+val devDeployPath: String = (findProperty("devDeployPath") as String?) ?: "\\custom\\mc-developing"
 
 println("Using environment: $environment")
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -84,6 +82,15 @@ tasks.named<Jar>("jar") {
 
 tasks.build {
     dependsOn(tasks.shadowJar)
+}
+
+tasks {
+    runServer {
+        minecraftVersion("26.2")
+        downloadPlugins {
+            url("https://github.com/SkriptLang/Skript/releases/download/$skriptVersion/Skript-$skriptVersion.jar")
+        }
+    }
 }
 
 fun generateSHA1(): String {
@@ -165,17 +172,17 @@ tasks.register("withTesting") {
     doLast {
         println("> Task :running tests")
 
-        @Suppress("DEPRECATION")
-        exec {
-            workingDir = projectDir
-            commandLine(
-                "C:\\Users\\Coffee\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
-                "test_runner.py",
-                "--configuration=1",
-                "--jdk=auto",
-                "--system=auto",
-                "--no-interactive"
-            )
-        }
+        val process = ProcessBuilder(
+            "C:\\Users\\Coffee\\AppData\\Local\\Microsoft\\WindowsApps\\python3.exe",
+            "test_runner.py",
+            "--configuration=1",
+            "--jdk=auto",
+            "--system=auto",
+            "--no-interactive"
+        )
+            .directory(projectDir)
+            .inheritIO()
+            .start()
+        process.waitFor()
     }
 }

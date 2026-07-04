@@ -3,6 +3,7 @@ package cz.coffeerequired.api;
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
 import cz.coffeerequired.SkJson;
+import cz.coffeerequired.api.json.JsonComments;
 import cz.coffeerequired.api.json.Parser;
 import org.bukkit.Bukkit;
 
@@ -27,19 +28,22 @@ public abstract class FileHandler {
                 return JsonNull.INSTANCE;
             }
 
-            try (var reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            try {
                 var split = file.getName().split("\\.");
                 var extension = split[split.length - 1];
-                if (extension.equalsIgnoreCase("json")) {
-                    try {
-                        return JsonParser.parseReader(reader);
-                    } catch (JsonParseException ignored) {
-                        return JsonNull.INSTANCE;
-                    }
+                if (!extension.equalsIgnoreCase("json") && !extension.equalsIgnoreCase("jsonc")) {
+                    return JsonNull.INSTANCE;
                 }
+                String raw = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+                if (extension.equalsIgnoreCase("jsonc")) {
+                    raw = JsonComments.prepare(raw);
+                }
+                return JsonParser.parseString(raw);
+            } catch (JsonParseException e) {
+                SkJson.warning("Failed to parse JSON file %s: %s", file.getPath(), e.getMessage());
                 return JsonNull.INSTANCE;
             } catch (IOException e) {
-                SkJson.exception(e, e.getMessage());
+                SkJson.exception(e, "Failed to read JSON file %s", file.getPath());
                 return JsonNull.INSTANCE;
             }
         });
@@ -156,7 +160,7 @@ public abstract class FileHandler {
 
             return Arrays.stream(files)
                     .map(File::getPath)
-                    .filter(f -> f.endsWith(".json"))
+                    .filter(f -> f.endsWith(".json") || f.endsWith(".jsonc"))
                     .toArray(String[]::new);
         });
     }
@@ -165,7 +169,12 @@ public abstract class FileHandler {
         return CompletableFuture.supplyAsync(() -> {
             File input = new File(directoryPath);
             if (!input.isDirectory() && !input.canRead()) return new File[0];
-            return Arrays.stream(Objects.requireNonNull(input.listFiles(File::isFile))).filter(f -> f.getPath().endsWith(".json")).toArray(File[]::new);
+            return Arrays.stream(Objects.requireNonNull(input.listFiles(File::isFile)))
+                    .filter(f -> {
+                        String path = f.getPath();
+                        return path.endsWith(".json") || path.endsWith(".jsonc");
+                    })
+                    .toArray(File[]::new);
         });
     }
 }

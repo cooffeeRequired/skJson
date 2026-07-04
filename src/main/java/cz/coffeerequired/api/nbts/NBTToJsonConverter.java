@@ -32,7 +32,10 @@ public class NBTToJsonConverter {
         if (compound == null) {
             return JsonNull.INSTANCE;
         }
-        // We'll build up a JSON object
+        JsonElement cached = NBTJsonCache.get(compound);
+        if (cached != null) {
+            return cached;
+        }
         JsonObject obj = new JsonObject();
         for (String key : compound.getKeys()) {
             try {
@@ -42,6 +45,7 @@ public class NBTToJsonConverter {
                 obj.add(key, JsonNull.INSTANCE);
             }
         }
+        NBTJsonCache.put(compound, obj);
         return obj;
     }
 

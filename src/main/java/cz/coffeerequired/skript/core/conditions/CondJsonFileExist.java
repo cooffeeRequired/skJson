@@ -1,7 +1,9 @@
 package cz.coffeerequired.skript.core.conditions;
 
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -12,7 +14,14 @@ import org.jetbrains.annotations.Nullable;
 
 
 @Name("Check if JSON file exists")
-@Examples("send true if json file \"...\" exists")
+@Description("Checks whether a `.json` or `.jsonc` file exists at the given path.")
+@Since("2.6.2")
+@Examples("""
+        if json file "skjson/homes.json" exists:
+            send true
+        if file "plugins/SkJson/skjson/homes.json" exists as json:
+            send true
+        """)
 public class CondJsonFileExist extends Condition {
 
     private Expression<String> filePathExpression;
@@ -21,7 +30,8 @@ public class CondJsonFileExist extends Condition {
     @Override
     public boolean check(Event event) {
         final String filePath = filePathExpression.getSingle(event);
-        if (filePath == null || !filePath.endsWith(".json")) return false;
+        if (filePath == null) return false;
+        if (!filePath.endsWith(".json") && !filePath.endsWith(".jsonc")) return false;
         boolean expectExists = line % 2 == 0;
         return expectExists == FileHandler.exists(filePath);
     }

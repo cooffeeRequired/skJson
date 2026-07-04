@@ -16,35 +16,43 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Get cached json storage")
 @Examples("""
-            send json storage of id "test"
-            send all json storages
+            set {_data} to json storage of id "homesdb"
+            send json cache "utilconfig"
+            loop all json caches:
+                broadcast loop-value
         """)
 @Since("2.8.0 - performance & clean")
-@Description("Get cached json storage. This is used to get the cached json storage. If the id is not provided, it will return all json storages.")
+@Description({
+        "Returns the in-memory JSON cache bound to the given id.",
+        "Aliases: `json storage of id …`, `cached json …`, `json cache …`.",
+        "Without an id, returns every loaded cache."
+})
 public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
 
     private Expression<String> storedKeyExpr;
-    private int line;
+    private boolean allCaches;
 
     @Override
     protected @Nullable JsonElement @Nullable [] get(Event event) {
         var cache = Api.getCache();
-        if (line == 0) {
-            String storedKey = storedKeyExpr.getSingle(event);
-            if (storedKey == null) return null;
-            if (cache.containsKey(storedKey)) {
-                var cacheLink = cache.getValuesById(storedKey);
-                return new JsonElement[]{cacheLink.jsonElement()};
-            }
-        } else {
+        if (allCaches) {
             return cache.getJsons();
         }
-        return new JsonElement[0];
+
+        String storedKey = storedKeyExpr.getSingle(event);
+        if (storedKey == null) {
+            return new JsonElement[0];
+        }
+        var cacheLink = cache.getValuesById(storedKey);
+        if (cacheLink == null) {
+            return new JsonElement[0];
+        }
+        return new JsonElement[]{cacheLink.jsonElement()};
     }
 
     @Override
     public boolean isSingle() {
-        return line == 0;
+        return !allCaches;
     }
 
     @Override
@@ -53,21 +61,20 @@ public class ExprGetCacheStorage extends SimpleExpression<JsonElement> {
     }
 
     @Override
-    public @NotNull String toString(@Nullable Event event, boolean b) {
-        if (line == 0) {
-            return "get json " + storedKeyExpr.toString(event, b);
-        } else {
-            return "all jsons";
+    public @NotNull String toString(@Nullable Event event, boolean debug) {
+        if (allCaches) {
+            return "all json caches";
         }
+        return "json cache " + storedKeyExpr.toString(event, debug);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        line = matchedPattern;
-        if (line == 0 && expressions.length > 0) {
+        allCaches = matchedPattern >= 3;
+        if (!allCaches && expressions.length > 0) {
             storedKeyExpr = (Expression<String>) expressions[0];
         }
-        return true;
+        return allCaches || storedKeyExpr != null;
     }
 }

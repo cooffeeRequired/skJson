@@ -21,29 +21,23 @@ import java.util.LinkedList;
 @Name("headers of request/response")
 @Examples("""
                  <b>Request</b><br />
-                 # getting the Request headers;
-                 send {_request}'s headers
                  send headers of {_request}
+                 send {_request}'s headers
                 \s
-                 # setting the Request content;
-                 set {_request}'s headers to (json from "{'Content-Type': 'application/json'}")
-                 set headers of {_request} to (json from "{'Content-Type': 'application/json'}")
+                 set headers of {_request} to parse "{""Content-Type"": ""application/json""}" as json
+                 set {_request}'s headers to parse "{""Content-Type"": ""application/json""}" as json
                 \s
-                 #or
-                 set {_request}'s headers to "Content-Type: application/json", "Restrict: false"
                  set headers of {_request} to "Content-Type: application/json", "Restrict: false"
-                \s
-                 # reset the headers of the Request
-                 reset {_request}'s headers
                  reset headers of {_request}
                  \s
                  <b>Response</b><br />
-                 # getting the Response headers;
-                 set {_response} to {_request}'s response
-                 \s
+                 set {_response} to last response of {_request}
                  send headers of {_response}
         \s""")
-@Description({"set or get the current request headers", "get response headers"})
+@Description({
+        "Gets, sets, or resets request headers as JSON or `Key: value` pairs.",
+        "Response headers are read-only and returned as JSON."
+})
 @Since({"2.9.9-pre Api Changes", "5.1"})
 @ApiStatus.Experimental
 public class ExprSimpleHeaders extends SimplePropertyExpression<Object, JsonElement> {

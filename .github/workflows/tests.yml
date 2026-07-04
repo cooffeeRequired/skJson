@@ -15,11 +15,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -52,7 +52,7 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - name: Run tests on Skript 2.15.2
+      - name: Run tests on Skript 2.15.4
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
@@ -60,7 +60,7 @@ jobs:
           SKRIPT_DIR=/tmp/skript
           git clone --recurse-submodules https://github.com/SkriptLang/Skript.git "$SKRIPT_DIR"
           cd "$SKRIPT_DIR"
-          git checkout -f 2.15.2
+          git checkout -f 2.15.4
           git submodule update --recursive
 
           python3 << 'PY'

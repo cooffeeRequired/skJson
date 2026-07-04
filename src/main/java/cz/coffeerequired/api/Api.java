@@ -86,17 +86,21 @@ public abstract class Api {
                 Map.entry("CONFIG_VERSION", "plugin.config_version"),
 
                 Map.entry("PROJECT_DELIM", "json.path-delimiter"),
+                Map.entry("PATH_TOKEN_CACHE_SIZE", "json.path-token-cache-size"),
+                Map.entry("NBT_CACHE_SIZE", "plugin.nbt-cache-size"),
 
                 Map.entry("PROJECT_ENABLED_HTTP", "plugin.enabled-http"),
                 Map.entry("PROJECT_ENABLED_NBT", "plugin.enabled-nbt"),
-                Map.entry("HTTP_MAX_THREADS", "plugin.http-max-threads"),
+                Map.entry("HTTP_MAX_THREADS", "plugin.max-threads"),
+                Map.entry("HTTP_REQUEST_TIMEOUT_SEC", "plugin.http-request-timeout-seconds"),
+                Map.entry("HTTP_CONNECT_TIMEOUT_SEC", "plugin.http-connect-timeout-seconds"),
 
                 Map.entry("WATCHER_INTERVAL", "json.watcher.interval"),
                 Map.entry("WATCHER_REFRESH_RATE", "json.watcher.refresh-rate"),
                 Map.entry("WATCHER_WATCH_TYPE", "json.watcher.watch-type"),
                 Map.entry("WATCHER_MAX_THREADS", "json.watcher.max-threads"),
 
-                Map.entry("DISABLED_UPDATE", "plugin.enabled-auto-updater"),
+                Map.entry("ENABLED_AUTO_UPDATER", "plugin.enabled-auto-updater"),
                 Map.entry("PLUGIN_FALLBACK_ENABLED", "plugin.enabled-fallback")
         ));
 
@@ -105,13 +109,17 @@ public abstract class Api {
         public static boolean PROJECT_ENABLED_HTTP;
         public static boolean PROJECT_ENABLED_NBT;
         public static String PROJECT_DELIM = "."; // will be loaded
+        public static Integer PATH_TOKEN_CACHE_SIZE;
+        public static Integer NBT_CACHE_SIZE;
         public static Integer HTTP_MAX_THREADS;
+        public static Integer HTTP_REQUEST_TIMEOUT_SEC;
+        public static Integer HTTP_CONNECT_TIMEOUT_SEC;
         public static int WATCHER_INTERVAL;
         public static int WATCHER_MAX_THREADS;
         public static int WATCHER_REFRESH_RATE;
         public static JsonWatchType WATCHER_WATCH_TYPE;
         public static Integer CONFIG_VERSION;
-        public static boolean DISABLED_UPDATE;
+        public static boolean ENABLED_AUTO_UPDATER;
         public static boolean PLUGIN_FALLBACK_ENABLED;
     }
 }

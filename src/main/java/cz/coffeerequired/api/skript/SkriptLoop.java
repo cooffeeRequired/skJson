@@ -19,7 +19,7 @@ public class SkriptLoop extends AbstractLoop{
             getCurrent = loopClass.getDeclaredMethod("getCurrent", Event.class);
             getLoopedExpression = loopClass.getDeclaredMethod("getLoopedExpression");
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            SkJson.exception(e, "Couldn't find class '%s'", loopClass.getName());
+            SkJson.exception(e, "Couldn't find Skript loop class");
         }
     }
 

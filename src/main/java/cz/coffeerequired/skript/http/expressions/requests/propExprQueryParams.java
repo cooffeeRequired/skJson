@@ -19,6 +19,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -26,21 +28,17 @@ import java.util.Objects;
 
 @Name("Request query params")
 @Examples("""
-             # getting the Request query params;
-             send {_request}'s query params
              send query params of {_request}
+             send {_request}'s query params
             \s
-             # setting the Request query params;
-             set {_request}'s query params to "key:value", "key1:value1"
              set query params of {_request} to "key:value", "key1:value1"
-            \s
-             # adding the query param to the URL
-            \s
-             # reset the query params of the Request
-             reset {_request}'s query params
+             add "async:1" to query params of {_request}
              reset query params of {_request}
         \s""")
-@Description("set/add/reset or get the current request query params")
+@Description({
+        "Gets, sets, adds, or resets URL query parameters on a prepared request.",
+        "Pairs use the `key:value` format; multiple pairs can be comma-separated."
+})
 @Since("3.0.2")
 @ApiStatus.Experimental
 public class propExprQueryParams extends PropertyExpression<Request, JsonElement> {
@@ -86,14 +84,42 @@ public class propExprQueryParams extends PropertyExpression<Request, JsonElement
     private HashMap<String, String> parseString(Object[] input) {
         HashMap<String, String> map = new HashMap<>();
         for (var e : input) {
-            if (e instanceof String str) {
-                if (str.contains(":")) {
-                    var parts = str.split(":");
-                    map.put(parts[0], parts[1]);
-                }
-            }
+            collectQueryParams(e, map);
         }
         return map;
+    }
+
+    private void collectQueryParams(Object value, HashMap<String, String> map) {
+        if (value == null) {
+            return;
+        }
+        if (value instanceof Object[] array) {
+            for (Object element : array) {
+                collectQueryParams(element, map);
+            }
+            return;
+        }
+        if (value instanceof Collection<?> collection) {
+            for (Object element : collection) {
+                collectQueryParams(element, map);
+            }
+            return;
+        }
+        if (value instanceof String str) {
+            for (String part : str.split(",")) {
+                addQueryParam(part.trim(), map);
+            }
+        }
+    }
+
+    private void addQueryParam(String pair, HashMap<String, String> map) {
+        if (!pair.contains(":")) {
+            return;
+        }
+        var parts = pair.split(":", 2);
+        if (!parts[0].isEmpty()) {
+            map.put(parts[0].trim(), parts[1].trim());
+        }
     }
 
     @SuppressWarnings("NullableProblems")

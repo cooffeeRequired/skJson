@@ -14,8 +14,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Size of json object/array")
 @Examples({
-        "set {_json} to json from \"{'sample': {}, 'second': []}\"",
-        "send {_json} is bigger than 1."
+        "set {_json} to parse \"{\\\"sample\\\": {}, \\\"second\\\": []}\" as json",
+        "send json size of {_json}",
+        "if json size of {_json} is 2:",
+        "\tsend \"two top-level keys\""
 })
 @Since("4.1 - API UPDATE")
 @Description({

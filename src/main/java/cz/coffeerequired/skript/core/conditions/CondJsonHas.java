@@ -21,13 +21,18 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Name("Json has value/keys")
-@Description("You can check if the inserted keys or values already in your specified json")
+@Description({
+        "Checks whether a JSON object or array contains the given keys or values.",
+        "Use `has key` / `has value` or the `contains` alias; prefix with `all` to require every listed item."
+})
 @Since("4.2")
 @Examples("""
-        set {_json} to json from "[1, 2, 3, 8, 'TEST']"
-        set {_json} to json from "{A: 1, B: 2, C: 3}"
-        
+        set {_json} to parse "[1, 2, 3, 8, ""TEST""]" as json
+        set {_obj} to parse "{""A"": 1, ""B"": 2, ""C"": 3}" as json
+
         if {_json} has values 1 and 3:
+            send true
+        if {_obj} contains key "A":
             send true
         """)
 public class CondJsonHas extends Condition {
@@ -95,7 +100,7 @@ public class CondJsonHas extends Condition {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        negated = matchedPattern == 1;
+        negated = matchedPattern % 2 == 1;
         isValues = parseResult.hasTag("value") || parseResult.hasTag("values");
         jsonExpression = LiteralUtils.defendExpression(expressions[0]);
         objectsForCheck = LiteralUtils.defendExpression(expressions[1]);
