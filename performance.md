@@ -1,62 +1,73 @@
-# 📊 Performance Summary
+# Performance Summary
 
-### [spark](https://spark.lucko.me/Kx2TobQQLi)
-### [-> download performance skript](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.sk)
-![image](https://github.com/user-attachments/assets/19b77a9b-e793-4b7f-b60f-a38cfc226831)
+[Spark profile](https://spark.lucko.me/Kx2TobQQLi) · [Download benchmark skript](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.sk)
 
+![Benchmark chart](https://github.com/user-attachments/assets/19b77a9b-e793-4b7f-b60f-a38cfc226831)
 
-## 🔹 Low Impact (≤ 2x metadata)
-These entries have minimal performance overhead:
-
-- **metadata**
-- **local variables** (1.39×)
-- **headless** (1.74×)
-- **memory variables (before pr)** (2.18×)
-
-_Read/write times: 0–0.01 µs/op_
+Baseline: plain Skript **metadata** / local variables (~**1×**).
 
 ---
 
-## 🟡 Moderate Impact (2–10× metadata)
-Slight performance cost, acceptable in most cases:
+## Low impact (~1–2×)
 
-- **skjson-cache-value_value_key_changer-variable** (3.28×)
-- **skjson-value_value_key_changer-variable** (3.96×)
-- **skjson-cache** (6.42×)
-- **skjson-literal** (7.52×)
-- **memory variables (player index)** (7.8×)
+Minimal overhead — safe for hot paths and tick loops:
 
-_Read/write times: 0.01–0.03 µs/op_
+- local variables (~**1.4×**)
+- headless reads (~**1.7×**)
+- memory variables (~**2×**)
 
-### 5.5 optimizations
-- Path token cache is bounded (1024 entries) and avoids redundant parsing.
-- JSON path existence checks no longer emit warnings when probing missing keys.
-- `getAsParsedArray` uses fixed-size arrays instead of growing lists.
-- File watcher compares compact JSON snapshots to skip duplicate reload work.
-
-### 5.6 optimizations
-- `Parser.fromJson` uses a fast path for JSON primitives (no Gson round-trip).
-- `Parser.toJson` returns existing `JsonElement` instances and fast-paths numbers/booleans.
-- Path reads use `resolve` / `resolveParsed` with integer index parsing for array keys.
-- `handle` read mode delegates to `navigate` (fixes array index reads).
-- Object key pickers (`last` / `random` / indexed) avoid `entrySet().toArray()` allocations.
-- File writes reuse the shared Gson instance from `Parser`.
-- Watcher snapshot compare uses `hashCode` before full string equality.
-- Dedicated `set value at path … in … to …` effect for path writes (used by performance benchmarks).
-- LRU cache for NBT → JSON conversion; path token cache size is configurable in `config.yml`.
-- `.jsonc` files supported (line/block comments and trailing commas stripped before parse).
+Typical read/write: **sub‑microsecond** per operation.
 
 ---
 
-## 🔴 High Impact (10–50× metadata)
-These entries show noticeable overhead:
+## Moderate impact (~3–8×)
 
-- **nbt (chunk)** — 13.5×
-  - Read: 0.05 µs/op
-  - Write: 0.04 µs/op
-- **nbt (item)** — 36.6×
-  - Read: 0.06 µs/op
-  - Write: 0.09 µs/op
-- **nbt (cow)** — 44.33×
-  - Read: 0.16 µs/op
-  - Write: 0.15 µs/op
+Noticeable but usually fine for config, joins, and occasional updates:
+
+- path read/write via cache (~**3–4×**)
+- virtual json cache (~**6×**)
+- json literals (~**7×**)
+- player-indexed storage (~**8×**)
+
+Typical read/write: **low microsecond** range.
+
+---
+
+## High impact (~10–30×)
+
+Heavier work — batch or cache when possible:
+
+| Area | Overhead | Notes |
+| --- | --- | --- |
+| NBT chunk | ~**10×** | enable only when needed |
+| NBT item | ~**25×** | LRU cache in `config.yml` |
+| NBT entity | ~**30×** | largest tested object |
+
+---
+
+## 6.0 optimizations
+
+Focused on HTTP and JSON hot paths (no API changes required):
+
+- **Query params** — `add "key:value" to query params of {_req}`; parser uses `split(":", 2)` so multi-param URLs stay cheap and correct
+- **MOCK requests** — `prepare MOCK request on …` / `execute {_req}` skips the network stack entirely
+- **Path reads** — `value at path "…" in {_json}` reuses a bounded path-token cache (size in `config.yml`)
+- **Path writes** — `set value at path "…" in {_json} to …` avoids extra work in tight update loops
+- **Primitives** — `parse "…" as json` fast-path for numbers/booleans/strings without full Gson round-trips
+- **File watcher** — bind/watch compares snapshot hash before full reload
+- **Disk writes** — shared JSON serializer instead of one instance per save
+- **NBT** — optional LRU cache (`nbt-cache-size` in `config.yml`)
+
+### Earlier releases (still included in 6.0)
+
+- **5.6** — array index paths, object key pickers without bulk allocations, `.jsonc` support, configurable path-token cache
+- **5.5** — quieter `has path` / `contains path` probes, compact watcher snapshots, fixed-size array parsing
+
+---
+
+## Tips
+
+- Prefer **`json cache`** + path reads over re-parsing strings every tick.
+- Use **`set value at path … in … to …`** for nested updates instead of rebuilding objects.
+- Keep **`enabled-nbt: false`** unless you serialize NBT-heavy items or entities.
+- Tune **`path-token-cache-size`** and **`nbt-cache-size`** in `plugins/SkJson/config.yml` on busy servers.

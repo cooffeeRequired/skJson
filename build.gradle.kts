@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cz.coffee"
-version = "5.6.0"
+version = "6.0.0"
 
 // --- dependency versions (Skript 2.15.x / Paper 26.2.x, July 2026) ---
 val paperApiVersion = "26.2.build.47-alpha"

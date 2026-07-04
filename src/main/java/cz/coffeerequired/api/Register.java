@@ -71,7 +71,7 @@ public class Register {
         if (isSkriptAvailable()) {
             if (!isClassAvailable(EVENT_VALUE_REGISTRY)) {
                 SkJson.severe(
-                        "SkJson 5.6 requires Skript 2.15 or newer (missing EventValueRegistry). "
+                        "SkJson 6.0 requires Skript 2.15 or newer (missing EventValueRegistry). "
                                 + "Please update Skript before using this addon."
                 );
                 org.bukkit.Bukkit.getPluginManager().disablePlugin(SkJson.getInstance());

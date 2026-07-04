@@ -2,7 +2,7 @@
 
 Skript: `run/plugins/Skript/scripts/skjson-util.sk`  
 Konfigurace: `run/plugins/Skript/scripts/skjson/util-config.jsonc`  
-Vyžaduje: **Skript 2.15+**, **SkJson 5.6+**
+Vyžaduje: **Skript 2.15+**, **SkJson 6.0+**
 
 ---
 

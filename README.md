@@ -22,65 +22,66 @@
 <h6 align="center">Addon for handle JSON easily in <b>SkriptLang</b></h6>
 <hr>
 
-### 5.6 Highlights
-- Skript 2.15+ compatibility with modern SyntaxRegistry APIs
-- New: `set value at path … in … to …`, `.jsonc` file support (comments + trailing commas)
-- Shared HTTP client with configurable timeouts and thread pool
-- Performance: NBT conversion cache, configurable path token cache
-- Natural English syntax aliases (`parse … as json`, `value at path … in`, `json cache`, `merge … into … deeply`)
+### 6.0 Highlights
+- **HTTP reliability** — robust `key:value` query params (`add "key:value" to query params`), MOCK without network, GET/POST/PUT/PATCH/DELETE/HEAD, async `on received http response`
+- **Core JSON** — `set value at path … in … to …`, `remove path` / `delete path`, `.jsonc` files (comments + trailing commas)
+- Skript **2.15+** with modern `SyntaxRegistry` APIs; shared HTTP client with configurable timeouts
+- Performance: NBT conversion cache, bounded path token cache, fast-path JSON parsing ([`performance.md`](performance.md))
 
 > **Note:** SkJson handles **outgoing** HTTP requests (`execute {_request}` / `on http response`).
 > It does **not** use Java `HttpExchange` or incoming web-server syntax like `reply … with …`.
 > That comes from addons such as **SkriptWebAPI** — do not confuse the two.
 
-### 5.x Performance comparation [link](https://raw.githubusercontent.com/cooffeeRequired/skJson/refs/heads/main/performance.md)
+> **Requires Skript 2.15.0 or newer.** SkJson will not load on Skript 2.14 or older.
+
+### Performance comparison
+See [`performance.md`](performance.md) for benchmarks.
 
 
 ### Support for servers
 
-| 📑 Spigot         | 🔑 Paper         | 🆘 Purpur        | 🌿 Leaf           |
+| Spigot            | Paper            | Purpur           | Leaf               |
 |-------------------|------------------|------------------|--------------------|
 | Java 21+          | Java 21+         | Java 21+         | Java 21+           |
 | Minecraft 1.16.5+ | Minecraft 1.16.5+| Minecraft 1.16.5+| Minecraft 1.21.1+  |
 | Skript 2.15+      | Skript 2.15+     | Skript 2.15+     | Skript 2.15+       |
 
+**CI / reference stack:** Paper **26.2**, Skript **2.15.4**, Java **25**.
+
 </center>
 
-## 🔑 Recommended Tools
+## Recommended Tools
 
 * **[Visual Studio Code](https://code.visualstudio.com/download)**
 * **[Skript Extension](https://marketplace.visualstudio.com/items?itemName=JohnHeikens.skript)**
 
 
-## 🆘 Where Can I Get Help?
+## Where Can I Get Help?
 
 * **[Discord](https://discord.gg/dsZq5Cs9fd)**
 * **[SkUnity](https://skunity.com/)**
 * **[Email](mailto:admin@coffeerequired.info)**
 
-## ❓ What can SkJson do?
+## What can SkJson do?
 
-* create JSON from string and other sources, for example from various Bukkit objects such as `Location, Player, Entitiy, Inventory, and many more`
-* it can also work with `.json` and `.jsonc` files (JSON with comments and trailing commas)
-* it can also report HTTP requests and send http responses json encoded (outgoing requests only — not an embedded web server)
-* it can also work with `FileWatchers` which is an advantage when for example you have a file that changes the server like for example `ops.json` -> a file that contains Server Operators
-  * at this point SkJson can read this file and can update its cache with each change
-* `SkJson` works with **`MemoryCache`** so it is very fast to write and read around `100-1000 us`
-* `SkJson` allows to create `VirtualCachedJson` which is a type of storage something like `Script` variables, it serves as a dynamic storage for various things.
-* `SkJson` also supports NBT thanks to **NBT-API**, so you won't lose NBT from given input when serializing.
-* `SKJson` in the last line can serialize and deserialize almost everything you know in MC.
+* create JSON from strings and other sources — Bukkit objects such as `Location`, `Player`, `Entity`, `Inventory`, and more
+* work with `.json` and `.jsonc` files (JSON with comments and trailing commas)
+* send **outgoing** HTTP requests and parse JSON responses (not an embedded web server)
+* watch JSON files on disk and refresh cache on change (e.g. `ops.json`, config files)
+* fast in-memory **`MemoryCache`** and **`VirtualCachedJson`** storage (typical read/write ~100–1000 µs)
+* NBT support via **NBT-API** (optional, `enabled-nbt` in config)
+* serialize and deserialize most Minecraft-related objects Skript exposes
 
-## 🌀 Get started
-* Paste `Skjson.jar` into the `<server>/plugins` folder
-* * set what we need in `plugins/SkJson/config.yml`
+## Get started
 
-## 📖 Wiki
-* Let's learn about what SkJson is for and how to use it properly. 
-* In general, we could say that SkJson is very multifunctional. It contains some web request functionalities, and also handles strings that work with files. 
-* Additionally, it allows us to use a so-called cache. 
-* We will delve further into all these aspects as we learn more
+1. Download **`skjson.jar`** from [Releases](https://github.com/cooffeeRequired/skJson/releases) and place it in `<server>/plugins/`
+2. Install **Skript 2.15+** first
+3. Configure `plugins/SkJson/config.yml` (HTTP, NBT, watchers, cache sizes)
 
-* [**Wikipedia**](https://github.com/cooffeeRequired/skJson/wiki)
+## Wiki & docs
+
+* [**Wiki**](https://github.com/cooffeeRequired/skJson/wiki)
+* [**release-6.0.md**](release-6.0.md) — full 6.0.0 release notes
 
 <center>
 
